@@ -1,6 +1,5 @@
-import Card from "@mui/material/Card";
 import { CSSProperties } from "react";
-import { Box, Button, ButtonGroup, CardContent, Typography } from "@mui/material";
+import { Box, Button, ButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
 import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
@@ -45,7 +44,7 @@ export const Table = () => {
         {players.map((player, i) => (
           <Item style={i >= 0 ? ({ "--i": `${i}` } as CSSProperties) : {}}>
             <Box sx={{ maxWidth: "100%" }}>
-              <Box>
+              <Box height="2em">
                 <Typography variant="body2">{player.id}</Typography>
                 {player.hand.map((card, idx) =>
                   isMyTurn && player.session === session ? (
@@ -62,7 +61,7 @@ export const Table = () => {
                   ) : (
                     <ButtonGroup>
                       <Button size="large" variant="contained" color="error">
-                        {card}
+                        {player.session !== session ? <span>&nbsp;&nbsp;</span> : <span>{card}</span>}
                       </Button>
                     </ButtonGroup>
                   )
@@ -75,7 +74,11 @@ export const Table = () => {
                       if (pc.player.session === player.session) {
                         return (
                           <Button
-                            sx={{ position: "absolute", left: `calc(8px * ${i})`, top: `calc(8px * ${i})` }}
+                            sx={{
+                              position: "absolute",
+                              left: `calc(8px * ${i})`,
+                              top: `calc(8px * ${i})`,
+                            }}
                             size="large"
                             variant="contained"
                             color="success"
@@ -96,38 +99,3 @@ export const Table = () => {
     </div>
   );
 };
-
-/**
- * 
- return (
-    <div>
-      <ul>
-        {match.players.map((player) => (
-          <li key={player.session}>
-            <b>{player.id}</b>
-            <ul>
-              {player.hand.map((card, idx) =>
-                isMyTurn && player.session === session ? (
-                  <li>
-                    <button onClick={() => playTurnCard(idx)}>{card}</button>
-                  </li>
-                ) : (
-                  <li>
-                    <span>{card}</span>
-                  </li>
-                )
-              )}
-            </ul>
-          </li>
-        ))}
-      </ul>
-      <ul>
-        {match.rounds[match.rounds.length - 1].map((pc) => (
-          <li>
-            <b>{pc.player.id}</b> - <i>{pc.card}</i>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
- */
