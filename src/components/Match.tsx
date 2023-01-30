@@ -1,13 +1,15 @@
+import { Container } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
+import { Table } from "./Table";
 
 export const Match = () => {
-  const { match, isLogged, session, isMyTurn } = useTrucoshiState();
+  const { match, isLogged } = useTrucoshiState();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { getMatch, playTurnCard } = useTrucoshiAction();
+  const { getMatch } = useTrucoshiAction();
 
   const navigate = useNavigate();
 
@@ -28,34 +30,8 @@ export const Match = () => {
   }
 
   return (
-    <div>
-      <ul>
-        {match.players.map((player) => (
-          <li key={player.session}>
-            <b>{player.id}</b>
-            <ul>
-              {player.hand.map((card, idx) =>
-                isMyTurn && player.session === session ? (
-                  <li>
-                    <button onClick={() => playTurnCard(idx)}>{card}</button>
-                  </li>
-                ) : (
-                  <li>
-                    <span>{card}</span>
-                  </li>
-                )
-              )}
-            </ul>
-          </li>
-        ))}
-      </ul>
-      <ul>
-        {match.rounds[match.rounds.length - 1].map((pc) => (
-          <li>
-            <b>{pc.player.id}</b> - <i>{pc.card}</i>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Container>
+      <Table />
+    </Container>
   );
 };
