@@ -1,83 +1,61 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
+import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
 
 export const Match = () => {
-  const { match, session } = useTrucoshiState();
+  const { match, isLogged, session, isMyTurn } = useTrucoshiState();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { getMatch, joinMatch, setReady, startMatch } = useTrucoshiAction();
+  const { getMatch, playTurnCard } = useTrucoshiAction();
+
   const navigate = useNavigate();
 
-  const [me, setMe] = useState<IPublicPlayer | null>(null);
-
   useEffect(() => {
-    if (sessionId) {
-      console.log({ fetchin: true });
+    if (sessionId && isLogged) {
       getMatch(sessionId);
     }
-  }, [getMatch, sessionId]);
+  }, [getMatch, sessionId, isLogged]);
 
   useEffect(() => {
-    if (match) {
-      const me = match.players.find((p) => p.session === session);
-      if (me) {
-        setMe(me);
-      }
+    if (match && match.state === EMatchTableState.UNREADY) {
+      navigate(`/lobby/${sessionId}`);
     }
-  }, [match, session]);
+  }, [match, navigate, sessionId]);
 
   if (!sessionId || !match) {
     return null;
   }
-
-  const onJoinMatch = () =>
-    joinMatch(sessionId, (e) => {
-      if (e) {
-        return navigate("/");
-      }
-      navigate(`/match/${sessionId}`);
-    });
-
-  const onStartMatch = () => startMatch();
-
-  const onSetReady = () => {
-    setReady(sessionId, true);
-  };
-
-  const onSetUnReady = () => {
-    setReady(sessionId, false);
-  };
 
   return (
     <div>
       <ul>
         {match.players.map((player) => (
           <li key={player.session}>
-            <b>{player.id}</b> - <i>{player.ready ? "Listo" : "Esperando"}</i>
+            <b>{player.id}</b>
+            <ul>
+              {player.hand.map((card, idx) =>
+                isMyTurn && player.session === session ? (
+                  <li>
+                    <button onClick={() => playTurnCard(idx)}>{card}</button>
+                  </li>
+                ) : (
+                  <li>
+                    <span>{card}</span>
+                  </li>
+                )
+              )}
+            </ul>
           </li>
         ))}
       </ul>
-      <pre>{JSON.stringify(match.hands)}</pre>
-      <div>
-        {me ? (
-          <div>
-            {me.ready ? (
-              <button onClick={onSetUnReady}>No estoy listo</button>
-            ) : (
-              <button onClick={onSetReady}>Estoy listo</button>
-            )}
-          </div>
-        ) : (
-          <div>
-            <button onClick={onJoinMatch}>Unirse</button>
-          </div>
-        )}
-      </div>
-      <div>
-        {session === sessionId ? <button onClick={onStartMatch}>Empezar Partida</button> : null}
-      </div>
+      <ul>
+        {match.rounds[match.rounds.length - 1].map((pc) => (
+          <li>
+            <b>{pc.player.id}</b> - <i>{pc.card}</i>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

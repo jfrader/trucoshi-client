@@ -15,6 +15,7 @@ export interface ITrucoshiState {
   match: IPublicMatch | null;
   isConnected: boolean;
   isLogged: boolean;
+  isMyTurn: boolean;
 }
 
 export interface ITrucoshiActions {
@@ -23,8 +24,9 @@ export interface ITrucoshiActions {
   getMatch(sessionId: string): void;
   startMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
-  joinMatch(sessionId: string, callback: ICallbackMatchUpdate): void;
+  joinMatch(sessionId: string): void;
   sendUserId(id: string): void;
+  playTurnCard(idx: number): void
 }
 
 export interface ITrucoshiContext {

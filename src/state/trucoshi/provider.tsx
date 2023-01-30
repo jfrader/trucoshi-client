@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useEffect, PropsWithChildren } from "react";
+import { useState, useMemo, useCallback, useEffect, PropsWithChildren, useRef } from "react";
 import { io } from "socket.io-client";
-import { EClientEvent, EServerEvent } from "trucoshi/dist/server/types";
+import { EClientEvent, EServerEvent, IWaitingPlayCallback } from "trucoshi/dist/server/types";
 import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import useStateStorage from "../../hooks/useStateStorage";
 import { TrucoshiContext } from "./context";
@@ -15,6 +15,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [isConnected, setConnected] = useState<boolean>(false); // socket.connected
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<string | null>(null);
+  const [isMyTurn, setMyTurn] = useState<boolean>(false);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -34,6 +35,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
 
     socket.on("disconnect", () => {
       setConnected(false);
+      setLogged(false);
     });
 
     socket.on(EServerEvent.PONG, (msg: string) => {
@@ -42,6 +44,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
 
     socket.on(EServerEvent.UPDATE_MATCH, (match: IPublicMatch) => {
       setMatch(match);
+    });
+
+    socket.on(EServerEvent.WAITING_PLAY, (match: IPublicMatch, callback: IWaitingPlayCallback) => {
+      if (match) {
+        setMatch(match);
+        setMyTurn(true);
+      }
     });
 
     return () => {
@@ -54,6 +63,16 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const sendPing = useCallback(() => {
     socket.emit(EClientEvent.PING, new Date().toISOString());
   }, []);
+
+  const playTurnCard = useCallback(
+    (cardIdx: number) => {
+      if (isMyTurn) {
+        socket.emit(EClientEvent.PLAY, { cardIdx });
+        setMyTurn(false);
+      }
+    },
+    [isMyTurn]
+  );
 
   const sendUserId = useCallback(
     (id: string) => {
@@ -106,60 +125,38 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready);
   }, []);
 
-  const joinMatch = useCallback((matchSessionId: string, callback: ICallbackMatchUpdate) => {
+  const joinMatch = useCallback((matchSessionId: string) => {
     socket.emit(
       EClientEvent.JOIN_MATCH,
       matchSessionId,
       ({ success, match }: { success: Boolean; match: IPublicMatch }) => {
         if (success && match) {
           setMatch(match);
-          return callback(null, match);
         }
-        callback(new Error("No se pudo crear la partida"));
+        console.error("Could not join match");
       }
     );
   }, []);
 
   const startMatch = useCallback(() => {
-    socket.emit(
-      EClientEvent.START_MATCH,
-      ({ success, match }: { success: boolean; match: IPublicMatch }) => {
-        if (success && match) {
-          console.log("Oh yeah")
-          return setMatch(match);
-        }
-        console.log("Could not start match")
-      }
-    );
+    socket.emit(EClientEvent.START_MATCH);
   }, []);
 
-  const value = useMemo(
+  const state = useMemo(
     () => ({
-      state: {
-        match,
-        session,
-        id,
-        isConnected,
-        isLogged,
-        lastPong,
-      },
-      dispatch: {
-        sendPing,
-        setReady,
-        createMatch,
-        getMatch,
-        sendUserId,
-        startMatch,
-        joinMatch,
-      },
-    }),
-    [
       match,
       session,
       id,
       isConnected,
       isLogged,
       lastPong,
+      isMyTurn,
+    }),
+    [id, isConnected, isLogged, lastPong, match, session, isMyTurn]
+  );
+
+  const dispatch = useMemo(
+    () => ({
       sendPing,
       setReady,
       createMatch,
@@ -167,7 +164,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       sendUserId,
       startMatch,
       joinMatch,
-    ]
+      playTurnCard,
+    }),
+    [createMatch, getMatch, joinMatch, playTurnCard, sendPing, sendUserId, setReady, startMatch]
+  );
+
+  const value = useMemo(
+    () => ({
+      state,
+      dispatch,
+    }),
+    [state, dispatch]
   );
 
   return <TrucoshiContext.Provider value={value}>{children}</TrucoshiContext.Provider>;

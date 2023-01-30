@@ -15,7 +15,7 @@ export const Main = () => {
         console.error(e)
         return navigate("/");
       }
-      navigate(`/match/${session}`);
+      navigate(`/lobby/${session}`);
     });
 
   return (
