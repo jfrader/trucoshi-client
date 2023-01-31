@@ -2,22 +2,17 @@ import { Container } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
+import { useTrucoshiMatch } from "../hooks/useTrucoshiMatch";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
 import { Table } from "./Table";
 
 export const Match = () => {
-  const { match, isLogged } = useTrucoshiState();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { getMatch } = useTrucoshiAction();
+
+  const { session } = useTrucoshiState();
+  const [match, isMyTurn, { playCard }] = useTrucoshiMatch(sessionId);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (sessionId && isLogged) {
-      getMatch(sessionId);
-    }
-  }, [getMatch, sessionId, isLogged]);
 
   useEffect(() => {
     if (match && match.state === EMatchTableState.UNREADY) {
@@ -31,7 +26,7 @@ export const Match = () => {
 
   return (
     <Container>
-      <Table />
+      <Table match={match} onPlayCard={playCard} session={session} isMyTurn={isMyTurn} />
     </Container>
   );
 };

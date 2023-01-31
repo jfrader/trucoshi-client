@@ -1,4 +1,6 @@
+import { Socket } from "socket.io-client";
 import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
+import { IWaitingPlayData } from "trucoshi/dist/server/types";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -12,26 +14,30 @@ export interface ITrucoshiState {
   id: string | null;
   session: string | null;
   lastPong: string | null;
-  match: IPublicMatch | null;
   isConnected: boolean;
   isLogged: boolean;
-  isMyTurn: boolean;
 }
 
 export interface ITrucoshiActions {
   sendPing(): void;
-  setReady(sessionId: string, ready: boolean): void;
-  getMatch(sessionId: string): void;
+  sendUserId(id: string): void;
+}
+
+export interface ITrucoshiMatchActions {
   startMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
+  fetchMatch(sessionId: string): void;
   joinMatch(sessionId: string): void;
-  sendUserId(id: string): void;
-  playTurnCard(idx: number): void
+  setReady(sessionId: string, ready: boolean): void;
+  playCard(cardIdx: number): void;
 }
 
 export interface ITrucoshiContext {
   state: ITrucoshiState;
   dispatch: ITrucoshiActions;
+  socket: Socket;
 }
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
+
+export type IWaitingPlayResolveFn = ((data: IWaitingPlayData) => void) | null;

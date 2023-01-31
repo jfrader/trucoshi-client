@@ -1,18 +1,21 @@
 import { useRef } from "react";
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
 import { useNavigate } from "react-router-dom";
+import { useTrucoshiMatch } from "../hooks/useTrucoshiMatch";
+import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
 
 export const Main = () => {
   const nameRef = useRef<HTMLInputElement>(null);
-  const { isLogged, session } = useTrucoshiState();
-  const { createMatch, sendUserId } = useTrucoshiAction();
+  const { isLogged, session, id } = useTrucoshiState();
+
+  const { sendUserId } = useTrucoshiAction();
+  const [, , { createMatch }] = useTrucoshiMatch(session);
   const navigate = useNavigate();
 
   const onCreateMatch = () =>
     createMatch((e) => {
       if (e) {
-        console.error(e)
+        console.error(e);
         return navigate("/");
       }
       navigate(`/lobby/${session}`);
@@ -20,7 +23,7 @@ export const Main = () => {
 
   return (
     <div>
-      {isLogged ? (
+      {isLogged && id ? (
         <div>
           <button onClick={onCreateMatch}>Crear Partida</button>
           <button>Unirse a Partida</button>

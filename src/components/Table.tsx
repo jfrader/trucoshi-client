@@ -1,8 +1,7 @@
 import { CSSProperties } from "react";
 import { Box, Button, ButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
-import { useTrucoshiState } from "../hooks/useTrucoshiState";
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
+import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 
 const Container = styled("div")`
   --d: 8em; /* image size */
@@ -26,10 +25,14 @@ const Item = styled("div")`
   transform: rotate(var(--az)) translate(var(--r)) rotate(calc(-1 * var(--az)));
 `;
 
-export const Table = () => {
-  const { match, session, isMyTurn } = useTrucoshiState();
-  const { playTurnCard } = useTrucoshiAction();
+interface ITableProps {
+  match: IPublicMatch;
+  isMyTurn: boolean;
+  session: string | null;
+  onPlayCard(idx: number): void;
+}
 
+export const Table = ({ match, isMyTurn, session, onPlayCard }: ITableProps) => {
   if (!match) {
     return null;
   }
@@ -42,30 +45,35 @@ export const Table = () => {
     <div>
       <Container style={{ "--m": length, "--tan": tan.toFixed(2) } as CSSProperties}>
         {players.map((player, i) => (
-          <Item style={i >= 0 ? ({ "--i": `${i}` } as CSSProperties) : {}}>
+          <Item key={player.session} style={i >= 0 ? ({ "--i": `${i}` } as CSSProperties) : {}}>
             <Box sx={{ maxWidth: "100%" }}>
               <Box height="2em">
                 <Typography variant="body2">{player.id}</Typography>
-                {player.hand.map((card, idx) =>
-                  isMyTurn && player.session === session ? (
-                    <ButtonGroup>
-                      <Button
-                        size="large"
-                        variant="contained"
-                        color="primary"
-                        onClick={() => playTurnCard(idx)}
-                      >
-                        {card}
-                      </Button>
-                    </ButtonGroup>
-                  ) : (
-                    <ButtonGroup>
-                      <Button size="large" variant="contained" color="error">
-                        {player.session !== session ? <span>&nbsp;&nbsp;</span> : <span>{card}</span>}
-                      </Button>
-                    </ButtonGroup>
-                  )
-                )}
+                <ButtonGroup>
+                  {player.hand
+                    .map((c, idx) => [c, idx + c + player.session])
+                    .map(([card, key], idx) =>
+                      isMyTurn && player.session === session ? (
+                        <Button
+                          key={key}
+                          size="large"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => onPlayCard(idx)}
+                        >
+                          {card}
+                        </Button>
+                      ) : (
+                        <Button key={key} size="large" variant="contained" color="error">
+                          {player.session !== session ? (
+                            <span>&nbsp;&nbsp;</span>
+                          ) : (
+                            <span>{card}</span>
+                          )}
+                        </Button>
+                      )
+                    )}
+                </ButtonGroup>
               </Box>
               <Box mt="1em">
                 <Box margin="0 auto" position="relative" width="3em">
@@ -74,6 +82,7 @@ export const Table = () => {
                       if (pc.player.session === player.session) {
                         return (
                           <Button
+                            key={pc.key}
                             sx={{
                               position: "absolute",
                               left: `calc(8px * ${i})`,
@@ -87,7 +96,7 @@ export const Table = () => {
                           </Button>
                         );
                       }
-                      return null;
+                      return <span key={pc.key} />;
                     })
                   )}
                 </Box>

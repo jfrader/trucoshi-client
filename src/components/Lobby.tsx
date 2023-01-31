@@ -2,22 +2,17 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
+import { useTrucoshiMatch } from "../hooks/useTrucoshiMatch";
 import { useTrucoshiState } from "../hooks/useTrucoshiState";
 
 export const Lobby = () => {
-  const { match, session, isLogged } = useTrucoshiState();
+  const { session } = useTrucoshiState();
   const { sessionId } = useParams<{ sessionId: string }>();
   const [me, setMe] = useState<IPublicPlayer | null>(null);
-  const { getMatch, joinMatch, setReady, startMatch } = useTrucoshiAction();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (sessionId && isLogged) {
-      getMatch(sessionId);
-    }
-  }, [getMatch, sessionId, isLogged]);
+  const [match, , { joinMatch, setReady, startMatch }] = useTrucoshiMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -26,7 +21,7 @@ export const Lobby = () => {
         setMe(me);
       }
       if (match.state !== EMatchTableState.UNREADY) {
-        navigate(`/match/${sessionId}`)
+        navigate(`/match/${sessionId}`);
       }
     }
   }, [match, navigate, session, sessionId]);
