@@ -2,17 +2,26 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
-import { useTrucoshiMatch } from "../hooks/useTrucoshiMatch";
-import { useTrucoshiState } from "../hooks/useTrucoshiState";
+import { useTrucoshi } from "../hooks/useTrucoshi";
+import { useMatch } from "../hooks/useMatch";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 export const Lobby = () => {
-  const { session } = useTrucoshiState();
+  const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
   const [me, setMe] = useState<IPublicPlayer | null>(null);
 
   const navigate = useNavigate();
 
-  const [match, , { joinMatch, setReady, startMatch }] = useTrucoshiMatch(sessionId);
+  const [match, , { joinMatch, setReady, startMatch }] = useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -36,33 +45,52 @@ export const Lobby = () => {
   const onSetUnReady = () => setReady(sessionId, false);
 
   return (
-    <div>
-      <ul>
-        {match.players.map((player) => (
-          <li key={player.session}>
-            <b>{player.id}</b> - <i>{player.ready ? "Listo" : "Esperando"}</i>
-          </li>
-        ))}
-      </ul>
-      <pre>{JSON.stringify(match.players.map((player) => player.hand))}</pre>
-      <div>
+    <Box>
+      <Paper>
+        <List>
+          {match.players.map((player) => (
+            <ListItem key={player.session}>
+              <ListItemText
+                secondary={
+                  <Typography color={player.ready ? "success" : "error"}>
+                    {player.ready ? "Listo" : "Esperando"}
+                  </Typography>
+                }
+              >
+                <Typography variant="h5">{player.id}</Typography>
+              </ListItemText>
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+      <Box>
         {me ? (
           <div>
             {me.ready ? (
-              <button onClick={onSetUnReady}>No estoy listo</button>
+              <Button variant="contained" color="error" onClick={onSetUnReady}>
+                No estoy listo
+              </Button>
             ) : (
-              <button onClick={onSetReady}>Estoy listo</button>
+              <Button variant="contained" color="success" onClick={onSetReady}>
+                Estoy listo
+              </Button>
             )}
           </div>
         ) : (
-          <div>
-            <button onClick={onJoinMatch}>Unirse</button>
-          </div>
+          <Box mt={2}>
+            <Button variant="contained" color="success" onClick={onJoinMatch}>
+              Unirse
+            </Button>
+          </Box>
         )}
-      </div>
-      <div>
-        {session === sessionId ? <button onClick={onStartMatch}>Empezar Partida</button> : null}
-      </div>
-    </div>
+      </Box>
+      <Box>
+        {session === sessionId ? (
+          <Button variant="contained" color="success" onClick={onStartMatch}>
+            Empezar Partida
+          </Button>
+        ) : null}
+      </Box>
+    </Box>
   );
 };

@@ -1,15 +1,14 @@
+import { Button } from "@mui/material";
 import { useRef } from "react";
-import { useTrucoshiState } from "../hooks/useTrucoshiState";
 import { useNavigate } from "react-router-dom";
-import { useTrucoshiMatch } from "../hooks/useTrucoshiMatch";
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
+import { useMatch } from "../hooks/useMatch";
+import { useTrucoshi } from "../hooks/useTrucoshi";
 
 export const Main = () => {
   const nameRef = useRef<HTMLInputElement>(null);
-  const { isLogged, session, id } = useTrucoshiState();
+  const [{ isLogged, session, id }, { sendUserId }] = useTrucoshi();
 
-  const { sendUserId } = useTrucoshiAction();
-  const [, , { createMatch }] = useTrucoshiMatch(session);
+  const [, , { createMatch }] = useMatch(session);
   const navigate = useNavigate();
 
   const onCreateMatch = () =>
@@ -25,15 +24,17 @@ export const Main = () => {
     <div>
       {isLogged && id ? (
         <div>
-          <button onClick={onCreateMatch}>Crear Partida</button>
-          <button>Unirse a Partida</button>
+          <Button variant="contained" color="success" onClick={onCreateMatch}>
+            Crear Partida
+          </Button>
+          <Button variant="contained" color="primary">Unirse a Partida</Button>
         </div>
       ) : (
         <p>
           <input ref={nameRef} type="text" placeholder="Type your name" />
-          <button onClick={() => nameRef.current && sendUserId(nameRef.current.value)}>
+          <Button variant="contained" onClick={() => nameRef.current && sendUserId(nameRef.current.value)}>
             Aceptar
-          </button>
+          </Button>
         </p>
       )}
     </div>

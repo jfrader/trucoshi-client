@@ -1,9 +1,7 @@
-import { useTrucoshiAction } from "../hooks/useTrucoshiAction";
-import { useTrucoshiState } from "../hooks/useTrucoshiState";
+import { useTrucoshi } from "../hooks/useTrucoshi";
 
 export const Debug = () => {
-  const { isConnected, isLogged, id, session, lastPong } = useTrucoshiState();
-  const { sendPing } = useTrucoshiAction();
+  const [{ isConnected, isLogged, id, session, lastPong }, { sendPing }] = useTrucoshi();
   return (
     <div>
       <p>Is connected {JSON.stringify(isConnected) || null}</p>

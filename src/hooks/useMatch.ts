@@ -9,7 +9,7 @@ import {
 import { TrucoshiContext } from "../state/trucoshi/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../state/trucoshi/types";
 
-export const useTrucoshiMatch = (
+export const useMatch = (
   matchId?: string | null
 ): [IPublicMatch | null, boolean, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
@@ -120,7 +120,7 @@ export const useTrucoshiMatch = (
       socket.off(EServerEvent.UPDATE_MATCH);
     };
   }, [matchId, socket]);
-
+ 
   const playCard = useCallback(
     (cardIdx: number) => {
       if (match && isMyTurn) {
