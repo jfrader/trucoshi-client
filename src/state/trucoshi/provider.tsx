@@ -4,7 +4,9 @@ import { EClientEvent, EServerEvent } from "trucoshi/dist/server/types";
 import useStateStorage from "../../hooks/useStateStorage";
 import { TrucoshiContext } from "./context";
 
-export const socket = io("http://localhost:4001");
+const HOST = process.env.REACT_APP_HOST || "http://localhost:4001"
+
+export const socket = io(HOST);
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [session, setSession] = useStateStorage("session");
