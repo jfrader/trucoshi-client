@@ -17,13 +17,11 @@ import { Rounds } from "./Rounds";
 const Player = ({
   match,
   session,
-  isMyTurn,
   onPlayCard,
   player,
 }: {
   match: IPublicMatch;
   session: string | null;
-  isMyTurn: boolean;
   onPlayCard: (cardIdx: number, card: ICard) => void;
   player: IPublicPlayer;
 }) => {
@@ -31,13 +29,13 @@ const Player = ({
   const [, isPrevious] = useRounds(match);
   return (
     <Box maxWidth="100%" pt={2}>
-      <PlayerTag player={player} isTurn={isMe && isMyTurn} />
+      <PlayerTag player={player} isTurn={player.isTurn} />
       <Box zIndex={10} pt={2}>
         {!isPrevious &&
           player.hand
             .map((c, idx) => [c, idx + c + player.session])
             .map(([card, key], idx) =>
-              isMe && isMyTurn ? (
+              isMe && player.isTurn ? (
                 <GameCard
                   key={key}
                   card={card as ICard}
@@ -110,7 +108,7 @@ export const Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const [{ session }] = useTrucoshi();
-  const [{ match, isMyTurn }, { playCard }] = useMatch(sessionId);
+  const [{ match, me }, { playCard }] = useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -124,7 +122,7 @@ export const Match = () => {
     return null;
   }
 
-  const props = { session, isMyTurn, onPlayCard: playCard, match };
+  const props = { session, isMyTurn: me?.isTurn, onPlayCard: playCard, match };
 
   return (
     <Container>

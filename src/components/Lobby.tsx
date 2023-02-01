@@ -54,7 +54,7 @@ export const Lobby = () => {
           return (
             <Box key={player.session} pt={4}>
               <Box>
-                <PlayerTag player={player} />
+                <PlayerTag isTurn={isMe(player)} player={player} />
                 {isMe(player) ? null : (
                   <Button color={player.ready ? "success" : "error"}>
                     {player.ready ? "Listo" : "Esperando"}

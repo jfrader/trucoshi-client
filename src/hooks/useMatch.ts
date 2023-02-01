@@ -14,13 +14,12 @@ import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../state/trucoshi/t
 export const useMatch = (
   matchId?: string | null
 ): [
-  { match: IPublicMatch | null; isMyTurn: boolean; me: IPublicPlayer | null },
+  { match: IPublicMatch | null; me: IPublicPlayer | null },
   ITrucoshiMatchActions
 ] => {
   const context = useContext(TrucoshiContext);
 
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
-  const [isMyTurn, setMyTurn] = useState<boolean>(false);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
 
@@ -129,7 +128,6 @@ export const useMatch = (
       EServerEvent.WAITING_PLAY,
       (value: IPublicMatch, callback: (data: IWaitingPlayData) => void) => {
         if (value.matchSessionId === matchId) {
-          setMyTurn(true);
           setMatch(value);
 
           setTurnCallback(() => callback);
@@ -145,20 +143,18 @@ export const useMatch = (
 
   const playCard = useCallback(
     (cardIdx: number, card: ICard) => {
-      if (match && isMyTurn && turnCallback) {
+      if (match && turnCallback) {
         turnCallback({
           cardIdx,
           card,
         });
-
-        setMyTurn(false);
       }
     },
-    [isMyTurn, match, turnCallback]
+    [match, turnCallback]
   );
 
   return [
-    { match, isMyTurn, me },
+    { match, me },
     { isMe, playCard, fetchMatch, joinMatch, setReady, startMatch, createMatch },
   ];
 };
