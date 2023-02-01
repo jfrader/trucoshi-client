@@ -8,26 +8,31 @@ import { Table } from "./Table";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { ICard } from "trucoshi/dist/lib/types";
 import { GameCard } from "./GameCard";
+import { useRounds } from "../hooks/useRounds";
 
-const Player =
-  ({
-    session,
-    isMyTurn,
-    onPlayCard,
-  }: {
-    session: string | null;
-    isMyTurn: boolean;
-    onPlayCard: (idx: number) => void;
-  }) =>
-  ({ player }: { player: IPublicPlayer }) => {
-    const isMe = player.session === session;
-    return (
-      <Box maxWidth="100%" pt={2}>
-        <Typography variant="h5" color={isMe && isMyTurn ? "green" : undefined}>
-          {player.id}
-        </Typography>
-        <Box zIndex={9} pt={2}>
-          {player.hand
+const Player = ({
+  match,
+  session,
+  isMyTurn,
+  onPlayCard,
+  player,
+}: {
+  match: IPublicMatch;
+  session: string | null;
+  isMyTurn: boolean;
+  onPlayCard: (idx: number) => void;
+  player: IPublicPlayer;
+}) => {
+  const isMe = player.session === session;
+  const [, isPrevious] = useRounds(match);
+  return (
+    <Box maxWidth="100%" pt={2}>
+      <Typography variant="h5" color={isMe && isMyTurn ? "green" : undefined}>
+        {player.id}
+      </Typography>
+      <Box zIndex={9} pt={2}>
+        {!isPrevious &&
+          player.hand
             .map((c, idx) => [c, idx + c + player.session])
             .map(([card, key], idx) =>
               isMe && isMyTurn ? (
@@ -47,18 +52,20 @@ const Player =
                 />
               )
             )}
-        </Box>
       </Box>
-    );
-  };
+    </Box>
+  );
+};
 
 const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {
+  const [rounds] = useRounds(match);
+
   return (
     <Box maxWidth="100%" marginTop="74px" pr={8}>
       <Box margin="0 auto" position="relative">
-        {match.rounds.map((round, i) =>
+        {rounds.map((round, i) =>
           round.map((pc) => {
-            if (player.usedHand.includes(pc.card)) {
+            if (player.usedHand.includes(pc.card) || player.prevHand.includes(pc.card)) {
               return (
                 <Box position="absolute" left="50%" right="50%">
                   <GameCard {...pc} i={i} variant="contained" color="primary" />
@@ -90,13 +97,15 @@ export const Match = () => {
     return null;
   }
 
+  const props = { session, isMyTurn, onPlayCard: playCard, match };
+
   return (
     <Container>
       <Table
         fill={6}
         match={match}
-        Component={Player({ session, isMyTurn, onPlayCard: playCard })}
-        InnerComponent={({ player }) => <Rounds match={match} player={player} />}
+        Component={({ player }) => <Player player={player} {...props} />}
+        InnerComponent={({ player }) => <Rounds player={player} match={match} />}
       />
     </Container>
   );

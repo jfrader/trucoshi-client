@@ -1,4 +1,5 @@
 import { Box, Button, TextField } from "@mui/material";
+import { Container } from "@mui/system";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatch } from "../hooks/useMatch";
@@ -17,25 +18,24 @@ export const Main = () => {
   const onCreateMatch = () =>
     createMatch((e) => {
       if (e) {
-        console.error(e);
         return navigate("/");
       }
       navigate(`/lobby/${session}`);
     });
 
   return (
-    <div>
+    <Container>
       {isLogged && id ? (
-        <div>
+        <Box p={4}>
           <Button variant="contained" color="success" onClick={onCreateMatch}>
             Crear Partida
           </Button>
-          <Button variant="contained" color="primary">
+          {/* <Button variant="contained" color="primary">
             Unirse a Partida
-          </Button>
-        </div>
+          </Button> */}
+        </Box>
       ) : (
-        <Box>
+        <Box p={4}>
           <Box>
             <TextField label="Nombre" onChange={onChangeName} type="text" />
           </Box>
@@ -44,6 +44,6 @@ export const Main = () => {
           </Button>
         </Box>
       )}
-    </div>
+    </Container>
   );
 };
