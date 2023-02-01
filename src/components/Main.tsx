@@ -1,11 +1,14 @@
-import { Box, Button } from "@mui/material";
-import { useRef } from "react";
+import { Box, Button, TextField } from "@mui/material";
+import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatch } from "../hooks/useMatch";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 
 export const Main = () => {
-  const nameRef = useRef<HTMLInputElement>(null);
+  const [name, setName] = useState("Cat in the Hat");
+  const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
   const [{ isLogged, session, id }, { sendUserId }] = useTrucoshi();
 
   const [, { createMatch }] = useMatch(session);
@@ -34,12 +37,9 @@ export const Main = () => {
       ) : (
         <Box>
           <Box>
-            <input ref={nameRef} type="text" placeholder="Type your name" />
+            <TextField label="Nombre" onChange={onChangeName} type="text" />
           </Box>
-          <Button
-            variant="contained"
-            onClick={() => nameRef.current && sendUserId(nameRef.current.value)}
-          >
+          <Button variant="contained" onClick={() => name && sendUserId(name)}>
             Aceptar
           </Button>
         </Box>
