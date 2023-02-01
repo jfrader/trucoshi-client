@@ -20,7 +20,7 @@ const Player = ({
   match: IPublicMatch;
   session: string | null;
   isMyTurn: boolean;
-  onPlayCard: (idx: number) => void;
+  onPlayCard: (cardIdx: number, card: ICard) => void;
   player: IPublicPlayer;
 }) => {
   const isMe = player.session === session;
@@ -41,7 +41,7 @@ const Player = ({
                   card={card as ICard}
                   variant="contained"
                   color="primary"
-                  onClick={() => onPlayCard(idx)}
+                  onClick={() => onPlayCard(idx, card as ICard)}
                 />
               ) : (
                 <GameCard

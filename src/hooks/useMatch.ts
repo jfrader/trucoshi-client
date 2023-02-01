@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
+import { ICard } from "trucoshi/dist/lib/types";
 import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import {
   EClientEvent,
@@ -114,7 +115,8 @@ export const useMatch = (
         }
       );
     }
-  }, [context.state.id, context.state.session, fetchMatch, matchId, socket]);
+  // eslint-disable-next-line
+  }, [matchId]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
@@ -142,10 +144,11 @@ export const useMatch = (
   }, [matchId, setMatch, socket]);
 
   const playCard = useCallback(
-    (cardIdx: number) => {
+    (cardIdx: number, card: ICard) => {
       if (match && isMyTurn && turnCallback) {
         turnCallback({
           cardIdx,
+          card,
         });
 
         setMyTurn(false);
