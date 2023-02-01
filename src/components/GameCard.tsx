@@ -11,6 +11,7 @@ export const GameCard = ({
 } & ButtonProps) => {
   return (
     <Button
+      variant="contained"
       key={key}
       {...buttonProps}
       sx={{

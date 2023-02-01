@@ -1,15 +1,18 @@
-import { Typography } from "@mui/material";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
+import { Paper, styled, Typography } from "@mui/material";
 import { getTeamColor, getTeamName } from "../utils/team";
 
 interface ITeamTagProps {
-  player: IPublicPlayer;
+    teamIdx: number;
 }
 
-export const TeamTag = ({ player }: ITeamTagProps) => {
+export const TeamTag = ({ teamIdx }: ITeamTagProps) => {
   return (
-    <Typography color={getTeamColor(player.teamIdx)} variant="subtitle1">
-      <span>{getTeamName(player.teamIdx)}</span>
+    <Typography color={getTeamColor(teamIdx)} variant="subtitle1">
+      <span>{getTeamName(teamIdx)}</span>
     </Typography>
   );
 };
+
+export const TeamCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+}));

@@ -1,19 +1,28 @@
-import { Typography } from "@mui/material";
+import { styled, Typography, TypographyProps } from "@mui/material";
 import { Box } from "@mui/system";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { TeamTag } from "./TeamTag";
 
 interface ITeamTagProps {
   player: IPublicPlayer;
+  isTurn?: boolean;
 }
 
-export const PlayerTag = ({ player }: ITeamTagProps) => {
+export const PlayerTag = ({ player, isTurn, ...props }: ITeamTagProps & TypographyProps) => {
   return (
     <Box>
-      <Typography display="inline" variant="h5">
+      <PlayerName isTurn={isTurn} display="inline" variant="h5" {...props}>
         {player.id}
-      </Typography>
-      <TeamTag player={player} />
+      </PlayerName>
+      <TeamTag teamIdx={player.teamIdx} />
     </Box>
   );
 };
+
+export const PlayerName = styled(Typography)<{ isTurn?: boolean }>(({ theme, isTurn }) =>
+  isTurn
+    ? {
+        color: theme.palette.success.main,
+      }
+    : {}
+);

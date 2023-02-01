@@ -1,4 +1,4 @@
-import { Box, Container, Paper, styled, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EMatchTableState, IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
@@ -9,16 +9,10 @@ import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { IHandPoints, ICard } from "trucoshi/dist/lib/types";
 import { GameCard } from "./GameCard";
 import { useRounds } from "../hooks/useRounds";
-import { getTeamColor, getTeamName } from "../utils/team";
 import { IPublicTeam } from "trucoshi/dist/lib/classes/Team";
-
-const TeamCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-}));
-
-const TeamName = styled(Typography)<{ teamIdx: number }>(({ theme, teamIdx }) => ({
-  color: theme.palette[getTeamColor(teamIdx)].main,
-}));
+import { PlayerTag } from "./PlayerTag";
+import { TeamCard, TeamTag } from "./TeamTag";
+import { Rounds } from "./Rounds";
 
 const Player = ({
   match,
@@ -37,9 +31,7 @@ const Player = ({
   const [, isPrevious] = useRounds(match);
   return (
     <Box maxWidth="100%" pt={2}>
-      <Typography variant="h5" color={isMe && isMyTurn ? "green" : undefined}>
-        {player.id}
-      </Typography>
+      <PlayerTag player={player} isTurn={isMe && isMyTurn} />
       <Box zIndex={10} pt={2}>
         {!isPrevious &&
           player.hand
@@ -49,7 +41,6 @@ const Player = ({
                 <GameCard
                   key={key}
                   card={card as ICard}
-                  variant="contained"
                   color="primary"
                   onClick={() => onPlayCard(idx, card as ICard)}
                 />
@@ -57,68 +48,10 @@ const Player = ({
                 <GameCard
                   key={key}
                   card={isMe ? <span>{card}</span> : <span>&nbsp;&nbsp;</span>}
-                  variant="contained"
                   color={isMe ? "primary" : "error"}
                 />
               )
             )}
-      </Box>
-    </Box>
-  );
-};
-
-const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {
-  const [openHand, setOpenHand] = useState<boolean>(false);
-
-  const [rounds, isPrevious] = useRounds(match);
-
-  return (
-    <Box maxWidth="100%" marginTop="74px" pr={8}>
-      <Box
-        margin="0 auto"
-        position="relative"
-        onMouseEnter={() => {
-          setOpenHand(true);
-        }}
-        onMouseLeave={() => {
-          setOpenHand(false);
-        }}
-      >
-        {rounds.map((round, i) =>
-          round.map((pc) => {
-            if (
-              player.usedHand.includes(pc.card) ||
-              (isPrevious && player.prevHand.includes(pc.card))
-            ) {
-              return (
-                <Box
-                  sx={
-                    openHand
-                      ? {
-                          position: "absolute",
-                          left: `calc(50% + 8px * ${i})`,
-                          top: `calc(50% + -8px * ${i})`,
-                          marginLeft: i === 0 ? "-1em" : i === 1 ? 0 : "1em",
-                        }
-                      : { position: "absolute", left: "50%", right: "50%" }
-                  }
-                >
-                  <GameCard
-                    {...pc}
-                    sx={{
-                      position: "relative",
-                      top: i ? `calc(8px * ${i})` : undefined,
-                      left: i ? `calc(8px * ${i})` : undefined,
-                    }}
-                    variant="contained"
-                    color="primary"
-                  />
-                </Box>
-              );
-            }
-            return <span key={pc.key} />;
-          })
-        )}
       </Box>
     </Box>
   );
@@ -144,7 +77,7 @@ const MatchPoints = ({
         <Box mx={1}>
           {team.points.buenas ? (
             <TeamCard>
-              <TeamName teamIdx={i}>{getTeamName(i)}</TeamName>
+              <TeamTag teamIdx={i} />
               <Typography>
                 {team.points.buenas} <span>buenas</span>
               </Typography>
@@ -156,7 +89,7 @@ const MatchPoints = ({
             </TeamCard>
           ) : (
             <TeamCard>
-              <TeamName teamIdx={i}>{getTeamName(i)}</TeamName>
+              <TeamTag teamIdx={i} />
               <Typography>
                 {team.points.malas} <span>malas</span>
               </Typography>
