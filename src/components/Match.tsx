@@ -68,17 +68,51 @@ const Player = ({
 };
 
 const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {
-  const [rounds] = useRounds(match);
+  const [openHand, setOpenHand] = useState<boolean>(false);
+
+  const [rounds, isPrevious] = useRounds(match);
 
   return (
     <Box maxWidth="100%" marginTop="74px" pr={8}>
-      <Box margin="0 auto" position="relative">
+      <Box
+        margin="0 auto"
+        position="relative"
+        onMouseEnter={() => {
+          setOpenHand(true);
+        }}
+        onMouseLeave={() => {
+          setOpenHand(false);
+        }}
+      >
         {rounds.map((round, i) =>
           round.map((pc) => {
-            if (player.usedHand.includes(pc.card) || player.prevHand.includes(pc.card)) {
+            if (
+              player.usedHand.includes(pc.card) ||
+              (isPrevious && player.prevHand.includes(pc.card))
+            ) {
               return (
-                <Box position="absolute" left="50%" right="50%">
-                  <GameCard {...pc} i={i} variant="contained" color="primary" />
+                <Box
+                  sx={
+                    openHand
+                      ? {
+                          position: "absolute",
+                          left: `calc(50% + 8px * ${i})`,
+                          top: `calc(50% + -8px * ${i})`,
+                          marginLeft: i === 0 ? "-1em" : i === 1 ? 0 : "1em",
+                        }
+                      : { position: "absolute", left: "50%", right: "50%" }
+                  }
+                >
+                  <GameCard
+                    {...pc}
+                    sx={{
+                      position: "relative",
+                      top: i ? `calc(8px * ${i})` : undefined,
+                      left: i ? `calc(8px * ${i})` : undefined,
+                    }}
+                    variant="contained"
+                    color="primary"
+                  />
                 </Box>
               );
             }
