@@ -1,12 +1,11 @@
-import { Box, Button, Container, Input } from "@mui/material";
-import { useRef, useState } from "react";
+import { Box, Button } from "@mui/material";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatch } from "../hooks/useMatch";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 
 export const Main = () => {
   const nameRef = useRef<HTMLInputElement>(null);
-  const [name, setName] = useState<string>("Satoshi");
   const [{ isLogged, session, id }, { sendUserId }] = useTrucoshi();
 
   const [, { createMatch }] = useMatch(session);
@@ -22,31 +21,29 @@ export const Main = () => {
     });
 
   return (
-    <Container>
-      <Box py={8}>
-        {isLogged && id ? (
-          <Box>
-            <Button variant="contained" color="success" onClick={onCreateMatch}>
-              Crear Partida
-            </Button>
-            {/* <Button variant="contained" color="primary">
+    <div>
+      {isLogged && id ? (
+        <div>
+          <Button variant="contained" color="success" onClick={onCreateMatch}>
+            Crear Partida
+          </Button>
+          <Button variant="contained" color="primary">
             Unirse a Partida
-          </Button> */}
-          </Box>
-        ) : (
+          </Button>
+        </div>
+      ) : (
+        <Box>
           <Box>
-            <Input
-              onChange={(e) => setName(e.target.value)}
-              type="text"
-              value={name}
-              placeholder="Pone tu nombre"
-            />
-            <Button variant="contained" onClick={() => sendUserId(name)}>
-              Aceptar
-            </Button>
+            <input ref={nameRef} type="text" placeholder="Type your name" />
           </Box>
-        )}
-      </Box>
-    </Container>
+          <Button
+            variant="contained"
+            onClick={() => nameRef.current && sendUserId(nameRef.current.value)}
+          >
+            Aceptar
+          </Button>
+        </Box>
+      )}
+    </div>
   );
 };
