@@ -46,14 +46,15 @@ interface ITableProps {
   match: IPublicMatch;
   Component: FC<{ player: IPublicPlayer }>;
   InnerComponent?: FC<{ player: IPublicPlayer }>;
-  MidComponent?: FC<{ i: number }>;
+  MidComponent?: FC<{}>;
+  FillComponent?: FC<{ i: number }>;
 }
 
-export const Table = ({ match, Component, InnerComponent, MidComponent, fill }: ITableProps) => {
+export const Table = ({ match, Component, InnerComponent, FillComponent: MidComponent, fill }: ITableProps) => {
   const { players } = match;
 
   const length = fill && players.length < fill ? fill : players.length;
-  const tan = length > 2 ? Math.tan(Math.PI / length) : 1;
+  const tan = Math.tan(Math.PI / 6);
 
   let items: Array<IPublicPlayer | { id: number; hand?: undefined } | null> = [];
   let slots = [];

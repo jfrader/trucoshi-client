@@ -1,14 +1,24 @@
-import { Box, Container, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { Box, Container, Paper, styled, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EMatchTableState, IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 import { useMatch } from "../hooks/useMatch";
 import { Table } from "./Table";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
-import { ICard } from "trucoshi/dist/lib/types";
+import { IHandPoints, ICard } from "trucoshi/dist/lib/types";
 import { GameCard } from "./GameCard";
 import { useRounds } from "../hooks/useRounds";
+import { getTeamColor, getTeamName } from "../utils/team";
+import { IPublicTeam } from "trucoshi/dist/lib/classes/Team";
+
+const TeamCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+}));
+
+const TeamName = styled(Typography)<{ teamIdx: number }>(({ theme, teamIdx }) => ({
+  color: theme.palette[getTeamColor(teamIdx)].main,
+}));
 
 const Player = ({
   match,
@@ -30,7 +40,7 @@ const Player = ({
       <Typography variant="h5" color={isMe && isMyTurn ? "green" : undefined}>
         {player.id}
       </Typography>
-      <Box zIndex={9} pt={2}>
+      <Box zIndex={10} pt={2}>
         {!isPrevious &&
           player.hand
             .map((c, idx) => [c, idx + c + player.session])
@@ -79,6 +89,56 @@ const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer 
     </Box>
   );
 };
+
+const MatchPoints = ({
+  teams,
+  prevHandPoints,
+}: {
+  teams: Array<IPublicTeam>;
+  prevHandPoints?: IHandPoints | null;
+}) => {
+  const [points, setPoints] = useState<IHandPoints | void | null>(prevHandPoints);
+
+  useEffect(() => {
+    setPoints(prevHandPoints);
+    setTimeout(() => setPoints(), 4500);
+  }, [prevHandPoints]);
+
+  return (
+    <Box display="flex">
+      {teams.map((team, i) => (
+        <Box mx={1}>
+          {team.points.buenas ? (
+            <TeamCard>
+              <TeamName teamIdx={i}>{getTeamName(i)}</TeamName>
+              <Typography>
+                {team.points.buenas} <span>buenas</span>
+              </Typography>
+              {points && points[i as 0 | 1] !== undefined ? (
+                <Typography variant="h6">
+                  {"+"} {points[i as 0 | 1]}
+                </Typography>
+              ) : null}
+            </TeamCard>
+          ) : (
+            <TeamCard>
+              <TeamName teamIdx={i}>{getTeamName(i)}</TeamName>
+              <Typography>
+                {team.points.malas} <span>malas</span>
+              </Typography>
+              {points && points[i as 0 | 1] !== undefined ? (
+                <Typography variant="h6">
+                  {"+"} {points[i as 0 | 1]}
+                </Typography>
+              ) : null}
+            </TeamCard>
+          )}
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 export const Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
@@ -101,8 +161,10 @@ export const Match = () => {
 
   return (
     <Container>
+      <Box position="fixed" right="2em" top="4em">
+        <MatchPoints teams={match.teams} prevHandPoints={match.prevHandPoints} />
+      </Box>
       <Table
-        fill={6}
         match={match}
         Component={({ player }) => <Player player={player} {...props} />}
         InnerComponent={({ player }) => <Rounds player={player} match={match} />}

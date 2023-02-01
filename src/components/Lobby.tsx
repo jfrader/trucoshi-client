@@ -38,7 +38,7 @@ export const Lobby = () => {
       <Table
         match={match}
         fill={6}
-        MidComponent={({ i }) => {
+        FillComponent={({ i }) => {
           const joinTeamIdx = i % 2 === 0 ? 0 : 1;
           return !me || joinTeamIdx !== me.teamIdx ? (
             <Button
