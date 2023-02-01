@@ -7,7 +7,7 @@ import { useMatch } from "../hooks/useMatch";
 import { Table } from "./Table";
 import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { ICard } from "trucoshi/dist/lib/types";
-import { Card } from "./Card";
+import { GameCard } from "./GameCard";
 
 const Player =
   ({
@@ -22,16 +22,16 @@ const Player =
   ({ player }: { player: IPublicPlayer }) => {
     const isMe = player.session === session;
     return (
-      <Box maxWidth="100%">
+      <Box maxWidth="100%" pt={2}>
         <Typography variant="h5" color={isMe && isMyTurn ? "green" : undefined}>
           {player.id}
         </Typography>
-        <Box sx={{ zIndex: 9 }}>
+        <Box zIndex={9} pt={2}>
           {player.hand
             .map((c, idx) => [c, idx + c + player.session])
             .map(([card, key], idx) =>
               isMe && isMyTurn ? (
-                <Card
+                <GameCard
                   key={key}
                   card={card as ICard}
                   variant="contained"
@@ -39,7 +39,7 @@ const Player =
                   onClick={() => onPlayCard(idx)}
                 />
               ) : (
-                <Card
+                <GameCard
                   key={key}
                   card={isMe ? <span>{card}</span> : <span>&nbsp;&nbsp;</span>}
                   variant="contained"
@@ -52,34 +52,31 @@ const Player =
     );
   };
 
-const PlayerCards =
-  ({ match }: { match: IPublicMatch }) =>
-  ({ player }: { player: IPublicPlayer }) => {
-    return (
-      <Box maxWidth="100%" pt={2} pr={4}>
-        <Box margin="0 auto" position="relative">
-          {match.rounds.map((round, i) =>
-            round.map((pc) => {
-              if (pc.player.session === player.session) {
-                return (
-                  <Box position="absolute" left="50%" right="50%">
-                    <Card {...pc} i={i} variant="contained" color="primary" />
-                  </Box>
-                );
-              }
-              return <span key={pc.key} />;
-            })
-          )}
-        </Box>
+const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {
+  return (
+    <Box maxWidth="100%" marginTop="74px" pr={8}>
+      <Box margin="0 auto" position="relative">
+        {match.rounds.map((round, i) =>
+          round.map((pc) => {
+            if (player.usedHand.includes(pc.card)) {
+              return (
+                <Box position="absolute" left="50%" right="50%">
+                  <GameCard {...pc} i={i} variant="contained" color="primary" />
+                </Box>
+              );
+            }
+            return <span key={pc.key} />;
+          })
+        )}
       </Box>
-    );
-  };
-
+    </Box>
+  );
+};
 export const Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const [{ session }] = useTrucoshi();
-  const [match, isMyTurn, { playCard }] = useMatch(sessionId);
+  const [{ match, isMyTurn }, { playCard }] = useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -96,9 +93,10 @@ export const Match = () => {
   return (
     <Container>
       <Table
+        fill={6}
         match={match}
         Component={Player({ session, isMyTurn, onPlayCard: playCard })}
-        InnerComponent={PlayerCards({ match })}
+        InnerComponent={({ player }) => <Rounds match={match} player={player} />}
       />
     </Container>
   );

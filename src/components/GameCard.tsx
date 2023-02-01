@@ -2,7 +2,7 @@ import { Button, ButtonProps } from "@mui/material";
 import { ReactNode } from "react";
 import { ICard, IPlayedCard } from "trucoshi/dist/lib/types";
 
-export const Card = ({
+export const GameCard = ({
   key,
   card,
   i,
@@ -15,6 +15,7 @@ export const Card = ({
     <Button
       key={key}
       sx={{
+        ...(buttonProps.sx || {}),
         margin: "0.2em",
         padding: "2.5em 0",
         position: "relative",
@@ -26,4 +27,11 @@ export const Card = ({
       {card}
     </Button>
   );
+
+  // return (
+  //   <img
+  //     style={{ objectFit: "contain", margin: "0.1em", width: "64px", height: "94px" }}
+  //     src="/3b.svg"
+  //   />
+  // );
 };

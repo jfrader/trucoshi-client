@@ -1,36 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 import { useMatch } from "../hooks/useMatch";
-import {
-  Box,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container } from "@mui/material";
+import { Table } from "./Table";
+import { PlayerTag } from "./PlayerTag";
+import { getTeamColor, getTeamName } from "../utils/team";
 
 export const Lobby = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const [me, setMe] = useState<IPublicPlayer | null>(null);
 
   const navigate = useNavigate();
 
-  const [match, , { joinMatch, setReady, startMatch }] = useMatch(sessionId);
+  const [{ match, me }, { joinMatch, setReady, startMatch, isMe }] = useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
-      const me = match.players.find((p) => p.session === session);
-      if (me) {
-        setMe(me);
-      }
-      if (match.state !== EMatchTableState.UNREADY) {
-        navigate(`/match/${sessionId}`);
+      if (match.state === EMatchTableState.STARTED || match.state === EMatchTableState.FINISHED) {
+        setTimeout(() => navigate(`/match/${sessionId}`), 2000);
       }
     }
   }, [match, navigate, session, sessionId]);
@@ -39,58 +28,70 @@ export const Lobby = () => {
     return null;
   }
 
-  const onJoinMatch = () => joinMatch(sessionId);
+  const onJoinMatch = (teamIdx: 0 | 1) => joinMatch(sessionId, teamIdx);
   const onStartMatch = () => startMatch();
   const onSetReady = () => setReady(sessionId, true);
   const onSetUnReady = () => setReady(sessionId, false);
 
   return (
-    <Box>
-      <Paper>
-        <List>
-          {match.players.map((player) => (
-            <ListItem key={player.session}>
-              <ListItemText
-                secondary={
-                  <Typography color={player.ready ? "success" : "error"}>
-                    {player.ready ? "Listo" : "Esperando"}
-                  </Typography>
-                }
-              >
-                <Typography variant="h5">{player.id}</Typography>
-              </ListItemText>
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
-      <Box>
-        {me ? (
-          <div>
-            {me.ready ? (
-              <Button variant="contained" color="error" onClick={onSetUnReady}>
-                No estoy listo
-              </Button>
-            ) : (
-              <Button variant="contained" color="success" onClick={onSetReady}>
-                Estoy listo
-              </Button>
-            )}
-          </div>
-        ) : (
-          <Box mt={2}>
-            <Button variant="contained" color="success" onClick={onJoinMatch}>
-              Unirse
+    <Container>
+      <Table
+        match={match}
+        fill={6}
+        MidComponent={({ i }) => {
+          const joinTeamIdx = i % 2 === 0 ? 0 : 1;
+          return !me || joinTeamIdx !== me.teamIdx ? (
+            <Button
+              variant="outlined"
+              color={getTeamColor(joinTeamIdx)}
+              onClick={() => onJoinMatch(joinTeamIdx)}
+            >
+              Unirse a {getTeamName(joinTeamIdx)}
             </Button>
-          </Box>
-        )}
-      </Box>
-      <Box>
-        {session === sessionId ? (
-          <Button variant="contained" color="success" onClick={onStartMatch}>
-            Empezar Partida
-          </Button>
-        ) : null}
-      </Box>
-    </Box>
+          ) : null;
+        }}
+        Component={({ player }) => {
+          return (
+            <Box key={player.session} pt={4}>
+              <Box>
+                <PlayerTag player={player} />
+                {isMe(player) ? null : (
+                  <Button color={player.ready ? "success" : "error"}>
+                    {player.ready ? "Listo" : "Esperando"}
+                  </Button>
+                )}
+                {isMe(player) ? (
+                  me?.ready ? (
+                    <Button color="success" onClick={onSetUnReady}>
+                      Listo
+                    </Button>
+                  ) : (
+                    <Button color="warning" onClick={onSetReady}>
+                      Estoy Listo
+                    </Button>
+                  )
+                ) : null}
+              </Box>
+              <Box>
+                {isMe(player) && session === match.matchSessionId ? (
+                  <Box>
+                    <Box>
+                      <Button
+                        disabled={match.state !== EMatchTableState.READY}
+                        variant="contained"
+                        color="success"
+                        onClick={onStartMatch}
+                      >
+                        Empezar Partida
+                      </Button>
+                    </Box>
+                  </Box>
+                ) : null}
+              </Box>
+            </Box>
+          );
+        }}
+      />
+    </Container>
   );
 };

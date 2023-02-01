@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import { IWaitingPlayData } from "trucoshi/dist/server/types";
 
@@ -27,9 +28,10 @@ export interface ITrucoshiMatchActions {
   startMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
   fetchMatch(sessionId: string): void;
-  joinMatch(sessionId: string): void;
+  joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;
   playCard(cardIdx: number): void;
+  isMe(player: IPublicPlayer): boolean;
 }
 
 export interface ITrucoshiContext {

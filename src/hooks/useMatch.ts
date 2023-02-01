@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import {
   EClientEvent,
@@ -11,16 +12,34 @@ import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../state/trucoshi/t
 
 export const useMatch = (
   matchId?: string | null
-): [IPublicMatch | null, boolean, ITrucoshiMatchActions] => {
+): [
+  { match: IPublicMatch | null; isMyTurn: boolean; me: IPublicPlayer | null },
+  ITrucoshiMatchActions
+] => {
   const context = useContext(TrucoshiContext);
 
-  const [match, setMatch] = useState<IPublicMatch | null>(null);
+  const [match, _setMatch] = useState<IPublicMatch | null>(null);
   const [isMyTurn, setMyTurn] = useState<boolean>(false);
+  const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
+
+  const setMatch = useCallback(
+    (value: IPublicMatch) => {
+      _setMatch(value);
+      const _me = value.players.find((player) => player.session === context.state.session);
+      setMe(_me || null);
+    },
+    [context.state.session]
+  );
+
+  const isMe = useCallback(
+    (player: IPublicPlayer) => player.session === context.state.session,
+    [context.state.session]
+  );
 
   const { socket } = context;
 
@@ -37,7 +56,7 @@ export const useMatch = (
         }
       );
     },
-    [socket]
+    [setMatch, socket]
   );
 
   const fetchMatch = useCallback(() => {
@@ -51,7 +70,7 @@ export const useMatch = (
         setMatch(match);
       }
     );
-  }, [matchId, socket]);
+  }, [matchId, setMatch, socket]);
 
   const setReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
@@ -61,10 +80,11 @@ export const useMatch = (
   );
 
   const joinMatch = useCallback(
-    (matchId: string) => {
+    (matchId: string, teamIdx?: 0 | 1) => {
       socket.emit(
         EClientEvent.JOIN_MATCH,
         matchId,
+        teamIdx,
         ({ match }: { success: Boolean; match: IPublicMatch }) => {
           if (match) {
             return setMatch(match);
@@ -73,7 +93,7 @@ export const useMatch = (
         }
       );
     },
-    [socket]
+    [setMatch, socket]
   );
 
   const startMatch = useCallback(() => {
@@ -119,22 +139,23 @@ export const useMatch = (
       socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.UPDATE_MATCH);
     };
-  }, [matchId, socket]);
- 
+  }, [matchId, setMatch, socket]);
+
   const playCard = useCallback(
     (cardIdx: number) => {
-      if (match && isMyTurn) {
-        if (turnCallback) {
-          turnCallback({
-            cardIdx,
-          });
+      if (match && isMyTurn && turnCallback) {
+        turnCallback({
+          cardIdx,
+        });
 
-          setMyTurn(false);
-        }
+        setMyTurn(false);
       }
     },
     [isMyTurn, match, turnCallback]
   );
 
-  return [match, isMyTurn, { playCard, fetchMatch, joinMatch, setReady, startMatch, createMatch }];
+  return [
+    { match, isMyTurn, me },
+    { isMe, playCard, fetchMatch, joinMatch, setReady, startMatch, createMatch },
+  ];
 };

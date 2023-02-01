@@ -1,14 +1,15 @@
-import { Button } from "@mui/material";
-import { useRef } from "react";
+import { Box, Button, Container, Input } from "@mui/material";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatch } from "../hooks/useMatch";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 
 export const Main = () => {
   const nameRef = useRef<HTMLInputElement>(null);
+  const [name, setName] = useState<string>("Satoshi");
   const [{ isLogged, session, id }, { sendUserId }] = useTrucoshi();
 
-  const [, , { createMatch }] = useMatch(session);
+  const [, { createMatch }] = useMatch(session);
   const navigate = useNavigate();
 
   const onCreateMatch = () =>
@@ -21,22 +22,31 @@ export const Main = () => {
     });
 
   return (
-    <div>
-      {isLogged && id ? (
-        <div>
-          <Button variant="contained" color="success" onClick={onCreateMatch}>
-            Crear Partida
-          </Button>
-          <Button variant="contained" color="primary">Unirse a Partida</Button>
-        </div>
-      ) : (
-        <p>
-          <input ref={nameRef} type="text" placeholder="Type your name" />
-          <Button variant="contained" onClick={() => nameRef.current && sendUserId(nameRef.current.value)}>
-            Aceptar
-          </Button>
-        </p>
-      )}
-    </div>
+    <Container>
+      <Box py={8}>
+        {isLogged && id ? (
+          <Box>
+            <Button variant="contained" color="success" onClick={onCreateMatch}>
+              Crear Partida
+            </Button>
+            {/* <Button variant="contained" color="primary">
+            Unirse a Partida
+          </Button> */}
+          </Box>
+        ) : (
+          <Box>
+            <Input
+              onChange={(e) => setName(e.target.value)}
+              type="text"
+              value={name}
+              placeholder="Pone tu nombre"
+            />
+            <Button variant="contained" onClick={() => nameRef.current && sendUserId(name)}>
+              Aceptar
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </Container>
   );
 };
