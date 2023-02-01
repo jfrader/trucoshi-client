@@ -41,7 +41,7 @@ export const Main = () => {
               value={name}
               placeholder="Pone tu nombre"
             />
-            <Button variant="contained" onClick={() => nameRef.current && sendUserId(name)}>
+            <Button variant="contained" onClick={() => sendUserId(name)}>
               Aceptar
             </Button>
           </Box>
