@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
-import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
+import { IPublicMatch, IPublicPlayer } from "trucoshi";
 import { useRounds } from "../hooks/useRounds";
 import { GameCard } from "./GameCard";
 

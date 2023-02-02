@@ -1,6 +1,6 @@
 import { Button, ButtonProps } from "@mui/material";
 import { ReactNode } from "react";
-import { ICard, IPlayedCard } from "trucoshi/dist/lib/types";
+import { ICard, IPlayedCard } from "trucoshi";
 
 export const GameCard = ({
   key,

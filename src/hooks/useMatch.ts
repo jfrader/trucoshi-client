@@ -1,22 +1,19 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
-import { ICard } from "trucoshi/dist/lib/types";
-import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import {
+  IPublicMatch,
+  ICard,
   EClientEvent,
   EServerEvent,
   IWaitingPlayCallback,
   IWaitingPlayData,
-} from "trucoshi/dist/server/types";
+  IPublicPlayer,
+} from "trucoshi";
 import { TrucoshiContext } from "../state/trucoshi/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../state/trucoshi/types";
 
 export const useMatch = (
   matchId?: string | null
-): [
-  { match: IPublicMatch | null; me: IPublicPlayer | null },
-  ITrucoshiMatchActions
-] => {
+): [{ match: IPublicMatch | null; me: IPublicPlayer | null }, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
 
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
@@ -114,7 +111,7 @@ export const useMatch = (
         }
       );
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [matchId]);
 
   useEffect(() => {

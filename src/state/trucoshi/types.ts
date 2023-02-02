@@ -1,8 +1,5 @@
 import { Socket } from "socket.io-client";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
-import { ICard } from "trucoshi/dist/lib/types";
-import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
-import { IWaitingPlayData } from "trucoshi/dist/server/types";
+import { ICard, IPublicMatch, IPublicPlayer, IWaitingPlayData } from "trucoshi";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,

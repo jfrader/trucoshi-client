@@ -1,6 +1,6 @@
 import { styled, Typography, TypographyProps } from "@mui/material";
 import { Box } from "@mui/system";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
+import { IPublicPlayer } from "trucoshi";
 import { TeamTag } from "./TeamTag";
 
 interface ITeamTagProps {

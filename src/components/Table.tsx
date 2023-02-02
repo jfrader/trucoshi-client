@@ -1,8 +1,7 @@
 import { CSSProperties, FC, Fragment } from "react";
 import styled from "@emotion/styled";
-import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
 import { Box, Paper } from "@mui/material";
+import { IPublicMatch, IPublicPlayer } from "trucoshi";
 
 const Container = styled(Box)`
   padding: 24px;

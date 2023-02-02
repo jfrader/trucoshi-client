@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { EMatchTableState } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 import { useMatch } from "../hooks/useMatch";
 import { Box, Button, Container } from "@mui/material";
 import { Table } from "./Table";
 import { PlayerTag } from "./PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
+import { EMatchTableState } from "trucoshi";
 
 export const Lobby = () => {
   const [{ session }] = useTrucoshi();

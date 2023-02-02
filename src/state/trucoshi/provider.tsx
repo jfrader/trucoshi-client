@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, PropsWithChildren } from "react";
 import { io } from "socket.io-client";
-import { EClientEvent, EServerEvent } from "trucoshi/dist/server/types";
+import { EClientEvent, EServerEvent } from "trucoshi";
 import useStateStorage from "../../hooks/useStateStorage";
 import { TrucoshiContext } from "./context";
 

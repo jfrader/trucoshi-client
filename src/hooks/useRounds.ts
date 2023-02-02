@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { IPlayedCard } from "trucoshi/dist/lib/types";
-import { IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
+import { IPlayedCard, IPublicMatch } from "trucoshi";
 
 export const useRounds = (match: IPublicMatch): [IPlayedCard[][], boolean] => {
   const [rounds, setRounds] = useState<IPlayedCard[][]>(match.rounds);

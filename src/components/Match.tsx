@@ -1,18 +1,15 @@
 import { Box, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { EMatchTableState, IPublicMatch } from "trucoshi/dist/server/classes/MatchTable";
 import { useTrucoshi } from "../hooks/useTrucoshi";
 import { useMatch } from "../hooks/useMatch";
 import { Table } from "./Table";
-import { IPublicPlayer } from "trucoshi/dist/lib/classes/Player";
-import { IHandPoints, ICard } from "trucoshi/dist/lib/types";
 import { GameCard } from "./GameCard";
 import { useRounds } from "../hooks/useRounds";
-import { IPublicTeam } from "trucoshi/dist/lib/classes/Team";
 import { PlayerTag } from "./PlayerTag";
 import { TeamCard, TeamTag } from "./TeamTag";
 import { Rounds } from "./Rounds";
+import { EMatchTableState, ICard, IHandPoints, IPublicMatch, IPublicPlayer, IPublicTeam } from "trucoshi";
 
 const Player = ({
   match,
