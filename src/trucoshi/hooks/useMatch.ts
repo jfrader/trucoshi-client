@@ -56,24 +56,21 @@ export const useMatch = (
     [setMatch, socket]
   );
 
-  const fetchMatch = useCallback(() => {
-    socket.emit(
-      EClientEvent.GET_MATCH,
-      matchId,
-      ({ match }: { success: boolean; match: IPublicMatch }) => {
-        if (!match) {
-          return console.error(new Error("No se pudo encontrar la partida"));
-        }
-        setMatch(match);
-      }
-    );
-  }, [matchId, setMatch, socket]);
-
   const setReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
-      socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready);
+      socket.emit(
+        EClientEvent.SET_PLAYER_READY,
+        matchSessionId,
+        ready,
+        ({ success, match }: { success: Boolean; match: IPublicMatch }) => {
+          if (success && match) {
+            setMatch(match);
+          }
+          console.error("Could not set as ready or unready");
+        }
+      );
     },
-    [socket]
+    [setMatch, socket]
   );
 
   const joinMatch = useCallback(
@@ -107,17 +104,7 @@ export const useMatch = (
 
   useEffect(() => {
     if (matchId) {
-      socket.emit(
-        EClientEvent.SET_SESSION,
-        context.state.session,
-        context.state.id,
-        matchId,
-        ({ success, session }: { success: boolean; session: string }) => {
-          if (success && session) {
-            fetchMatch();
-          }
-        }
-      );
+      socket.emit(EClientEvent.SET_SESSION, context.state.session, context.state.id, matchId);
     }
     // eslint-disable-next-line
   }, [matchId]);
@@ -161,6 +148,6 @@ export const useMatch = (
 
   return [
     { match, me },
-    { isMe, playCard, fetchMatch, joinMatch, setReady, startMatch, createMatch },
+    { isMe, playCard, joinMatch, setReady, startMatch, createMatch },
   ];
 };

@@ -25,7 +25,6 @@ export interface ITrucoshiActions {
 export interface ITrucoshiMatchActions {
   startMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
-  fetchMatch(sessionId: string): void;
   joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;
   playCard(cardIdx: number, card: ICard): void;
