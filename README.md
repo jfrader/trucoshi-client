@@ -20,7 +20,7 @@ Edit `.env` file to point to your trucoshi instance
 
 # Donations
 
-Donate Bitcoin at jfrader.com
+Donate Bitcoin at [jfrader.com](https://jfrader.com)
 
 # License
 
