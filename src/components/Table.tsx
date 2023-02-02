@@ -55,7 +55,7 @@ export const Table = ({ match, Component, InnerComponent, FillComponent: MidComp
   const length = fill && players.length < fill ? fill : players.length;
   const tan = Math.tan(Math.PI / 6);
 
-  let items: Array<IPublicPlayer | { id: number; hand?: undefined } | null> = [];
+  let items: Array<IPublicPlayer | { id: number; hand?: undefined }> = [];
   let slots = [];
 
   for (let i = 0; i < length; i++) {
@@ -68,34 +68,34 @@ export const Table = ({ match, Component, InnerComponent, FillComponent: MidComp
       slots.push(i);
       continue;
     }
-    items.push({ id: -1 });
+    items.push({ id: - 1 - i });
   }
 
   return (
     <Box position="relative">
       <Container style={{ "--m": length, "--tan": tan.toFixed(2) } as CSSProperties}>
         {items.map((player, i) =>
-          player ? (
-            <Fragment key={player.id}>
-              <Item style={{ "--i": `${i}` } as CSSProperties}>
-                {player.hand ? (
-                  <Component player={player} />
-                ) : (
-                  MidComponent &&
-                  player.id > -1 && (
-                    <Box margin="30% auto">
-                      <MidComponent i={i} />
-                    </Box>
-                  )
-                )}
-              </Item>
-              {player.hand && InnerComponent ? (
-                <InnerItem style={{ "--i": `${i}` } as CSSProperties}>
-                  <InnerComponent player={player} />
-                </InnerItem>
-              ) : null}
-            </Fragment>
-          ) : null
+        (
+          <Fragment key={player.id}>
+            <Item style={{ "--i": `${i}` } as CSSProperties}>
+              {player.hand ? (
+                <Component player={player} />
+              ) : (
+                MidComponent &&
+                player.id > -1 && (
+                  <Box margin="30% auto">
+                    <MidComponent i={i} />
+                  </Box>
+                )
+              )}
+            </Item>
+            {player.hand && InnerComponent ? (
+              <InnerItem style={{ "--i": `${i}` } as CSSProperties}>
+                <InnerComponent player={player} />
+              </InnerItem>
+            ) : null}
+          </Fragment>
+        )
         )}
       </Container>
     </Box>

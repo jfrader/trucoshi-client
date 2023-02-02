@@ -9,18 +9,18 @@ export const Main = () => {
   const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
-  const [{ isLogged, session, id }, { sendUserId }] = useTrucoshi();
+  const [{ isLogged, id }, { sendUserId }] = useTrucoshi();
   const [name, setName] = useState(id || "Satoshi");
 
-  const [, { createMatch }] = useMatch(session);
+  const [, { createMatch }] = useMatch();
   const navigate = useNavigate();
 
   const onCreateMatch = () =>
-    createMatch((e) => {
-      if (e) {
+    createMatch((e, match) => {
+      if (e || !match) {
         return navigate("/");
       }
-      navigate(`/lobby/${session}`);
+      navigate(`/lobby/${match.matchSessionId}`);
     });
 
   return (
@@ -33,7 +33,7 @@ export const Main = () => {
           {isLogged ? 'Cambiar' : 'Aceptar'}
         </Button>
       </Box>
-      {isLogged && id ? (
+      {isLogged ? (
         <Box p={4}>
           <Button variant="contained" color="success" onClick={onCreateMatch}>
             Crear Partida

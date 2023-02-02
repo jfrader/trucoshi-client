@@ -20,8 +20,9 @@ export const Lobby = () => {
   useEffect(() => {
     if (match) {
       if (match.state === EMatchTableState.STARTED || match.state === EMatchTableState.FINISHED) {
-        setTimeout(() => navigate(`/match/${sessionId}`), 2000);
+        setTimeout(() => navigate(`/match/${sessionId}`));
       }
+      return
     }
   }, [match, navigate, session, sessionId]);
 
@@ -53,7 +54,7 @@ export const Lobby = () => {
         }}
         Component={({ player }) => {
           return (
-            <Box key={player.session} pt={4}>
+            <Box pt={4}>
               <Box>
                 <PlayerTag isTurn={isMe(player)} player={player} />
                 {isMe(player) ? null : (
@@ -74,7 +75,7 @@ export const Lobby = () => {
                 ) : null}
               </Box>
               <Box>
-                {isMe(player) && session === match.matchSessionId ? (
+                {isMe(player) && player.isOwner ? (
                   <Box>
                     <Box>
                       <Button

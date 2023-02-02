@@ -82,7 +82,8 @@ export const useMatch = (
         EClientEvent.JOIN_MATCH,
         matchId,
         teamIdx,
-        ({ match }: { success: Boolean; match: IPublicMatch }) => {
+        ({ match, success }: { success: Boolean; match: IPublicMatch }) => {
+          console.log({ success, match });
           if (match) {
             return setMatch(match);
           }
@@ -94,7 +95,14 @@ export const useMatch = (
   );
 
   const startMatch = useCallback(() => {
-    socket.emit(EClientEvent.START_MATCH);
+    socket.emit(
+      EClientEvent.START_MATCH,
+      ({ success }: { success: true; matchSessionId: string }) => {
+        if (!success) {
+          console.error("Couldn't start match");
+        }
+      }
+    );
   }, [socket]);
 
   useEffect(() => {
@@ -117,6 +125,7 @@ export const useMatch = (
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
       if (value.matchSessionId === matchId) {
+        console.log({ value });
         setMatch(value);
       }
     });

@@ -31,7 +31,7 @@ export const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublic
                 <GameCardContainer
                   key={pc.key}
                   i={i}
-                  cards={player.usedHand.length}
+                  cards={isPrevious ? player.prevHand.length : player.usedHand.length}
                   open={openHand}
                 >
                   <GameCard {...pc} color="primary" />

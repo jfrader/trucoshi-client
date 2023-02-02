@@ -1,6 +1,6 @@
 {
-  "name": "trucoshi-react",
-  "version": "0.1.0",
+  "name": "trucoshi-client",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -18,7 +18,7 @@
     "react-router-dom": "^6.8.0",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.5.4",
-    "trucoshi": "0.1.6",
+    "trucoshi": "0.1.7",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },

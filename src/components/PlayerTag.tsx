@@ -11,7 +11,7 @@ interface ITeamTagProps {
 export const PlayerTag = ({ player, isTurn, ...props }: ITeamTagProps & TypographyProps) => {
   return (
     <Box>
-      <PlayerName isTurn={isTurn} display="inline" variant="h5" {...props}>
+      <PlayerName isturn={Number(isTurn)} display="inline" variant="h5" {...props}>
         {player.id}
       </PlayerName>
       <TeamTag teamIdx={player.teamIdx} />
@@ -19,10 +19,10 @@ export const PlayerTag = ({ player, isTurn, ...props }: ITeamTagProps & Typograp
   );
 };
 
-export const PlayerName = styled(Typography)<{ isTurn?: boolean }>(({ theme, isTurn }) =>
-  isTurn
+export const PlayerName = styled(Typography)<{ isturn: number }>(({ theme, isturn }) =>
+  isturn
     ? {
-        color: theme.palette.success.main,
-      }
+      color: theme.palette.success.main,
+    }
     : {}
 );
