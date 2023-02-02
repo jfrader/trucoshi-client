@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
-import { useRounds } from "../hooks/useRounds";
+import { useRounds } from "../trucoshi/hooks/useRounds";
 import { GameCard } from "./GameCard";
 
 export const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {

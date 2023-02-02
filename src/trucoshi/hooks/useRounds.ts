@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { IPlayedCard, IPublicMatch } from "trucoshi";
+import { PREVIOUS_HAND_ANIMATION_DURATION } from "../constants";
 
 export const useRounds = (match: IPublicMatch): [IPlayedCard[][], boolean] => {
   const [rounds, setRounds] = useState<IPlayedCard[][]>(match.rounds);
@@ -12,7 +13,7 @@ export const useRounds = (match: IPublicMatch): [IPlayedCard[][], boolean] => {
       setTimeout(() => {
         setPrevious(false);
         setRounds(match.rounds);
-      }, 4500);
+      }, PREVIOUS_HAND_ANIMATION_DURATION);
       return;
     }
     setPrevious(false);

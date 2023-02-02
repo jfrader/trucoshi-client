@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { TrucoshiContext } from "../state/trucoshi/context";
-import { ITrucoshiActions, ITrucoshiState } from "../state/trucoshi/types";
+import { TrucoshiContext } from "../state/context";
+import { ITrucoshiActions, ITrucoshiState } from "../types";
 
 export const useTrucoshi = (): [ITrucoshiState, ITrucoshiActions] => {
   const context = useContext(TrucoshiContext);

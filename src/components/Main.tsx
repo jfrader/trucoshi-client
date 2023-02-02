@@ -2,8 +2,8 @@ import { Box, Button, TextField } from "@mui/material";
 import { Container } from "@mui/system";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMatch } from "../hooks/useMatch";
-import { useTrucoshi } from "../hooks/useTrucoshi";
+import { useMatch } from "../trucoshi/hooks/useMatch";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Main = () => {
   const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {

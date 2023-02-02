@@ -1,4 +1,4 @@
-import { useTrucoshi } from "../hooks/useTrucoshi";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Debug = () => {
   const [{ isConnected, isLogged, id, session, lastPong }, { sendPing }] = useTrucoshi();

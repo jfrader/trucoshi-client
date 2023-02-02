@@ -8,8 +8,8 @@ import {
   IWaitingPlayData,
   IPublicPlayer,
 } from "trucoshi";
-import { TrucoshiContext } from "../state/trucoshi/context";
-import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../state/trucoshi/types";
+import { TrucoshiContext } from "../state/context";
+import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../types";
 
 export const useMatch = (
   matchId?: string | null

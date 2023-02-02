@@ -3,7 +3,7 @@ import "./App.css";
 import { Layout } from "./components/Layout";
 import { Main } from "./components/Main";
 import { Lobby } from "./components/Lobby";
-import { TrucoshiProvider } from "./state/trucoshi/provider";
+import { TrucoshiProvider } from "./trucoshi/state/provider";
 import { Match } from "./components/Match";
 
 const AppRouter = createBrowserRouter([

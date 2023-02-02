@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useTrucoshi } from "../hooks/useTrucoshi";
-import { useMatch } from "../hooks/useMatch";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { useMatch } from "../trucoshi/hooks/useMatch";
 import { Box, Button, Container } from "@mui/material";
 import { Table } from "./Table";
 import { PlayerTag } from "./PlayerTag";

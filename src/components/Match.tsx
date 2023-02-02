@@ -1,15 +1,16 @@
 import { Box, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useTrucoshi } from "../hooks/useTrucoshi";
-import { useMatch } from "../hooks/useMatch";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { useMatch } from "../trucoshi/hooks/useMatch";
 import { Table } from "./Table";
 import { GameCard } from "./GameCard";
-import { useRounds } from "../hooks/useRounds";
+import { useRounds } from "../trucoshi/hooks/useRounds";
 import { PlayerTag } from "./PlayerTag";
 import { TeamCard, TeamTag } from "./TeamTag";
 import { Rounds } from "./Rounds";
 import { EMatchTableState, ICard, IHandPoints, IPublicMatch, IPublicPlayer, IPublicTeam } from "trucoshi";
+import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
 
 const Player = ({
   match,
@@ -63,7 +64,7 @@ const MatchPoints = ({
 
   useEffect(() => {
     setPoints(prevHandPoints);
-    setTimeout(() => setPoints(), 4500);
+    setTimeout(() => setPoints(), PREVIOUS_HAND_ANIMATION_DURATION);
   }, [prevHandPoints]);
 
   return (
