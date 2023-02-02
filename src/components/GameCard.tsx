@@ -1,27 +1,36 @@
-import { Button, ButtonProps } from "@mui/material";
+import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { ReactNode } from "react";
-import { ICard, IPlayedCard } from "trucoshi";
+import { ICard } from "trucoshi";
+
+const GameCardButton = styled(Button)<{ enablehover?: boolean }>(({ theme, enablehover }) => [
+  {
+    padding: "2.5em 0",
+    transition: theme.transitions.create(["transform"], {
+      duration: theme.transitions.duration.standard,
+    }),
+  },
+  enablehover
+    ? {
+        "&:hover": {
+          zIndex: 11,
+          transform: "scale(1.1)",
+        },
+      }
+    : {},
+]);
 
 export const GameCard = ({
-  key,
   card,
+  enableHover,
   ...buttonProps
-}: Omit<IPlayedCard, "player" | "card"> & {
+}: {
   card: string | ICard | ReactNode;
+  enableHover?: boolean;
 } & ButtonProps) => {
   return (
-    <Button
-      variant="contained"
-      key={key}
-      {...buttonProps}
-      sx={{
-        margin: "0.2em",
-        padding: "2.5em 0",
-        ...(buttonProps.sx || {}),
-      }}
-    >
+    <GameCardButton variant="contained" enablehover={enableHover} {...buttonProps}>
       {card}
-    </Button>
+    </GameCardButton>
   );
 
   // return (
@@ -31,3 +40,33 @@ export const GameCard = ({
   //   />
   // );
 };
+
+export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
+  ({ theme, open, cards, i }) => {
+    const randDeg = () => Math.round(Math.random() * 5) * (Math.random() > 0.5 ? 1 : -1);
+    const margin = 8 * i + "px";
+    const openMargin =
+      cards > 1 && i % 2 === 0 ? `calc((8px * ${i}) ${i === 0 ? "- 1.68" : "+ 1.2"}em)` : 0;
+
+    return [
+      {
+        position: "absolute",
+        left: "50%",
+        right: "50%",
+        transform: `rotate(${randDeg()}deg)`,
+        marginTop: i !== undefined ? margin : 0,
+        marginLeft: i !== undefined ? margin : 0,
+        transition: theme.transitions.create(["transform", "margin-top", "margin-left"], {
+          duration: theme.transitions.duration.standard,
+        }),
+      },
+      open
+        ? {
+            transform: `rotate(${randDeg()}deg) scale(1.1)`,
+            marginTop: 0,
+            marginLeft: openMargin,
+          }
+        : {},
+    ];
+  }
+);

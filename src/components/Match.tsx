@@ -9,7 +9,14 @@ import { useRounds } from "../trucoshi/hooks/useRounds";
 import { PlayerTag } from "./PlayerTag";
 import { TeamCard, TeamTag } from "./TeamTag";
 import { Rounds } from "./Rounds";
-import { EMatchTableState, ICard, IHandPoints, IPublicMatch, IPublicPlayer, IPublicTeam } from "trucoshi";
+import {
+  EMatchTableState,
+  ICard,
+  IHandPoints,
+  IPublicMatch,
+  IPublicPlayer,
+  IPublicTeam,
+} from "trucoshi";
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
 
 const Player = ({
@@ -35,6 +42,7 @@ const Player = ({
             .map(([card, key], idx) =>
               isMe && player.isTurn ? (
                 <GameCard
+                  enableHover
                   key={key}
                   card={card as ICard}
                   color="primary"
@@ -70,7 +78,7 @@ const MatchPoints = ({
   return (
     <Box display="flex">
       {teams.map((team, i) => (
-        <Box mx={1}>
+        <Box key={i} mx={1}>
           {team.points.buenas ? (
             <TeamCard>
               <TeamTag teamIdx={i} />

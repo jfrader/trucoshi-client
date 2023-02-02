@@ -7,6 +7,7 @@ import { Table } from "./Table";
 import { PlayerTag } from "./PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { EMatchTableState } from "trucoshi";
+import { AnimatedButton } from "./AnimatedButton";
 
 export const Lobby = () => {
   const [{ session }] = useTrucoshi();
@@ -66,9 +67,9 @@ export const Lobby = () => {
                       Listo
                     </Button>
                   ) : (
-                    <Button color="warning" onClick={onSetReady}>
+                    <AnimatedButton color="warning" onClick={onSetReady}>
                       Estoy Listo
-                    </Button>
+                    </AnimatedButton>
                   )
                 ) : null}
               </Box>
