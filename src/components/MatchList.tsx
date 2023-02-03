@@ -10,8 +10,7 @@ import {
 } from "@mui/material";
 import { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMatchTableState } from "trucoshi";
-import { IPublicMatchInfo } from "trucoshi/dist/server/classes/MatchTable";
+import { EMatchTableState, IPublicMatchInfo } from "trucoshi";
 
 export const MatchList = ({
   matches,
