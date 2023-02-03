@@ -8,7 +8,7 @@ import {
   IWaitingPlayData,
   ServerToClientEvents,
 } from "trucoshi";
-import { IPublicMatchInfo } from "trucoshi/dist/server/classes/MatchTable";
+import { IPublicMatchInfo } from "trucoshi";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
