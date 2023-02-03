@@ -12,14 +12,17 @@ import { TrucoshiContext } from "../state/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../types";
 
 export const useMatch = (
-  matchId?: string | null,
-  onLoad?: (match?: IPublicMatch | null) => void
-): [{ match: IPublicMatch | null; me: IPublicPlayer | null }, ITrucoshiMatchActions] => {
+  matchId?: string | null
+): [
+  { match: IPublicMatch | null; me: IPublicPlayer | null; error: Error | null },
+  ITrucoshiMatchActions
+] => {
   const context = useContext(TrucoshiContext);
 
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -89,11 +92,15 @@ export const useMatch = (
 
   useEffect(() => {
     if (matchId && context.state.session) {
-      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ match }) => {
-        onLoad?.(match);
+      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
+        if (!success) {
+          setError(new Error("No se pudo encontrar la partida"));
+          return;
+        }
+        setError(null);
       });
     }
-  }, [matchId, onLoad, context.state.id, socket, context.state.session]);
+  }, [matchId, context.state.id, socket, context.state.session]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
@@ -131,7 +138,7 @@ export const useMatch = (
   );
 
   return [
-    { match, me },
+    { match, me, error },
     { isMe, playCard, joinMatch, setReady, startMatch, createMatch },
   ];
 };

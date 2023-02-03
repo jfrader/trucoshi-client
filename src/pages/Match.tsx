@@ -18,8 +18,8 @@ import {
   IPublicTeam,
 } from "trucoshi";
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
-import { useMatchBackdrop } from "../hooks/useMatchBackdrop";
 import { SocketBackdrop } from "../components/SocketBackdrop";
+import { MatchBackdrop } from "../components/MatchBackdrop";
 
 const Player = ({
   match,
@@ -116,8 +116,7 @@ export const Match = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [onMatchLoad, MatchBackdrop] = useMatchBackdrop();
-  const [{ match }, { playCard }] = useMatch(sessionId, onMatchLoad);
+  const [{ match, error }, { playCard }] = useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -130,7 +129,7 @@ export const Match = () => {
   return (
     <Container>
       <SocketBackdrop />
-      <MatchBackdrop />
+      <MatchBackdrop error={error} />
       {match && (
         <>
           <Box position="fixed" right="2em" top="4em">

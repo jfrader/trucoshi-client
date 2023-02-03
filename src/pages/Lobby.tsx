@@ -8,8 +8,8 @@ import { PlayerTag } from "../components/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { EMatchTableState } from "trucoshi";
 import { AnimatedButton } from "../components/AnimatedButton";
-import { useMatchBackdrop } from "../hooks/useMatchBackdrop";
 import { SocketBackdrop } from "../components/SocketBackdrop";
+import { MatchBackdrop } from "../components/MatchBackdrop";
 
 export const Lobby = () => {
   const [{ session }] = useTrucoshi();
@@ -17,11 +17,8 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [onMatchLoad, MatchBackdrop] = useMatchBackdrop();
-
-  const [{ match, me }, { joinMatch, setReady, startMatch, isMe }] = useMatch(
-    sessionId,
-    onMatchLoad
+  const [{ match, me, error }, { joinMatch, setReady, startMatch, isMe }] = useMatch(
+    sessionId
   );
 
   useEffect(() => {
@@ -41,7 +38,7 @@ export const Lobby = () => {
   return (
     <Container>
       <SocketBackdrop />
-      <MatchBackdrop />
+      <MatchBackdrop error={error} />
       {match && (
         <GameTable
           match={match}
