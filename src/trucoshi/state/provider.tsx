@@ -5,9 +5,9 @@ import {
   EClientEvent,
   EMatchTableState,
   EServerEvent,
+  IPublicMatchInfo,
   ServerToClientEvents,
 } from "trucoshi";
-import { IPublicMatchInfo } from "trucoshi/dist/server/classes/MatchTable";
 import useStateStorage from "../../hooks/useStateStorage";
 import { TrucoshiContext } from "./context";
 
