@@ -31,10 +31,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         EClientEvent.SET_SESSION,
         session,
         id,
-        ({ success, session, activeMatches: newActiveMatches }) => {
-          setLogged(success);
-          if (success && session) {
-            setSession(session);
+        ({ success, session: newSession, activeMatches: newActiveMatches }) => {
+          setLogged(true);
+          if (!success && newSession) {
+            setSession(newSession);
           }
           setActiveMatches(newActiveMatches);
         }
