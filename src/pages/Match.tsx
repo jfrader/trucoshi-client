@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
-import { Table } from "./Table";
-import { GameCard } from "./GameCard";
+import { GameTable } from "../components/GameTable";
+import { GameCard } from "../components/GameCard";
 import { useRounds } from "../trucoshi/hooks/useRounds";
-import { PlayerTag } from "./PlayerTag";
-import { TeamCard, TeamTag } from "./TeamTag";
-import { Rounds } from "./Rounds";
+import { PlayerTag } from "../components/PlayerTag";
+import { TeamCard, TeamTag } from "../components/TeamTag";
+import { Rounds } from "../components/Rounds";
 import {
   EMatchTableState,
   ICard,
@@ -18,6 +18,8 @@ import {
   IPublicTeam,
 } from "trucoshi";
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
+import { useMatchBackdrop } from "../hooks/useMatchBackdrop";
+import { SocketBackdrop } from "../components/SocketBackdrop";
 
 const Player = ({
   match,
@@ -111,10 +113,11 @@ const MatchPoints = ({
 };
 
 export const Match = () => {
+  const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [{ session }] = useTrucoshi();
-  const [{ match, me }, { playCard }] = useMatch(sessionId);
+  const [onMatchLoad, MatchBackdrop] = useMatchBackdrop();
+  const [{ match }, { playCard }] = useMatch(sessionId, onMatchLoad);
 
   const navigate = useNavigate();
 
@@ -124,22 +127,24 @@ export const Match = () => {
     }
   }, [match, navigate, sessionId]);
 
-  if (!sessionId || !match) {
-    return null;
-  }
-
-  const props = { session, isMyTurn: me?.isTurn, onPlayCard: playCard, match };
-
   return (
     <Container>
-      <Box position="fixed" right="2em" top="4em">
-        <MatchPoints teams={match.teams} prevHandPoints={match.prevHandPoints} />
-      </Box>
-      <Table
-        match={match}
-        Component={({ player }) => <Player player={player} {...props} />}
-        InnerComponent={({ player }) => <Rounds player={player} match={match} />}
-      />
+      <SocketBackdrop />
+      <MatchBackdrop />
+      {match && (
+        <>
+          <Box position="fixed" right="2em" top="4em">
+            <MatchPoints teams={match.teams} prevHandPoints={match.prevHandPoints} />
+          </Box>
+          <GameTable
+            match={match}
+            Slot={({ player }) => (
+              <Player player={player} session={session} onPlayCard={playCard} match={match} />
+            )}
+            InnerSlot={({ player }) => <Rounds player={player} match={match} />}
+          />
+        </>
+      )}
     </Container>
   );
 };

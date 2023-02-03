@@ -43,7 +43,7 @@ export const GameCard = ({
 
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {
-    const randDeg = () => Math.round(Math.random() * 5) * (Math.random() > 0.5 ? 1 : -1);
+    const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
     const margin = 8 * i + "px";
     const openMargin =
       cards > 1 && i % 2 === 0 ? `calc((8px * ${i}) ${i === 0 ? "- 1.68" : "+ 1.2"}em)` : 0;

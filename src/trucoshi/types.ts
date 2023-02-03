@@ -1,5 +1,14 @@
 import { Socket } from "socket.io-client";
-import { ICard, IPublicMatch, IPublicPlayer, IWaitingPlayData } from "trucoshi";
+import {
+  ClientToServerEvents,
+  EMatchTableState,
+  ICard,
+  IPublicMatch,
+  IPublicPlayer,
+  IWaitingPlayData,
+  ServerToClientEvents,
+} from "trucoshi";
+import { IPublicMatchInfo } from "trucoshi/dist/server/classes/MatchTable";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -15,9 +24,12 @@ export interface ITrucoshiState {
   lastPong: string | null;
   isConnected: boolean;
   isLogged: boolean;
+  publicMatches: Array<IPublicMatchInfo>;
+  activeMatches: Array<IPublicMatchInfo>;
 }
 
 export interface ITrucoshiActions {
+  fetchPublicMatches(filters?: { state?: Array<EMatchTableState> }): void;
   sendPing(): void;
   sendUserId(id: string): void;
 }
@@ -34,7 +46,7 @@ export interface ITrucoshiMatchActions {
 export interface ITrucoshiContext {
   state: ITrucoshiState;
   dispatch: ITrucoshiActions;
-  socket: Socket;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;

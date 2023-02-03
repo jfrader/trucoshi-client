@@ -6,7 +6,7 @@ import { IPublicMatch, IPublicPlayer } from "trucoshi";
 const Container = styled(Box)`
   padding: 24px;
   --d: 7.5em; /* image size */
-  --rel: 0.8; /* how much extra space we want between images, 1 = one image size */
+  --rel: 0.7; /* how much extra space we want between images, 1 = one image size */
   --r: calc(0.5 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   position: relative;
@@ -40,16 +40,15 @@ const InnerItem = styled(Box)`
     rotate(270deg);
 `;
 
-interface ITableProps {
+interface GameTableProps {
   fill?: number;
   match: IPublicMatch;
-  Component: FC<{ player: IPublicPlayer }>;
-  InnerComponent?: FC<{ player: IPublicPlayer }>;
-  MidComponent?: FC<{}>;
-  FillComponent?: FC<{ i: number }>;
+  Slot: FC<{ player: IPublicPlayer }>;
+  InnerSlot?: FC<{ player: IPublicPlayer }>;
+  FillSlot?: FC<{ i: number }>;
 }
 
-export const Table = ({ match, Component, InnerComponent, FillComponent: MidComponent, fill }: ITableProps) => {
+export const GameTable = ({ match, Slot, InnerSlot, FillSlot, fill }: GameTableProps) => {
   const { players } = match;
 
   const length = fill && players.length < fill ? fill : players.length;
@@ -68,35 +67,33 @@ export const Table = ({ match, Component, InnerComponent, FillComponent: MidComp
       slots.push(i);
       continue;
     }
-    items.push({ id: - 1 - i });
+    items.push({ id: -1 - i });
   }
 
   return (
     <Box position="relative">
       <Container style={{ "--m": length, "--tan": tan.toFixed(2) } as CSSProperties}>
-        {items.map((player, i) =>
-        (
+        {items.map((player, i) => (
           <Fragment key={player.id}>
             <Item style={{ "--i": `${i}` } as CSSProperties}>
               {player.hand ? (
-                <Component player={player} />
+                <Slot player={player} />
               ) : (
-                MidComponent &&
+                FillSlot &&
                 player.id > -1 && (
                   <Box margin="30% auto">
-                    <MidComponent i={i} />
+                    <FillSlot i={i} />
                   </Box>
                 )
               )}
             </Item>
-            {player.hand && InnerComponent ? (
+            {player.hand && InnerSlot ? (
               <InnerItem style={{ "--i": `${i}` } as CSSProperties}>
-                <InnerComponent player={player} />
+                <InnerSlot player={player} />
               </InnerItem>
             ) : null}
           </Fragment>
-        )
-        )}
+        ))}
       </Container>
     </Box>
   );

@@ -1,10 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { Layout } from "./components/Layout";
-import { Main } from "./components/Main";
-import { Lobby } from "./components/Lobby";
+import { Main } from "./pages/Main";
+import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/state/provider";
-import { Match } from "./components/Match";
+import { Match } from "./pages/Match";
+import { Matches } from "./pages/Matches";
 
 const AppRouter = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const AppRouter = createBrowserRouter([
       {
         path: "match/:sessionId",
         element: <Match />,
+      },
+      {
+        path: "matches",
+        element: <Matches />,
       },
     ],
   },

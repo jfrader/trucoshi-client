@@ -12,7 +12,8 @@ import { TrucoshiContext } from "../state/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../types";
 
 export const useMatch = (
-  matchId?: string | null
+  matchId?: string | null,
+  onLoad?: (match?: IPublicMatch | null) => void
 ): [{ match: IPublicMatch | null; me: IPublicPlayer | null }, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
 
@@ -42,77 +43,61 @@ export const useMatch = (
 
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {
-      socket.emit(
-        EClientEvent.CREATE_MATCH,
-        ({ match }: { success: boolean; match: IPublicMatch }) => {
-          if (match) {
-            setMatch(match);
-            return callback(null, match);
-          }
-          callback(new Error("No se pudo crear la partida"));
+      socket.emit(EClientEvent.CREATE_MATCH, ({ match }) => {
+        if (match) {
+          setMatch(match);
+          return callback(null, match);
         }
-      );
+        callback(new Error("No se pudo crear la partida"));
+      });
     },
     [setMatch, socket]
   );
 
   const setReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
-      socket.emit(
-        EClientEvent.SET_PLAYER_READY,
-        matchSessionId,
-        ready,
-        ({ success, match }: { success: Boolean; match: IPublicMatch }) => {
-          if (success && match) {
-            setMatch(match);
-          }
-          console.error("Could not set as ready or unready");
+      socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready, ({ success, match }) => {
+        if (success && match) {
+          setMatch(match);
         }
-      );
+        console.error("Could not set as ready or unready");
+      });
     },
     [setMatch, socket]
   );
 
   const joinMatch = useCallback(
     (matchId: string, teamIdx?: 0 | 1) => {
-      socket.emit(
-        EClientEvent.JOIN_MATCH,
-        matchId,
-        teamIdx,
-        ({ match, success }: { success: Boolean; match: IPublicMatch }) => {
-          console.log({ success, match });
-          if (match) {
-            return setMatch(match);
-          }
-          console.error("Could not join match");
+      socket.emit(EClientEvent.JOIN_MATCH, matchId, teamIdx, ({ match, success }) => {
+        console.log({ success, match });
+        if (match) {
+          return setMatch(match);
         }
-      );
+        console.error("Could not join match");
+      });
     },
     [setMatch, socket]
   );
 
   const startMatch = useCallback(() => {
-    socket.emit(
-      EClientEvent.START_MATCH,
-      ({ success }: { success: true; matchSessionId: string }) => {
-        if (!success) {
-          console.error("Couldn't start match");
-        }
+    socket.emit(EClientEvent.START_MATCH, ({ success }) => {
+      if (!success) {
+        console.error("Couldn't start match");
       }
-    );
+    });
   }, [socket]);
 
   useEffect(() => {
-    if (matchId) {
-      socket.emit(EClientEvent.SET_SESSION, context.state.session, context.state.id, matchId);
+    if (matchId && context.state.session) {
+      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ match }) => {
+        onLoad?.(match);
+      });
     }
-    // eslint-disable-next-line
-  }, [matchId]);
+  }, [matchId, onLoad, context.state.id, socket, context.state.session]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
       if (value.matchSessionId === matchId) {
-        console.log({ value });
         setMatch(value);
       }
     });
@@ -122,7 +107,6 @@ export const useMatch = (
       (value: IPublicMatch, callback: (data: IWaitingPlayData) => void) => {
         if (value.matchSessionId === matchId) {
           setMatch(value);
-
           setTurnCallback(() => callback);
         }
       }

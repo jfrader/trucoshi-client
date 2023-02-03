@@ -1,12 +1,19 @@
 import { useState, useMemo, useCallback, useEffect, PropsWithChildren } from "react";
-import { io } from "socket.io-client";
-import { EClientEvent, EServerEvent } from "trucoshi";
+import { io, Socket } from "socket.io-client";
+import {
+  ClientToServerEvents,
+  EClientEvent,
+  EMatchTableState,
+  EServerEvent,
+  ServerToClientEvents,
+} from "trucoshi";
+import { IPublicMatchInfo } from "trucoshi/dist/server/classes/MatchTable";
 import useStateStorage from "../../hooks/useStateStorage";
 import { TrucoshiContext } from "./context";
 
-const HOST = process.env.REACT_APP_HOST || "http://localhost:4001"
+const HOST = process.env.REACT_APP_HOST || "http://localhost:4001";
 
-export const socket = io(HOST);
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [session, setSession] = useStateStorage("session");
@@ -14,6 +21,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [isConnected, setConnected] = useState<boolean>(false); // socket.connected
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<string | null>(null);
+  const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -22,12 +31,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         EClientEvent.SET_SESSION,
         session,
         id,
-        null,
-        ({ success, session }: { success: boolean; session: string }) => {
+        ({ success, session, activeMatches: newActiveMatches }) => {
           setLogged(success);
           if (success && session) {
             setSession(session);
           }
+          setActiveMatches(newActiveMatches);
         }
       );
     });
@@ -54,51 +63,55 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
 
   const sendUserId = useCallback(
     (userId: string) => {
-      socket.emit(
-        EClientEvent.SET_SESSION,
-        session,
-        userId,
-        null,
-        ({ success, session }: { success: boolean; session: string }) => {
-          if (success) {
-            setId(userId);
-            if (session) {
-              setSession(session);
-            }
-            setLogged(true);
+      socket.emit(EClientEvent.SET_SESSION, session, userId, ({ success, session }) => {
+        if (success) {
+          setId(userId);
+          if (session) {
+            setSession(session);
           }
+          setLogged(true);
         }
-      );
+      });
     },
     [session, setId, setSession]
   );
 
-  const state = useMemo(
+  const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchTableState> } = {}) => {
+    socket.emit(EClientEvent.LIST_MATCHES, filters, ({ matches }) => {
+      setPublicMatches(matches);
+    });
+  }, []);
+
+  const value = useMemo(
     () => ({
+      socket,
+      state: {
+        publicMatches,
+        session,
+        id,
+        isConnected,
+        isLogged,
+        lastPong,
+        activeMatches,
+      },
+      dispatch: {
+        sendPing,
+        sendUserId,
+        fetchPublicMatches,
+      },
+    }),
+    [
+      publicMatches,
       session,
       id,
       isConnected,
       isLogged,
       lastPong,
-    }),
-    [id, isConnected, isLogged, lastPong, session]
-  );
-
-  const dispatch = useMemo(
-    () => ({
+      activeMatches,
       sendPing,
       sendUserId,
-    }),
-    [sendPing, sendUserId]
-  );
-
-  const value = useMemo(
-    () => ({
-      state,
-      dispatch,
-      socket,
-    }),
-    [state, dispatch]
+      fetchPublicMatches,
+    ]
   );
 
   return <TrucoshiContext.Provider value={value}>{children}</TrucoshiContext.Provider>;
