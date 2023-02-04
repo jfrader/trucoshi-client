@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { EClientEvent, EServerEvent } from "trucoshi";
-import { IPublicChatRoom } from "trucoshi/dist/server/classes/Chat";
+import { EClientEvent, EServerEvent, IPublicChatRoom } from "trucoshi";
 import { TrucoshiContext } from "../state/context";
 
 export const useChat = (
