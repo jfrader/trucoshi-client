@@ -8980,10 +8980,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-trucoshi@0.2.7:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.2.7.tgz#1cc6d27b03534b3bc511191e2863b0ade2f898af"
-  integrity sha512-gIzg0NXRcLQGwHiC2gSDh3WAjFNF+eWfdgXwEU3ioahtht4QX9elYZjdrzBwSgjvutuZ7Qnlk4cxybRVDHJE9g==
+trucoshi@0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.2.8.tgz#9da1a3ec27000e0d6ae0e499cc6cf12088ff62b2"
+  integrity sha512-fYzVS+iAneG2k+Lr4JWalbE0xTtg6zjaOA5GWwcY0D7k7IigECf8/We3iqnj+tsg1EZO9CdXqD6w7m48M+FpWQ==
   dependencies:
     rimraf "^4.1.1"
     socket.io "^4.5.4"
