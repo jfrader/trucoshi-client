@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
+  ECommand,
   EMatchTableState,
   ICard,
   IPublicMatch,
@@ -40,6 +41,7 @@ export interface ITrucoshiMatchActions {
   joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;
   playCard(cardIdx: number, card: ICard): void;
+  sayCommand(command: ECommand): void;
   isMe(player: IPublicPlayer): boolean;
 }
 

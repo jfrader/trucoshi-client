@@ -5,8 +5,9 @@ import {
   EClientEvent,
   EServerEvent,
   IWaitingPlayCallback,
-  IWaitingPlayData,
+  IWaitingSayCallback,
   IPublicPlayer,
+  ESayCommand,
 } from "trucoshi";
 import { TrucoshiContext } from "../state/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../types";
@@ -22,6 +23,7 @@ export const useMatch = (
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
+  const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   if (!context) {
@@ -110,19 +112,24 @@ export const useMatch = (
       }
     });
 
-    socket.on(
-      EServerEvent.WAITING_PLAY,
-      (value: IPublicMatch, callback: (data: IWaitingPlayData) => void) => {
-        if (value.matchSessionId === matchId) {
-          setMatch(value);
-          setTurnCallback(() => callback);
-        }
+    socket.on(EServerEvent.WAITING_PLAY, (value, callback) => {
+      if (value.matchSessionId === matchId) {
+        setMatch(value);
+        setTurnCallback(() => callback);
       }
-    );
+    });
+
+    socket.on(EServerEvent.WAITING_POSSIBLE_SAY, (value, callback) => {
+      if (value.matchSessionId === matchId) {
+        setMatch(value);
+        setSayCallback(() => callback);
+      }
+    });
 
     return () => {
-      socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.UPDATE_MATCH);
+      socket.off(EServerEvent.WAITING_PLAY);
+      socket.off(EServerEvent.WAITING_POSSIBLE_SAY);
     };
   }, [matchId, setMatch, socket]);
 
@@ -138,8 +145,19 @@ export const useMatch = (
     [match, turnCallback]
   );
 
+  const sayCommand = useCallback(
+    (command: ESayCommand) => {
+      if (match && sayCallback) {
+        sayCallback({
+          command,
+        });
+      }
+    },
+    [match, sayCallback]
+  );
+
   return [
     { match, me, error },
-    { isMe, playCard, joinMatch, setReady, startMatch, createMatch },
+    { isMe, playCard, sayCommand, joinMatch, setReady, startMatch, createMatch },
   ];
 };

@@ -1,4 +1,4 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
@@ -10,6 +10,7 @@ import { PlayerTag } from "../components/PlayerTag";
 import { TeamCard, TeamTag } from "../components/TeamTag";
 import { Rounds } from "../components/Rounds";
 import {
+  ECommand,
   EMatchTableState,
   ICard,
   IHandPoints,
@@ -23,15 +24,17 @@ import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom } from "../components/ChatRoom";
 
 const Player = ({
-  match,
   session,
-  onPlayCard,
+  match,
   player,
+  onPlayCard,
+  onSayCommand,
 }: {
-  match: IPublicMatch;
   session: string | null;
-  onPlayCard: (cardIdx: number, card: ICard) => void;
+  match: IPublicMatch;
   player: IPublicPlayer;
+  onPlayCard: (cardIdx: number, card: ICard) => void;
+  onSayCommand: (command: ECommand) => void;
 }) => {
   const isMe = player.session === session;
   const [, isPrevious] = useRounds(match);
@@ -60,6 +63,10 @@ const Player = ({
               )
             )}
       </Box>
+
+      {isMe ? <Box>
+        {player.commands.map(command => <Button onClick={() => onSayCommand(command)} size="small" variant="text">{command}</Button>)}
+      </Box> : null}
     </Box>
   );
 };
@@ -117,7 +124,7 @@ export const Match = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [{ match, error }, { playCard }] = useMatch(sessionId);
+  const [{ match, error }, { playCard, sayCommand }] = useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -142,7 +149,7 @@ export const Match = () => {
           <GameTable
             match={match}
             Slot={({ player }) => (
-              <Player player={player} session={session} onPlayCard={playCard} match={match} />
+              <Player player={player} session={session} onPlayCard={playCard} onSayCommand={sayCommand} match={match} />
             )}
             InnerSlot={({ player }) => <Rounds player={player} match={match} />}
           />
