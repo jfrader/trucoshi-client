@@ -10,6 +10,7 @@ import { EMatchTableState } from "trucoshi";
 import { AnimatedButton } from "../components/AnimatedButton";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
+import { ChatRoom } from "../components/ChatRoom";
 
 export const Lobby = () => {
   const [{ session }] = useTrucoshi();
@@ -17,9 +18,7 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [{ match, me, error }, { joinMatch, setReady, startMatch, isMe }] = useMatch(
-    sessionId
-  );
+  const [{ match, me, error }, { joinMatch, setReady, startMatch, isMe }] = useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -39,6 +38,9 @@ export const Lobby = () => {
     <Container>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
+      <Box position="fixed" left="2em" top="4em">
+        <ChatRoom matchId={sessionId} players={match?.players} />
+      </Box>
       {match && (
         <GameTable
           match={match}
@@ -61,7 +63,7 @@ export const Lobby = () => {
                 <Box>
                   <PlayerTag isTurn={isMe(player)} player={player} />
                   {isMe(player) ? null : (
-                    <Button color={player.ready ? "success" : "error"}>
+                    <Button color={player.ready && !player.disabled ? "success" : "error"}>
                       {player.ready ? "Listo" : "Esperando"}
                     </Button>
                   )}

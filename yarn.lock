@@ -1674,6 +1674,13 @@
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.11.6.tgz#79a60c0d95a08859cccd62a8d9a5336ef477a840"
   integrity sha512-lbD3qdafBOf2dlqKhOcVRxaPAujX+9UlPC6v8iMugMeAXe0TCgU3QbGXY3zrJsu6ex64WYDpH4y1+WOOBmWMuA==
 
+"@mui/icons-material@^5.11.0":
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.11.0.tgz#9ea6949278b2266d2683866069cd43009eaf6464"
+  integrity sha512-I2LaOKqO8a0xcLGtIozC9xoXjZAto5G5gh0FYUMAlbsIHNHIjn4Xrw9rvjY20vZonyiGrZNMAlAXYkY6JvhF6A==
+  dependencies:
+    "@babel/runtime" "^7.20.6"
+
 "@mui/material@^5.11.6":
   version "5.11.6"
   resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.11.6.tgz#0055e7bdf5f89bb7f2a5cf0a3252dadfc9122c50"
@@ -8973,10 +8980,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-trucoshi@0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.2.4.tgz#62af75f5a42a5ad2ff28bda74d64e265ef60e647"
-  integrity sha512-ucGy6AFICrLbZwDLVu6In+BaCz+NnzifpEJHdN/EM+KATptebe6uYtiy0VcIKkG63C5D8XFWM8WJgh0GEMWs+Q==
+trucoshi@0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.2.6.tgz#fdb23239d4ca096992af48a7a70bc248c13229dd"
+  integrity sha512-tV6Df86F0AIRExmN7iduZ5E04yegWhQHBYaEeAVD5Ypg9J3C5Sm4+0BO4SFMGkkl9eSu6IW1Sr1dxgjfQgiD1Q==
   dependencies:
     rimraf "^4.1.1"
     socket.io "^4.5.4"

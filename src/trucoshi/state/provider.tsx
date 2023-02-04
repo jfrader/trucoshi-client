@@ -25,11 +25,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
 
   useEffect(() => {
-    if (isConnected) {
+    socket.on("connect", () => {
+      setConnected(true);
       socket.emit(
         EClientEvent.SET_SESSION,
-        session,
         id,
+        session,
         ({ success, session: newSession, activeMatches: newActiveMatches }) => {
           setLogged(true);
           if (!success && newSession) {
@@ -38,12 +39,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
           setActiveMatches(newActiveMatches);
         }
       );
-    }
-  }, [id, isConnected, session, setSession]);
-
-  useEffect(() => {
-    socket.on("connect", () => {
-      setConnected(true);
     });
 
     socket.on("disconnect", () => {
@@ -68,7 +63,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
 
   const sendUserId = useCallback(
     (userId: string) => {
-      socket.emit(EClientEvent.SET_SESSION, session, userId, ({ success, session }) => {
+      socket.emit(EClientEvent.SET_SESSION, userId, session, ({ success, session }) => {
         if (success) {
           setId(userId);
           if (session) {

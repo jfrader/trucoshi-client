@@ -33,6 +33,7 @@ export const MatchList = ({
           <List component="nav">
             {matches.map((info) => (
               <Tooltip
+                key={info.matchSessionId}
                 placement="right"
                 title={
                   <Typography color="success">

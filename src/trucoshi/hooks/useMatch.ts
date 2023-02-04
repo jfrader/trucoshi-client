@@ -91,7 +91,8 @@ export const useMatch = (
   }, [socket]);
 
   useEffect(() => {
-    if (matchId && context.state.session) {
+    if (matchId) {
+      console.log("fetching match with session", context.state.session);
       socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
         if (!success) {
           setError(new Error("No se pudo encontrar la partida"));

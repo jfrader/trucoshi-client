@@ -20,6 +20,7 @@ import {
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
+import { ChatRoom } from "../components/ChatRoom";
 
 const Player = ({
   match,
@@ -130,6 +131,9 @@ export const Match = () => {
     <Container>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
+      <Box position="fixed" left="2em" top="4em">
+        <ChatRoom matchId={sessionId} players={match?.players} />
+      </Box>
       {match && (
         <>
           <Box position="fixed" right="2em" top="4em">
