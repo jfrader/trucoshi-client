@@ -45,6 +45,14 @@ export interface ITrucoshiMatchActions {
   isMe(player: IPublicPlayer): boolean;
 }
 
+export interface ITrucoshiMatchState {
+  match: IPublicMatch | null;
+  me: IPublicPlayer | null;
+  error: Error | null;
+  canPlay: boolean;
+  canSay: boolean;
+}
+
 export interface ITrucoshiContext {
   state: ITrucoshiState;
   dispatch: ITrucoshiActions;

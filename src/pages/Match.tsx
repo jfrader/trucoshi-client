@@ -27,12 +27,16 @@ const Player = ({
   session,
   match,
   player,
+  canSay,
+  canPlay,
   onPlayCard,
   onSayCommand,
 }: {
   session: string | null;
   match: IPublicMatch;
   player: IPublicPlayer;
+  canSay: boolean,
+  canPlay: boolean,
   onPlayCard: (cardIdx: number, card: ICard) => void;
   onSayCommand: (command: ECommand) => void;
 }) => {
@@ -64,7 +68,7 @@ const Player = ({
             )}
       </Box>
 
-      {isMe ? <Box>
+      {isMe && canSay && !isPrevious ? <Box>
         {player.commands.map(command => <Button onClick={() => onSayCommand(command)} size="small" variant="text">{command}</Button>)}
       </Box> : null}
     </Box>
@@ -124,7 +128,7 @@ export const Match = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [{ match, error }, { playCard, sayCommand }] = useMatch(sessionId);
+  const [{ match, error, canSay, canPlay }, { playCard, sayCommand }] = useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -149,7 +153,7 @@ export const Match = () => {
           <GameTable
             match={match}
             Slot={({ player }) => (
-              <Player player={player} session={session} onPlayCard={playCard} onSayCommand={sayCommand} match={match} />
+              <Player canSay={canSay} canPlay={canPlay} player={player} session={session} onPlayCard={playCard} onSayCommand={sayCommand} match={match} />
             )}
             InnerSlot={({ player }) => <Rounds player={player} match={match} />}
           />

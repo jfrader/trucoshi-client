@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   IPublicMatch,
   ICard,
@@ -10,14 +10,9 @@ import {
   ESayCommand,
 } from "trucoshi";
 import { TrucoshiContext } from "../state/context";
-import { ICallbackMatchUpdate, ITrucoshiMatchActions } from "../types";
+import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 
-export const useMatch = (
-  matchId?: string | null
-): [
-  { match: IPublicMatch | null; me: IPublicPlayer | null; error: Error | null },
-  ITrucoshiMatchActions
-] => {
+export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
 
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
@@ -140,6 +135,7 @@ export const useMatch = (
           cardIdx,
           card,
         });
+        setTurnCallback(null);
       }
     },
     [match, turnCallback]
@@ -151,13 +147,17 @@ export const useMatch = (
         sayCallback({
           command,
         });
+        setSayCallback(null);
       }
     },
     [match, sayCallback]
   );
 
+  const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
+  const canSay = useMemo(() => Boolean(match && sayCallback), [match, sayCallback]);
+
   return [
-    { match, me, error },
+    { match, me, error, canPlay, canSay },
     { isMe, playCard, sayCommand, joinMatch, setReady, startMatch, createMatch },
   ];
 };
