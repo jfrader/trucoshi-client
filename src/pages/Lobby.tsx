@@ -58,10 +58,11 @@ export const Lobby = () => {
             ) : null;
           }}
           Slot={({ player }) => {
+            const itsme = isMe(player);
             return (
               <Box pt={4}>
                 <Box>
-                  <PlayerTag isTurn={isMe(player)} player={player} />
+                  <PlayerTag isTurn={itsme} isMe={itsme} player={player} />
                   {isMe(player) ? null : (
                     <Button color={player.ready && !player.disabled ? "success" : "error"}>
                       {player.ready ? "Listo" : "Esperando"}

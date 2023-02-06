@@ -9,48 +9,41 @@ import { useRounds } from "../trucoshi/hooks/useRounds";
 import { PlayerTag } from "../components/PlayerTag";
 import { TeamCard, TeamTag } from "../components/TeamTag";
 import { Rounds } from "../components/Rounds";
-import {
-  ECommand,
-  EMatchTableState,
-  ICard,
-  IHandPoints,
-  IPublicMatch,
-  IPublicPlayer,
-  IPublicTeam,
-} from "trucoshi";
+import { EMatchTableState, ICard, IHandPoints, IPublicPlayer, IPublicTeam } from "trucoshi";
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom } from "../components/ChatRoom";
+import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
+
+type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
+  session: string | null;
+  player: IPublicPlayer;
+  onPlayCard: ITrucoshiMatchActions["playCard"];
+  onSayCommand: ITrucoshiMatchActions["sayCommand"];
+};
 
 const Player = ({
   session,
   match,
+  previousHand,
   player,
   canSay,
   canPlay,
   onPlayCard,
   onSayCommand,
-}: {
-  session: string | null;
-  match: IPublicMatch;
-  player: IPublicPlayer;
-  canSay: boolean,
-  canPlay: boolean,
-  onPlayCard: (cardIdx: number, card: ICard) => void;
-  onSayCommand: (command: ECommand) => void;
-}) => {
+}: PlayerProps) => {
   const isMe = player.session === session;
-  const [, isPrevious] = useRounds(match);
+  const [, isPrevious] = useRounds(match, previousHand);
   return (
     <Box maxWidth="100%" pt={2}>
-      <PlayerTag player={player} isTurn={player.isTurn} />
+      <PlayerTag player={player} isTurn={player.isTurn} isMe={isMe} />
       <Box zIndex={10} pt={2}>
         {!isPrevious &&
           player.hand
-            .map((c, idx) => [c, idx + c + player.session])
+            .map((c, i) => [c, i + c + player.key])
             .map(([card, key], idx) =>
-              isMe && player.isTurn ? (
+              canPlay && isMe && player.isTurn ? (
                 <GameCard
                   enableHover
                   key={key}
@@ -68,9 +61,15 @@ const Player = ({
             )}
       </Box>
 
-      {isMe && canSay && !isPrevious ? <Box>
-        {player.commands.map(command => <Button onClick={() => onSayCommand(command)} size="small" variant="text">{command}</Button>)}
-      </Box> : null}
+      {isMe && canSay && !isPrevious ? (
+        <Box>
+          {player.commands.map((command) => (
+            <Button onClick={() => onSayCommand(command)} size="small" variant="text">
+              {command}
+            </Button>
+          ))}
+        </Box>
+      ) : null}
     </Box>
   );
 };
@@ -128,7 +127,8 @@ export const Match = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [{ match, error, canSay, canPlay }, { playCard, sayCommand }] = useMatch(sessionId);
+  const [{ match, error, canSay, canPlay, previousHand }, { playCard, sayCommand, nextHand }] =
+    useMatch(sessionId);
 
   const navigate = useNavigate();
 
@@ -148,14 +148,31 @@ export const Match = () => {
       {match && (
         <>
           <Box position="fixed" right="2em" top="4em">
-            <MatchPoints teams={match.teams} prevHandPoints={match.prevHandPoints} />
+            <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
           </Box>
           <GameTable
             match={match}
             Slot={({ player }) => (
-              <Player canSay={canSay} canPlay={canPlay} player={player} session={session} onPlayCard={playCard} onSayCommand={sayCommand} match={match} />
+              <Player
+                key={player.key}
+                previousHand={previousHand}
+                canSay={canSay}
+                canPlay={canPlay}
+                player={player}
+                session={session}
+                onPlayCard={playCard}
+                onSayCommand={sayCommand}
+                match={match}
+              />
             )}
-            InnerSlot={({ player }) => <Rounds player={player} match={match} />}
+            InnerSlot={({ player }) => (
+              <Rounds
+                previousHand={previousHand}
+                previousHandCallback={nextHand}
+                player={player}
+                match={match}
+              />
+            )}
           />
         </>
       )}

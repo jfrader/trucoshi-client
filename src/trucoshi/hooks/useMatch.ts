@@ -8,6 +8,7 @@ import {
   IWaitingSayCallback,
   IPublicPlayer,
   ESayCommand,
+  IMatchPreviousHand,
 } from "trucoshi";
 import { TrucoshiContext } from "../state/context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
@@ -20,6 +21,7 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -121,7 +123,14 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
       }
     });
 
+    socket.on(EServerEvent.PREVIOUS_HAND, (value, callback) => {
+      if (value.matchSessionId === matchId) {
+        setPreviousHand([value, callback]);
+      }
+    });
+
     return () => {
+      socket.off(EServerEvent.PREVIOUS_HAND);
       socket.off(EServerEvent.UPDATE_MATCH);
       socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY);
@@ -153,11 +162,18 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
     [match, sayCallback]
   );
 
+  const nextHand = useCallback(() => {
+    if (match && previousHand && previousHand[1]) {
+      previousHand[1]();
+      setPreviousHand(null);
+    }
+  }, [match, previousHand]);
+
   const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
   const canSay = useMemo(() => Boolean(match && sayCallback), [match, sayCallback]);
 
   return [
-    { match, me, error, canPlay, canSay },
-    { isMe, playCard, sayCommand, joinMatch, setReady, startMatch, createMatch },
+    { match, me, error, canPlay, canSay, previousHand: previousHand ? previousHand[0] : null },
+    { isMe, playCard, sayCommand, joinMatch, setReady, startMatch, createMatch, nextHand },
   ];
 };

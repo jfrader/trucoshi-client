@@ -1,24 +1,33 @@
 import { useEffect, useState } from "react";
-import { IPlayedCard, IPublicMatch } from "trucoshi";
+import { IHandPoints, IMatchPreviousHand, IPlayedCard, IPublicMatch } from "trucoshi";
 import { PREVIOUS_HAND_ANIMATION_DURATION } from "../constants";
 
-export const useRounds = (match: IPublicMatch): [IPlayedCard[][], boolean] => {
-  const [rounds, setRounds] = useState<IPlayedCard[][]>(match.rounds);
+export const useRounds = (
+  match: IPublicMatch | null,
+  previousHand: IMatchPreviousHand | null,
+  callback?: () => void
+): [IPlayedCard[][], IHandPoints | null, boolean] => {
+  const [rounds, setRounds] = useState<IPlayedCard[][]>(match ? match.rounds : []);
+  const [points, setPoints] = useState<IHandPoints | null>(null);
   const [isPrevious, setPrevious] = useState<boolean>(true);
 
   useEffect(() => {
-    if (match.prevRounds) {
+    if (previousHand) {
       setPrevious(true);
-      setRounds(match.prevRounds);
+      setPoints(previousHand.points);
+      setRounds(previousHand.rounds);
       setTimeout(() => {
         setPrevious(false);
-        setRounds(match.rounds);
+        setPoints(null);
+        setRounds(match ? match.rounds : []);
+        callback?.();
       }, PREVIOUS_HAND_ANIMATION_DURATION);
       return;
     }
+    setPoints(null);
     setPrevious(false);
-    setRounds(match.rounds);
-  }, [match.prevRounds, match.rounds]);
+    setRounds(match ? match.rounds : []);
+  }, [previousHand, callback, match]);
 
-  return [rounds, isPrevious];
+  return [rounds, points, isPrevious];
 };

@@ -1,12 +1,26 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
-import { IPublicMatch, IPublicPlayer } from "trucoshi";
+import { IMatchPreviousHand, IPublicMatch, IPublicPlayer } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { GameCard, GameCardContainer } from "./GameCard";
 
-export const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublicPlayer }) => {
+export const Rounds = ({
+  match,
+  previousHand,
+  previousHandCallback,
+  player,
+}: {
+  match: IPublicMatch;
+  previousHand: IMatchPreviousHand | null;
+  previousHandCallback: () => void;
+  player: IPublicPlayer;
+}) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
-  const [rounds, isPrevious] = useRounds(match);
+  const [rounds, isPrevious] = useRounds(match, previousHand, previousHandCallback);
+
+  if (isPrevious) {
+    console.log(rounds);
+  }
 
   return (
     <Box maxWidth="100%" height="100%" marginTop="2em" pr={9}>
@@ -23,10 +37,7 @@ export const Rounds = ({ match, player }: { match: IPublicMatch; player: IPublic
       >
         {rounds.map((round, i) =>
           round.map((pc) => {
-            if (
-              player.usedHand.includes(pc.card) ||
-              (isPrevious && player.prevHand.includes(pc.card))
-            ) {
+            if (pc.player.key === player.key) {
               return (
                 <GameCardContainer
                   key={pc.key}

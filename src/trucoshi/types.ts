@@ -4,6 +4,7 @@ import {
   ECommand,
   EMatchTableState,
   ICard,
+  IMatchPreviousHand,
   IPublicMatch,
   IPublicPlayer,
   IWaitingPlayData,
@@ -42,10 +43,12 @@ export interface ITrucoshiMatchActions {
   setReady(sessionId: string, ready: boolean): void;
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand): void;
+  nextHand(): void;
   isMe(player: IPublicPlayer): boolean;
 }
 
 export interface ITrucoshiMatchState {
+  previousHand: IMatchPreviousHand | null;
   match: IPublicMatch | null;
   me: IPublicPlayer | null;
   error: Error | null;
