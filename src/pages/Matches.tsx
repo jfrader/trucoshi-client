@@ -14,6 +14,7 @@ export const Matches = () => {
         matches={publicMatches}
         NoMatches={<Typography>No se encontraron partidas</Typography>}
         title={"Partidas Online"}
+        onRefresh={fetchPublicMatches}
       />
     </Box>
   );

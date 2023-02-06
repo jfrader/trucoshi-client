@@ -6,7 +6,7 @@ from, 20%, 53%, 80%, to {
 }
 
 40%, 43% {
-  transform: translate3d(0, -8px, 0);
+  transform: translate3d(0, -7px, 0);
 }
 
 70% {

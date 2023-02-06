@@ -23,7 +23,7 @@ export const Rounds = ({
   }
 
   return (
-    <Box maxWidth="100%" height="100%" marginTop="2em" pr={9}>
+    <Box maxWidth="100%" height="100%" pt="30%" pr="30%">
       <Box
         margin="0 auto"
         px={4}

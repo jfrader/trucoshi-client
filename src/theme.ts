@@ -37,13 +37,6 @@ export const theme = createTheme({
         },
       ],
     },
-    MuiBackdrop: {
-      styleOverrides: {
-        root: {
-          backgroundColor: "rgb(0, 0, 0, 0.9)",
-        },
-      },
-    },
     MuiLink: {
       styleOverrides: {
         root: {

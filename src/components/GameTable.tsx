@@ -1,13 +1,12 @@
 import { CSSProperties, FC, Fragment } from "react";
-import styled from "@emotion/styled";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, useTheme, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
 
 const Container = styled(Box)`
-  padding: 24px;
-  --d: 7.5em; /* image size */
+  padding: 16px;
+  --d: 12rem; /* image size */
   --rel: 0.7; /* how much extra space we want between images, 1 = one image size */
-  --r: calc(0.5 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --r: calc(0.42 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   position: relative;
   margin: 0 auto;
@@ -17,13 +16,13 @@ const Container = styled(Box)`
 `;
 
 const Item = styled(Paper)`
-  z-index: 9;
   position: absolute;
   top: 50%;
   left: 50%;
   margin: calc(-0.5 * var(--d));
   width: var(--d);
   height: var(--d);
+  zoom: var(--z);
   --az: calc(var(--i) * 1turn / var(--m));
   transform: rotate(var(--az)) translate(var(--r)) rotate(calc(-1 * var(--az))) rotate(270deg);
 `;
@@ -46,9 +45,18 @@ interface GameTableProps {
   Slot: FC<{ player: IPublicPlayer }>;
   InnerSlot?: FC<{ player: IPublicPlayer }>;
   FillSlot?: FC<{ i: number }>;
+  zoomOnIndex?: number;
 }
 
-export const GameTable = ({ match, Slot, InnerSlot, FillSlot, fill }: GameTableProps) => {
+export const GameTable = ({
+  match,
+  Slot,
+  InnerSlot,
+  FillSlot,
+  fill,
+  zoomOnIndex,
+}: GameTableProps) => {
+  const theme = useTheme();
   const { players } = match;
 
   const length = fill && players.length < fill ? fill : players.length;
@@ -75,7 +83,15 @@ export const GameTable = ({ match, Slot, InnerSlot, FillSlot, fill }: GameTableP
       <Container style={{ "--m": length, "--tan": tan.toFixed(2) } as CSSProperties}>
         {items.map((player, i) => (
           <Fragment key={player.id}>
-            <Item style={{ "--i": `${i}` } as CSSProperties}>
+            <Item
+              style={
+                {
+                  "--i": `${i}`,
+                  "--z": zoomOnIndex === i ? `1.05` : `1`,
+                  zIndex: theme.zIndex.fab,
+                } as CSSProperties
+              }
+            >
               {player.hand ? (
                 <Slot player={player} />
               ) : (

@@ -4,7 +4,8 @@ import { ICard } from "trucoshi";
 
 const GameCardButton = styled(Button)<{ enablehover?: boolean }>(({ theme, enablehover }) => [
   {
-    padding: "2.5em 0",
+    minWidth: 0,
+    padding: "1.6rem 1rem",
     transition: theme.transitions.create(["transform"], {
       duration: theme.transitions.duration.standard,
     }),
@@ -44,9 +45,9 @@ export const GameCard = ({
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {
     const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
-    const margin = 8 * i + "px";
+    const margin = 7 * i + "px";
     const openMargin =
-      cards > 1 && i % 2 === 0 ? `calc((8px * ${i}) ${i === 0 ? "- 1.68" : "+ 1.2"}em)` : 0;
+      cards > 1 && i % 2 === 0 ? `calc((7px * ${i}) ${i === 0 ? "- 2.68" : "+ 2"}rem)` : 0;
 
     return [
       {

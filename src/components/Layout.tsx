@@ -11,14 +11,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
     <ThemeProvider theme={theme}>
       <div className="App">
         <header className="App-header">
-          <Box
-            pb={10}
-            height="100vh"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flexDirection="column"
-          >
+          <Box pb={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
             <Box py={2}>
               <Link to="/">
                 <Typography variant="h3">Trucoshi</Typography>
@@ -26,7 +19,13 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Paper elevation={4}>
-                <Box minWidth="15em" minHeight="5em" display="flex">
+                <Box
+                  minWidth="20vw"
+                  minHeight="20vh"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   {children}
                   <Outlet />
                 </Box>

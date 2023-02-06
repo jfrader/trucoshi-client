@@ -7,7 +7,7 @@ interface ITeamTagProps {
 
 export const TeamTag = ({ teamIdx }: ITeamTagProps) => {
   return (
-    <Typography color={getTeamColor(teamIdx)} variant="subtitle1">
+    <Typography color={getTeamColor(teamIdx)}>
       <span>{getTeamName(teamIdx)}</span>
     </Typography>
   );

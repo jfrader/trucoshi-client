@@ -1,4 +1,4 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, ButtonGroup, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
@@ -15,6 +15,7 @@ import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom } from "../components/ChatRoom";
 import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
+import Paper from "@mui/material/Paper";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
   session: string | null;
@@ -36,9 +37,9 @@ const Player = ({
   const isMe = player.session === session;
   const [, isPrevious] = useRounds(match, previousHand);
   return (
-    <Box maxWidth="100%" pt={2}>
+    <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
       <PlayerTag player={player} isTurn={player.isTurn} isMe={isMe} />
-      <Box zIndex={10} pt={2}>
+      <Box pt={1}>
         {!isPrevious &&
           player.hand
             .map((c, i) => [c, i + c + player.key])
@@ -60,14 +61,30 @@ const Player = ({
               )
             )}
       </Box>
-
       {isMe && canSay && !isPrevious ? (
-        <Box>
-          {player.commands.map((command) => (
-            <Button onClick={() => onSayCommand(command)} size="small" variant="text">
-              {command}
-            </Button>
-          ))}
+        <Box
+          pt={1}
+          component={Paper}
+          justifySelf="end"
+          flexGrow={1}
+          height="100%"
+          display="flex"
+          flexDirection="column"
+          justifyContent="flex-end"
+          alignItems="center"
+        >
+          <ButtonGroup sx={{ flexWrap: "wrap", alignItems: "center", justifyContent: "center" }}>
+            {player.commands.map((command) => (
+              <Button
+                onClick={() => onSayCommand(command)}
+                size="small"
+                variant="text"
+                color="success"
+              >
+                {command}
+              </Button>
+            ))}
+          </ButtonGroup>
         </Box>
       ) : null}
     </Box>
@@ -142,12 +159,9 @@ export const Match = () => {
     <Container>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
-      <Box position="fixed" left="2em" top="4em">
-        <ChatRoom matchId={sessionId} players={match?.players} />
-      </Box>
       {match && (
         <>
-          <Box position="fixed" right="2em" top="4em">
+          <Box position="fixed" right="2em" top="2em">
             <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
           </Box>
           <GameTable
@@ -176,6 +190,7 @@ export const Match = () => {
           />
         </>
       )}
+      <ChatRoom matchId={sessionId} players={match?.players} />
     </Container>
   );
 };

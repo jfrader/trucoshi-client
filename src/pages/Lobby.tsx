@@ -38,9 +38,6 @@ export const Lobby = () => {
     <Container>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
-      <Box position="fixed" left="2em" top="4em">
-        <ChatRoom matchId={sessionId} players={match?.players} />
-      </Box>
       {match && (
         <GameTable
           match={match}
@@ -49,7 +46,7 @@ export const Lobby = () => {
             const joinTeamIdx = i % 2 === 0 ? 0 : 1;
             return !me || joinTeamIdx !== me.teamIdx ? (
               <Button
-                variant="outlined"
+                variant="text"
                 color={getTeamColor(joinTeamIdx)}
                 onClick={() => onJoinMatch(joinTeamIdx)}
               >
@@ -63,22 +60,27 @@ export const Lobby = () => {
               <Box pt={4}>
                 <Box>
                   <PlayerTag isTurn={itsme} isMe={itsme} player={player} />
-                  {isMe(player) ? null : (
-                    <Button color={player.ready && !player.disabled ? "success" : "error"}>
-                      {player.ready ? "Listo" : "Esperando"}
-                    </Button>
-                  )}
-                  {isMe(player) ? (
-                    me?.ready ? (
-                      <Button color="success" onClick={onSetUnReady}>
-                        Listo
+                  <Box pt={2}>
+                    {isMe(player) ? null : (
+                      <Button
+                        size="small"
+                        color={player.ready && !player.disabled ? "success" : "error"}
+                      >
+                        {player.ready ? "Listo" : "Esperando"}
                       </Button>
-                    ) : (
-                      <AnimatedButton color="warning" onClick={onSetReady}>
-                        Estoy Listo
-                      </AnimatedButton>
-                    )
-                  ) : null}
+                    )}
+                    {isMe(player) ? (
+                      me?.ready ? (
+                        <Button size="small" color="success" onClick={onSetUnReady}>
+                          Listo
+                        </Button>
+                      ) : (
+                        <AnimatedButton size="small" color="warning" onClick={onSetReady}>
+                          Estoy Listo
+                        </AnimatedButton>
+                      )
+                    ) : null}
+                  </Box>
                 </Box>
                 <Box>
                   {isMe(player) && player.isOwner ? (
@@ -87,6 +89,7 @@ export const Lobby = () => {
                         <Button
                           disabled={match.state !== EMatchTableState.READY}
                           variant="contained"
+                          size="small"
                           color="success"
                           onClick={onStartMatch}
                         >
@@ -101,6 +104,9 @@ export const Lobby = () => {
           }}
         />
       )}
+      <Box position="fixed" left="2em" top="2em">
+        <ChatRoom matchId={sessionId} players={match?.players} />
+      </Box>
     </Container>
   );
 };

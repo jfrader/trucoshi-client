@@ -28,7 +28,7 @@ export const Main = () => {
   return (
     <Container>
       <SocketBackdrop message="Conectando..." />
-      <Box p={4}>
+      <Box p={4} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <FormGroup>
           <TextField
             color="warning"
@@ -40,19 +40,19 @@ export const Main = () => {
           <Button color="warning" onClick={() => name && sendUserId(name)}>
             Cambiar Nombre
           </Button>
-          {isLogged ? (
-            <>
-              <Button size="large" color="primary" onClick={onCreateMatch}>
-                Crear Partida
-              </Button>
-              <Button size="large" color="secondary" onClick={() => navigate("/matches")}>
-                Ver Mesas
-              </Button>
-            </>
-          ) : null}
         </FormGroup>
+        {isLogged ? (
+          <Box display="flex" justifySelf="flex-end" alignItems="flex-end" justifyContent="center" flexGrow={1}>
+            <Button size="large" color="primary" onClick={onCreateMatch}>
+              Crear Partida
+            </Button>
+            <Button size="large" color="secondary" onClick={() => navigate("/matches")}>
+              Ver Mesas
+            </Button>
+          </Box>
+        ) : null}
       </Box>
-      <Box mt={8}>
+      <Box>
         {activeMatches.length ? (
           <MatchList matches={activeMatches} title="Tus partidas activas" />
         ) : null}

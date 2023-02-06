@@ -16,7 +16,11 @@ export const Backdrop = ({
   return (
     <MuiBackdrop
       {...props}
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, color: "text.primary" }}
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        color: "text.primary",
+        backgroundColor: "rgb(0, 0, 0, 0.9)",
+      }}
     >
       <Box
         display="flex"

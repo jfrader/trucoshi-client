@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  IconButton,
   List,
   ListItemAvatar,
   ListItemButton,
@@ -8,6 +9,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 import { EMatchTableState, IPublicMatchInfo } from "trucoshi";
@@ -16,10 +18,12 @@ export const MatchList = ({
   matches,
   title,
   NoMatches = null,
+  onRefresh,
 }: {
   title: string;
   matches: Array<IPublicMatchInfo>;
   NoMatches?: ReactElement | null;
+  onRefresh?(): void;
 }) => {
   const navigate = useNavigate();
 
@@ -27,6 +31,11 @@ export const MatchList = ({
     <Box display="flex" flexGrow={1} flexDirection="column">
       <Typography color="warning" variant="h5">
         {title}
+        {onRefresh ? (
+          <IconButton onClick={() => onRefresh()}>
+            <RefreshIcon />
+          </IconButton>
+        ) : null}
       </Typography>
       {matches.length ? (
         <Box>
