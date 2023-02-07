@@ -38,6 +38,7 @@ export interface ITrucoshiActions {
 
 export interface ITrucoshiMatchActions {
   startMatch(): void;
+  leaveMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
   joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;

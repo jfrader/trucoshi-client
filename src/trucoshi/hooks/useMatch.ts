@@ -61,6 +61,7 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
       socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready, ({ success, match }) => {
         if (success && match) {
           setMatch(match);
+          return;
         }
         console.error("Could not set as ready or unready");
       });
@@ -71,7 +72,6 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
   const joinMatch = useCallback(
     (matchId: string, teamIdx?: 0 | 1) => {
       socket.emit(EClientEvent.JOIN_MATCH, matchId, teamIdx, ({ match, success }) => {
-        console.log({ success, match });
         if (match) {
           return setMatch(match);
         }
@@ -91,7 +91,6 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
 
   useEffect(() => {
     if (matchId) {
-      console.log("fetching match with session", context.state.session);
       socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
         if (!success) {
           setError(new Error("No se pudo encontrar la partida"));
@@ -162,6 +161,12 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
     [match, sayCallback]
   );
 
+  const leaveMatch = useCallback(() => {
+    if (matchId && match && match.winner) {
+      socket.emit(EClientEvent.LEAVE_MATCH, matchId);
+    }
+  }, [match, matchId, socket]);
+
   const nextHand = useCallback(() => {
     if (match && previousHand && previousHand[1]) {
       previousHand[1]();
@@ -174,6 +179,16 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
 
   return [
     { match, me, error, canPlay, canSay, previousHand: previousHand ? previousHand[0] : null },
-    { isMe, playCard, sayCommand, joinMatch, setReady, startMatch, createMatch, nextHand },
+    {
+      isMe,
+      playCard,
+      sayCommand,
+      joinMatch,
+      setReady,
+      startMatch,
+      createMatch,
+      leaveMatch,
+      nextHand,
+    },
   ];
 };

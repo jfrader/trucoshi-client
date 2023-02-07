@@ -17,12 +17,20 @@ export const useChat = (
   const { socket } = context;
 
   useEffect(() => {
+    if (room) {
+      onMessages?.(room);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room]);
+
+  useEffect(() => {
     socket.on(EServerEvent.UPDATE_CHAT, (room) => {
       setRoom(room);
-      if (room) {
-        onMessages?.(room);
-      }
     });
+
+    return () => {
+      socket.off(EServerEvent.UPDATE_CHAT);
+    };
   }, [onMessages, socket]);
 
   const chat = useCallback(

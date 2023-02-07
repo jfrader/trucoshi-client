@@ -1,5 +1,6 @@
 import {
   Box,
+  BoxProps,
   Button,
   ButtonGroup,
   List,
@@ -16,11 +17,11 @@ import {
 import { useState, createRef } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
-import { IPublicPlayer } from "trucoshi";
-import { getTeamColor } from "../utils/team";
+import { IChatMessage, IPublicPlayer } from "trucoshi";
+import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
 
-const ChatBox = styled(Box)<{ active: boolean }>(({ theme, active }) => [
+const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
     opacity: active ? "0.95" : "0.4",
   },
@@ -29,7 +30,8 @@ const ChatBox = styled(Box)<{ active: boolean }>(({ theme, active }) => [
 export const ChatRoom = ({
   matchId,
   players,
-}: {
+  ...props
+}: BoxProps & {
   matchId?: string;
   players?: Array<IPublicPlayer>;
 }) => {
@@ -40,10 +42,12 @@ export const ChatRoom = ({
   const formRef = createRef<HTMLFormElement>();
 
   const [room, chat, isLoading] = useChat(matchId, () => {
-    listRef.current?.scrollTo({
-      top: listRef.current?.scrollHeight,
-    });
-    setActive(true);
+    if (listRef.current) {
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+      });
+      setActive(true);
+    }
   });
 
   const onActivate = (e: any) => {
@@ -52,74 +56,42 @@ export const ChatRoom = ({
   };
 
   return (
-    <ClickAwayListener onClickAway={() => setActive(false)}>
-      <form
-        ref={formRef}
-        onSubmit={(e) => {
-          e.preventDefault();
-          chat(message);
-          setMessage("");
-        }}
-      >
+    <form
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault();
+        chat(message);
+        setMessage("");
+      }}
+    >
+      <ClickAwayListener onClickAway={() => setActive(false)}>
         <ChatBox
+          active={Number(active)}
           onClick={onActivate}
           position="absolute"
-          left="2rem"
-          top="2rem"
+          left="0"
+          top="0"
           height="15rem"
           zIndex={theme.zIndex.modal}
           width="15rem"
           display="flex"
           flexDirection="column"
-          active={active}
           sx={{ zIndex: (theme) => theme.zIndex.drawer + 2 }}
+          {...props}
         >
           <List
             component={Paper}
             ref={listRef}
             sx={{
               justifyContent: "flex-end",
-              display: "flex",
-              flexDirection: "column",
               m: 0,
               overflowY: "scroll",
               flexGrow: 1,
-              maxHeight: "100%",
+              height: "15rem",
             }}
           >
             {room?.messages.map((message) => {
-              return (
-                <Slide in={true} direction="right" key={message.date}>
-                  <ListItem
-                    sx={{
-                      animation: `0.6s ${bounce} 1`,
-                      py: "0.05em",
-                    }}
-                  >
-                    <ListItemText>
-                      {message.system ? null : (
-                        <Typography
-                          color={players?.reduce((prev, player) => {
-                            return player.key === message.user.key
-                              ? getTeamColor(player.teamIdx)
-                              : prev;
-                          }, "text.primary" as string)}
-                          display="inline"
-                        >
-                          {message.user.id}:{" "}
-                        </Typography>
-                      )}
-                      <Typography
-                        color="text.secondary"
-                        display="inline"
-                        sx={{ wordWrap: "break-word" }}
-                      >
-                        {message.content}
-                      </Typography>
-                    </ListItemText>
-                  </ListItem>
-                </Slide>
-              );
+              return <Message key={message.date} message={message} players={players} />;
             })}
           </List>
           <Slide in={active} direction="right">
@@ -146,7 +118,57 @@ export const ChatRoom = ({
             </ButtonGroup>
           </Slide>
         </ChatBox>
-      </form>
-    </ClickAwayListener>
+      </ClickAwayListener>
+    </form>
+  );
+};
+
+const MessageAuthor = ({
+  message,
+  players,
+}: {
+  message: IChatMessage;
+  players?: Array<IPublicPlayer>;
+}) => {
+  const color = message.command
+    ? getTeamColor(Number(message.user.key))
+    : players?.reduce((prev, player) => {
+        return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
+      }, "text.primary" as string);
+
+  return (
+    <Typography color={color} display="inline">
+      {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.id + ": "}
+    </Typography>
+  );
+};
+
+const Message = ({
+  message,
+  players,
+}: {
+  message: IChatMessage;
+  players?: Array<IPublicPlayer>;
+}) => {
+  return (
+    <Slide in={true} direction="right">
+      <ListItem
+        sx={{
+          animation: `0.6s ${bounce} ${message.command ? 6 : 1}`,
+          py: "0.05em",
+        }}
+      >
+        <ListItemText>
+          {message.system ? null : <MessageAuthor message={message} players={players} />}
+          <Typography
+            color={message.command ? getTeamColor(Number(message.user.key)) : "text.secondary"}
+            display="inline"
+            sx={{ wordWrap: "break-word" }}
+          >
+            {message.content}
+          </Typography>
+        </ListItemText>
+      </ListItem>
+    </Slide>
   );
 };
