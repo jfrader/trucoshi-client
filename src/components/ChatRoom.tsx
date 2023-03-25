@@ -39,7 +39,6 @@ export const ChatRoom = ({
   const [message, setMessage] = useState<string>("");
   const theme = useTheme();
   const listRef = createRef<HTMLDivElement>();
-  const formRef = createRef<HTMLFormElement>();
 
   const [room, chat, isLoading] = useChat(matchId, () => {
     if (listRef.current) {
@@ -57,7 +56,6 @@ export const ChatRoom = ({
 
   return (
     <form
-      ref={formRef}
       onSubmit={(e) => {
         e.preventDefault();
         chat(message);

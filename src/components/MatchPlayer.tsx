@@ -73,6 +73,17 @@ export const MatchPlayer = ({
                 {command}
               </Button>
             ))}
+            {player.isEnvidoTurn && player.envido.map((points) => (
+              <Button
+                key={points}
+                onClick={() => onSayCommand(points)}
+                size="small"
+                variant="text"
+                color="success"
+              >
+                {points}
+              </Button>
+            ))}
           </ButtonGroup>
         </Box>
       ) : null}

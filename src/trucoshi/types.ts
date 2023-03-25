@@ -43,7 +43,7 @@ export interface ITrucoshiMatchActions {
   joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;
   playCard(cardIdx: number, card: ICard): void;
-  sayCommand(command: ECommand): void;
+  sayCommand(command: ECommand | number): void;
   nextHand(): void;
   isMe(player: IPublicPlayer): boolean;
 }

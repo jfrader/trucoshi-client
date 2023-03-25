@@ -14,7 +14,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           <Box pb={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
             <Box py={2}>
               <Link to="/">
-                <Typography variant="h3">Trucoshi</Typography>
+                <Typography variant="h6">Trucoshi</Typography>
               </Link>
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">

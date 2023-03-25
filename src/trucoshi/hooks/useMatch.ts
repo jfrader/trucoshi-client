@@ -129,10 +129,10 @@ export const useMatch = (matchId?: string | null): [ITrucoshiMatchState, ITrucos
     });
 
     return () => {
-      socket.off(EServerEvent.PREVIOUS_HAND);
       socket.off(EServerEvent.UPDATE_MATCH);
       socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY);
+      socket.off(EServerEvent.PREVIOUS_HAND);
     };
   }, [matchId, setMatch, socket]);
 
