@@ -11,8 +11,10 @@ import { AnimatedButton } from "../components/AnimatedButton";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom } from "../components/ChatRoom";
+import { useSound } from "../sound/hooks/useSound";
 
 export const Lobby = () => {
+  useSound();
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 

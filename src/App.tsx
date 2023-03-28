@@ -6,6 +6,7 @@ import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/state/provider";
 import { Match } from "./pages/Match";
 import { Matches } from "./pages/Matches";
+import { SoundProvider } from "./sound/state/provider";
 
 const AppRouter = createBrowserRouter([
   {
@@ -35,7 +36,9 @@ const AppRouter = createBrowserRouter([
 function App() {
   return (
     <TrucoshiProvider>
-      <RouterProvider router={AppRouter} />
+      <SoundProvider>
+        <RouterProvider router={AppRouter} />
+      </SoundProvider>
     </TrucoshiProvider>
   );
 }

@@ -2192,6 +2192,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/howler@^2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@types/howler/-/howler-2.2.7.tgz#5acfbed57f9e1d99b8dabe1b824729e1c1ea1fae"
+  integrity sha512-PEZldwZqJJw1PWRTpupyC7ajVTZA8aHd8nB/Y0n6zRZi5u8ktYDntsHj13ltEiBRqWwF06pASxBEvCTxniG8eA==
+
 "@types/html-minifier-terser@^6.0.0":
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-6.1.0.tgz#4fc33a00c1d0c16987b1a20cf92d20614c55ac35"
@@ -5166,6 +5171,11 @@ hoopy@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/hoopy/-/hoopy-0.1.4.tgz#609207d661100033a9a9402ad3dea677381c1b1d"
   integrity sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==
+
+howler@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/howler/-/howler-2.2.3.tgz#a2eff9b08b586798e7a2ee17a602a90df28715da"
+  integrity sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg==
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -8980,10 +8990,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-trucoshi@0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.3.4.tgz#948cf1e1c782e2ac905643f8432aca13e2ef59ff"
-  integrity sha512-2oqTm0mB3nxAPSD0tYDwrMEs4sdpUX6AHylpovN2mAJR5c5CwXtkSE0gJPeD5VIfx0G5qey2tbxKGoMp6MFG7Q==
+trucoshi@0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.3.5.tgz#dec05a40223daf71f004e2bab2f9aff8874cffaa"
+  integrity sha512-N0QWOedLHmhaG4iFBDy765pSYNrw2vg5ANUnQpPqwK5dBnCLP9vT0Z1KR3LdCgCO6x/MomZts2L0WaABPaW7Aw==
   dependencies:
     rimraf "^4.1.1"
     socket.io "^4.5.4"

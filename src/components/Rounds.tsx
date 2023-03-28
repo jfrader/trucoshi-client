@@ -18,10 +18,6 @@ export const Rounds = ({
   const [openHand, setOpenHand] = useState<boolean>(false);
   const [rounds, isPrevious] = useRounds(match, previousHand, previousHandCallback);
 
-  if (isPrevious) {
-    console.log(rounds);
-  }
-
   return (
     <Box maxWidth="100%" height="100%" pt="30%" pr="30%">
       <Box

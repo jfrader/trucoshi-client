@@ -12,15 +12,24 @@ import { ChatRoom } from "../components/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
+import { useSound } from "../sound/hooks/useSound";
 
 export const Match = () => {
   const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
+  const { queue } = useSound();
 
   const [
     { match, error, canSay, canPlay, previousHand },
     { playCard, sayCommand, leaveMatch, nextHand },
-  ] = useMatch(sessionId);
+  ] = useMatch(sessionId, {
+    onMyTurn: () => queue("turn"),
+    onNewHand: () => queue("round"),
+    onPlayedCard: () => {
+      const rndSound = Math.round(Math.random() * 2);
+      queue("play" + rndSound);
+    },
+  });
 
   const navigate = useNavigate();
 
