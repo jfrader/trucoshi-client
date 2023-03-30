@@ -62,6 +62,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
 
   const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);
   const [soundQueue, setQueue] = useState<ISoundQueue>([]);
+
   const queue = useCallback(
     (key: string) => {
       setQueue((q) => {

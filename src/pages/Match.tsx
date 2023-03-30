@@ -25,10 +25,6 @@ export const Match = () => {
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onNewHand: () => queue("round"),
-    onPlayedCard: () => {
-      const rndSound = Math.round(Math.random() * 2);
-      queue("play" + rndSound);
-    },
   });
 
   const navigate = useNavigate();

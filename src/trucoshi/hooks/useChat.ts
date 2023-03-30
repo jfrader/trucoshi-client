@@ -1,10 +1,10 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { EClientEvent, EServerEvent, IPublicChatRoom } from "trucoshi";
+import { EClientEvent, EServerEvent, IChatMessage, IPublicChatRoom } from "trucoshi";
 import { TrucoshiContext } from "../state/context";
 
 export const useChat = (
   matchId?: string,
-  onMessages?: (room: IPublicChatRoom) => void
+  onMessage?: (message?: IChatMessage) => void
 ): [IPublicChatRoom | null, (message: string) => void, boolean] => {
   const context = useContext(TrucoshiContext);
   if (!context) {
@@ -17,21 +17,15 @@ export const useChat = (
   const { socket } = context;
 
   useEffect(() => {
-    if (room) {
-      onMessages?.(room);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room]);
-
-  useEffect(() => {
-    socket.on(EServerEvent.UPDATE_CHAT, (room) => {
+    socket.on(EServerEvent.UPDATE_CHAT, (room, message) => {
       setRoom(room);
+      onMessage?.(message);
     });
 
     return () => {
       socket.off(EServerEvent.UPDATE_CHAT);
     };
-  }, [onMessages, socket]);
+  }, [onMessage, socket]);
 
   const chat = useCallback(
     (message: string) => {

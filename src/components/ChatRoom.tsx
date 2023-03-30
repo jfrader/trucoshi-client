@@ -14,12 +14,13 @@ import {
   useTheme,
   styled,
 } from "@mui/material";
-import { useState, createRef } from "react";
+import { useState, createRef, useLayoutEffect } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
 import { IChatMessage, IPublicPlayer } from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
+import { useSound } from "../sound/hooks/useSound";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -40,14 +41,23 @@ export const ChatRoom = ({
   const theme = useTheme();
   const listRef = createRef<HTMLDivElement>();
 
-  const [room, chat, isLoading] = useChat(matchId, () => {
+  const { queue } = useSound();
+
+  const [room, chat, isLoading] = useChat(matchId, (message) => {
+    if (message && message.card) {
+      const rndSound = Math.round(Math.random() * 2);
+      queue("play" + rndSound);
+    }
+  });
+
+  useLayoutEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTo({
         top: listRef.current.scrollHeight,
       });
       setActive(true);
     }
-  });
+  }, [listRef, room]);
 
   const onActivate = (e: any) => {
     e.stopPropagation();
@@ -121,18 +131,35 @@ export const ChatRoom = ({
   );
 };
 
+const messageColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+  if (message.card) {
+    return players.reduce((prev, player) => {
+      return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
+    }, "text.primary" as string);
+  }
+  if (message.command) {
+    return getTeamColor(Number(message.user.key));
+  }
+  return "text.primary";
+};
+
+const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+  if (message.command) {
+    return getTeamColor(Number(message.user.key));
+  }
+  return players.reduce((prev, player) => {
+    return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
+  }, "text.secondary" as string);
+};
+
 const MessageAuthor = ({
   message,
-  players,
+  players = [],
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
 }) => {
-  const color = message.command
-    ? getTeamColor(Number(message.user.key))
-    : players?.reduce((prev, player) => {
-        return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
-      }, "text.primary" as string);
+  const color = authorColor(message, players);
 
   return (
     <Typography color={color} display="inline">
@@ -143,7 +170,7 @@ const MessageAuthor = ({
 
 const Message = ({
   message,
-  players,
+  players = [],
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
@@ -159,7 +186,7 @@ const Message = ({
         <ListItemText>
           {message.system ? null : <MessageAuthor message={message} players={players} />}
           <Typography
-            color={message.command ? getTeamColor(Number(message.user.key)) : "text.secondary"}
+            color={messageColor(message, players)}
             display="inline"
             sx={{ wordWrap: "break-word" }}
           >
