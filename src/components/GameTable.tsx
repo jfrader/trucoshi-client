@@ -1,11 +1,11 @@
 import { CSSProperties, FC, Fragment } from "react";
-import { Box, Paper, useTheme, styled } from "@mui/material";
+import { Box, Paper, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
 
 const Container = styled(Box)`
   padding: 16px;
-  --d: 12rem; /* image size */
-  --rel: 0.7; /* how much extra space we want between images, 1 = one image size */
+  --d: 13rem; /* image size */
+  --rel: 0.74; /* how much extra space we want between images, 1 = one image size */
   --r: calc(0.42 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   position: relative;
@@ -31,9 +31,10 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin: calc(-0.5 * var(--d));
-  width: var(--d);
-  height: var(--d);
+  margin-left: calc(-0.22 * var(--d));
+  margin-top: calc(-0.17 * var(--d));
+  width: calc(var(--d) / 2);
+  height: calc(var(--d) / 2);
   --az: calc(var(--i) * 1turn / var(--m));
   transform: rotate(var(--az)) translate(calc(var(--r) / 2.8)) rotate(calc(-1 * var(--az)))
     rotate(270deg);
@@ -54,9 +55,8 @@ export const GameTable = ({
   InnerSlot,
   FillSlot,
   fill,
-  zoomOnIndex,
+  zoomOnIndex = 0,
 }: GameTableProps) => {
-  const theme = useTheme();
   const { players } = match;
 
   const length = fill && players.length < fill ? fill : players.length;
@@ -87,8 +87,8 @@ export const GameTable = ({
               style={
                 {
                   "--i": `${i}`,
-                  "--z": zoomOnIndex === i ? `1.05` : `1`,
-                  zIndex: theme.zIndex.fab,
+                  "--z": zoomOnIndex === i ? `1.2` : `1`,
+                  zIndex: 12 - i,
                 } as CSSProperties
               }
             >
@@ -104,7 +104,7 @@ export const GameTable = ({
               )}
             </Item>
             {player.hand && InnerSlot ? (
-              <InnerItem style={{ "--i": `${i}` } as CSSProperties}>
+              <InnerItem style={{ "--i": `${i}`, zIndex: 13 } as CSSProperties}>
                 <InnerSlot player={player} />
               </InnerItem>
             ) : null}

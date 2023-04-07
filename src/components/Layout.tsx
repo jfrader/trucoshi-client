@@ -1,4 +1,4 @@
-import { Paper, ThemeProvider, Typography } from "@mui/material";
+import { AppBar, Paper, ThemeProvider, Toolbar, Typography, styled } from "@mui/material";
 import { Box } from "@mui/system";
 import { PropsWithChildren } from "react";
 import { Outlet } from "react-router-dom";
@@ -6,18 +6,32 @@ import { theme } from "../theme";
 import { Debug } from "./Debug";
 import { Link } from "./Link";
 
+const LayoutContainer = styled(Box)(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    paddingTop: "52px",
+  },
+}));
+
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
   return (
     <ThemeProvider theme={theme}>
+      <AppBar position="fixed" sx={{ opacity: 0.4 }}>
+        <Toolbar variant="dense">
+          <Link to="/">
+            <Typography variant="h6">Trucoshi</Typography>
+          </Link>
+        </Toolbar>
+      </AppBar>
       <div className="App">
-        <header className="App-header">
-          <Box pb={10} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-            <Box py={2}>
-              <Link to="/">
-                <Typography variant="h6">Trucoshi</Typography>
-              </Link>
-            </Box>
-            <Box display="flex" justifyContent="center" alignItems="center">
+        <Box className="App-header" display="flex">
+          <Box
+            pb={10}
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <LayoutContainer display="flex" justifyContent="center" alignItems="center">
               <Paper elevation={4}>
                 <Box
                   minWidth="20vw"
@@ -30,9 +44,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   <Outlet />
                 </Box>
               </Paper>
-            </Box>
+            </LayoutContainer>
           </Box>
-        </header>
+        </Box>
         <main>
           <Debug />
         </main>

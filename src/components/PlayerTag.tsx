@@ -16,7 +16,9 @@ export const PlayerTag = ({ player, isTurn, isMe, ...props }: ITeamTagProps & Ty
       <PlayerName isturn={Number(isTurn)} display="inline" variant="h5" {...props}>
         {player.id}
       </PlayerName>
-      <TeamTag teamIdx={player.teamIdx} />
+      <Box>
+        <TeamTag teamIdx={player.teamIdx} />
+      </Box>
     </AnimatedBox>
   );
 };

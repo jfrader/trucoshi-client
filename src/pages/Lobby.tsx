@@ -106,7 +106,7 @@ export const Lobby = () => {
           }}
         />
       )}
-      <Box position="fixed" left="2em" top="2em">
+      <Box position="fixed" left={0} top="48px">
         <ChatRoom matchId={sessionId} players={match?.players} />
       </Box>
     </Container>

@@ -81,9 +81,6 @@ export const Match = () => {
       <MatchBackdrop error={error} />
       {match && (
         <>
-          <Box position="fixed" right="2em" top="2em">
-            <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
-          </Box>
           <GameTable
             match={match}
             Slot={({ player }) => (
@@ -109,9 +106,15 @@ export const Match = () => {
               />
             )}
           />
+
+          <Box position="fixed" right={0} top="52px">
+            <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
+          </Box>
         </>
       )}
-      <ChatRoom matchId={sessionId} players={match?.players} />
+      <Box position="fixed" left={0} top="48px">
+        <ChatRoom matchId={sessionId} players={match?.players} />
+      </Box>
     </Container>
   );
 };

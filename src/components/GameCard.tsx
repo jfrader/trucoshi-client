@@ -2,26 +2,6 @@ import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { ReactNode } from "react";
 import { ICard } from "trucoshi";
 
-const GameCardButton = styled(Button)<{ enablehover?: boolean | number }>(
-  ({ theme, enablehover }) => [
-    {
-      minWidth: 0,
-      padding: "1.6rem 1rem",
-      transition: theme.transitions.create(["transform"], {
-        duration: theme.transitions.duration.standard,
-      }),
-    },
-    enablehover
-      ? {
-          "&:hover": {
-            zIndex: 11,
-            transform: "scale(1.1)",
-          },
-        }
-      : {},
-  ]
-);
-
 export const GameCard = ({
   card,
   enableHover,
@@ -44,6 +24,29 @@ export const GameCard = ({
   // );
 };
 
+const GameCardButton = styled(Button)<{ enablehover?: boolean | number }>(
+  ({ theme, enablehover }) => [
+    {
+      minWidth: 0,
+      padding: "1.6rem 1rem",
+      transition: theme.transitions.create(["transform"], {
+        duration: theme.transitions.duration.standard,
+      }),
+    },
+    enablehover
+      ? {
+          "&:hover": {
+            zIndex: 1911,
+            transform: "scale(1.4)",
+            "& *": {
+              zIndex: 1911,
+            }
+          },
+        }
+      : {},
+  ]
+);
+
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {
     const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
@@ -65,11 +68,20 @@ export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: 
       },
       open
         ? {
-            transform: `rotate(${randDeg()}deg) scale(1.1)`,
+            transform: `rotate(${randDeg()}deg) scale(1.5)`,
             marginTop: 0,
             marginLeft: openMargin,
+            zIndex: 1911 + " !important",
+            "& *": {
+              zIndex: 1911,
+            }
           }
-        : {},
+        : {
+          zIndex: 1910,
+          "& *": {
+            zIndex: 1910,
+          }
+        },
     ];
   }
 );

@@ -44,9 +44,12 @@ export const ChatRoom = ({
   const { queue } = useSound();
 
   const [room, chat, isLoading] = useChat(matchId, (message) => {
-    if (message && message.card) {
-      const rndSound = Math.round(Math.random() * 2);
-      queue("play" + rndSound);
+    if (message) {
+      setActive(true);
+      if (message.card) {
+        const rndSound = Math.round(Math.random() * 2);
+        queue("play" + rndSound);
+      }
     }
   });
 
@@ -55,7 +58,6 @@ export const ChatRoom = ({
       listRef.current.scrollTo({
         top: listRef.current.scrollHeight,
       });
-      setActive(true);
     }
   }, [listRef, room]);
 

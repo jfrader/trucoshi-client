@@ -14,5 +14,5 @@ export const TeamTag = ({ teamIdx }: ITeamTagProps) => {
 };
 
 export const TeamCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1, 2, 1, 2),
 }));

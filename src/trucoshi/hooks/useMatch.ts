@@ -95,12 +95,15 @@ export const useMatch = (
   );
 
   const startMatch = useCallback(() => {
-    socket.emit(EClientEvent.START_MATCH, ({ success }) => {
+    if (!matchId) {
+      return;
+    }
+    socket.emit(EClientEvent.START_MATCH, matchId, ({ success }) => {
       if (!success) {
         console.error("Couldn't start match");
       }
     });
-  }, [socket]);
+  }, [matchId, socket]);
 
   useEffect(() => {
     if (matchId) {
