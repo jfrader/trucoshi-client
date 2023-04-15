@@ -4,9 +4,9 @@ import { IPublicMatch, IPublicPlayer } from "trucoshi";
 
 const Container = styled(Box)`
   padding: 16px;
-  --d: 13rem; /* image size */
+  --d: 12.5rem; /* image size */
   --rel: 0.74; /* how much extra space we want between images, 1 = one image size */
-  --r: calc(0.42 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --r: calc(0.4 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   position: relative;
   margin: 0 auto;
@@ -24,14 +24,15 @@ const Item = styled(Paper)`
   height: var(--d);
   zoom: var(--z);
   --az: calc(var(--i) * 1turn / var(--m));
-  transform: rotate(var(--az)) translate(var(--r)) rotate(calc(-1 * var(--az))) rotate(270deg);
+  transform: rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
+    rotate(270deg);
 `;
 
 const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.22 * var(--d));
+  margin-left: calc(-0.28 * var(--d));
   margin-top: calc(-0.17 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);
@@ -86,8 +87,9 @@ export const GameTable = ({
             <Item
               style={
                 {
+                  "--mr": "0px",
                   "--i": `${i}`,
-                  "--z": zoomOnIndex === i ? `1.2` : `1`,
+                  "--z": zoomOnIndex === i ? `1.1` : `1`,
                   zIndex: 12 - i,
                 } as CSSProperties
               }

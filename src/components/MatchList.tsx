@@ -36,11 +36,11 @@ export const MatchList = ({
   const navigate = useNavigate();
 
   return (
-    <Box display="flex" flexGrow={1} flexDirection="column">
-      <Typography color="warning" variant="h5">
+    <Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
+      <Typography color="warning" textTransform="uppercase" variant="h6">
         {title}
         {onRefresh ? (
-          <IconButton onClick={() => onRefresh()}>
+          <IconButton size="large" color="success" onClick={() => onRefresh()}>
             <RefreshIcon />
           </IconButton>
         ) : null}

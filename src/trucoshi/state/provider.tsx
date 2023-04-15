@@ -62,7 +62,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   }, []);
 
   const sendUserId = useCallback(
-    (userId: string) => {
+    (userId: string, callback?: () => void) => {
       socket.emit(EClientEvent.SET_SESSION, userId, session, ({ success, session }) => {
         if (success) {
           setId(userId);
@@ -70,6 +70,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
             setSession(session);
           }
           setLogged(true);
+          callback?.();
         }
       });
     },

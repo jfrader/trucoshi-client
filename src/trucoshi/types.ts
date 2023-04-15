@@ -33,7 +33,7 @@ export interface ITrucoshiState {
 export interface ITrucoshiActions {
   fetchPublicMatches(filters?: { state?: Array<EMatchTableState> }): void;
   sendPing(): void;
-  sendUserId(id: string): void;
+  sendUserId(id: string, callback?: () => void): void;
 }
 
 export interface ITrucoshiMatchActions {

@@ -67,6 +67,7 @@ export const MatchPlayer = ({
                 key={command}
                 onClick={() => onSayCommand(command)}
                 size="small"
+                variant="text"
                 color="success"
               >
                 {command}
