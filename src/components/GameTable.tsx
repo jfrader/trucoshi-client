@@ -32,8 +32,8 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.28 * var(--d));
-  margin-top: calc(-0.17 * var(--d));
+  margin-left: calc(-0.3 * var(--d));
+  margin-top: calc(-0.18 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);
   --az: calc(var(--i) * 1turn / var(--m));
@@ -56,7 +56,7 @@ export const GameTable = ({
   InnerSlot,
   FillSlot,
   fill,
-  zoomOnIndex = 0,
+  zoomOnIndex = -1,
 }: GameTableProps) => {
   const { players } = match;
 

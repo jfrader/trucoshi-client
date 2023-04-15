@@ -20,7 +20,7 @@ export const Match = () => {
   const { queue } = useSound();
 
   const [
-    { match, error, canSay, canPlay, previousHand },
+    { match, error, canSay, canPlay, previousHand, me },
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
@@ -82,6 +82,7 @@ export const Match = () => {
       {match && (
         <>
           <GameTable
+            zoomOnIndex={me ? 0 : -1}
             match={match}
             Slot={({ player }) => (
               <MatchPlayer
