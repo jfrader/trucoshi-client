@@ -38,15 +38,18 @@ export const ChatRoom = ({
 }) => {
   const [active, setActive] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
+
   const theme = useTheme();
   const listRef = createRef<HTMLDivElement>();
 
   const { queue } = useSound();
 
-  const [room, chat, isLoading] = useChat(matchId, (message) => {
-    if (message) {
+  const [room, chat, isLoading] = useChat(matchId, (incomingMessage) => {
+    if (incomingMessage) {
+      setLatestMessage(incomingMessage);
       setActive(true);
-      if (message.card) {
+      if (incomingMessage.card) {
         const rndSound = Math.round(Math.random() * 2);
         queue("play" + rndSound);
       }
@@ -101,7 +104,14 @@ export const ChatRoom = ({
             }}
           >
             {room?.messages.map((message) => {
-              return <Message key={message.date} message={message} players={players} />;
+              return (
+                <Message
+                  animate={message.id === latestMessage?.id}
+                  key={message.id}
+                  message={message}
+                  players={players}
+                />
+              );
             })}
           </List>
           <Slide in={active} direction="right">
@@ -173,15 +183,17 @@ const MessageAuthor = ({
 const Message = ({
   message,
   players = [],
+  animate = false,
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
+  animate?: boolean;
 }) => {
   return (
     <Slide in={true} direction="right">
       <ListItem
         sx={{
-          animation: `0.6s ${bounce} ${message.command ? 6 : 1}`,
+          animation: animate ? `0.6s ${bounce} ${message.command ? 4 : 1}` : "",
           py: "0.05em",
         }}
       >

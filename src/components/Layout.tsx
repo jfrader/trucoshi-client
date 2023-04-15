@@ -26,29 +26,29 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           <Typography variant="subtitle1">{id}</Typography>
         </Toolbar>
       </AppBar>
-      <div className="App">
-        <Box className="App-header" display="flex"  alignItems="start">
-          <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-            <LayoutContainer display="flex" justifyContent="center" alignItems="center" pt="50px">
-              <Paper elevation={4}>
-                <Box
-                  minWidth="20vw"
-                  minHeight="20vh"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  {children}
-                  <Outlet />
-                </Box>
-              </Paper>
-            </LayoutContainer>
+      <main>
+        <div className="App">
+          <Box className="App-header" display="flex" alignItems="start">
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+              <LayoutContainer display="flex" justifyContent="center" alignItems="center" pt="50px">
+                <Paper elevation={4}>
+                  <Box
+                    minWidth="20vw"
+                    minHeight="20vh"
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    {children}
+                    <Outlet />
+                  </Box>
+                </Paper>
+              </LayoutContainer>
+            </Box>
           </Box>
-        </Box>
-        <main>
           <Debug />
-        </main>
-      </div>
+        </div>
+      </main>
     </ThemeProvider>
   );
 };
