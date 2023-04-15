@@ -27,9 +27,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
         </Toolbar>
       </AppBar>
       <div className="App">
-        <Box className="App-header" display="flex">
+        <Box className="App-header" display="flex"  alignItems="start">
           <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-            <LayoutContainer display="flex" justifyContent="center" alignItems="center">
+            <LayoutContainer display="flex" justifyContent="center" alignItems="center" pt="50px">
               <Paper elevation={4}>
                 <Box
                   minWidth="20vw"
