@@ -4,6 +4,7 @@ import {
   Box,
   IconButton,
   List,
+  ListItem,
   ListItemAvatar,
   ListItemButton,
   ListItemText,
@@ -37,7 +38,13 @@ export const MatchList = ({
 
   return (
     <Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
-      <Typography color="warning" textTransform="uppercase" variant="h6">
+      <Typography
+        width="100%"
+        textAlign="left"
+        color="text.disabled"
+        textTransform="uppercase"
+        variant="subtitle1"
+      >
         {title}
         {onRefresh ? (
           <IconButton size="large" color="success" onClick={() => onRefresh()}>
@@ -47,7 +54,11 @@ export const MatchList = ({
       </Typography>
       {matches.length ? (
         <Box>
-          <List component="nav">
+          <List>
+            <ListItem>
+              <ListItemText>Host</ListItemText>
+              <ListItemAvatar>Jugadores</ListItemAvatar>
+            </ListItem>
             {matches.map((info) => {
               const [state, color] = MATCH_STATE_MAP[info.state];
               return (

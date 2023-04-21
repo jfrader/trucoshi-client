@@ -1,17 +1,13 @@
 .App {
   text-align: center;
-  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .App-header {
-  background-color: #282c34;
   align-items: center;
+  overflow-x: hidden;
   justify-content: center;
   color: white;
   min-height: 100vh;
   min-width: 100vw;
-}
-
-.App-link {
-  color: #61dafb;
 }

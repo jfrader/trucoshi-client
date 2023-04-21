@@ -65,7 +65,7 @@ export const Lobby = () => {
                   <Box pt={2}>
                     {isMe(player) ? null : (
                       <Button
-                        size= "small"
+                        size="small"
                         color={player.ready && !player.disabled ? "success" : "error"}
                       >
                         {player.ready ? "Listo" : "Esperando"}
@@ -77,7 +77,11 @@ export const Lobby = () => {
                           Listo
                         </Button>
                       ) : (
-                        <AnimatedButton size="small" color="warning" onClick={onSetReady}>
+                        <AnimatedButton
+                          size="small"
+                          color="warning"
+                          onClick={onSetReady}
+                        >
                           Estoy Listo
                         </AnimatedButton>
                       )

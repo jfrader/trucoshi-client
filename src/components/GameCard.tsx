@@ -1,18 +1,26 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
-import { ReactNode } from "react";
+import { PropsWithChildren } from "react";
 import { ICard } from "trucoshi";
 
 export const GameCard = ({
+  children,
   card,
   enableHover,
   ...buttonProps
-}: {
-  card: string | ICard | ReactNode;
-  enableHover?: boolean;
-} & ButtonProps) => {
+}: PropsWithChildren<
+  {
+    card: ICard;
+    enableHover?: boolean;
+  } & ButtonProps
+>) => {
   return (
-    <GameCardButton variant="contained" enablehover={enableHover ? 1 : 0} {...buttonProps}>
-      {card}
+    <GameCardButton
+      variant="card"
+      name={card || "xx"}
+      enablehover={enableHover ? 1 : 0}
+      {...buttonProps}
+    >
+      {children ? children : card}
     </GameCardButton>
   );
 
@@ -40,7 +48,7 @@ const GameCardButton = styled(Button)<{ enablehover?: boolean | number }>(
             transform: "scale(1.4)",
             "& *": {
               zIndex: 1911,
-            }
+            },
           },
         }
       : {},
@@ -74,14 +82,14 @@ export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: 
             zIndex: 1911 + " !important",
             "& *": {
               zIndex: 1911,
-            }
+            },
           }
         : {
-          zIndex: 1910,
-          "& *": {
             zIndex: 1910,
-          }
-        },
+            "& *": {
+              zIndex: 1910,
+            },
+          },
     ];
   }
 );

@@ -41,7 +41,7 @@ export const Rounds = ({
                   cards={isPrevious ? player.prevHand.length : player.usedHand.length}
                   open={openHand}
                 >
-                  <GameCard {...pc} color="primary" />
+                  <GameCard {...pc} />
                 </GameCardContainer>
               );
             }

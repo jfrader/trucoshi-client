@@ -15,24 +15,27 @@ const Container = styled(Box)`
   transform: rotate(90deg);
 `;
 
-const Item = styled(Paper)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: calc(-0.5 * var(--d));
-  width: var(--d);
-  height: var(--d);
-  zoom: var(--z);
-  --az: calc(var(--i) * 1turn / var(--m));
-  transform: rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
-    rotate(270deg);
-`;
+const Item = styled(Paper)(({ theme }) => {
+  return `
+    background: ${theme.palette.background.paper};
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: calc(-0.5 * var(--d));
+    width: var(--d);
+    height: var(--d);
+    zoom: var(--z);
+    --az: calc(var(--i) * 1turn / var(--m));
+    transform: rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
+      rotate(270deg);
+  `;
+});
 
 const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.3 * var(--d));
+  margin-left: calc(-0.32 * var(--d));
   margin-top: calc(-0.18 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);

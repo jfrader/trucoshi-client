@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Paper } from "@mui/material";
+import { Box, Button, ButtonGroup } from "@mui/material";
 import { ICard, IPublicPlayer } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
@@ -37,28 +37,23 @@ export const MatchPlayer = ({
                   enableHover
                   key={key}
                   card={card as ICard}
-                  color="primary"
                   onClick={() => onPlayCard(idx, card as ICard)}
                 />
               ) : (
-                <GameCard
-                  key={key}
-                  card={isMe ? <span>{card}</span> : <span>&nbsp;&nbsp;</span>}
-                  color={isMe ? "primary" : "error"}
-                />
+                <GameCard key={key} card={card as ICard}>
+                  {isMe ? <span>{card}</span> : <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}
+                </GameCard>
               )
             )}
       </Box>
       {isMe && canSay && !isPrevious ? (
         <Box
           pt={1}
-          component={Paper}
+          bgcolor="background.paper"
           justifySelf="end"
           flexGrow={1}
-          height="100%"
           display="flex"
           flexDirection="column"
-          justifyContent="flex-end"
           alignItems="center"
         >
           <ButtonGroup sx={{ flexWrap: "wrap", alignItems: "center", justifyContent: "center" }}>
@@ -73,17 +68,18 @@ export const MatchPlayer = ({
                 {command}
               </Button>
             ))}
-            {player.isEnvidoTurn && player.envido.map((points) => (
-              <Button
-                key={points}
-                onClick={() => onSayCommand(points)}
-                size="small"
-                variant="text"
-                color="success"
-              >
-                {points}
-              </Button>
-            ))}
+            {player.isEnvidoTurn &&
+              player.envido.map((points) => (
+                <Button
+                  key={points}
+                  onClick={() => onSayCommand(points)}
+                  size="small"
+                  variant="text"
+                  color="success"
+                >
+                  {points}
+                </Button>
+              ))}
           </ButtonGroup>
         </Box>
       ) : null}

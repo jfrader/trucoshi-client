@@ -24,7 +24,7 @@ import { useSound } from "../sound/hooks/useSound";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
-    opacity: active ? "0.95" : "0.4",
+    opacity: active ? 0.9 : 0.3,
   },
 ]);
 
@@ -95,13 +95,14 @@ export const ChatRoom = ({
           <List
             component={Paper}
             ref={listRef}
-            sx={{
+            sx={(theme) => ({
               justifyContent: "flex-end",
               m: 0,
+              background: theme.palette.background.paper,
               overflowY: "scroll",
               flexGrow: 1,
               height: "15rem",
-            }}
+            })}
           >
             {room?.messages.map((message) => {
               return (
@@ -115,7 +116,14 @@ export const ChatRoom = ({
             })}
           </List>
           <Slide in={active} direction="right">
-            <ButtonGroup size="small" fullWidth component={Paper}>
+            <ButtonGroup
+              size="small"
+              fullWidth
+              component={Paper}
+              sx={(theme) => ({
+                background: theme.palette.background.paper,
+              })}
+            >
               <TextField
                 color="warning"
                 size="small"

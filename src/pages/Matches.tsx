@@ -9,13 +9,15 @@ export const Matches = () => {
     fetchPublicMatches();
   }, [fetchPublicMatches]);
   return (
-    <Box component={Container} pt={4}>
-      <MatchList
-        matches={publicMatches}
-        NoMatches={<Typography>No se encontraron partidas</Typography>}
-        title={"Partidas Online"}
-        onRefresh={fetchPublicMatches}
-      />
-    </Box>
+    <Container maxWidth="sm">
+      <Box pt={4}>
+        <MatchList
+          matches={publicMatches}
+          NoMatches={<Typography>No se encontraron partidas</Typography>}
+          title={"Partidas Online"}
+          onRefresh={fetchPublicMatches}
+        />
+      </Box>
+    </Container>
   );
 };

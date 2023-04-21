@@ -8,19 +8,120 @@ declare module "@mui/material/Typography" {
   }
 }
 
-const palette = createPalette({ mode: "dark" });
+declare module "@mui/material/Button" {
+  interface ButtonPropsVariantOverrides {
+    card: true;
+  }
+}
+
+const palette = createPalette({
+  mode: "dark",
+  primary: {
+    main: "#ec6c34",
+    dark: "#d15829",
+    light: "#f17e59",
+    contrastText: "#fff",
+  },
+  secondary: {
+    main: "#9c548c",
+    dark: "#6d315e",
+    light: "#c28fb5",
+    contrastText: "#fff",
+  },
+  success: {
+    main: "#749424",
+    dark: "#5d751c",
+    light: "#8bc450",
+    contrastText: "#fff",
+  },
+  warning: {
+    main: "#c4941c",
+    dark: "#a0721a",
+    light: "#e2b246",
+    contrastText: "#fff",
+  },
+  info: {
+    main: "#248493",
+    dark: "#1c6a7a",
+    light: "#4a9bb2",
+    contrastText: "#fff",
+  },
+  error: {
+    main: "#94342c",
+    dark: "#6f2821",
+    light: "#b54940",
+    contrastText: "#fff",
+  },
+  background: {
+    paper: "#182c1c",
+    default: "#44644c",
+  },
+  text: {
+    secondary: "#f3e3db",
+    disabled: "rgba(255, 255, 255, 0.3)",
+  },
+});
 
 export const theme = createTheme({
   palette,
-  typography: {
-    0: {
+  typography: [
+    {
       color: palette.primary.main,
     },
-    1: {
+    {
       color: palette.secondary.main,
     },
-  },
+  ],
   components: {
+    MuiButton: {
+      variants: [
+        {
+          props: { variant: "card" },
+          style: ({ theme }) => ({
+            background: theme.palette.text.secondary,
+            color: theme.palette.background.paper,
+            borderColor: theme.palette.background.paper,
+            border: "1px solid",
+            ":active": {
+              background: theme.palette.text.secondary,
+            },
+            ":hover": {
+              background: theme.palette.text.secondary,
+            },
+          }),
+        },
+        {
+          props: { variant: "card", name: "xx" },
+          style: ({ theme }) => ({
+            border: "1px solid",
+            background: theme.palette.error.main,
+            color: theme.palette.background.paper,
+            borderColor: theme.palette.background.paper,
+            ":active": {
+              background: theme.palette.error.main,
+            },
+            ":hover": {
+              background: theme.palette.error.main,
+            },
+          }),
+        },
+      ],
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          background: theme.palette.background.paper,
+          borderBottom: `1px solid ${theme.palette.background.default}`,
+        }),
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          background: theme.palette.background.paper,
+        }),
+      },
+    },
     MuiTypography: {
       variants: [
         {
