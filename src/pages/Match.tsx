@@ -42,7 +42,7 @@ export const Match = () => {
   if (match && match.winner) {
     const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
     return (
-      <Container>
+      <Container maxWidth="sm">
         <SocketBackdrop />
         <MatchBackdrop error={error} />
         <Typography pt="1em" variant="h4">

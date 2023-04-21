@@ -2,6 +2,7 @@ import {
   Badge,
   BadgeProps,
   Box,
+  CircularProgress,
   IconButton,
   List,
   ListItem,
@@ -12,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { ReactElement } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EMatchTableState, IPublicMatchInfo } from "trucoshi";
 
@@ -34,7 +35,12 @@ export const MatchList = ({
   NoMatches?: ReactElement | null;
   onRefresh?(): void;
 }) => {
+  const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLoading(false);
+  }, [matches]);
 
   return (
     <Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
@@ -47,8 +53,15 @@ export const MatchList = ({
       >
         {title}
         {onRefresh ? (
-          <IconButton size="large" color="success" onClick={() => onRefresh()}>
-            <RefreshIcon />
+          <IconButton
+            size="large"
+            color="success"
+            onClick={() => {
+              onRefresh();
+              setLoading(true);
+            }}
+          >
+            {isLoading ? <CircularProgress /> : <RefreshIcon />}
           </IconButton>
         ) : null}
       </Typography>
@@ -84,7 +97,9 @@ export const MatchList = ({
           </List>
         </Box>
       ) : (
-        NoMatches
+        <Box textAlign="left" width="100%">
+          {NoMatches}
+        </Box>
       )}
     </Box>
   );

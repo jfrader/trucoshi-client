@@ -1,5 +1,5 @@
 import { ImgHTMLAttributes } from "react";
 
 export const TrucoshiLogo = (props: ImgHTMLAttributes<HTMLImageElement>) => {
-  return <img src="/svg-logo-icon.svg" alt="Trucoshi" {...props} />;
+  return <img src="/trucoshi-logo.svg" alt="Trucoshi" {...props} />;
 };

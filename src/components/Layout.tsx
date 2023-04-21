@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 import { theme } from "../theme";
 import { Link } from "./Link";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { TrucoshiText } from "./TrucoshiText";
+import { TrucoshiLogo } from "./TrucoshiLogo";
 
 const LayoutContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -21,14 +21,14 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
         <Toolbar variant="dense">
           <Link to="/" lineHeight={4}>
             <Typography height="26px" variant="h6">
-              <TrucoshiText height="26px" />
+              <TrucoshiLogo height="26px" />
             </Typography>
           </Link>
           <Box flexGrow={1} />
           <Typography variant="subtitle1">{id}</Typography>
         </Toolbar>
       </AppBar>
-      <main>
+      <main style={{ position: "relative" }}>
         <Paper className="App" sx={{ borderRadius: 0 }}>
           <Box className="App-header" display="flex" alignItems="start">
             <Box
