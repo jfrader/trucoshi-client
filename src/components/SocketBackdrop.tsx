@@ -11,6 +11,8 @@ export const SocketBackdrop = ({
   return (
     <Backdrop
       {...props}
+      mountOnEnter
+      unmountOnExit
       open={!isConnected}
       message={message || "Reconectando..."}
       loading={true}

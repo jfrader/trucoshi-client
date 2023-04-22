@@ -6,6 +6,8 @@ export const MatchBackdrop = ({ error }: { error: Error | null }) => {
 
   return (
     <Backdrop
+      mountOnEnter
+      unmountOnExit
       open={Boolean(error)}
       onClick={() => navigate("/")}
       message={error && error.message ? error.message : "No se pudo encontrar la partida"}

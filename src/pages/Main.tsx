@@ -28,36 +28,36 @@ export const Main = () => {
           </Link>
         </Box>
         <Outlet />
-        {version ? (
-          <Stack
-            flexGrow={1}
-            alignItems="center"
-            direction="column"
-            justifyContent="end"
-            spacing={1}
-            pt={4}
-          >
+        <Stack
+          flexGrow={1}
+          alignItems="center"
+          direction="column"
+          justifyContent="end"
+          spacing={1}
+          pt={4}
+        >
+          {version ? (
             <Typography display="block" variant="caption">
               Version {version}
             </Typography>
-            <Typography display="block" variant="caption">
-              <Stack direction="row" justifyContent="center" spacing={2}>
-                <Favorite fontSize="small" />
-                <Link target="_blank" to="https://geyser.fund/project/trucoshi">
-                  donate
-                </Link>
-              </Stack>
-            </Typography>
-            <Typography display="block" variant="caption">
-              <Stack direction="row" justifyContent="center" spacing={2}>
-                <GitHub fontSize="small" />
-                <Link target="_blank" to="https://github.com/jfrader/trucoshi">
-                  github
-                </Link>
-              </Stack>
-            </Typography>
-          </Stack>
-        ) : null}
+          ) : null}
+          <Typography display="block" variant="caption">
+            <Stack direction="row" justifyContent="center" spacing={2}>
+              <Favorite fontSize="small" />
+              <Link target="_blank" to="https://geyser.fund/project/trucoshi">
+                donate
+              </Link>
+            </Stack>
+          </Typography>
+          <Typography display="block" variant="caption">
+            <Stack direction="row" justifyContent="center" spacing={2}>
+              <GitHub fontSize="small" />
+              <Link target="_blank" to="https://github.com/jfrader/trucoshi">
+                github
+              </Link>
+            </Stack>
+          </Typography>
+        </Stack>
       </Box>
     </Container>
   );

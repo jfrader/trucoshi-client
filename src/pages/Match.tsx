@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -13,6 +13,7 @@ import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { FloatingProgress } from "../components/FloatingProgress";
 
 export const Match = () => {
   useTrucoshi();
@@ -112,9 +113,7 @@ export const Match = () => {
           </Box>
         </>
       ) : (
-        <Stack alignItems="center">
-          <CircularProgress />
-        </Stack>
+        <FloatingProgress />
       )}
       <Box position="fixed" left={0} top="48px">
         <ChatRoom matchId={sessionId} players={match?.players} />
