@@ -1,4 +1,4 @@
-import { CSSProperties, FC, Fragment } from "react";
+import { CSSProperties, FC, Fragment, useMemo } from "react";
 import { Box, Paper, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
 
@@ -63,24 +63,27 @@ export const GameTable = ({
 }: GameTableProps) => {
   const { players } = match;
 
-  const length = fill && players.length < fill ? fill : players.length;
-  const tan = Math.tan(Math.PI / 6);
+  const { items, length, tan } = useMemo(() => {
+    const length = fill && players.length < fill ? fill : players.length;
+    const tan = Math.tan(Math.PI / 6);
+    const items: Array<IPublicPlayer | { key: number; hand?: undefined }> = [];
+    const slots = [];
 
-  let items: Array<IPublicPlayer | { key: number; hand?: undefined }> = [];
-  let slots = [];
+    for (let i = 0; i < length; i++) {
+      if (players[i]) {
+        items.push(players[i]);
+        continue;
+      }
+      if (slots.length < 2) {
+        items.push({ key: i });
+        slots.push(i);
+        continue;
+      }
+      items.push({ key: -1 - i });
+    }
 
-  for (let i = 0; i < length; i++) {
-    if (players[i]) {
-      items.push(players[i]);
-      continue;
-    }
-    if (slots.length < 2) {
-      items.push({ key: i });
-      slots.push(i);
-      continue;
-    }
-    items.push({ key: -1 - i });
-  }
+    return { items, length, tan };
+  }, [fill, players]);
 
   return (
     <Box position="relative">

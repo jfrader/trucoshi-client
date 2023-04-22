@@ -1,18 +1,15 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
-import { PropsWithChildren } from "react";
-import { ICard } from "trucoshi";
+import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 
 export const GameCard = ({
   children,
   card,
   enableHover,
   ...buttonProps
-}: PropsWithChildren<
-  {
-    card: ICard;
-    enableHover?: boolean;
-  } & ButtonProps
->) => {
+}: {
+  card: ICard;
+  enableHover?: boolean;
+} & ButtonProps) => {
   return (
     <GameCardButton
       variant="card"
@@ -20,7 +17,7 @@ export const GameCard = ({
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
-      {children ? children : card}
+      <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
     </GameCardButton>
   );
 
@@ -35,8 +32,10 @@ export const GameCard = ({
 const GameCardButton = styled(Button)<{ enablehover?: boolean | number }>(
   ({ theme, enablehover }) => [
     {
-      minWidth: 0,
-      padding: "1.6rem 1rem",
+      minWidth: "3.4rem",
+      minHeight: "5rem",
+      fontWeight: 700,
+      padding: "0.6rem 0.2rem",
       transition: theme.transitions.create(["transform"], {
         duration: theme.transitions.duration.standard,
       }),

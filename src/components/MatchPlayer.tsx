@@ -4,16 +4,15 @@ import { useRounds } from "../trucoshi/hooks/useRounds";
 import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
 import { GameCard } from "./GameCard";
 import { PlayerTag } from "./PlayerTag";
+import { DANGEROUS_COMMANDS, HUMAN_READABLE_COMMANDS } from "../trucoshi/constants";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
-  session: string | null;
   player: IPublicPlayer;
   onPlayCard: ITrucoshiMatchActions["playCard"];
   onSayCommand: ITrucoshiMatchActions["sayCommand"];
 };
 
 export const MatchPlayer = ({
-  session,
   match,
   previousHand,
   player,
@@ -22,17 +21,16 @@ export const MatchPlayer = ({
   onPlayCard,
   onSayCommand,
 }: PlayerProps) => {
-  const isMe = player.session === session;
   const [, isPrevious] = useRounds(match, previousHand);
   return (
     <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
-      <PlayerTag player={player} isTurn={player.isTurn} isMe={isMe} />
+      <PlayerTag player={player} isTurn={player.isTurn} />
       <Box pt={1}>
         {!isPrevious &&
           player.hand
             .map((c, i) => [c, i + c + player.key])
             .map(([card, key], idx) =>
-              canPlay && isMe && player.isTurn ? (
+              canPlay && player.isMe && player.isTurn ? (
                 <GameCard
                   enableHover
                   key={key}
@@ -40,13 +38,11 @@ export const MatchPlayer = ({
                   onClick={() => onPlayCard(idx, card as ICard)}
                 />
               ) : (
-                <GameCard key={key} card={card as ICard}>
-                  {isMe ? <span>{card}</span> : <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}
-                </GameCard>
+                <GameCard key={key} card={card as ICard} />
               )
             )}
       </Box>
-      {isMe && canSay && !isPrevious ? (
+      {player.isMe && canSay && !isPrevious ? (
         <Box
           pt={1}
           bgcolor="background.paper"
@@ -63,9 +59,9 @@ export const MatchPlayer = ({
                 onClick={() => onSayCommand(command)}
                 size="small"
                 variant="text"
-                color="success"
+                color={DANGEROUS_COMMANDS.includes(command) ? "error" : "success"}
               >
-                {command}
+                {HUMAN_READABLE_COMMANDS[command]}
               </Button>
             ))}
             {player.isEnvidoTurn &&

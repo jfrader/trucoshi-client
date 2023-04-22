@@ -1,7 +1,6 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
@@ -15,7 +14,6 @@ import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 
 export const Match = () => {
-  const [{ session }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
@@ -91,7 +89,6 @@ export const Match = () => {
                 canSay={canSay}
                 canPlay={canPlay}
                 player={player}
-                session={session}
                 onPlayCard={playCard}
                 onSayCommand={sayCommand}
                 match={match}

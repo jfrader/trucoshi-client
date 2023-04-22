@@ -7,12 +7,11 @@ import { TeamTag } from "./TeamTag";
 interface ITeamTagProps {
   player: IPublicPlayer;
   isTurn?: boolean;
-  isMe?: boolean;
 }
 
-export const PlayerTag = ({ player, isTurn, isMe, ...props }: ITeamTagProps & TypographyProps) => {
+export const PlayerTag = ({ player, isTurn, ...props }: ITeamTagProps & TypographyProps) => {
   return (
-    <AnimatedBox isturn={Number(isTurn && isMe)}>
+    <AnimatedBox isturn={Number(isTurn && player.isMe)}>
       <PlayerName isturn={Number(isTurn)} display="inline" variant="h5" {...props}>
         {player.id}
       </PlayerName>

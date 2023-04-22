@@ -45,7 +45,6 @@ export interface ITrucoshiMatchActions {
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand | number): void;
   nextHand(): void;
-  isMe(player: IPublicPlayer): boolean;
 }
 
 export interface ITrucoshiMatchState {

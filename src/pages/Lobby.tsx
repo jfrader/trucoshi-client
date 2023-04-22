@@ -20,7 +20,7 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [{ match, me, error }, { joinMatch, setReady, startMatch, isMe }] = useMatch(sessionId);
+  const [{ match, me, error }, { joinMatch, setReady, startMatch }] = useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -57,13 +57,12 @@ export const Lobby = () => {
             ) : null;
           }}
           Slot={({ player }) => {
-            const itsme = isMe(player);
             return (
               <Box pt={4}>
                 <Box>
-                  <PlayerTag isTurn={itsme} isMe={itsme} player={player} />
+                  <PlayerTag isTurn={player.isMe} player={player} />
                   <Box pt={2}>
-                    {isMe(player) ? null : (
+                    {player.isMe ? null : (
                       <Button
                         size="small"
                         color={player.ready && !player.disabled ? "success" : "error"}
@@ -71,17 +70,13 @@ export const Lobby = () => {
                         {player.ready ? "Listo" : "Esperando"}
                       </Button>
                     )}
-                    {isMe(player) ? (
+                    {player.isMe ? (
                       me?.ready ? (
                         <Button size="small" color="success" onClick={onSetUnReady}>
                           Listo
                         </Button>
                       ) : (
-                        <AnimatedButton
-                          size="small"
-                          color="warning"
-                          onClick={onSetReady}
-                        >
+                        <AnimatedButton size="small" color="warning" onClick={onSetReady}>
                           Estoy Listo
                         </AnimatedButton>
                       )
@@ -89,7 +84,7 @@ export const Lobby = () => {
                   </Box>
                 </Box>
                 <Box>
-                  {isMe(player) && player.isOwner ? (
+                  {player.isMe && player.isOwner ? (
                     <Box>
                       <Box>
                         <Button

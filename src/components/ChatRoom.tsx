@@ -17,10 +17,11 @@ import {
 import { useState, createRef, useLayoutEffect } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
-import { IChatMessage, IPublicPlayer } from "trucoshi";
+import { ECommand, IChatMessage, IPublicPlayer } from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
 import { useSound } from "../sound/hooks/useSound";
+import { HUMAN_READABLE_COMMANDS } from "../trucoshi/constants";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -212,7 +213,9 @@ const Message = ({
             display="inline"
             sx={{ wordWrap: "break-word" }}
           >
-            {message.content}
+            {message.command
+              ? HUMAN_READABLE_COMMANDS[message.content as ECommand].toUpperCase()
+              : message.content}
           </Typography>
         </ListItemText>
       </ListItem>

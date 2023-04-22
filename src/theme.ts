@@ -91,6 +91,12 @@ export const theme = createTheme({
           }),
         },
         {
+          props: { variant: "card", name: "1e" },
+          style: () => ({
+            // animation: `${glow} 1s infinite alternate`,
+          }),
+        },
+        {
           props: { variant: "card", name: "xx" },
           style: ({ theme }) => ({
             border: "1px solid",

@@ -40,19 +40,11 @@ export const useMatch = (
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
 
-  const setMatch = useCallback(
-    (value: IPublicMatch) => {
-      _setMatch(value);
-      const _me = value.players.find((player) => player.session === context.state.session);
-      setMe(_me || null);
-    },
-    [context.state.session]
-  );
-
-  const isMe = useCallback(
-    (player: IPublicPlayer) => player.session === context.state.session,
-    [context.state.session]
-  );
+  const setMatch = useCallback((value: IPublicMatch) => {
+    _setMatch(value);
+    const _me = value.players.find((player) => player.isMe);
+    setMe(_me || null);
+  }, []);
 
   const { socket } = context;
 
@@ -217,7 +209,6 @@ export const useMatch = (
   return [
     { match, me, error, canPlay, canSay, previousHand: previousHand ? previousHand[0] : null },
     {
-      isMe,
       playCard,
       sayCommand,
       joinMatch,
