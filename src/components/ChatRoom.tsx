@@ -17,11 +17,11 @@ import {
 import { useState, createRef, useLayoutEffect } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
-import { ECommand, IChatMessage, IPublicPlayer } from "trucoshi";
+import { CARDS_HUMAN_READABLE, ECommand, ICard, IChatMessage, IPublicPlayer } from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
 import { useSound } from "../sound/hooks/useSound";
-import { HUMAN_READABLE_COMMANDS } from "../trucoshi/constants";
+import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -199,7 +199,7 @@ const Message = ({
   animate?: boolean;
 }) => {
   return (
-    <Slide in={true} direction="right">
+    <Slide in={true} direction="right" mountOnEnter unmountOnExit>
       <ListItem
         sx={{
           animation: animate ? `0.6s ${bounce} ${message.command ? 4 : 1}` : "",
@@ -213,12 +213,30 @@ const Message = ({
             display="inline"
             sx={{ wordWrap: "break-word" }}
           >
-            {message.command && HUMAN_READABLE_COMMANDS[message.content as ECommand]
-              ? HUMAN_READABLE_COMMANDS[message.content as ECommand].toUpperCase()
-              : message.content}
+            <MessageContent>{message}</MessageContent>
           </Typography>
         </ListItemText>
       </ListItem>
     </Slide>
   );
+};
+
+const getMessageContent = (message: IChatMessage) => {
+  if (message.command) {
+    const humanCommand = COMMANDS_HUMAN_READABLE[message.content as ECommand];
+    if (humanCommand) {
+      return humanCommand.toUpperCase();
+    }
+    return message.content;
+  }
+
+  if (message.card) {
+    return CARDS_HUMAN_READABLE[message.content as ICard] || message.content;
+  }
+
+  return message.content;
+};
+
+const MessageContent = ({ children }: { children: IChatMessage }) => {
+  return <span>{getMessageContent(children)}</span>;
 };

@@ -21,6 +21,7 @@ export enum ETrucoshiStateActions {
 }
 
 export interface ITrucoshiState {
+  version: string;
   id: string | null;
   session: string | null;
   lastPong: string | null;

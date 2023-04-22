@@ -16,7 +16,7 @@ export const DANGEROUS_COMMANDS: ECommand[] = [
   EEnvidoAnswerCommand.SON_BUENAS,
 ];
 
-export const HUMAN_READABLE_COMMANDS: Record<ECommand, string> = {
+export const COMMANDS_HUMAN_READABLE: Record<ECommand, string> = {
   [ESayCommand.MAZO]: "Mazo",
   [ETrucoCommand.TRUCO]: "Truco",
   [ETrucoCommand.RE_TRUCO]: "Re-truco",

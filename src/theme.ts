@@ -149,7 +149,7 @@ export const theme = createTheme({
         root: {
           textDecoration: "none",
           "&:hover": {
-            color: "rgb(0, 0, 0, 0.5)",
+            opacity: 0.5
           },
         },
       },

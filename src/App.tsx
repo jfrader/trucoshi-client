@@ -7,6 +7,7 @@ import { TrucoshiProvider } from "./trucoshi/state/provider";
 import { Match } from "./pages/Match";
 import { Matches } from "./pages/Matches";
 import { SoundProvider } from "./sound/state/provider";
+import { Home } from "./pages/Home";
 
 const AppRouter = createBrowserRouter([
   {
@@ -16,6 +17,16 @@ const AppRouter = createBrowserRouter([
       {
         path: "/",
         element: <Main />,
+        children: [
+          {
+            index: true,
+            element: <Home />,
+          },
+          {
+            path: "matches",
+            element: <Matches />,
+          },
+        ],
       },
       {
         path: "lobby/:sessionId",
@@ -24,10 +35,6 @@ const AppRouter = createBrowserRouter([
       {
         path: "match/:sessionId",
         element: <Match />,
-      },
-      {
-        path: "matches",
-        element: <Matches />,
       },
     ],
   },

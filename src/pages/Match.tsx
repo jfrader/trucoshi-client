@@ -12,8 +12,11 @@ import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Match = () => {
+  useTrucoshi()
+
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 

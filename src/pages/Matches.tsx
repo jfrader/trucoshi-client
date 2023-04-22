@@ -10,7 +10,7 @@ export const Matches = () => {
   }, [fetchPublicMatches]);
   return (
     <Container maxWidth="sm">
-      <Box>
+      <Box pt={4}>
         <MatchList
           matches={publicMatches}
           NoMatches={<Typography>No se encontraron partidas</Typography>}

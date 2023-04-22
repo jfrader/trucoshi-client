@@ -16,6 +16,7 @@ const HOST = process.env.REACT_APP_HOST || "http://localhost:4001";
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
+  const [version, setVersion] = useState("");
   const [session, setSession] = useStateStorage("session");
   const [id, setId] = useStateStorage("id");
   const [isConnected, setConnected] = useState<boolean>(false); // socket.connected
@@ -31,7 +32,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         EClientEvent.SET_SESSION,
         id,
         session,
-        ({ success, session: newSession, activeMatches: newActiveMatches }) => {
+        ({ success, serverVersion, session: newSession, activeMatches: newActiveMatches }) => {
+          setVersion(serverVersion);
           setLogged(true);
           if (!success && newSession) {
             setSession(newSession);
@@ -46,6 +48,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       setLogged(false);
     });
 
+    socket.on(EServerEvent.UPDATE_ACTIVE_MATCHES, (newActiveMatches) => {
+      setActiveMatches(newActiveMatches);
+    });
+
     socket.on(EServerEvent.PONG, (msg: string) => {
       setLastPong(msg);
     });
@@ -53,6 +59,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
       socket.off(EServerEvent.PONG);
     };
   }, [id, session, setSession]);
@@ -87,6 +94,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     () => ({
       socket,
       state: {
+        version,
         publicMatches,
         session,
         id,
@@ -102,6 +110,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       },
     }),
     [
+      version,
       publicMatches,
       session,
       id,

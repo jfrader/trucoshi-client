@@ -4,7 +4,7 @@ import { useRounds } from "../trucoshi/hooks/useRounds";
 import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
 import { GameCard } from "./GameCard";
 import { PlayerTag } from "./PlayerTag";
-import { DANGEROUS_COMMANDS, HUMAN_READABLE_COMMANDS } from "../trucoshi/constants";
+import { DANGEROUS_COMMANDS, COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
   player: IPublicPlayer;
@@ -61,7 +61,7 @@ export const MatchPlayer = ({
                 variant="text"
                 color={DANGEROUS_COMMANDS.includes(command) ? "error" : "success"}
               >
-                {HUMAN_READABLE_COMMANDS[command]}
+                {COMMANDS_HUMAN_READABLE[command]}
               </Button>
             ))}
             {player.isEnvidoTurn &&

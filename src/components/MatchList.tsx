@@ -61,7 +61,9 @@ export const MatchList = ({
               setLoading(true);
             }}
           >
-            {isLoading ? <CircularProgress /> : <RefreshIcon />}
+            <Box maxHeight="1em">
+              {isLoading ? <CircularProgress color="success" size="0.8em" /> : <RefreshIcon />}
+            </Box>
           </IconButton>
         ) : null}
       </Typography>
