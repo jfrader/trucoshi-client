@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
-import { Box, Button, Container } from "@mui/material";
+import { Box, Button, CircularProgress, Stack } from "@mui/material";
 import { GameTable } from "../components/GameTable";
 import { PlayerTag } from "../components/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
@@ -37,10 +37,10 @@ export const Lobby = () => {
   const onSetUnReady = () => sessionId && setReady(sessionId, false);
 
   return (
-    <Container>
+    <Box>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
-      {match && (
+      {match ? (
         <GameTable
           match={match}
           fill={6}
@@ -104,10 +104,14 @@ export const Lobby = () => {
             );
           }}
         />
+      ) : (
+        <Stack alignItems="center">
+          <CircularProgress />
+        </Stack>
       )}
       <Box position="fixed" left={0} top="48px">
         <ChatRoom matchId={sessionId} players={match?.players} />
       </Box>
-    </Container>
+    </Box>
   );
 };

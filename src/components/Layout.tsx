@@ -30,19 +30,15 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
       </AppBar>
       <main style={{ position: "relative" }}>
         <Paper className="App" sx={{ borderRadius: 0 }}>
-          <Box className="App-header" display="flex" alignItems="start" flexDirection="column">
+          <Box className="App-header" display="flex" flexDirection="column">
             <Box
               display="flex"
               flexDirection="column"
-              justifyContent="start"
-              alignItems="center"
               minWidth="100%"
               flexGrow={1}
             >
               <LayoutContainer
                 display="flex"
-                justifyContent="start"
-                alignItems="start"
                 flexDirection="column"
                 pt="50px"
                 minWidth="100%"
@@ -54,8 +50,6 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   flexGrow={1}
                   display="flex"
                   flexDirection="column"
-                  justifyContent="start"
-                  alignItems="start"
                 >
                   {children}
                   <Outlet />

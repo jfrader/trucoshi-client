@@ -1,4 +1,4 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Container, Stack, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -15,7 +15,7 @@ import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Match = () => {
-  useTrucoshi()
+  useTrucoshi();
 
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
@@ -77,10 +77,10 @@ export const Match = () => {
   }
 
   return (
-    <Container>
+    <Box>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
-      {match && (
+      {match ? (
         <>
           <GameTable
             zoomOnIndex={me ? 0 : -1}
@@ -107,15 +107,18 @@ export const Match = () => {
               />
             )}
           />
-
           <Box position="fixed" right={0} top="52px">
             <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
           </Box>
         </>
+      ) : (
+        <Stack alignItems="center">
+          <CircularProgress />
+        </Stack>
       )}
       <Box position="fixed" left={0} top="48px">
         <ChatRoom matchId={sessionId} players={match?.players} />
       </Box>
-    </Container>
+    </Box>
   );
 };

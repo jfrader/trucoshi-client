@@ -32,7 +32,11 @@ export const Home = () => {
   };
 
   if (!isLogged) {
-    return <CircularProgress />;
+    return (
+      <Stack alignItems="center" flexGrow={1}>
+        <CircularProgress />
+      </Stack>
+    );
   }
 
   return (
