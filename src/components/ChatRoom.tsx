@@ -213,7 +213,7 @@ const Message = ({
             display="inline"
             sx={{ wordWrap: "break-word" }}
           >
-            {message.command
+            {message.command && HUMAN_READABLE_COMMANDS[message.content as ECommand]
               ? HUMAN_READABLE_COMMANDS[message.content as ECommand].toUpperCase()
               : message.content}
           </Typography>
