@@ -10,7 +10,7 @@ import { EMatchTableState } from "trucoshi";
 import { AnimatedButton } from "../components/AnimatedButton";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
-import { ChatRoom } from "../components/ChatRoom";
+import { ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../components/FloatingProgress";
 
@@ -48,13 +48,15 @@ export const Lobby = () => {
           FillSlot={({ i }) => {
             const joinTeamIdx = i % 2 === 0 ? 0 : 1;
             return !me || joinTeamIdx !== me.teamIdx ? (
-              <Button
-                variant="text"
-                color={getTeamColor(joinTeamIdx)}
-                onClick={() => onJoinMatch(joinTeamIdx)}
-              >
-                Unirse a {getTeamName(joinTeamIdx)}
-              </Button>
+              <Box height="6em" display="flex" alignItems="end" justifyContent="center">
+                <Button
+                  variant="text"
+                  color={getTeamColor(joinTeamIdx)}
+                  onClick={() => onJoinMatch(joinTeamIdx)}
+                >
+                  Unirse a {getTeamName(joinTeamIdx)}
+                </Button>
+              </Box>
             ) : null;
           }}
           Slot={({ player }) => {
@@ -109,7 +111,7 @@ export const Lobby = () => {
         <FloatingProgress />
       )}
       <Box position="fixed" left={0} top="48px">
-        <ChatRoom matchId={sessionId} players={match?.players} />
+        <ChatRoom {...useChatRoom(match)} />
       </Box>
     </Box>
   );

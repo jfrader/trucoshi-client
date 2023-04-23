@@ -7,13 +7,14 @@ import { Rounds } from "../components/Rounds";
 import { EMatchTableState } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
-import { ChatRoom } from "../components/ChatRoom";
+import { ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
+import { TrucoshiLogo } from "../components/TrucoshiLogo";
 
 export const Match = () => {
   useTrucoshi();
@@ -28,6 +29,8 @@ export const Match = () => {
     onMyTurn: () => queue("turn"),
     onNewHand: () => queue("round"),
   });
+
+  const chatProps = useChatRoom(match);
 
   const navigate = useNavigate();
 
@@ -47,32 +50,42 @@ export const Match = () => {
       <Container maxWidth="sm">
         <SocketBackdrop />
         <MatchBackdrop error={error} />
-        <Typography pt="1em" variant="h4">
-          El equipo ganador es
-        </Typography>
-        <Typography pt="1em" variant="h4" color={getTeamColor(teamIdx)}>
-          {getTeamName(teamIdx)}
-        </Typography>
-        <Box mb={4}>
-          {match.winner.players.map((p) => (
-            <Typography key={p.key} display="inline" pt="1em" px="2em" variant="h5">
-              {p.id}
-            </Typography>
-          ))}
-        </Box>
-        <ChatRoom
-          mb={4}
-          position="relative"
-          width="30rem"
-          height="30rem"
-          matchId={sessionId}
-          players={match?.players}
-        />
-        <Box py={4}>
+
+        <Box>
+          <Typography pt="1em" variant="h4">
+            Partida Finalizada
+          </Typography>
           <Button component={Link} to="/" variant="text">
             Volver al inicio
           </Button>
         </Box>
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <Box flexGrow={1} textAlign="left">
+            <Typography pt="1em" variant="h5">
+              Equipo ganador
+            </Typography>
+            <Typography variant="h4" color={getTeamColor(teamIdx)}>
+              {getTeamName(teamIdx)}
+            </Typography>
+            <Box mb={4}>
+              {match.winner.players.map((p) => (
+                <Typography key={p.key} display="inline" pt="1em" pr="1.6em" variant="h6">
+                  {p.id}
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+          <TrucoshiLogo width="80em" />
+          <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
+        </Box>
+        <ChatRoom
+          alwaysVisible
+          mb={4}
+          position="relative"
+          width="100%"
+          height="30rem"
+          {...chatProps}
+        />
       </Container>
     );
   }
@@ -116,7 +129,7 @@ export const Match = () => {
         <FloatingProgress />
       )}
       <Box position="fixed" left={0} top="48px">
-        <ChatRoom matchId={sessionId} players={match?.players} />
+        <ChatRoom {...chatProps} />
       </Box>
     </Box>
   );

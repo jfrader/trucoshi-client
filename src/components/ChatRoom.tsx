@@ -11,13 +11,12 @@ import {
   ClickAwayListener,
   TextField,
   Typography,
-  useTheme,
   styled,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect } from "react";
+import { useState, createRef, useLayoutEffect, useMemo } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
-import { CARDS_HUMAN_READABLE, ECommand, ICard, IChatMessage, IPublicPlayer } from "trucoshi";
+import { CARDS_HUMAN_READABLE, ECommand, ICard, IChatMessage, IPublicMatch, IPublicPlayer } from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
 import { useSound } from "../sound/hooks/useSound";
@@ -29,24 +28,19 @@ const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   },
 ]);
 
-export const ChatRoom = ({
-  matchId,
-  players,
-  ...props
-}: BoxProps & {
-  matchId?: string;
-  players?: Array<IPublicPlayer>;
-}) => {
-  const [active, setActive] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
-  const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
+type Props = BoxProps & {
+  alwaysVisible?: boolean
+} & ReturnType<typeof useChatRoom>;
 
-  const theme = useTheme();
-  const listRef = createRef<HTMLDivElement>();
+export const useChatRoom = (match?: IPublicMatch | null) => {
+  const [active, setActive] = useState<boolean>(false);
+  const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
 
   const { queue } = useSound();
 
-  const [room, chat, isLoading] = useChat(matchId, (incomingMessage) => {
+  const matchId = useMemo(() => match?.matchSessionId, [match])
+
+  return { useChatState: useChat(matchId, (incomingMessage) => {
     if (incomingMessage) {
       setLatestMessage(incomingMessage);
       setActive(true);
@@ -55,7 +49,15 @@ export const ChatRoom = ({
         queue("play" + rndSound);
       }
     }
-  });
+  }), matchId, players: match?.players, active, setActive, latestMessage }
+}
+
+export const ChatRoom = ({ matchId, players, useChatState, active, setActive, latestMessage, alwaysVisible, ...boxProps }: Props) => {
+  const [message, setMessage] = useState<string>("");
+
+  const [room, chat, isLoading] = useChatState
+
+  const listRef = createRef<HTMLDivElement>();
 
   useLayoutEffect(() => {
     if (listRef.current) {
@@ -80,18 +82,17 @@ export const ChatRoom = ({
     >
       <ClickAwayListener onClickAway={() => setActive(false)}>
         <ChatBox
-          active={Number(active)}
+          active={Number(alwaysVisible || active)}
           onClick={onActivate}
           position="absolute"
           left="0"
           top="0"
           height="15rem"
-          zIndex={theme.zIndex.modal}
           width="15rem"
           display="flex"
           flexDirection="column"
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 2 }}
-          {...props}
+          sx={{ zIndex: (theme) => theme.zIndex.drawer }}
+          {...boxProps}
         >
           <List
             component={Paper}
@@ -116,7 +117,7 @@ export const ChatRoom = ({
               );
             })}
           </List>
-          <Slide in={active} direction="right">
+          <Slide in={alwaysVisible || active} direction="right">
             <ButtonGroup
               size="small"
               fullWidth
@@ -138,7 +139,7 @@ export const ChatRoom = ({
                 disabled={isLoading}
                 color="warning"
                 variant="outlined"
-                sx={{ width: theme.spacing(6) }}
+                sx={(theme) => ({ width: theme.spacing(6) })}
                 size="small"
                 type="submit"
               >

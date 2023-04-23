@@ -22,6 +22,9 @@ export const MatchPlayer = ({
   onSayCommand,
 }: PlayerProps) => {
   const [, isPrevious] = useRounds(match, previousHand);
+
+  const bestEnvido = Math.max(...(player.envido || []));
+
   return (
     <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
       <PlayerTag player={player} isTurn={player.isTurn} />
@@ -71,7 +74,7 @@ export const MatchPlayer = ({
                   onClick={() => onSayCommand(points)}
                   size="small"
                   variant="text"
-                  color="success"
+                  color={bestEnvido === points ? "success" : "error"}
                 >
                   {points}
                 </Button>
