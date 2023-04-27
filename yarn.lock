@@ -9214,10 +9214,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-trucoshi@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.5.0.tgz#96eb82962a95d3d88f82b192356383bb14d08910"
-  integrity sha512-8IaMKFkx075c5XHl+NJBS6EXPjMU5Pm+b5Hz1NE9NnTWbOtXHstFdPueJNabg34eQtr5c8DexJPpbnu1Jbk+nQ==
+trucoshi@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.5.1.tgz#c4f48bee9253934ca624cf64698bba8a879c8eff"
+  integrity sha512-/+pXfpryTt3eZy4w+jELmjCOuF809zJ3oesqmOlOxjxfUp1OpdEw9gpP7hEoUyYw8Nc5ENWcdZt0vR8k+ln3AQ==
   dependencies:
     "@types/pino" "^7.0.5"
     pino "^8.11.0"
