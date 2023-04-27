@@ -1,6 +1,6 @@
 {
   "name": "trucoshi-client",
-  "version": "0.1.2",
+  "version": "1.0",
   "private": false,
   "dependencies": {
     "@emotion/react": "^11.10.5",
