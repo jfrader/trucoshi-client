@@ -9,9 +9,13 @@ import {
   ServerToClientEvents,
 } from "trucoshi";
 import useStateStorage from "../../hooks/useStateStorage";
-import { TrucoshiContext } from "./context";
+import { createContext } from "react";
+import { ITrucoshiContext } from "../types";
 
 const HOST = process.env.REACT_APP_HOST || "http://localhost:4001";
+const CLIENT_VERSION = process.env.REACT_APP_VERSION || "";
+
+export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
@@ -33,7 +37,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         id,
         session,
         ({ success, serverVersion, session: newSession, activeMatches: newActiveMatches }) => {
-          setVersion(serverVersion);
+          setVersion(CLIENT_VERSION + "-" + serverVersion);
           setLogged(true);
           if (!success && newSession) {
             setSession(newSession);

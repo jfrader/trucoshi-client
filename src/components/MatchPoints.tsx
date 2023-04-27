@@ -16,7 +16,8 @@ export const MatchPoints = ({
 
   useEffect(() => {
     setPoints(prevHandPoints);
-    setTimeout(() => setPoints(), PREVIOUS_HAND_ANIMATION_DURATION);
+    const timeout = setTimeout(() => setPoints(), PREVIOUS_HAND_ANIMATION_DURATION);
+    return () => clearTimeout(timeout)
   }, [prevHandPoints]);
 
   return (
