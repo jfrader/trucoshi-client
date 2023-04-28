@@ -1,10 +1,10 @@
 import { Box, Button, Container, Typography } from "@mui/material";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
-import { EMatchTableState, IPublicPlayer } from "trucoshi";
+import { EMatchTableState } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom, useChatRoom } from "../components/ChatRoom";
@@ -46,23 +46,6 @@ export const Match = () => {
   }, [match, navigate, sessionId]);
 
   const turnTimer = useTurnTimer(turnPlayer, serverAheadTime);
-
-  const Player = useCallback(
-    ({ player }: { player: IPublicPlayer }) => (
-      <MatchPlayer
-        turnTimer={turnTimer}
-        key={player.key}
-        previousHand={previousHand}
-        canSay={canSay}
-        canPlay={canPlay}
-        player={player}
-        onPlayCard={playCard}
-        onSayCommand={sayCommand}
-        match={match}
-      />
-    ),
-    [canPlay, canSay, match, playCard, previousHand, sayCommand, turnTimer]
-  );
 
   if (match && match.winner) {
     const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
@@ -119,7 +102,19 @@ export const Match = () => {
           <GameTable
             zoomOnIndex={me ? 0 : -1}
             match={match}
-            Slot={Player}
+            Slot={({ player }) => (
+              <MatchPlayer
+                turnTimer={turnTimer}
+                key={player.key}
+                previousHand={previousHand}
+                canSay={canSay}
+                canPlay={canPlay}
+                player={player}
+                onPlayCard={playCard}
+                onSayCommand={sayCommand}
+                match={match}
+              />
+            )}
             InnerSlot={({ player }) => (
               <Rounds
                 key={player.key}
