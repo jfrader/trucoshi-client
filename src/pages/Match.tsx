@@ -1,10 +1,10 @@
 import { Box, Button, Container, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
-import { EMatchTableState } from "trucoshi";
+import { EMatchTableState, IPublicPlayer } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom, useChatRoom } from "../components/ChatRoom";
@@ -15,15 +15,16 @@ import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
 import { TrucoshiLogo } from "../components/TrucoshiLogo";
+import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
 
 export const Match = () => {
-  useTrucoshi();
+  const [{ serverAheadTime }] = useTrucoshi();
 
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
   const [
-    { match, error, canSay, canPlay, previousHand, me },
+    { match, error, canSay, canPlay, previousHand, me, turnPlayer },
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
@@ -43,6 +44,25 @@ export const Match = () => {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match, navigate, sessionId]);
+
+  const turnTimer = useTurnTimer(turnPlayer, serverAheadTime);
+
+  const Player = useCallback(
+    ({ player }: { player: IPublicPlayer }) => (
+      <MatchPlayer
+        turnTimer={turnTimer}
+        key={player.key}
+        previousHand={previousHand}
+        canSay={canSay}
+        canPlay={canPlay}
+        player={player}
+        onPlayCard={playCard}
+        onSayCommand={sayCommand}
+        match={match}
+      />
+    ),
+    [canPlay, canSay, match, playCard, previousHand, sayCommand, turnTimer]
+  );
 
   if (match && match.winner) {
     const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
@@ -99,18 +119,7 @@ export const Match = () => {
           <GameTable
             zoomOnIndex={me ? 0 : -1}
             match={match}
-            Slot={({ player }) => (
-              <MatchPlayer
-                key={player.key}
-                previousHand={previousHand}
-                canSay={canSay}
-                canPlay={canPlay}
-                player={player}
-                onPlayCard={playCard}
-                onSayCommand={sayCommand}
-                match={match}
-              />
-            )}
+            Slot={Player}
             InnerSlot={({ player }) => (
               <Rounds
                 key={player.key}

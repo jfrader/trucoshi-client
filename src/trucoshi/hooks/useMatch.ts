@@ -28,6 +28,7 @@ export const useMatch = (
 ): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
+  const [turnPlayer, setTurnPlayer] = useState<IPublicPlayer | null>(null);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
@@ -43,7 +44,14 @@ export const useMatch = (
   const setMatch = useCallback((value: IPublicMatch) => {
     _setMatch(value);
     const _me = value.players.find((player) => player.isMe);
+    const _turnPlayer = value.players.find((player) => player.isTurn) || null;
     setMe(_me || null);
+    setTurnPlayer((current) => {
+      if (_turnPlayer && current && current.key !== _turnPlayer.key) {
+        return _turnPlayer;
+      }
+      return current;
+    });
   }, []);
 
   const { socket } = context;
@@ -207,7 +215,15 @@ export const useMatch = (
   const canSay = useMemo(() => Boolean(match && sayCallback), [match, sayCallback]);
 
   return [
-    { match, me, error, canPlay, canSay, previousHand: previousHand ? previousHand[0] : null },
+    {
+      match,
+      me,
+      turnPlayer,
+      error,
+      canPlay,
+      canSay,
+      previousHand: previousHand ? previousHand[0] : null,
+    },
     {
       playCard,
       sayCommand,

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, PropsWithChildren } from "react";
+import { useState, useCallback, useEffect, PropsWithChildren } from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -19,18 +19,24 @@ export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
+const sendPing = () => {
+  socket.emit(EClientEvent.PING, Date.now());
+};
+
 export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [version, setVersion] = useState("");
   const [session, setSession] = useStateStorage("session");
   const [id, setId] = useStateStorage("id");
   const [isConnected, setConnected] = useState<boolean>(false); // socket.connected
   const [isLogged, setLogged] = useState<boolean>(false);
-  const [lastPong, setLastPong] = useState<string | null>(null);
+  const [lastPong, setLastPong] = useState<number | null>(null);
+  const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
 
   useEffect(() => {
     socket.on("connect", () => {
+      sendPing();
       setConnected(true);
       socket.emit(
         EClientEvent.SET_SESSION,
@@ -56,8 +62,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       setActiveMatches(newActiveMatches);
     });
 
-    socket.on(EServerEvent.PONG, (msg: string) => {
-      setLastPong(msg);
+    socket.on(EServerEvent.PONG, (serverTime, clientTime) => {
+      setLastPong(serverTime);
+      setServerAheadTime(serverTime - clientTime);
     });
 
     return () => {
@@ -67,10 +74,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       socket.off(EServerEvent.PONG);
     };
   }, [id, session, setSession]);
-
-  const sendPing = useCallback(() => {
-    socket.emit(EClientEvent.PING, new Date().toISOString());
-  }, []);
 
   const sendUserId = useCallback(
     (userId: string, callback?: () => void) => {
@@ -94,39 +97,29 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     });
   }, []);
 
-  const value = useMemo(
-    () => ({
-      socket,
-      state: {
-        version,
-        publicMatches,
-        session,
-        id,
-        isConnected,
-        isLogged,
-        lastPong,
-        activeMatches,
-      },
-      dispatch: {
-        sendPing,
-        sendUserId,
-        fetchPublicMatches,
-      },
-    }),
-    [
-      version,
-      publicMatches,
-      session,
-      id,
-      isConnected,
-      isLogged,
-      lastPong,
-      activeMatches,
-      sendPing,
-      sendUserId,
-      fetchPublicMatches,
-    ]
+  return (
+    <TrucoshiContext.Provider
+      value={{
+        socket,
+        state: {
+          version,
+          publicMatches,
+          session,
+          id,
+          isConnected,
+          isLogged,
+          lastPong,
+          activeMatches,
+          serverAheadTime,
+        },
+        dispatch: {
+          sendPing,
+          sendUserId,
+          fetchPublicMatches,
+        },
+      }}
+    >
+      {children}
+    </TrucoshiContext.Provider>
   );
-
-  return <TrucoshiContext.Provider value={value}>{children}</TrucoshiContext.Provider>;
 };

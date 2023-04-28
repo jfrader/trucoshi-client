@@ -24,7 +24,8 @@ export interface ITrucoshiState {
   version: string;
   id: string | null;
   session: string | null;
-  lastPong: string | null;
+  lastPong: number | null;
+  serverAheadTime: number;
   isConnected: boolean;
   isLogged: boolean;
   publicMatches: Array<IPublicMatchInfo>;
@@ -49,6 +50,7 @@ export interface ITrucoshiMatchActions {
 }
 
 export interface ITrucoshiMatchState {
+  turnPlayer: IPublicPlayer | null;
   previousHand: IMatchPreviousHand | null;
   match: IPublicMatch | null;
   me: IPublicPlayer | null;

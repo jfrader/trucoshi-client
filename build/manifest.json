@@ -1,0 +1,8 @@
+{
+  "short_name": "Trucoshi",
+  "name": "Trucoshi Truco Online Gratis",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ec6c34",
+  "background_color": "#182c1c"
+}
