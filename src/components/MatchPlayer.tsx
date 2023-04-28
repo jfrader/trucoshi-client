@@ -5,11 +5,11 @@ import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
 import { GameCard } from "./GameCard";
 import { PlayerTag } from "./PlayerTag";
 import { DANGEROUS_COMMANDS, COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
-import { TurnTimer } from "../trucoshi/hooks/useTurnTimer";
+import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
   player: IPublicPlayer;
-  turnTimer: TurnTimer;
   onPlayCard: ITrucoshiMatchActions["playCard"];
   onSayCommand: ITrucoshiMatchActions["sayCommand"];
 };
@@ -20,13 +20,16 @@ export const MatchPlayer = ({
   player,
   canSay,
   canPlay,
-  turnTimer,
   onPlayCard,
   onSayCommand,
 }: PlayerProps) => {
+  const [{ serverAheadTime }] = useTrucoshi();
+
   const [, isPrevious] = useRounds(match, previousHand);
 
   const bestEnvido = Math.max(...(player.envido || []));
+
+  const turnTimer = useTurnTimer(player, serverAheadTime);
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">

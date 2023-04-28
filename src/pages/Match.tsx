@@ -15,16 +15,15 @@ import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
 import { TrucoshiLogo } from "../components/TrucoshiLogo";
-import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
 
 export const Match = () => {
-  const [{ serverAheadTime }] = useTrucoshi();
+  useTrucoshi();
 
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
   const [
-    { match, error, canSay, canPlay, previousHand, me, turnPlayer },
+    { match, error, canSay, canPlay, previousHand, me },
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
@@ -44,8 +43,6 @@ export const Match = () => {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match, navigate, sessionId]);
-
-  const turnTimer = useTurnTimer(turnPlayer, serverAheadTime);
 
   if (match && match.winner) {
     const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
@@ -104,7 +101,6 @@ export const Match = () => {
             match={match}
             Slot={({ player }) => (
               <MatchPlayer
-                turnTimer={turnTimer}
                 key={player.key}
                 previousHand={previousHand}
                 canSay={canSay}
