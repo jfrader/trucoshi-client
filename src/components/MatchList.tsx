@@ -88,7 +88,7 @@ export const MatchList = ({
                     </ListItemText>
                     <ListItemAvatar>
                       <Typography variant="subtitle1">
-                        {info.players} / {info.maxPlayers}
+                        {info.players} / {info.options.maxPlayers}
                       </Typography>
                     </ListItemAvatar>
                     <Badge variant="dot" color={color} />
