@@ -50,7 +50,6 @@ export const Match = () => {
       <Container maxWidth="sm">
         <SocketBackdrop />
         <MatchBackdrop error={error} />
-
         <Box>
           <Typography pt="1em" variant="h4">
             Partida Finalizada

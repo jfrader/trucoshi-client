@@ -4,8 +4,9 @@ import { Outlet } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { TrucoshiText } from "../components/TrucoshiText";
-import { Favorite, GitHub } from "@mui/icons-material";
 import { Link } from "../components/Link";
+import { FooterLink } from "../components/FooterLink";
+import { GENERAL_LINKS } from "../links/links";
 
 export const Main = () => {
   const [{ version }] = useTrucoshi();
@@ -41,22 +42,15 @@ export const Main = () => {
               Version {version}
             </Typography>
           ) : null}
-          <Typography display="block" variant="caption">
-            <Stack direction="row" justifyContent="center" spacing={2}>
-              <Favorite fontSize="small" />
-              <Link target="_blank" to="https://geyser.fund/project/trucoshi">
-                donate
-              </Link>
-            </Stack>
-          </Typography>
-          <Typography display="block" variant="caption">
-            <Stack direction="row" justifyContent="center" spacing={2}>
-              <GitHub fontSize="small" />
-              <Link target="_blank" to="https://github.com/jfrader/trucoshi">
-                github
-              </Link>
-            </Stack>
-          </Typography>
+          <Stack alignContent="space-evenly" alignItems="center" direction="column" spacing={1}>
+            {GENERAL_LINKS.map(({ label, to, Icon }) => {
+              return (
+                <FooterLink Icon={Icon} to={to}>
+                  {label}
+                </FooterLink>
+              );
+            })}
+          </Stack>
         </Stack>
       </Box>
     </Container>

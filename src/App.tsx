@@ -8,6 +8,7 @@ import { Match } from "./pages/Match";
 import { Matches } from "./pages/Matches";
 import { SoundProvider } from "./sound/state/provider";
 import { Home } from "./pages/Home";
+import { Help } from "./pages/Help";
 
 const AppRouter = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const AppRouter = createBrowserRouter([
           {
             path: "matches",
             element: <Matches />,
+          },
+          {
+            path: "help",
+            element: <Help />,
           },
         ],
       },

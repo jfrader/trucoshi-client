@@ -41,6 +41,20 @@ export const useMatch = (
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
 
+  const { socket } = context;
+
+  const fetchMatch = useCallback(() => {
+    if (matchId && context.state.isConnected) {
+      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
+        if (!success) {
+          setError(new Error("No se pudo encontrar la partida"));
+          return;
+        }
+        setError(null);
+      });
+    }
+  }, [context.state.isConnected, context.state.session, matchId, socket]);
+
   const setMatch = useCallback((value: IPublicMatch) => {
     _setMatch(value);
     const _me = value.players.find((player) => player.isMe);
@@ -48,8 +62,6 @@ export const useMatch = (
     setMe(_me || null);
     setTurnPlayer(_turnPlayer);
   }, []);
-
-  const { socket } = context;
 
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {
@@ -82,15 +94,20 @@ export const useMatch = (
 
   const joinMatch = useCallback(
     (matchId: string, teamIdx?: 0 | 1) => {
-      socket.emit(EClientEvent.JOIN_MATCH, matchId, teamIdx, ({ success, match, activeMatches }) => {
-        if (activeMatches) {
-          context.dispatch.setActiveMatches(activeMatches);
+      socket.emit(
+        EClientEvent.JOIN_MATCH,
+        matchId,
+        teamIdx,
+        ({ success, match, activeMatches }) => {
+          if (activeMatches) {
+            context.dispatch.setActiveMatches(activeMatches);
+          }
+          if (success && match) {
+            return setMatch(match);
+          }
+          console.error("Could not join match");
         }
-        if (success && match) {
-          return setMatch(match);
-        }
-        console.error("Could not join match");
-      });
+      );
     },
     [context.dispatch, setMatch, socket]
   );
@@ -107,16 +124,8 @@ export const useMatch = (
   }, [matchId, socket]);
 
   useEffect(() => {
-    if (matchId) {
-      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
-        if (!success) {
-          setError(new Error("No se pudo encontrar la partida"));
-          return;
-        }
-        setError(null);
-      });
-    }
-  }, [matchId, context.state.id, socket, context.state.session]);
+    fetchMatch();
+  }, [fetchMatch]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
