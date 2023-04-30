@@ -29,7 +29,7 @@ export const MatchPlayer = ({
 
   const bestEnvido = Math.max(...(player.envido || []));
 
-  const turnTimer = useTurnTimer(player, serverAheadTime);
+  const turnTimer = useTurnTimer(player, serverAheadTime, match?.options);
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">

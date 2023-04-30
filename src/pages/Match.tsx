@@ -76,7 +76,7 @@ export const Match = () => {
             </Box>
           </Box>
           <TrucoshiLogo width="80em" />
-          <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
+          <MatchPoints match={match} prevHandPoints={previousHand?.points} />
         </Box>
         <ChatRoom
           alwaysVisible
@@ -122,7 +122,7 @@ export const Match = () => {
             )}
           />
           <Box position="fixed" right={0} top="52px">
-            <MatchPoints teams={match.teams} prevHandPoints={previousHand?.points} />
+            <MatchPoints match={match} prevHandPoints={previousHand?.points} />
           </Box>
         </>
       ) : (

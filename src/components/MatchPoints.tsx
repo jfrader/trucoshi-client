@@ -1,28 +1,27 @@
 import { Box, BoxProps, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { IHandPoints, IPublicTeam } from "trucoshi";
-import { PREVIOUS_HAND_ANIMATION_DURATION } from "../trucoshi/constants";
+import { IHandPoints, IPublicMatch } from "trucoshi";
 import { TeamCard, TeamTag } from "./TeamTag";
 
 export const MatchPoints = ({
-  teams,
+  match,
   prevHandPoints,
   ...boxProps
 }: {
-  teams: Array<IPublicTeam>;
+  match: IPublicMatch;
   prevHandPoints?: IHandPoints | null;
 } & BoxProps) => {
   const [points, setPoints] = useState<IHandPoints | void | null>(prevHandPoints);
 
   useEffect(() => {
     setPoints(prevHandPoints);
-    const timeout = setTimeout(() => setPoints(), PREVIOUS_HAND_ANIMATION_DURATION);
-    return () => clearTimeout(timeout)
-  }, [prevHandPoints]);
+    const timeout = setTimeout(() => setPoints(), match.options.handAckTime);
+    return () => clearTimeout(timeout);
+  }, [match.options.handAckTime, prevHandPoints]);
 
   return (
     <Box display="flex" flexDirection="column" {...boxProps}>
-      {teams.map((team, i) => (
+      {match.teams.map((team, i) => (
         <Box key={i} mx={1}>
           <TeamCard>
             <TeamTag teamIdx={i} />

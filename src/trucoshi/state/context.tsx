@@ -115,6 +115,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         dispatch: {
           sendPing,
           sendUserId,
+          setActiveMatches,
           fetchPublicMatches,
         },
       }}

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { IPublicPlayer, PLAYER_ABANDON_TIMEOUT, PLAYER_TURN_TIMEOUT } from "trucoshi";
+import { ILobbyOptions, IPublicPlayer } from "trucoshi";
 
 export type TurnTimer = { isExtension: boolean; progress: number };
 
-export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: number) => {
+export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: number, options?: ILobbyOptions) => {
   const [turnTimer, setTurnTimer] = useState<TurnTimer>({
     isExtension: false,
     progress: 0,
   });
 
   useEffect(() => {
-    if (!player || !player.isTurn) {
+    if (!player || !player.isTurn || !options) {
       return;
     }
     const interval = setInterval(() => {
@@ -21,12 +21,12 @@ export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: numb
         }
         if (isExtension) {
           const difference = player.turnExtensionExpiresAt - now;
-          const progress = Math.floor((difference * 100) / PLAYER_ABANDON_TIMEOUT);
+          const progress = Math.floor((difference * 100) / options.abandonTime);
           return { isExtension, progress };
         }
         const difference = player.turnExpiresAt - now;
         if (difference > 0) {
-          const progress = Math.floor((difference * 100) / PLAYER_TURN_TIMEOUT);
+          const progress = Math.floor((difference * 100) / options.turnTime);
           return {
             isExtension: false,
             progress,
@@ -37,7 +37,7 @@ export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: numb
     }, 16);
 
     return () => clearInterval(interval);
-  }, [player, serverAheadTime]);
+  }, [options, player, serverAheadTime]);
 
   return turnTimer;
 };

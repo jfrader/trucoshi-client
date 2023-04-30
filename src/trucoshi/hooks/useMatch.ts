@@ -53,7 +53,10 @@ export const useMatch = (
 
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {
-      socket.emit(EClientEvent.CREATE_MATCH, ({ match }) => {
+      socket.emit(EClientEvent.CREATE_MATCH, ({ match, activeMatches }) => {
+        if (activeMatches) {
+          context.dispatch.setActiveMatches(activeMatches);
+        }
         if (match) {
           setMatch(match);
           return callback(null, match);
@@ -61,7 +64,7 @@ export const useMatch = (
         callback(new Error("No se pudo crear la partida"));
       });
     },
-    [setMatch, socket]
+    [context.dispatch, setMatch, socket]
   );
 
   const setReady = useCallback(
@@ -79,14 +82,17 @@ export const useMatch = (
 
   const joinMatch = useCallback(
     (matchId: string, teamIdx?: 0 | 1) => {
-      socket.emit(EClientEvent.JOIN_MATCH, matchId, teamIdx, ({ match, success }) => {
-        if (match) {
+      socket.emit(EClientEvent.JOIN_MATCH, matchId, teamIdx, ({ success, match, activeMatches }) => {
+        if (activeMatches) {
+          context.dispatch.setActiveMatches(activeMatches);
+        }
+        if (success && match) {
           return setMatch(match);
         }
         console.error("Could not join match");
       });
     },
-    [setMatch, socket]
+    [context.dispatch, setMatch, socket]
   );
 
   const startMatch = useCallback(() => {

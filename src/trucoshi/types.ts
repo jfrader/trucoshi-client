@@ -33,6 +33,7 @@ export interface ITrucoshiState {
 }
 
 export interface ITrucoshiActions {
+  setActiveMatches(activeMatches: IPublicMatchInfo[]): void
   fetchPublicMatches(filters?: { state?: Array<EMatchTableState> }): void;
   sendPing(): void;
   sendUserId(id: string, callback?: () => void): void;

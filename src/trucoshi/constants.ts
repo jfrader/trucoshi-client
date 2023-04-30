@@ -8,8 +8,6 @@ import {
   ETrucoCommand,
 } from "trucoshi";
 
-export const PREVIOUS_HAND_ANIMATION_DURATION = 3500;
-
 export const DANGEROUS_COMMANDS: ECommand[] = [
   ESayCommand.MAZO,
   EAnswerCommand.NO_QUIERO,
