@@ -1,4 +1,5 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 
 export const GameCard = ({
@@ -10,10 +11,34 @@ export const GameCard = ({
   card: ICard;
   enableHover?: boolean;
 } & ButtonProps) => {
+  const [searchParams] = useSearchParams()
+  const hasPic = card.charAt(1) === "b";
+
+  if (hasPic && searchParams.has('spoiler')) {
+    return (
+      <GameCardButton
+        variant="card"
+        name={card || "xx"}
+        enablehover={enableHover ? 1 : 0}
+        {...buttonProps}
+      >
+        <img
+          alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
+          style={{
+            objectFit: "contain",
+            width: "4.4em",
+          }}
+          src={`/cards/default/${card}.png`}
+        />
+      </GameCardButton>
+    );
+  }
+
   return (
     <GameCardButton
-      variant="card"
+      variant="emojicard"
       name={card || "xx"}
+      emojicard={1}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
@@ -29,30 +54,35 @@ export const GameCard = ({
   // );
 };
 
-const GameCardButton = styled(Button)<{ enablehover?: boolean | number }>(
-  ({ theme, enablehover }) => [
-    {
-      minWidth: "3.4rem",
-      minHeight: "5rem",
-      fontWeight: 700,
-      padding: "0.6rem 0.2rem",
-      transition: theme.transitions.create(["transform"], {
-        duration: theme.transitions.duration.standard,
-      }),
-    },
-    enablehover
-      ? {
-          "&:hover": {
+const GameCardButton = styled(Button)<{
+  enablehover?: boolean | number;
+  emojicard?: boolean | number;
+}>(({ theme, enablehover, emojicard }) => [
+  {
+    transition: theme.transitions.create(["transform"], {
+      duration: theme.transitions.duration.standard,
+    }),
+  },
+  emojicard
+    ? {
+        width: "4.4em",
+        minHeight: "5.32rem",
+        fontWeight: 700,
+        padding: "0.6rem 0.2rem",
+      }
+    : {},
+  enablehover
+    ? {
+        "&:hover": {
+          zIndex: 1911,
+          transform: "scale(1.4)",
+          "& *": {
             zIndex: 1911,
-            transform: "scale(1.4)",
-            "& *": {
-              zIndex: 1911,
-            },
           },
-        }
-      : {},
-  ]
-);
+        },
+      }
+    : {},
+]);
 
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {

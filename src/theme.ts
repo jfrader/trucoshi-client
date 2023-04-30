@@ -11,6 +11,7 @@ declare module "@mui/material/Typography" {
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
     card: true;
+    emojicard: true;
   }
 }
 
@@ -78,6 +79,23 @@ export const theme = createTheme({
         {
           props: { variant: "card" },
           style: ({ theme }) => ({
+            padding: 0,
+            minWidth: "none",
+            minHeight: "none",
+            background: theme.palette.text.secondary,
+            color: theme.palette.background.paper,
+            border: "none",
+            ":active": {
+              background: theme.palette.text.secondary,
+            },
+            ":hover": {
+              background: theme.palette.text.secondary,
+            },
+          }),
+        },
+        {
+          props: { variant: "emojicard" },
+          style: ({ theme }) => ({
             background: theme.palette.text.secondary,
             color: theme.palette.background.paper,
             borderColor: theme.palette.background.paper,
@@ -91,13 +109,13 @@ export const theme = createTheme({
           }),
         },
         {
-          props: { variant: "card", name: "1e" },
+          props: { variant: "emojicard", name: "1e" },
           style: () => ({
             // animation: `${glow} 1s infinite alternate`,
           }),
         },
         {
-          props: { variant: "card", name: "xx" },
+          props: { variant: "emojicard", name: "xx" },
           style: ({ theme }) => ({
             border: "1px solid",
             background: theme.palette.error.main,

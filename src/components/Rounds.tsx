@@ -16,7 +16,7 @@ export const Rounds = ({
   player: IPublicPlayer;
 }) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
-  const [rounds, isPrevious] = useRounds(match, previousHand, previousHandCallback);
+  const [rounds] = useRounds(match, previousHand, previousHandCallback);
 
   return (
     <Box maxWidth="100%" height="100%" pt="30%" pr="35%">
@@ -38,14 +38,14 @@ export const Rounds = ({
                 <GameCardContainer
                   key={pc.key}
                   i={i}
-                  cards={isPrevious ? player.prevHand.length : player.usedHand.length}
+                  cards={player.usedHand.length}
                   open={openHand}
                 >
                   <GameCard {...pc} />
                 </GameCardContainer>
               );
             }
-            return <span key={pc.key} />;
+            return null;
           })
         )}
       </Box>
