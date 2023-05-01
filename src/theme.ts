@@ -80,8 +80,8 @@ export const theme = createTheme({
           props: { variant: "card" },
           style: ({ theme }) => ({
             padding: 0,
-            minWidth: "none",
-            minHeight: "none",
+            minWidth: "initial",
+            minHeight: "initial",
             background: theme.palette.text.secondary,
             color: theme.palette.background.paper,
             border: "none",
@@ -96,6 +96,8 @@ export const theme = createTheme({
         {
           props: { variant: "emojicard" },
           style: ({ theme }) => ({
+            minWidth: 'initial',
+            padding: 0,
             background: theme.palette.text.secondary,
             color: theme.palette.background.paper,
             borderColor: theme.palette.background.paper,

@@ -32,6 +32,9 @@ export const Rounds = ({
         onMouseLeave={() => {
           setOpenHand(false);
         }}
+        onClick={() => {
+          setOpenHand(current => !current)
+        }}
       >
         {playerCards.map((pc, i) => {
           return (
