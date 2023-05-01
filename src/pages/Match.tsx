@@ -49,7 +49,6 @@ export const Match = () => {
   }
 
   if (match && match.winner) {
-    const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
     return (
       <Container maxWidth="sm">
         <SocketBackdrop />
@@ -67,8 +66,8 @@ export const Match = () => {
             <Typography pt="1em" variant="h5">
               Equipo ganador
             </Typography>
-            <Typography variant="h4" color={getTeamColor(teamIdx)}>
-              {getTeamName(teamIdx)}
+            <Typography variant="h4" color={getTeamColor(match.winner.id)}>
+              {getTeamName(match.winner.id)}
             </Typography>
             <Box mb={4}>
               {match.winner.players.map((p) => (
