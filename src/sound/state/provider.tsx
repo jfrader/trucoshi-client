@@ -11,6 +11,8 @@ import { gameSounds } from "../sounds";
 import { ISoundQueue } from "../types";
 import { SoundContext } from "./context";
 
+const INITIAL_QUEUE: ISoundQueue = []
+
 export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   const [sounds, setSounds] = useState<Record<string, Howl>>({});
   const [mainVolume, setVolume] = useState<number>(0.5);
@@ -61,7 +63,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 
   const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);
-  const [soundQueue, setQueue] = useState<ISoundQueue>([]);
+  const [soundQueue, setQueue] = useState<ISoundQueue>(INITIAL_QUEUE);
 
   const queue = useCallback(
     (key: string) => {
@@ -89,7 +91,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 
   useEffect(() => {
-    const next = soundQueue?.at(0);
+    const next = soundQueue.at(0);
     if (next && !isPlayingQueueSound) {
       next.promise().then(() => {
         setQueue((current) => {
