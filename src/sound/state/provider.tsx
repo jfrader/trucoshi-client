@@ -89,7 +89,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 
   useEffect(() => {
-    const next = soundQueue.at(0);
+    const next = soundQueue?.at(0);
     if (next && !isPlayingQueueSound) {
       next.promise().then(() => {
         setQueue((current) => {

@@ -18,14 +18,16 @@ export const useChat = (
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_CHAT, (room, message) => {
-      setRoom(room);
-      onMessage?.(message);
+      if (room.id === matchId) {
+        setRoom(room);
+        onMessage?.(message);
+      }
     });
 
     return () => {
       socket.off(EServerEvent.UPDATE_CHAT);
     };
-  }, [onMessage, socket]);
+  }, [matchId, onMessage, socket]);
 
   const chat = useCallback(
     (message: string) => {

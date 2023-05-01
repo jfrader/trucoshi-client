@@ -27,7 +27,7 @@ export const Help = () => {
           <List>
             {HELP_LINKS.map(({ to, label, Icon }) => {
               return (
-                <ListItemButton>
+                <ListItemButton key={to}>
                   <ListItemIcon>
                     <Icon />
                   </ListItemIcon>

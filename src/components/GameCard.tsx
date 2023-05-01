@@ -11,10 +11,10 @@ export const GameCard = ({
   card: ICard;
   enableHover?: boolean;
 } & ButtonProps) => {
-  const [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams();
   const hasPic = card.charAt(1) === "b";
 
-  if (hasPic && searchParams.has('spoiler')) {
+  if (hasPic && searchParams.has("spoiler")) {
     return (
       <GameCardButton
         variant="card"
@@ -84,20 +84,20 @@ const GameCardButton = styled(Button)<{
     : {},
 ]);
 
+const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
+const getMargin = (i: number, cards: number) =>
+  cards > 1 && i % 2 === 0 ? `calc((7px * ${i}) ${i === 0 ? "- 2.68" : "+ 2"}rem)` : 0;
+
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {
-    const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
-    const margin = 7 * i + "px";
-    const openMargin =
-      cards > 1 && i % 2 === 0 ? `calc((7px * ${i}) ${i === 0 ? "- 2.68" : "+ 2"}rem)` : 0;
-
+    const margin = 10 * i + "px";
+    const openMargin = getMargin(i, cards);
     return [
       {
         position: "absolute",
         left: "50%",
         right: "50%",
         transform: `rotate(${randDeg()}deg)`,
-        marginTop: i !== undefined ? margin : 0,
         marginLeft: i !== undefined ? margin : 0,
         transition: theme.transitions.create(["transform", "margin-top", "margin-left"], {
           duration: theme.transitions.duration.standard,

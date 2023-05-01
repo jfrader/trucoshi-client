@@ -35,7 +35,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           <Stack pt={1} direction="row" spacing={2} alignItems="center">
             {TOOLBAR_LINKS.map(({ to, Icon }) => {
               return (
-                <Link to={to}>
+                <Link key={to} to={to}>
                   <Icon fontSize="small" />
                 </Link>
               );

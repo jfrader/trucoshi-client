@@ -1,4 +1,4 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Fade, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -7,7 +7,7 @@ import { Rounds } from "../components/Rounds";
 import { EMatchTableState } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
-import { ChatRoom, useChatRoom } from "../components/ChatRoom";
+import { ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
@@ -17,7 +17,7 @@ import { FloatingProgress } from "../components/FloatingProgress";
 import { TrucoshiLogo } from "../components/TrucoshiLogo";
 
 export const Match = () => {
-  useTrucoshi();
+  const [, , hydrated] = useTrucoshi();
 
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
@@ -43,6 +43,10 @@ export const Match = () => {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match, navigate, sessionId]);
+
+  if (!hydrated) {
+    return null;
+  }
 
   if (match && match.winner) {
     const teamIdx = match.winner.players.at(0)?.teamIdx as 0 | 1;
@@ -96,7 +100,7 @@ export const Match = () => {
       {match ? (
         <>
           <GameTable
-            zoomOnIndex={me ? 0 : -1}
+            zoomOnIndex={me ? 1 : -1}
             match={match}
             Slot={({ player }) => (
               <MatchPlayer
@@ -119,6 +123,13 @@ export const Match = () => {
                 match={match}
               />
             )}
+            MiddleSlot={() =>
+              chatProps.latestMessage && chatProps.latestMessage.command ? (
+                <Box width="100%" height="100%" display="flex" textAlign="center">
+                  <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
+                </Box>
+              ) : null
+            }
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />

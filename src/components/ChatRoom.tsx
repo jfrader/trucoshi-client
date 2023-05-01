@@ -12,11 +12,20 @@ import {
   TextField,
   Typography,
   styled,
+  SlideProps,
+  FadeProps,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect, useMemo } from "react";
+import { useState, createRef, useLayoutEffect, FC, useEffect } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
-import { CARDS_HUMAN_READABLE, ECommand, ICard, IChatMessage, IPublicMatch, IPublicPlayer } from "trucoshi";
+import {
+  CARDS_HUMAN_READABLE,
+  ECommand,
+  ICard,
+  IChatMessage,
+  IPublicMatch,
+  IPublicPlayer,
+} from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { bounce } from "../animations/bounce";
 import { useSound } from "../sound/hooks/useSound";
@@ -29,33 +38,61 @@ const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
 ]);
 
 type Props = BoxProps & {
-  alwaysVisible?: boolean
+  alwaysVisible?: boolean;
 } & ReturnType<typeof useChatRoom>;
 
 export const useChatRoom = (match?: IPublicMatch | null) => {
   const [active, setActive] = useState<boolean>(false);
   const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
+  const [statelessMatch, setMatch] = useState<IPublicMatch | null | undefined>(null);
+
+  useEffect(() => {
+    setMatch((current) => {
+      if (current) {
+        return current;
+      }
+      return match;
+    });
+  }, [match]);
 
   const { queue } = useSound();
 
-  const matchId = useMemo(() => match?.matchSessionId, [match])
+  return {
+    useChatState: useChat(statelessMatch?.matchSessionId, (incomingMessage) => {
+      if (incomingMessage) {
+        setLatestMessage(incomingMessage);
+        setActive(true);
+        if (incomingMessage.card) {
+          const rndSound = Math.round(Math.random() * 2);
+          queue("play" + rndSound);
+        }
 
-  return { useChatState: useChat(matchId, (incomingMessage) => {
-    if (incomingMessage) {
-      setLatestMessage(incomingMessage);
-      setActive(true);
-      if (incomingMessage.card) {
-        const rndSound = Math.round(Math.random() * 2);
-        queue("play" + rndSound);
+        setTimeout(() => {
+          setLatestMessage(null);
+        }, 2500);
       }
-    }
-  }), matchId, players: match?.players, active, setActive, latestMessage }
-}
+    }),
+    matchId: statelessMatch?.matchSessionId,
+    players: statelessMatch?.players,
+    active,
+    setActive,
+    latestMessage,
+  };
+};
 
-export const ChatRoom = ({ matchId, players, useChatState, active, setActive, latestMessage, alwaysVisible, ...boxProps }: Props) => {
+export const ChatRoom = ({
+  matchId,
+  players,
+  useChatState,
+  active,
+  setActive,
+  latestMessage,
+  alwaysVisible,
+  ...boxProps
+}: Props) => {
   const [message, setMessage] = useState<string>("");
 
-  const [room, chat, isLoading] = useChatState
+  const [room, chat, isLoading] = useChatState;
 
   const listRef = createRef<HTMLDivElement>();
 
@@ -90,6 +127,7 @@ export const ChatRoom = ({ matchId, players, useChatState, active, setActive, la
           height="15rem"
           width="15rem"
           display="flex"
+          textAlign="left"
           flexDirection="column"
           sx={{ zIndex: (theme) => theme.zIndex.drawer }}
           {...boxProps}
@@ -108,7 +146,7 @@ export const ChatRoom = ({ matchId, players, useChatState, active, setActive, la
           >
             {room?.messages.map((message) => {
               return (
-                <Message
+                <ChatMessage
                   animate={message.id === latestMessage?.id}
                   key={message.id}
                   message={message}
@@ -153,7 +191,7 @@ export const ChatRoom = ({ matchId, players, useChatState, active, setActive, la
   );
 };
 
-const messageColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+export const messageColor = (message: IChatMessage, players: IPublicPlayer[]) => {
   if (message.card) {
     return players.reduce((prev, player) => {
       return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
@@ -165,7 +203,7 @@ const messageColor = (message: IChatMessage, players: IPublicPlayer[]) => {
   return "text.primary";
 };
 
-const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+export const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => {
   if (message.command) {
     return getTeamColor(Number(message.user.key));
   }
@@ -174,7 +212,7 @@ const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => {
   }, "text.secondary" as string);
 };
 
-const MessageAuthor = ({
+export const MessageAuthor = ({
   message,
   players = [],
 }: {
@@ -190,25 +228,33 @@ const MessageAuthor = ({
   );
 };
 
-const Message = ({
+export const ChatMessage = ({
   message,
   players = [],
   animate = false,
+  hideAuthor = false,
+  Component = Slide,
+  ...props
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
   animate?: boolean;
-}) => {
+  hideAuthor?: boolean;
+  Component?: FC<SlideProps | FadeProps>;
+} & Partial<SlideProps | FadeProps>) => {
   return (
-    <Slide in={true} direction="right" mountOnEnter unmountOnExit>
+    <Component in={true} direction="right" mountOnEnter unmountOnExit {...props}>
       <ListItem
         sx={{
+          textAlign: "inherit",
           animation: animate ? `0.6s ${bounce} ${message.command ? 4 : 1}` : "",
           py: "0.05em",
         }}
       >
-        <ListItemText>
-          {message.system ? null : <MessageAuthor message={message} players={players} />}
+        <ListItemText sx={{ textAlign: "inherit" }}>
+          {hideAuthor || message.system ? null : (
+            <MessageAuthor message={message} players={players} />
+          )}
           <Typography
             color={messageColor(message, players)}
             display="inline"
@@ -218,7 +264,7 @@ const Message = ({
           </Typography>
         </ListItemText>
       </ListItem>
-    </Slide>
+    </Component>
   );
 };
 
@@ -238,6 +284,6 @@ const getMessageContent = (message: IChatMessage) => {
   return message.content;
 };
 
-const MessageContent = ({ children }: { children: IChatMessage }) => {
+export const MessageContent = ({ children }: { children: IChatMessage }) => {
   return <span>{getMessageContent(children)}</span>;
 };

@@ -46,20 +46,18 @@ export const MatchPlayer = ({
         ) : (
           <Box pt={1} minHeight="4em">
             {!isPrevious &&
-              player.hand
-                .map((c, i) => [c, i + c + player.key])
-                .map(([card, key], idx) =>
-                  canPlay && player.isMe && player.isTurn ? (
-                    <GameCard
-                      enableHover
-                      key={key}
-                      card={card as ICard}
-                      onClick={() => onPlayCard(idx, card as ICard)}
-                    />
-                  ) : (
-                    <GameCard key={key} card={card as ICard} />
-                  )
-                )}
+              player.hand.map((card, idx) =>
+                canPlay && player.isMe && player.isTurn ? (
+                  <GameCard
+                    enableHover
+                    key={card + idx}
+                    card={card as ICard}
+                    onClick={() => onPlayCard(idx, card as ICard)}
+                  />
+                ) : (
+                  <GameCard key={card + idx} card={card as ICard} />
+                )
+              )}
           </Box>
         )}
         {!player.abandoned && player.isMe && canSay && !isPrevious ? (

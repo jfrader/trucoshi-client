@@ -45,7 +45,7 @@ export const Main = () => {
           <Stack alignContent="space-evenly" alignItems="center" direction="column" spacing={1}>
             {GENERAL_LINKS.map(({ label, to, Icon }) => {
               return (
-                <FooterLink Icon={Icon} to={to}>
+                <FooterLink key={to} Icon={Icon} to={to}>
                   {label}
                 </FooterLink>
               );

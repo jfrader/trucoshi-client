@@ -18,6 +18,8 @@ export const Rounds = ({
   const [openHand, setOpenHand] = useState<boolean>(false);
   const [rounds] = useRounds(match, previousHand, previousHandCallback);
 
+  const playerCards = rounds.flatMap((round) => round.filter((pc) => pc.player.key === player.key));
+
   return (
     <Box maxWidth="100%" height="100%" pt="30%" pr="35%">
       <Box
@@ -31,23 +33,13 @@ export const Rounds = ({
           setOpenHand(false);
         }}
       >
-        {rounds.map((round, i) =>
-          round.map((pc) => {
-            if (pc.player.key === player.key) {
-              return (
-                <GameCardContainer
-                  key={pc.key}
-                  i={i}
-                  cards={player.usedHand.length}
-                  open={openHand}
-                >
-                  <GameCard {...pc} />
-                </GameCardContainer>
-              );
-            }
-            return null;
-          })
-        )}
+        {playerCards.map((pc, i) => {
+          return (
+            <GameCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
+              <GameCard {...pc} />
+            </GameCardContainer>
+          );
+        })}
       </Box>
     </Box>
   );
