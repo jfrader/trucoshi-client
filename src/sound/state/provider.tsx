@@ -17,6 +17,8 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   const [sounds, setSounds] = useState<Record<string, Howl>>({});
   const [mainVolume, setVolume] = useState<number>(0.5);
   const [isMuted, setMuted] = useState<boolean>(false);
+  const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);
+  const [soundQueue, setQueue] = useState<ISoundQueue>(INITIAL_QUEUE);
 
   const load = useCallback(async (key: string, sound: HowlOptions) => {
     return new Promise<Howl>((resolve, reject) => {
@@ -62,9 +64,6 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
     [sounds]
   );
 
-  const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);
-  const [soundQueue, setQueue] = useState<ISoundQueue>(INITIAL_QUEUE);
-
   const queue = useCallback(
     (key: string) => {
       setQueue((q) => {
@@ -91,7 +90,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   );
 
   useEffect(() => {
-    const next = soundQueue.at(0);
+    const [next] = soundQueue;
     if (next && !isPlayingQueueSound) {
       next.promise().then(() => {
         setQueue((current) => {
