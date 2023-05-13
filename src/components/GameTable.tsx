@@ -1,6 +1,7 @@
 import { CSSProperties, FC, Fragment, useMemo } from "react";
 import { Box, Paper, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
+import { PropsWithPlayer } from "../trucoshi/types";
 
 const Container = styled(Box)`
   padding: 16px;
@@ -65,8 +66,8 @@ const InnerItem = styled(Box)`
 interface GameTableProps {
   fill?: number;
   match: IPublicMatch;
-  Slot: FC<{ player: IPublicPlayer }>;
-  InnerSlot?: FC<{ player: IPublicPlayer }>;
+  Slot: FC<PropsWithPlayer>;
+  InnerSlot?: FC<PropsWithPlayer>;
   FillSlot?: FC<{ i: number }>;
   MiddleSlot?: FC<{ i: number }>;
   zoomOnIndex?: number;

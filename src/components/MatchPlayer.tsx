@@ -1,20 +1,19 @@
-import { Box, Button, ButtonGroup, LinearProgress, Typography } from "@mui/material";
-import { ICard, IPublicPlayer } from "trucoshi";
+import { Box, Button, ButtonGroup, Typography } from "@mui/material";
+import { ICard } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
-import { ITrucoshiMatchActions, ITrucoshiMatchState } from "../trucoshi/types";
+import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../trucoshi/types";
 import { GameCard } from "./GameCard";
 import { PlayerTag } from "./PlayerTag";
 import { DANGEROUS_COMMANDS, COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
-import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { TurnProgress } from "./TurnProgress";
 
-type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> & {
-  player: IPublicPlayer;
-  onPlayCard: ITrucoshiMatchActions["playCard"];
-  onSayCommand: ITrucoshiMatchActions["sayCommand"];
-};
+type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> &
+  PropsWithPlayer<{
+    onPlayCard: ITrucoshiMatchActions["playCard"];
+    onSayCommand: ITrucoshiMatchActions["sayCommand"];
+  }>;
 
-export const MatchPlayer = ({
+const MatchPlayer = ({
   match,
   previousHand,
   player,
@@ -23,13 +22,9 @@ export const MatchPlayer = ({
   onPlayCard,
   onSayCommand,
 }: PlayerProps) => {
-  const [{ serverAheadTime }] = useTrucoshi();
-
   const [, isPrevious] = useRounds(match, previousHand);
 
   const bestEnvido = Math.max(...(player.envido || []));
-
-  const turnTimer = useTurnTimer(player, serverAheadTime, match?.options);
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">
@@ -97,14 +92,11 @@ export const MatchPlayer = ({
           </Box>
         ) : null}
       </Box>
-      <LinearProgress
-        sx={{
-          visibility: player.isTurn && !previousHand && turnTimer.progress ? "visible" : "hidden",
-        }}
-        variant="determinate"
-        color={turnTimer.isExtension ? "error" : "success"}
-        value={turnTimer.progress}
-      />
+      <TurnProgress match={match} player={player} previousHand={previousHand} />
     </Box>
   );
 };
+
+MatchPlayer.whyDidYouRender = true;
+
+export { MatchPlayer };

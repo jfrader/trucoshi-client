@@ -74,6 +74,13 @@ export const theme = createTheme({
     },
   ],
   components: {
+    MuiLinearProgress: {
+      styleOverrides: {
+        bar: {
+          transition: "none",
+        },
+      },
+    },
     MuiButton: {
       variants: [
         {
@@ -96,7 +103,7 @@ export const theme = createTheme({
         {
           props: { variant: "emojicard" },
           style: ({ theme }) => ({
-            minWidth: 'initial',
+            minWidth: "initial",
             padding: 0,
             background: theme.palette.text.secondary,
             color: theme.palette.background.paper,
@@ -169,7 +176,7 @@ export const theme = createTheme({
         root: {
           textDecoration: "none",
           "&:hover": {
-            opacity: 0.5
+            opacity: 0.5,
           },
         },
       },

@@ -1,14 +1,13 @@
 import { styled, Typography, TypographyProps } from "@mui/material";
 import { Box, css } from "@mui/system";
-import { IPublicPlayer } from "trucoshi";
 import { bounce } from "../animations/bounce";
 import { TeamTag } from "./TeamTag";
+import { PropsWithPlayer } from "../trucoshi/types";
 
-interface ITeamTagProps {
-  player: IPublicPlayer;
+type ITeamTagProps = PropsWithPlayer<{
   isTurn?: boolean;
   disabled?: boolean;
-}
+}>;
 
 export const PlayerTag = ({
   player,

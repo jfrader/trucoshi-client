@@ -15,13 +15,13 @@ import {
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMatchTableState, IPublicMatchInfo } from "trucoshi";
+import { EMatchState, IPublicMatchInfo } from "trucoshi";
 
-const MATCH_STATE_MAP: { [key in EMatchTableState]: [string, BadgeProps["color"]] } = {
-  [EMatchTableState.FINISHED]: ["Terminada", "error"],
-  [EMatchTableState.STARTED]: ["Jugando", "warning"],
-  [EMatchTableState.UNREADY]: ["En lobby", "success"],
-  [EMatchTableState.READY]: ["En lobby", "success"],
+const MATCH_STATE_MAP: { [key in EMatchState]: [string, BadgeProps["color"]] } = {
+  [EMatchState.FINISHED]: ["Terminada", "error"],
+  [EMatchState.STARTED]: ["Jugando", "warning"],
+  [EMatchState.UNREADY]: ["En lobby", "success"],
+  [EMatchState.READY]: ["En lobby", "success"],
 };
 
 export const MatchList = ({

@@ -1,10 +1,10 @@
 import { Box, Button, Container, Fade, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
-import { EMatchTableState } from "trucoshi";
+import { EMatchState } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
@@ -15,8 +15,9 @@ import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
 import { TrucoshiLogo } from "../components/TrucoshiLogo";
+import { PropsWithPlayer } from "../trucoshi/types";
 
-export const Match = () => {
+const Match = () => {
   const [, , hydrated] = useTrucoshi();
 
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -39,10 +40,50 @@ export const Match = () => {
   }, [leaveMatch]);
 
   useEffect(() => {
-    if (match && match.state === EMatchTableState.UNREADY) {
+    if (match && match.state === EMatchState.UNREADY) {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match, navigate, sessionId]);
+
+  const Slot = useCallback(
+    ({ player }: PropsWithPlayer) => (
+      <MatchPlayer
+        key={player.key}
+        previousHand={previousHand}
+        canSay={canSay}
+        canPlay={canPlay}
+        player={player}
+        onPlayCard={playCard}
+        onSayCommand={sayCommand}
+        match={match}
+      />
+    ),
+    [canPlay, canSay, match, playCard, previousHand, sayCommand]
+  );
+
+  const InnerSlot = useCallback(
+    ({ player }: PropsWithPlayer) =>
+      match ? (
+        <Rounds
+          key={player.key}
+          previousHand={previousHand}
+          previousHandCallback={nextHand}
+          player={player}
+          match={match}
+        />
+      ) : null,
+    [match, nextHand, previousHand]
+  );
+
+  const MiddleSlot = useCallback(
+    () =>
+      chatProps.latestMessage && chatProps.latestMessage.command ? (
+        <Box width="100%" height="100%" display="flex" textAlign="center">
+          <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
+        </Box>
+      ) : null,
+    [chatProps.latestMessage]
+  );
 
   if (!hydrated) {
     return null;
@@ -101,34 +142,9 @@ export const Match = () => {
           <GameTable
             zoomOnIndex={me ? 1 : -1}
             match={match}
-            Slot={({ player }) => (
-              <MatchPlayer
-                key={player.key}
-                previousHand={previousHand}
-                canSay={canSay}
-                canPlay={canPlay}
-                player={player}
-                onPlayCard={playCard}
-                onSayCommand={sayCommand}
-                match={match}
-              />
-            )}
-            InnerSlot={({ player }) => (
-              <Rounds
-                key={player.key}
-                previousHand={previousHand}
-                previousHandCallback={nextHand}
-                player={player}
-                match={match}
-              />
-            )}
-            MiddleSlot={() =>
-              chatProps.latestMessage && chatProps.latestMessage.command ? (
-                <Box width="100%" height="100%" display="flex" textAlign="center">
-                  <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
-                </Box>
-              ) : null
-            }
+            Slot={Slot}
+            InnerSlot={InnerSlot}
+            MiddleSlot={MiddleSlot}
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
@@ -143,3 +159,7 @@ export const Match = () => {
     </Box>
   );
 };
+
+Match.whyDidYouRender = false;
+
+export { Match };

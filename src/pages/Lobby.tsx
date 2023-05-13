@@ -6,7 +6,7 @@ import { Box, Button } from "@mui/material";
 import { GameTable } from "../components/GameTable";
 import { PlayerTag } from "../components/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
-import { EMatchTableState } from "trucoshi";
+import { EMatchState } from "trucoshi";
 import { AnimatedButton } from "../components/AnimatedButton";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
@@ -25,7 +25,7 @@ export const Lobby = () => {
 
   useEffect(() => {
     if (match) {
-      if (match.state === EMatchTableState.STARTED || match.state === EMatchTableState.FINISHED) {
+      if (match.state === EMatchState.STARTED || match.state === EMatchState.FINISHED) {
         setTimeout(() => navigate(`/match/${sessionId}`));
       }
       return;
@@ -91,7 +91,7 @@ export const Lobby = () => {
                     <Box>
                       <Box>
                         <Button
-                          disabled={match.state !== EMatchTableState.READY}
+                          disabled={match.state !== EMatchState.READY}
                           variant="contained"
                           size="small"
                           color="success"

@@ -1,24 +1,24 @@
 import { Box } from "@mui/material";
-import { useState } from "react";
-import { IMatchPreviousHand, IPublicMatch, IPublicPlayer } from "trucoshi";
+import { useMemo, useState } from "react";
+import { IMatchPreviousHand, IPublicMatch } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { GameCard, GameCardContainer } from "./GameCard";
+import { PropsWithPlayer } from "../trucoshi/types";
 
-export const Rounds = ({
-  match,
-  previousHand,
-  previousHandCallback,
-  player,
-}: {
+type Props = PropsWithPlayer<{
   match: IPublicMatch;
   previousHand: IMatchPreviousHand | null;
   previousHandCallback: () => void;
-  player: IPublicPlayer;
-}) => {
+}>;
+
+export const Rounds = ({ match, previousHand, previousHandCallback, player }: Props) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
   const [rounds] = useRounds(match, previousHand, previousHandCallback);
 
-  const playerCards = rounds.flatMap((round) => round.filter((pc) => pc.player.key === player.key));
+  const playerCards = useMemo(
+    () => rounds.flatMap((round) => round.filter((pc) => pc.player.key === player.key)),
+    [player, rounds]
+  );
 
   return (
     <Box maxWidth="100%" height="100%" pt="30%" pr="35%">
@@ -33,7 +33,7 @@ export const Rounds = ({
           setOpenHand(false);
         }}
         onClick={() => {
-          setOpenHand(current => !current)
+          setOpenHand((current) => !current);
         }}
       >
         {playerCards.map((pc, i) => {

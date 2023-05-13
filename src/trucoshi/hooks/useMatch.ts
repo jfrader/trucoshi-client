@@ -34,6 +34,7 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
+  const [hash, setHash] = useState("");
 
   const { onMyTurn, onNewHand, onPlayedCard, onSaidCommand } = options;
 
@@ -55,13 +56,21 @@ export const useMatch = (
     }
   }, [context.state.isConnected, context.state.session, matchId, socket]);
 
-  const setMatch = useCallback((value: IPublicMatch) => {
-    _setMatch(value);
-    const _me = value.players.find((player) => player.isMe);
-    const _turnPlayer = value.players.find((player) => player.isTurn) || null;
-    setMe(_me || null);
-    setTurnPlayer(_turnPlayer);
-  }, []);
+  const setMatch = useCallback(
+    (value: IPublicMatch) => {
+      const matchHash = JSON.stringify(value);
+      if (hash === matchHash) {
+        return;
+      }
+      setHash(matchHash);
+      _setMatch(value);
+      const _me = value.players.find((player) => player.isMe);
+      const _turnPlayer = value.players.find((player) => player.isTurn) || null;
+      setMe(_me || null);
+      setTurnPlayer(_turnPlayer);
+    },
+    [hash]
+  );
 
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {

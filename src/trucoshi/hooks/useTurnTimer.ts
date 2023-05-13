@@ -3,11 +3,17 @@ import { ILobbyOptions, IPublicPlayer } from "trucoshi";
 
 export type TurnTimer = { isExtension: boolean; progress: number };
 
-export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: number, options?: ILobbyOptions) => {
-  const [turnTimer, setTurnTimer] = useState<TurnTimer>({
-    isExtension: false,
-    progress: 0,
-  });
+const INITIAL_TIMER = {
+  isExtension: false,
+  progress: 0,
+}
+
+export const useTurnTimer = (
+  player: IPublicPlayer | null,
+  serverAheadTime: number,
+  options?: ILobbyOptions
+) => {
+  const [turnTimer, setTurnTimer] = useState<TurnTimer>(INITIAL_TIMER);
 
   useEffect(() => {
     if (!player || !player.isTurn || !options) {
@@ -37,7 +43,8 @@ export const useTurnTimer = (player: IPublicPlayer | null, serverAheadTime: numb
     }, 16);
 
     return () => clearInterval(interval);
-  }, [options, player, serverAheadTime]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return turnTimer;
 };

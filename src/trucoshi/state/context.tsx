@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
   EClientEvent,
-  EMatchTableState,
+  EMatchState,
   EServerEvent,
   IPublicMatchInfo,
   ServerToClientEvents,
@@ -91,7 +91,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     [session, setId, setSession]
   );
 
-  const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchTableState> } = {}) => {
+  const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchState> } = {}) => {
     socket.emit(EClientEvent.LIST_MATCHES, filters, ({ matches }) => {
       setPublicMatches(matches);
     });

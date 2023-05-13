@@ -15,7 +15,7 @@ import {
   SlideProps,
   FadeProps,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect, FC, useEffect } from "react";
+import { useState, createRef, useLayoutEffect, FC } from "react";
 import { useChat } from "../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
 import {
@@ -44,21 +44,11 @@ type Props = BoxProps & {
 export const useChatRoom = (match?: IPublicMatch | null) => {
   const [active, setActive] = useState<boolean>(false);
   const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
-  const [statelessMatch, setMatch] = useState<IPublicMatch | null | undefined>(null);
-
-  useEffect(() => {
-    setMatch((current) => {
-      if (current) {
-        return current;
-      }
-      return match;
-    });
-  }, [match]);
 
   const { queue } = useSound();
 
   return {
-    useChatState: useChat(statelessMatch?.matchSessionId, (incomingMessage) => {
+    useChatState: useChat(match?.matchSessionId, (incomingMessage) => {
       if (incomingMessage) {
         setLatestMessage(incomingMessage);
         setActive(true);
@@ -72,8 +62,8 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
         }, 2500);
       }
     }),
-    matchId: statelessMatch?.matchSessionId,
-    players: statelessMatch?.players,
+    matchId: match?.matchSessionId,
+    players: match?.players,
     active,
     setActive,
     latestMessage,
@@ -117,7 +107,7 @@ export const ChatRoom = ({
         setMessage("");
       }}
     >
-      <ClickAwayListener onClickAway={() => setActive(false)}>
+      <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
         <ChatBox
           active={Number(alwaysVisible || active)}
           onClick={onActivate}
@@ -269,6 +259,7 @@ export const ChatMessage = ({
 };
 
 const getMessageContent = (message: IChatMessage) => {
+  console.log({ message });
   if (message.command) {
     const humanCommand = COMMANDS_HUMAN_READABLE[message.content as ECommand];
     if (humanCommand) {

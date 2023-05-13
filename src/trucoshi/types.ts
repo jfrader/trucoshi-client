@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
   ECommand,
-  EMatchTableState,
+  EMatchState,
   ICard,
   IMatchPreviousHand,
   IPublicMatch,
@@ -32,9 +32,11 @@ export interface ITrucoshiState {
   activeMatches: Array<IPublicMatchInfo>;
 }
 
+export type PropsWithPlayer<P = unknown> = P & { player: IPublicPlayer };
+
 export interface ITrucoshiActions {
-  setActiveMatches(activeMatches: IPublicMatchInfo[]): void
-  fetchPublicMatches(filters?: { state?: Array<EMatchTableState> }): void;
+  setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
+  fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
   sendUserId(id: string, callback?: () => void): void;
 }
