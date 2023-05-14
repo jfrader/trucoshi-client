@@ -1,6 +1,10 @@
 import {
   AppBar,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
+  SelectProps,
   Stack,
   ThemeProvider,
   Toolbar,
@@ -14,6 +18,8 @@ import { theme } from "../theme";
 import { Link } from "./Link";
 import { TrucoshiLogo } from "./TrucoshiLogo";
 import { TOOLBAR_LINKS } from "../links/links";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { ICardTheme } from "../trucoshi/types";
 
 const LayoutContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -21,7 +27,15 @@ const LayoutContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
+const CardThemeSelect = Select<ICardTheme>;
+
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
+  const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
+
+  const onCardThemeChange: SelectProps<ICardTheme>["onChange"] = (e) => {
+    setCardTheme(e.target.value as ICardTheme);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="fixed">
@@ -33,6 +47,19 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           </Link>
           <Box flexGrow={1} />
           <Stack pt={1} direction="row" spacing={2} alignItems="center">
+            <InputLabel id="select-card-theme-label">Cartas</InputLabel>
+            <CardThemeSelect
+              labelId="select-card-theme-label"
+              id="selec-card-theme"
+              value={cardTheme}
+              label="Cartas"
+              onChange={onCardThemeChange}
+            >
+              {/* <MenuItem value={'default'}>Twenty</MenuItem> */}
+              <MenuItem value={"gnu"}>GNU</MenuItem>
+              <MenuItem value={"classic"}>Classic</MenuItem>
+              <MenuItem value={""}>Emojis</MenuItem>
+            </CardThemeSelect>
             {TOOLBAR_LINKS.map(({ to, Icon }) => {
               return (
                 <Link key={to} to={to}>

@@ -1,6 +1,6 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
-import { useSearchParams } from "react-router-dom";
 import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const GameCard = ({
   children,
@@ -11,10 +11,32 @@ export const GameCard = ({
   card: ICard;
   enableHover?: boolean;
 } & ButtonProps) => {
-  const [searchParams] = useSearchParams();
-  const hasPic = card.charAt(1) === "b";
+  const [{ cardTheme }] = useTrucoshi();
 
-  if (hasPic && searchParams.has("spoiler")) {
+  // const [searchParams] = useSearchParams();
+  // const hasPic = card.charAt(1) === "b";
+
+  // if (hasPic && searchParams.has("spoiler")) {
+  //   return (
+  //     <GameCardButton
+  //       variant="card"
+  //       name={card || "xx"}
+  //       enablehover={enableHover ? 1 : 0}
+  //       {...buttonProps}
+  //     >
+  //       <img
+  //         alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
+  //         style={{
+  //           objectFit: "contain",
+  //           width: "4.4em",
+  //         }}
+  //         src={`/cards/default/${card}.png`}
+  //       />
+  //     </GameCardButton>
+  //   );
+  // }
+
+  if (cardTheme) {
     return (
       <GameCardButton
         variant="card"
@@ -25,10 +47,9 @@ export const GameCard = ({
         <img
           alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
           style={{
-            objectFit: "contain",
             width: "4.4em",
           }}
-          src={`/cards/default/${card}.png`}
+          src={`/cards/${cardTheme}/${card}.png`}
         />
       </GameCardButton>
     );

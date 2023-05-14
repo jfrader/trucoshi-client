@@ -20,26 +20,7 @@ export enum ETrucoshiStateActions {
   SET_LOGGED,
 }
 
-export interface ITrucoshiState {
-  version: string;
-  id: string | null;
-  session: string | null;
-  lastPong: number | null;
-  serverAheadTime: number;
-  isConnected: boolean;
-  isLogged: boolean;
-  publicMatches: Array<IPublicMatchInfo>;
-  activeMatches: Array<IPublicMatchInfo>;
-}
-
 export type PropsWithPlayer<P = unknown> = P & { player: IPublicPlayer };
-
-export interface ITrucoshiActions {
-  setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
-  fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
-  sendPing(): void;
-  sendUserId(id: string, callback?: () => void): void;
-}
 
 export interface ITrucoshiMatchActions {
   startMatch(): void;
@@ -62,11 +43,34 @@ export interface ITrucoshiMatchState {
   canSay: boolean;
 }
 
+export interface ITrucoshiActions {
+  setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
+  fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
+  sendPing(): void;
+  sendUserId(id: string, callback?: () => void): void;
+  setCardTheme(theme: ICardTheme): void;
+}
+
+export interface ITrucoshiState {
+  version: string;
+  id: string | null;
+  session: string | null;
+  lastPong: number | null;
+  serverAheadTime: number;
+  isConnected: boolean;
+  isLogged: boolean;
+  publicMatches: Array<IPublicMatchInfo>;
+  activeMatches: Array<IPublicMatchInfo>;
+  cardTheme: ICardTheme;
+}
+
 export interface ITrucoshiContext {
   state: ITrucoshiState;
   dispatch: ITrucoshiActions;
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
+
+export type ICardTheme = "default" | "classic" | "gnu" | "";
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
 

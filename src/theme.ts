@@ -89,15 +89,9 @@ export const theme = createTheme({
             padding: 0,
             minWidth: "initial",
             minHeight: "initial",
-            background: theme.palette.text.secondary,
+            background: 'transparent',
             color: theme.palette.background.paper,
             border: "none",
-            ":active": {
-              background: theme.palette.text.secondary,
-            },
-            ":hover": {
-              background: theme.palette.text.secondary,
-            },
           }),
         },
         {

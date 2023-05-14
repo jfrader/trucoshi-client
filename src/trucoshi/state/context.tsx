@@ -10,7 +10,7 @@ import {
 } from "trucoshi";
 import useStateStorage from "../../hooks/useStateStorage";
 import { createContext } from "react";
-import { ITrucoshiContext } from "../types";
+import { ICardTheme, ITrucoshiContext } from "../types";
 
 const HOST = process.env.REACT_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = process.env.REACT_APP_VERSION || "";
@@ -33,6 +33,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [cardTheme, setCardTheme] = useState<ICardTheme>("gnu");
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -99,26 +100,30 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
 
   return (
     <TrucoshiContext.Provider
-      value={{
-        socket,
-        state: {
-          version,
-          publicMatches,
-          session,
-          id,
-          isConnected,
-          isLogged,
-          lastPong,
-          activeMatches,
-          serverAheadTime,
-        },
-        dispatch: {
-          sendPing,
-          sendUserId,
-          setActiveMatches,
-          fetchPublicMatches,
-        },
-      }}
+      value={
+        {
+          socket,
+          state: {
+            version,
+            publicMatches,
+            session,
+            id,
+            isConnected,
+            isLogged,
+            lastPong,
+            activeMatches,
+            serverAheadTime,
+            cardTheme,
+          },
+          dispatch: {
+            setCardTheme,
+            sendPing,
+            sendUserId,
+            setActiveMatches,
+            fetchPublicMatches,
+          },
+        } satisfies ITrucoshiContext
+      }
     >
       {children}
     </TrucoshiContext.Provider>
