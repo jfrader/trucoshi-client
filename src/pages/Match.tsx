@@ -86,7 +86,7 @@ const Match = () => {
   );
 
   if (!hydrated) {
-    return null;
+    return <SocketBackdrop message="Cargando..." />;
   }
 
   if (match && match.winner) {

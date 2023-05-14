@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TrucoshiContext } from "../state/context";
 import { ITrucoshiActions, ITrucoshiState } from "../types";
 
@@ -11,9 +11,9 @@ export const useTrucoshi = (): [ITrucoshiState, ITrucoshiActions, boolean] => {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
 
-  useLayoutEffect(() => {
-    setHydrated(true);
-  }, []);
+  useEffect(() => {
+    setHydrated(context.state.cardsReady);
+  }, [context.state.cardsReady]);
 
   return [context.state, context.dispatch, hydrated];
 };

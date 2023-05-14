@@ -11,6 +11,7 @@ import {
 import useStateStorage from "../../hooks/useStateStorage";
 import { createContext } from "react";
 import { ICardTheme, ITrucoshiContext } from "../types";
+import { useCards } from "../hooks/useCards";
 
 const HOST = process.env.REACT_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = process.env.REACT_APP_VERSION || "";
@@ -34,6 +35,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [cardTheme, setCardTheme] = useState<ICardTheme>("gnu");
+  const [cards, cardsReady] = useCards({ theme: cardTheme });
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -114,6 +116,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
             activeMatches,
             serverAheadTime,
             cardTheme,
+            cardsReady,
+            cards,
           },
           dispatch: {
             setCardTheme,

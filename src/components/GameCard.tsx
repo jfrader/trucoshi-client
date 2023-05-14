@@ -9,22 +9,18 @@ export const GameCard = ({
   enableHover,
   width,
   theme = null,
-  emojiOnly,
+  request,
   ...buttonProps
 }: {
   card: ICard;
   enableHover?: boolean;
   width?: string;
   theme?: ICardTheme | null;
-  emojiOnly?: boolean;
+  request?: boolean;
 } & ButtonProps) => {
-  const [{ cardTheme }] = useTrucoshi();
+  const [{ cardTheme, cards }] = useTrucoshi();
 
   const Emoji = <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>;
-
-  if (emojiOnly) {
-    return Emoji;
-  }
 
   // const [searchParams] = useSearchParams();
   // const hasPic = card.charAt(1) === "b";
@@ -65,7 +61,7 @@ export const GameCard = ({
             objectFit: "cover",
             width: width || "4.4em",
           }}
-          src={`/cards/${usedTheme}/${card}.png`}
+          src={request ? `/cards/${usedTheme}/${card}.png` : cards[card]}
         />
       </GameCardButton>
     );

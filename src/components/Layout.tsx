@@ -64,7 +64,12 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               {cardTheme ? (
                 <GameCard sx={{ margin: "0 auto" }} theme={cardTheme} width="1.1em" card="re" />
               ) : (
-                <GameCard sx={{ margin: "0 auto" }} theme="gnu" width="1.1em" card={"xx" as ICard} />
+                <GameCard
+                  sx={{ margin: "0 auto" }}
+                  theme="gnu"
+                  width="1.1em"
+                  card={"xx" as ICard}
+                />
               )}
             </IconButton>
             <Menu
@@ -78,6 +83,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
             >
               <MenuItem sx={{ textAlign: "center" }} onClick={() => setCardTheme("gnu")}>
                 <GameCard
+                  request
                   sx={{ margin: "0 auto" }}
                   theme="gnu"
                   width="1.1em"
@@ -86,6 +92,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               </MenuItem>
               <MenuItem onClick={() => setCardTheme("classic")}>
                 <GameCard
+                  request
                   sx={{ margin: "0 auto" }}
                   theme="classic"
                   width="1.1em"

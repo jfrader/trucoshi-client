@@ -62,6 +62,8 @@ export interface ITrucoshiState {
   publicMatches: Array<IPublicMatchInfo>;
   activeMatches: Array<IPublicMatchInfo>;
   cardTheme: ICardTheme;
+  cardsReady: boolean;
+  cards: Record<ICard, string>;
 }
 
 export interface ITrucoshiContext {
