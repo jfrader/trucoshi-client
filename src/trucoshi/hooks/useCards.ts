@@ -39,15 +39,38 @@ export const useCards = ({ theme }: Options) => {
       }
     }
 
-    Promise.all(Object.values(all)).then((results) => {
-      setCards((current) =>
-        results.reduce((prev, [card, png]) => {
-          return { ...prev, [card]: png };
-        }, current)
-      );
-      setLoadedTheme(theme);
-      setReady(true);
-    });
+    Promise.all(Object.values(all))
+      .then((results) => {
+        setCards((current) =>
+          results.reduce((prev, [card, png]) => {
+            return { ...prev, [card]: png };
+          }, current)
+        );
+
+        const imagePromises: Promise<void>[] = [];
+
+        for (const [card, png] of results) {
+          imagePromises.push(
+            new Promise((resolve) => {
+              const image = new Image();
+              image.src = png;
+              image.onload = function () {
+                resolve();
+              };
+              image.onerror = function () {
+                console.error("failed to load " + theme + " card " + card);
+                resolve();
+              };
+            })
+          );
+        }
+
+        return Promise.all(imagePromises);
+      })
+      .then(() => {
+        setLoadedTheme(theme);
+        setReady(true);
+      });
   }, [loadedTheme, ready, theme]);
 
   return [cards, ready] satisfies [CardSources, boolean];

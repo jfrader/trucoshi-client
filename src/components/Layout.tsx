@@ -30,7 +30,7 @@ const LayoutContainer = styled(Box)(({ theme }) => ({
 }));
 
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
-  const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
+  const [{ cardTheme, cardsReady }, { setCardTheme }] = useTrucoshi();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -64,6 +64,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               size="small"
               color="success"
               id="card-theme-button"
+              disabled={!cardsReady}
               aria-controls={open ? "basic-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}

@@ -79,7 +79,7 @@ export const Home = () => {
       <Box height="8em" position="relative" right="2.65em">
         <HandContainer onHandOpen={setOpenHand} pt={3}>
           {randomCards.map((card, i) => (
-            <GameCardContainer open={openHand} cards={3} i={i}>
+            <GameCardContainer key={card} open={openHand} cards={3} i={i}>
               <GameCard card={card} />
             </GameCardContainer>
           ))}
