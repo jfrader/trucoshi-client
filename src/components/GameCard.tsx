@@ -2,6 +2,8 @@ import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { ICardTheme } from "../trucoshi/types";
+import { ElementType } from "react";
+import { useCards } from "../trucoshi/hooks/useCards";
 
 export const GameCard = ({
   children,
@@ -10,6 +12,7 @@ export const GameCard = ({
   request,
   width = "4.4em",
   theme = null,
+  as,
   ...buttonProps
 }: {
   card: ICard;
@@ -17,10 +20,13 @@ export const GameCard = ({
   width?: string;
   theme?: ICardTheme | null;
   request?: boolean;
+  as?: ElementType;
 } & ButtonProps) => {
   const [{ cardTheme, cards, cardsReady }] = useTrucoshi();
 
   const usedTheme = theme !== null ? theme : cardTheme;
+
+  const [reqCards] = useCards({ theme, disabled: !request, cards: [card] });
 
   if (usedTheme && !request && !cardsReady) {
     return null;
@@ -40,7 +46,7 @@ export const GameCard = ({
             objectFit: "cover",
             width,
           }}
-          src={request ? `/cards/${usedTheme}/${card}.png` : cards[card]}
+          src={request ? reqCards[card] : cards[card]}
         />
       </GameCardButton>
     );
@@ -48,6 +54,7 @@ export const GameCard = ({
 
   return (
     <GameCardButton
+      as={as}
       variant="emojicard"
       name={card || "xx"}
       emojicard={1}

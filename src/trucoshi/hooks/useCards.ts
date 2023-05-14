@@ -3,7 +3,9 @@ import { ICardTheme } from "../types";
 import { CARDS, ICard } from "trucoshi";
 
 type Options = {
+  disabled?: boolean;
   theme: ICardTheme | null;
+  cards?: ICard[];
 };
 
 export type CardSources = Record<ICard, string>;
@@ -11,25 +13,36 @@ export type CardSources = Record<ICard, string>;
 export const getRandomCard = () =>
   ((Object.keys(CARDS).at(Math.random() * Object.keys(CARDS).length) as unknown) || "xx") as ICard;
 
-export const useCards = ({ theme }: Options) => {
+export const getRandomCards = (len: number = 3) => {
+  const cards = [getRandomCard()];
+  do {
+    const card = getRandomCard();
+    if (cards.includes(card)) {
+      continue;
+    }
+    cards.push(card);
+  } while (cards.length < len);
+
+  return cards;
+};
+
+export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
   const [ready, setReady] = useState(false);
   const [cards, setCards] = useState<CardSources>({} as CardSources);
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
-    if (ready && loadedTheme === theme) {
+    if (disabled || (ready && loadedTheme === theme)) {
       return;
     }
 
     setReady(false);
 
-    const all: Array<Promise<[ICard, string]>> = [
-      import(`../../assets/cards/${theme}/xx.png`)
-        .catch(() => "Was not able to find a dynamic import for card xx")
-        .then((png) => ["xx" as ICard, png.default as string]),
-    ];
+    const all: Array<Promise<[ICard, string]>> = [];
 
-    for (const key in CARDS) {
+    const importingCards = (filterCards || Object.keys(CARDS)).concat("xx");
+
+    for (const key of importingCards) {
       if (key) {
         all.push(
           import(`../../assets/cards/${theme}/${key}.png`)
@@ -71,7 +84,7 @@ export const useCards = ({ theme }: Options) => {
         setLoadedTheme(theme);
         setReady(true);
       });
-  }, [loadedTheme, ready, theme]);
+  }, [disabled, filterCards, loadedTheme, ready, theme]);
 
   return [cards, ready] satisfies [CardSources, boolean];
 };

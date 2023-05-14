@@ -14,22 +14,16 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { MatchList } from "../components/MatchList";
 import { GameCard, GameCardContainer } from "../components/GameCard";
 import { HandContainer } from "../components/Rounds";
-import { getRandomCard } from "../trucoshi/hooks/useCards";
+import { getRandomCards } from "../trucoshi/hooks/useCards";
 import { Refresh } from "@mui/icons-material";
 import { ICard } from "trucoshi";
-
-const getRandomCards = (): [ICard, ICard, ICard] => [
-  getRandomCard(),
-  getRandomCard(),
-  getRandomCard(),
-];
 
 export const Home = () => {
   const [{ id, activeMatches, isLogged }, { sendUserId }] = useTrucoshi();
 
   const [name, setName] = useState(id || "Satoshi");
   const [isNameLoading, setNameLoading] = useState(false);
-  const [randomCards, setRandomCards] = useState<[ICard, ICard, ICard]>(getRandomCards());
+  const [randomCards, setRandomCards] = useState<ICard[]>(getRandomCards());
 
   const [, { createMatch }] = useMatch();
   const navigate = useNavigate();
@@ -83,13 +77,20 @@ export const Home = () => {
               <GameCard card={card} />
             </GameCardContainer>
           ))}
-        </HandContainer>
 
-        <Box pl={42} pt={2}>
-          <IconButton onClick={() => setRandomCards(getRandomCards())} size="large" color="success">
-            <Refresh />
-          </IconButton>
-        </Box>
+          <Box pl={42} pt={2}>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setRandomCards(getRandomCards());
+              }}
+              size="large"
+              color="success"
+            >
+              <Refresh />
+            </IconButton>
+          </Box>
+        </HandContainer>
       </Box>
 
       <Box pt={2}>

@@ -59,7 +59,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 width: "3em",
                 heigth: "3em",
                 minHeight: "3em",
-                pb: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "end",
               }}
               size="small"
               color="success"
@@ -72,13 +74,13 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
             >
               {cardTheme ? (
                 <GameCard
-                  sx={{ margin: "0 auto" }}
+                  as={Box}
                   theme={cardTheme}
                   width="1.1em"
                   card={"xx" as ICard}
                 />
               ) : (
-                <TrucoshiLogo width="100%" />
+                <TrucoshiLogo style={{ paddingBottom: '0.5em' }} height="100%" />
               )}
             </Button>
             <Menu
@@ -93,6 +95,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               <MenuItem sx={{ textAlign: "center" }} onClick={() => setCardTheme("gnu")}>
                 <GameCard
                   request
+                  as={Box}
                   sx={{ margin: "0 auto" }}
                   theme="gnu"
                   width="1.1em"
@@ -102,6 +105,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               <MenuItem onClick={() => setCardTheme("classic")}>
                 <GameCard
                   request
+                  as={Box}
                   sx={{ margin: "0 auto" }}
                   theme="classic"
                   width="1.1em"
