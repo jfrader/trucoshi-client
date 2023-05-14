@@ -1,5 +1,5 @@
-import { Box } from "@mui/material";
-import { useMemo, useState } from "react";
+import { Box, BoxProps } from "@mui/material";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { IMatchPreviousHand, IPublicMatch } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { GameCard, GameCardContainer } from "./GameCard";
@@ -10,6 +10,26 @@ type Props = PropsWithPlayer<{
   previousHand: IMatchPreviousHand | null;
   previousHandCallback: () => void;
 }>;
+
+export const HandContainer = ({
+  onHandOpen,
+  ...props
+}: BoxProps & { onHandOpen: Dispatch<SetStateAction<boolean>> }) => {
+  return (
+    <Box
+      onMouseEnter={() => {
+        onHandOpen(true);
+      }}
+      onMouseLeave={() => {
+        onHandOpen(false);
+      }}
+      onClick={() => {
+        onHandOpen((current) => !current);
+      }}
+      {...props}
+    />
+  );
+};
 
 export const Rounds = ({ match, previousHand, previousHandCallback, player }: Props) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
@@ -22,20 +42,7 @@ export const Rounds = ({ match, previousHand, previousHandCallback, player }: Pr
 
   return (
     <Box maxWidth="100%" height="100%" pt="30%" pr="35%">
-      <Box
-        margin="0 auto"
-        px={4}
-        position="relative"
-        onMouseEnter={() => {
-          setOpenHand(true);
-        }}
-        onMouseLeave={() => {
-          setOpenHand(false);
-        }}
-        onClick={() => {
-          setOpenHand((current) => !current);
-        }}
-      >
+      <HandContainer margin="0 auto" px={4} position="relative" onHandOpen={setOpenHand}>
         {playerCards.map((pc, i) => {
           return (
             <GameCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
@@ -43,7 +50,7 @@ export const Rounds = ({ match, previousHand, previousHandCallback, player }: Pr
             </GameCardContainer>
           );
         })}
-      </Box>
+      </HandContainer>
     </Box>
   );
 };

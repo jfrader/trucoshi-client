@@ -1,15 +1,35 @@
-import { Box, Button, CircularProgress, FormGroup, Stack, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormGroup,
+  IconButton,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { MatchList } from "../components/MatchList";
+import { GameCard, GameCardContainer } from "../components/GameCard";
+import { HandContainer } from "../components/Rounds";
+import { getRandomCard } from "../trucoshi/hooks/useCards";
+import { Refresh } from "@mui/icons-material";
+import { ICard } from "trucoshi";
+
+const getRandomCards = (): [ICard, ICard, ICard] => [
+  getRandomCard(),
+  getRandomCard(),
+  getRandomCard(),
+];
 
 export const Home = () => {
   const [{ id, activeMatches, isLogged }, { sendUserId }] = useTrucoshi();
 
   const [name, setName] = useState(id || "Satoshi");
   const [isNameLoading, setNameLoading] = useState(false);
+  const [randomCards, setRandomCards] = useState<[ICard, ICard, ICard]>(getRandomCards());
 
   const [, { createMatch }] = useMatch();
   const navigate = useNavigate();
@@ -30,6 +50,8 @@ export const Home = () => {
     setNameLoading(true);
     name && sendUserId(name, () => setNameLoading(false));
   };
+
+  const [openHand, setOpenHand] = useState<boolean>(false);
 
   if (!isLogged) {
     return (
@@ -54,7 +76,23 @@ export const Home = () => {
         Ver Mesas
       </Button>
 
-      <Box pt={6}>
+      <Box height="8em" position="relative" right="2.65em">
+        <HandContainer onHandOpen={setOpenHand} pt={3}>
+          {randomCards.map((card, i) => (
+            <GameCardContainer open={openHand} cards={3} i={i}>
+              <GameCard card={card} />
+            </GameCardContainer>
+          ))}
+        </HandContainer>
+
+        <Box pl={42} pt={2}>
+          <IconButton onClick={() => setRandomCards(getRandomCards())} size="large" color="success">
+            <Refresh />
+          </IconButton>
+        </Box>
+      </Box>
+
+      <Box pt={2}>
         <form
           onSubmit={(e) => {
             e.preventDefault();

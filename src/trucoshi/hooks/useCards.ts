@@ -6,23 +6,34 @@ type Options = {
   theme: ICardTheme | null;
 };
 
+export type CardSources = Record<ICard, string>;
+
+export const getRandomCard = () =>
+  ((Object.keys(CARDS).at(Math.random() * Object.keys(CARDS).length) as unknown) || "xx") as ICard;
+
 export const useCards = ({ theme }: Options) => {
   const [ready, setReady] = useState(false);
-  const [cards, setCards] = useState<Record<ICard, string>>({} as any);
+  const [cards, setCards] = useState<CardSources>({} as CardSources);
+  const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
-    const all: Record<ICard, Promise<[ICard, any]>> = {} as any;
+    if (ready && loadedTheme === theme) {
+      return;
+    }
 
-    all["xx" as ICard] = import(`../../assets/cards/${theme}/xx.png`).then((png) => [
-      "xx" as ICard,
-      png.default as string,
-    ]);
+    const all: Array<Promise<[ICard, string]>> = [
+      import(`../../assets/cards/${theme}/xx.png`)
+        .catch(() => "Was not able to find a dynamic import for card xx")
+        .then((png) => ["xx" as ICard, png.default as string]),
+    ];
 
     for (const key in CARDS) {
       if (key) {
-        all[key as ICard] = import(`../../assets/cards/${theme}/${key}.png`)
-          .catch(() => "Was not able to find a dynamic import for cards")
-          .then((png) => [key as ICard, png.default as string]);
+        all.push(
+          import(`../../assets/cards/${theme}/${key}.png`)
+            .catch(() => "Was not able to find a dynamic import for card " + key)
+            .then((png) => [key as ICard, png.default as string])
+        );
       }
     }
 
@@ -32,8 +43,9 @@ export const useCards = ({ theme }: Options) => {
           return { ...prev, [card]: png };
         }, current)
       );
+      setLoadedTheme(theme);
     });
-  }, [theme]);
+  }, [loadedTheme, ready, theme]);
 
   useEffect(() => {
     // greater than 'cause we're including 'xx' card
@@ -42,5 +54,5 @@ export const useCards = ({ theme }: Options) => {
     }
   }, [cards]);
 
-  return [cards, ready] satisfies [Record<ICard, string>, boolean];
+  return [cards, ready] satisfies [CardSources, boolean];
 };

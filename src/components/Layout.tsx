@@ -1,6 +1,6 @@
 import {
   AppBar,
-  IconButton,
+  Button,
   Menu,
   MenuItem,
   Paper,
@@ -21,6 +21,7 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { GameCard } from "./GameCard";
 import { ICard } from "trucoshi";
 import { Close } from "@mui/icons-material";
+import { TrucoshiText } from "./TrucoshiText";
 
 const LayoutContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -47,12 +48,19 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
         <Toolbar variant="dense">
           <Link to="/" lineHeight={4}>
             <Typography height="26px" variant="h6">
-              <TrucoshiLogo height="26px" />
+              <TrucoshiText height="26px" />
             </Typography>
           </Link>
           <Box flexGrow={1} />
           <Stack pt={1} direction="row" spacing={2} alignItems="center">
-            <IconButton
+            <Button
+              sx={{
+                minWidth: "3em",
+                width: "3em",
+                heigth: "3em",
+                minHeight: "3em",
+                pb: 1,
+              }}
               size="small"
               color="success"
               id="card-theme-button"
@@ -62,16 +70,16 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               onClick={handleClick}
             >
               {cardTheme ? (
-                <GameCard sx={{ margin: "0 auto" }} theme={cardTheme} width="1.1em" card="re" />
-              ) : (
                 <GameCard
                   sx={{ margin: "0 auto" }}
-                  theme="gnu"
+                  theme={cardTheme}
                   width="1.1em"
                   card={"xx" as ICard}
                 />
+              ) : (
+                <TrucoshiLogo width="100%" />
               )}
-            </IconButton>
+            </Button>
             <Menu
               id="card-theme-menu"
               anchorEl={anchorEl}
@@ -87,7 +95,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   sx={{ margin: "0 auto" }}
                   theme="gnu"
                   width="1.1em"
-                  card={"ro" as ICard}
+                  card={"xx" as ICard}
                 />
               </MenuItem>
               <MenuItem onClick={() => setCardTheme("classic")}>
@@ -96,7 +104,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   sx={{ margin: "0 auto" }}
                   theme="classic"
                   width="1.1em"
-                  card={"re" as ICard}
+                  card={"xx" as ICard}
                 />
               </MenuItem>
               <MenuItem onClick={() => setCardTheme("")}>

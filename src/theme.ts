@@ -121,9 +121,8 @@ export const theme = createTheme({
           props: { variant: "emojicard", name: "xx" },
           style: ({ theme }) => ({
             border: "1px solid",
-            background: theme.palette.error.main,
             color: theme.palette.background.paper,
-            borderColor: theme.palette.background.paper,
+            background: theme.palette.error.main,
             ":active": {
               background: theme.palette.error.main,
             },

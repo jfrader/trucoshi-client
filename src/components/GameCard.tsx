@@ -7,9 +7,9 @@ export const GameCard = ({
   children,
   card,
   enableHover,
-  width,
-  theme = null,
   request,
+  width = "4.4em",
+  theme = null,
   ...buttonProps
 }: {
   card: ICard;
@@ -19,8 +19,6 @@ export const GameCard = ({
   request?: boolean;
 } & ButtonProps) => {
   const [{ cardTheme, cards }] = useTrucoshi();
-
-  const Emoji = <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>;
 
   // const [searchParams] = useSearchParams();
   // const hasPic = card.charAt(1) === "b";
@@ -59,7 +57,7 @@ export const GameCard = ({
           alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
           style={{
             objectFit: "cover",
-            width: width || "4.4em",
+            width,
           }}
           src={request ? `/cards/${usedTheme}/${card}.png` : cards[card]}
         />
@@ -75,7 +73,7 @@ export const GameCard = ({
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
-      {Emoji}
+      <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
     </GameCardButton>
   );
 

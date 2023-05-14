@@ -11,6 +11,7 @@ import {
   ServerToClientEvents,
 } from "trucoshi";
 import { IPublicMatchInfo } from "trucoshi";
+import { CardSources } from "./hooks/useCards";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -63,7 +64,7 @@ export interface ITrucoshiState {
   activeMatches: Array<IPublicMatchInfo>;
   cardTheme: ICardTheme;
   cardsReady: boolean;
-  cards: Record<ICard, string>;
+  cards: CardSources;
 }
 
 export interface ITrucoshiContext {
