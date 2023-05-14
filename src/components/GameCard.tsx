@@ -1,17 +1,30 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { ICardTheme } from "../trucoshi/types";
 
 export const GameCard = ({
   children,
   card,
   enableHover,
+  width,
+  theme,
+  emojiOnly,
   ...buttonProps
 }: {
   card: ICard;
   enableHover?: boolean;
+  width?: string;
+  theme?: ICardTheme | null;
+  emojiOnly?: boolean;
 } & ButtonProps) => {
   const [{ cardTheme }] = useTrucoshi();
+
+  const Emoji = <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>;
+
+  if (emojiOnly) {
+    return Emoji;
+  }
 
   // const [searchParams] = useSearchParams();
   // const hasPic = card.charAt(1) === "b";
@@ -36,7 +49,9 @@ export const GameCard = ({
   //   );
   // }
 
-  if (cardTheme) {
+  const usedTheme = theme !== null ? theme : cardTheme;
+
+  if (usedTheme) {
     return (
       <GameCardButton
         variant="card"
@@ -47,9 +62,10 @@ export const GameCard = ({
         <img
           alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
           style={{
-            width: "4.4em",
+            objectFit: "cover",
+            width: width || "4.4em",
           }}
-          src={`/cards/${cardTheme}/${card}.png`}
+          src={`/cards/${usedTheme}/${card}.png`}
         />
       </GameCardButton>
     );
@@ -63,7 +79,7 @@ export const GameCard = ({
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
-      <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
+      {Emoji}
     </GameCardButton>
   );
 

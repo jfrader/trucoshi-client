@@ -1,10 +1,9 @@
 import {
   AppBar,
-  InputLabel,
+  IconButton,
+  Menu,
   MenuItem,
   Paper,
-  Select,
-  SelectProps,
   Stack,
   ThemeProvider,
   Toolbar,
@@ -12,14 +11,16 @@ import {
   styled,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { theme } from "../theme";
 import { Link } from "./Link";
 import { TrucoshiLogo } from "./TrucoshiLogo";
 import { TOOLBAR_LINKS } from "../links/links";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { ICardTheme } from "../trucoshi/types";
+import { GameCard } from "./GameCard";
+import { ICard } from "trucoshi";
+import { Close } from "@mui/icons-material";
 
 const LayoutContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -27,13 +28,17 @@ const LayoutContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const CardThemeSelect = Select<ICardTheme>;
-
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
   const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
 
-  const onCardThemeChange: SelectProps<ICardTheme>["onChange"] = (e) => {
-    setCardTheme(e.target.value as ICardTheme);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -47,19 +52,50 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           </Link>
           <Box flexGrow={1} />
           <Stack pt={1} direction="row" spacing={2} alignItems="center">
-            <InputLabel id="select-card-theme-label">Cartas</InputLabel>
-            <CardThemeSelect
-              labelId="select-card-theme-label"
-              id="selec-card-theme"
-              value={cardTheme}
-              label="Cartas"
-              onChange={onCardThemeChange}
+            <IconButton
+              size="small"
+              color="success"
+              id="card-theme-button"
+              aria-controls={open ? "basic-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+              onClick={handleClick}
             >
-              {/* <MenuItem value={'default'}>Twenty</MenuItem> */}
-              <MenuItem value={"gnu"}>GNU</MenuItem>
-              <MenuItem value={"classic"}>Classic</MenuItem>
-              <MenuItem value={""}>Emojis</MenuItem>
-            </CardThemeSelect>
+              {cardTheme ? (
+                <GameCard sx={{ margin: "0 auto" }} theme={cardTheme} width="1.1em" card="re" />
+              ) : (
+                <GameCard sx={{ margin: "0 auto" }} theme="gnu" width="1.1em" card={"xx" as ICard} />
+              )}
+            </IconButton>
+            <Menu
+              id="card-theme-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                "aria-labelledby": "card-theme-button",
+              }}
+            >
+              <MenuItem sx={{ textAlign: "center" }} onClick={() => setCardTheme("gnu")}>
+                <GameCard
+                  sx={{ margin: "0 auto" }}
+                  theme="gnu"
+                  width="1.1em"
+                  card={"ro" as ICard}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => setCardTheme("classic")}>
+                <GameCard
+                  sx={{ margin: "0 auto" }}
+                  theme="classic"
+                  width="1.1em"
+                  card={"re" as ICard}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => setCardTheme("")}>
+                <Close />
+              </MenuItem>
+            </Menu>
             {TOOLBAR_LINKS.map(({ to, Icon }) => {
               return (
                 <Link key={to} to={to}>
