@@ -21,6 +21,8 @@ export const useCards = ({ theme }: Options) => {
       return;
     }
 
+    setReady(false);
+
     const all: Array<Promise<[ICard, string]>> = [
       import(`../../assets/cards/${theme}/xx.png`)
         .catch(() => "Was not able to find a dynamic import for card xx")
@@ -44,15 +46,9 @@ export const useCards = ({ theme }: Options) => {
         }, current)
       );
       setLoadedTheme(theme);
+      setReady(true);
     });
   }, [loadedTheme, ready, theme]);
-
-  useEffect(() => {
-    // greater than 'cause we're including 'xx' card
-    if (Object.keys(cards).length > Object.keys(CARDS).length) {
-      setReady(true);
-    }
-  }, [cards]);
 
   return [cards, ready] satisfies [CardSources, boolean];
 };

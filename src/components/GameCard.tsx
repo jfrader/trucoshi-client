@@ -18,32 +18,13 @@ export const GameCard = ({
   theme?: ICardTheme | null;
   request?: boolean;
 } & ButtonProps) => {
-  const [{ cardTheme, cards }] = useTrucoshi();
-
-  // const [searchParams] = useSearchParams();
-  // const hasPic = card.charAt(1) === "b";
-
-  // if (hasPic && searchParams.has("spoiler")) {
-  //   return (
-  //     <GameCardButton
-  //       variant="card"
-  //       name={card || "xx"}
-  //       enablehover={enableHover ? 1 : 0}
-  //       {...buttonProps}
-  //     >
-  //       <img
-  //         alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
-  //         style={{
-  //           objectFit: "contain",
-  //           width: "4.4em",
-  //         }}
-  //         src={`/cards/default/${card}.png`}
-  //       />
-  //     </GameCardButton>
-  //   );
-  // }
+  const [{ cardTheme, cards, cardsReady }] = useTrucoshi();
 
   const usedTheme = theme !== null ? theme : cardTheme;
+
+  if (usedTheme && !request && !cardsReady) {
+    return null;
+  }
 
   if (usedTheme) {
     return (
@@ -76,13 +57,6 @@ export const GameCard = ({
       <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
     </GameCardButton>
   );
-
-  // return (
-  //   <img
-  //     style={{ objectFit: "contain", margin: "0.1em", width: "75px", height: "110px" }}
-  //     src="/3b.svg"
-  //   />
-  // );
 };
 
 const GameCardButton = styled(Button)<{
