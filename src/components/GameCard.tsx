@@ -8,7 +8,7 @@ export const GameCard = ({
   card,
   enableHover,
   width,
-  theme,
+  theme = null,
   emojiOnly,
   ...buttonProps
 }: {
