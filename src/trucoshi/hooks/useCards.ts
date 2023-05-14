@@ -32,7 +32,11 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
-    if (disabled || (ready && loadedTheme === theme)) {
+    if (disabled) {
+      return setReady(false);
+    }
+
+    if (ready && loadedTheme === theme) {
       return;
     }
 
@@ -42,12 +46,12 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
 
     const importingCards = (filterCards || Object.keys(CARDS)).concat("xx");
 
-    for (const key of importingCards) {
-      if (key) {
+    for (const card of importingCards) {
+      if (card) {
         all.push(
-          import(`../../assets/cards/${theme}/${key}.png`)
-            .catch(() => "Was not able to find a dynamic import for card " + key)
-            .then((png) => [key as ICard, png.default as string])
+          import(`../../assets/cards/${theme}/${card}.png`)
+            .catch(() => "Was not able to find a dynamic import for card " + card)
+            .then((png) => [card as ICard, png.default as string])
         );
       }
     }
@@ -84,7 +88,8 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
         setLoadedTheme(theme);
         setReady(true);
       });
-  }, [disabled, filterCards, loadedTheme, ready, theme]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabled, loadedTheme, ready, theme]);
 
   return [cards, ready] satisfies [CardSources, boolean];
 };

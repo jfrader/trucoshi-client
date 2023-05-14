@@ -26,9 +26,9 @@ export const GameCard = ({
 
   const usedTheme = theme !== null ? theme : cardTheme;
 
-  const [reqCards] = useCards({ theme, disabled: !request, cards: [card] });
+  const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
 
-  if (usedTheme && !request && !cardsReady) {
+  if (usedTheme && !reqReady && !cardsReady) {
     return null;
   }
 

@@ -29,6 +29,8 @@ const LayoutContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
+const xx = "xx" as ICard;
+
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
   const [{ cardTheme, cardsReady }, { setCardTheme }] = useTrucoshi();
 
@@ -61,7 +63,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 minHeight: "3em",
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "end",
+                alignItems: "center",
               }}
               size="small"
               color="success"
@@ -73,14 +75,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               onClick={handleClick}
             >
               {cardTheme ? (
-                <GameCard
-                  as={Box}
-                  theme={cardTheme}
-                  width="1.1em"
-                  card={"xx" as ICard}
-                />
+                <GameCard as={Box} width="1.1em" card={xx} />
               ) : (
-                <TrucoshiLogo style={{ paddingBottom: '0.5em' }} height="100%" />
+                <TrucoshiLogo style={{ paddingBottom: "0.5em" }} height="100%" />
               )}
             </Button>
             <Menu
@@ -99,7 +96,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   sx={{ margin: "0 auto" }}
                   theme="gnu"
                   width="1.1em"
-                  card={"xx" as ICard}
+                  card={xx}
                 />
               </MenuItem>
               <MenuItem onClick={() => setCardTheme("classic")}>
@@ -109,7 +106,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                   sx={{ margin: "0 auto" }}
                   theme="classic"
                   width="1.1em"
-                  card={"xx" as ICard}
+                  card={xx}
                 />
               </MenuItem>
               <MenuItem onClick={() => setCardTheme("")}>
