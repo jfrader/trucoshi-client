@@ -19,7 +19,7 @@ import { Refresh } from "@mui/icons-material";
 import { ICard } from "trucoshi";
 
 export const Home = () => {
-  const [{ id, activeMatches, isLogged }, { sendUserId }] = useTrucoshi();
+  const [{ id, activeMatches, isLogged }, { sendUserId }, hydrated] = useTrucoshi();
 
   const [name, setName] = useState(id || "Satoshi");
   const [isNameLoading, setNameLoading] = useState(false);
@@ -47,7 +47,7 @@ export const Home = () => {
 
   const [openHand, setOpenHand] = useState<boolean>(false);
 
-  if (!isLogged) {
+  if (!hydrated || !isLogged) {
     return (
       <Stack alignItems="center" flexGrow={1}>
         <CircularProgress />
