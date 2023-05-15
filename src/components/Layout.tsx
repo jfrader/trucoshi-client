@@ -39,7 +39,6 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
-
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -77,7 +76,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               {cardTheme ? (
                 <GameCard as={Box} width="1.1em" card={xx} />
               ) : (
-                <TrucoshiLogo style={{ paddingBottom: "0.5em" }} height="100%" />
+                <TrucoshiLogo style={{ marginBottom: "0.4em" }} />
               )}
             </Button>
             <Menu
@@ -85,6 +84,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
+              keepMounted
               MenuListProps={{
                 "aria-labelledby": "card-theme-button",
               }}

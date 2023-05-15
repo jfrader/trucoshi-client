@@ -34,8 +34,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
-  const [cardTheme, setCardTheme] = useState<ICardTheme>("gnu");
-  const [cards, cardsReady] = useCards({ theme: cardTheme });
+  const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "gnu");
+  const [cards, cardsReady] = useCards({ theme: cardTheme, disabled: !cardTheme });
 
   useEffect(() => {
     socket.on("connect", () => {

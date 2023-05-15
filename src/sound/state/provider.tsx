@@ -1,39 +1,39 @@
 import { Howl, HowlOptions } from "howler";
-import {
-  useMemo,
-  PropsWithChildren,
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useEffect,
-} from "react";
+import { PropsWithChildren, useState, useCallback, useEffect } from "react";
 import { gameSounds } from "../sounds";
-import { ISoundQueue } from "../types";
+import { ISoundContext, ISoundQueue } from "../types";
 import { SoundContext } from "./context";
 
-const INITIAL_QUEUE: ISoundQueue = []
+const INITIAL_QUEUE: ISoundQueue = [];
 
 export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   const [sounds, setSounds] = useState<Record<string, Howl>>({});
   const [mainVolume, setVolume] = useState<number>(0.5);
-  const [isMuted, setMuted] = useState<boolean>(false);
   const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);
   const [soundQueue, setQueue] = useState<ISoundQueue>(INITIAL_QUEUE);
+  const [isMuted, setMuted] = useState(false);
+  const [readyToLoad, setReadyToLoad] = useState(false);
+  const [isLoading, setLoading] = useState(true);
 
-  const load = useCallback(async (key: string, sound: HowlOptions) => {
-    return new Promise<Howl>((resolve, reject) => {
-      try {
-        const howl = new Howl(sound);
-        howl.on("load", () => {
-          setSounds((current) => ({ ...current, [key]: howl }));
-          resolve(howl);
-        });
-      } catch (e) {
-        console.error("Failed to load game sound");
-        reject(e);
+  const load = useCallback(
+    async (key: string, sound: HowlOptions): Promise<[string, Howl]> => {
+      if (sounds[key]) {
+        return Promise.resolve([key, sounds[key]]);
       }
-    });
-  }, []);
+      return new Promise<[string, Howl]>((resolve, reject) => {
+        try {
+          const howl = new Howl(sound);
+          howl.on("load", () => {
+            resolve([key, howl] as [string, Howl]);
+          });
+        } catch (e) {
+          console.error("Failed to load game sound");
+          reject(e);
+        }
+      });
+    },
+    [sounds]
+  );
 
   const get = useCallback((key: string) => sounds[key] || null, [sounds]);
 
@@ -66,6 +66,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
 
   const queue = useCallback(
     (key: string) => {
+      setReadyToLoad(true);
       setQueue((q) => {
         if (q.find((i) => i.key === key)) {
           return q;
@@ -103,18 +104,30 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
     }
   }, [isPlayingQueueSound, soundQueue]);
 
-  useLayoutEffect(() => {
-    for (const key in gameSounds) {
-      if (gameSounds[key]) {
-        load(key, gameSounds[key]);
+  useEffect(() => {
+    if (readyToLoad && isLoading) {
+      setPlayingQueueSound(true);
+      const promises: Array<Promise<[string, Howl]>> = [];
+      for (const key in gameSounds) {
+        if (gameSounds[key]) {
+          promises.push(load(key, gameSounds[key]));
+        }
       }
+      Promise.all(promises).then((results) => {
+        setPlayingQueueSound(false);
+        setLoading(false);
+        setSounds((current) =>
+          results.reduce((prev, [key, howl]) => ({ ...prev, [key]: howl }), current)
+        );
+      });
     }
-  }, [load]);
+  }, [isLoading, load, readyToLoad]);
 
-  const value = useMemo(
-    () => ({ get, queue, load, mute, volume, isMuted }),
-    [get, isMuted, load, mute, queue, volume]
+  return (
+    <SoundContext.Provider
+      value={{ get, queue, load, mute, volume, isMuted } satisfies ISoundContext}
+    >
+      {children}
+    </SoundContext.Provider>
   );
-
-  return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
 };

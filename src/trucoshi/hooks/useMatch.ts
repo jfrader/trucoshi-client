@@ -224,14 +224,15 @@ export const useMatch = (
   }, [match, matchId, socket]);
 
   const nextHand = useCallback(() => {
+    setPreviousHand(null);
     if (match && previousHand && previousHand[1]) {
       previousHand[1]();
-      setPreviousHand(null);
     }
   }, [match, previousHand]);
 
   const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
   const canSay = useMemo(() => Boolean(match && sayCallback), [match, sayCallback]);
+  const memoPreviousHand = useMemo(() => (previousHand ? previousHand[0] : null), [previousHand]);
 
   return [
     {
@@ -241,7 +242,7 @@ export const useMatch = (
       error,
       canPlay,
       canSay,
-      previousHand: previousHand ? previousHand[0] : null,
+      previousHand: memoPreviousHand,
     },
     {
       playCard,

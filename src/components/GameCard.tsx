@@ -12,7 +12,6 @@ export const GameCard = ({
   request,
   width = "4.4em",
   theme = null,
-  as,
   ...buttonProps
 }: {
   card: ICard;
@@ -28,7 +27,7 @@ export const GameCard = ({
 
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
 
-  if (usedTheme && !reqReady && !cardsReady) {
+  if (usedTheme && (!cardsReady || (request && !reqReady))) {
     return null;
   }
 
@@ -54,7 +53,6 @@ export const GameCard = ({
 
   return (
     <GameCardButton
-      as={as}
       variant="emojicard"
       name={card || "xx"}
       emojicard={1}

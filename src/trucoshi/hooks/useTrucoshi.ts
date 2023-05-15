@@ -11,9 +11,19 @@ export const useTrucoshi = (): [ITrucoshiState, ITrucoshiActions, boolean] => {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
 
-  useEffect(() => {
-    setHydrated(context.state.cardsReady);
-  }, [context.state.cardsReady]);
+  useEffect(
+    () =>
+      setHydrated((current) => {
+        if (current) {
+          return current;
+        }
+        if (context.state.cardTheme) {
+          return context.state.cardsReady;
+        }
+        return true;
+      }),
+    [context.state.cardTheme, context.state.cardsReady]
+  );
 
   return [context.state, context.dispatch, hydrated];
 };
