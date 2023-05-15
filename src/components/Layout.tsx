@@ -67,7 +67,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               size="small"
               color="success"
               id="card-theme-button"
-              disabled={!cardsReady}
+              disabled={Boolean(cardTheme && !cardsReady)}
               aria-controls={open ? "basic-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}
@@ -89,7 +89,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 "aria-labelledby": "card-theme-button",
               }}
             >
-              <MenuItem sx={{ textAlign: "center" }} onClick={() => setCardTheme("gnu")}>
+              <MenuItem onClick={() => setCardTheme("gnu")}>
                 <GameCard
                   request
                   as={Box}
