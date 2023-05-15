@@ -14,11 +14,11 @@ export const useTrucoshi = (): [ITrucoshiState, ITrucoshiActions, boolean] => {
   useEffect(
     () =>
       setHydrated((current) => {
-        if (current) {
-          return current;
-        }
         if (context.state.cardTheme) {
           return context.state.cardsReady;
+        }
+        if (current) {
+          return current;
         }
         return true;
       }),

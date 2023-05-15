@@ -35,7 +35,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "gnu");
-  const [cards, cardsReady] = useCards({ theme: cardTheme, disabled: !cardTheme });
+  const [cards, cardsReady] = useCards({ theme: cardTheme });
 
   useEffect(() => {
     socket.on("connect", () => {

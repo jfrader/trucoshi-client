@@ -118,7 +118,7 @@ export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: 
             transform: `rotate(${randDeg()}deg) scale(1.5)`,
             marginTop: 0,
             marginLeft: openMargin,
-            zIndex: 1911 + " !important",
+            zIndex: 1911,
             "& *": {
               zIndex: 1911,
             },

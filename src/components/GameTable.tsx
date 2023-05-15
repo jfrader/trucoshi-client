@@ -1,4 +1,4 @@
-import { CSSProperties, FC, Fragment, useMemo } from "react";
+import { CSSProperties, FC, Fragment, useEffect, useState } from "react";
 import { Box, Paper, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
 import { PropsWithPlayer } from "../trucoshi/types";
@@ -71,7 +71,32 @@ interface GameTableProps {
   FillSlot?: FC<{ i: number }>;
   MiddleSlot?: FC<{ i: number }>;
   zoomOnIndex?: number;
+  inspecting?: IPublicPlayer | null;
 }
+
+const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) => {
+  const length = fill && players.length < fill ? fill : players.length;
+  const tan = Math.tan(Math.PI / 7);
+  const items: Array<IPublicPlayer | { key: number; hand?: undefined }> = [];
+  const slots = [];
+
+  items.push({ key: 0 });
+
+  for (let i = 0; i < length; i++) {
+    if (players[i]) {
+      items.push(players[i]);
+      continue;
+    }
+    if (slots.length < 2) {
+      items.push({ key: i + 1 });
+      slots.push(i + 1);
+      continue;
+    }
+    items.push({ key: -1 - i });
+  }
+
+  return { items, length, tan };
+};
 
 export const GameTable = ({
   match,
@@ -80,32 +105,19 @@ export const GameTable = ({
   FillSlot,
   MiddleSlot,
   fill,
+  inspecting,
   zoomOnIndex = -1,
 }: GameTableProps) => {
   const { players } = match;
 
-  const { items, length, tan } = useMemo(() => {
-    const length = fill && players.length < fill ? fill : players.length;
-    const tan = Math.tan(Math.PI / 7);
-    const items: Array<IPublicPlayer | { key: number; hand?: undefined }> = [];
-    const slots = [];
+  const [{ items, length, tan }, setState] = useState<{
+    items: Array<IPublicPlayer | { key: number; hand?: undefined }>;
+    length: number;
+    tan: number;
+  }>(() => init({ fill, players }));
 
-    items.push({ key: 0 });
-
-    for (let i = 0; i < length; i++) {
-      if (players[i]) {
-        items.push(players[i]);
-        continue;
-      }
-      if (slots.length < 2) {
-        items.push({ key: i + 1 });
-        slots.push(i + 1);
-        continue;
-      }
-      items.push({ key: -1 - i });
-    }
-
-    return { items, length, tan };
+  useEffect(() => {
+    setState(init({ fill, players }));
   }, [fill, players]);
 
   return (
@@ -150,7 +162,7 @@ export const GameTable = ({
               </Item>
             )}
             {player.hand && InnerSlot ? (
-              <InnerItem style={{ "--i": `${i - 1}`, zIndex: 13 } as CSSProperties}>
+              <InnerItem style={{ "--i": `${i - 1}`, zIndex: inspecting?.key === player.key ? 9000 : 13 } as CSSProperties}>
                 <InnerSlot player={player} />
               </InnerItem>
             ) : null}

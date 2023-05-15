@@ -5,11 +5,13 @@ import { useRounds } from "../trucoshi/hooks/useRounds";
 import { GameCard, GameCardContainer } from "./GameCard";
 import { PropsWithPlayer } from "../trucoshi/types";
 
-type Props = PropsWithPlayer<{
-  match: IPublicMatch;
-  previousHand: IMatchPreviousHand | null;
-  previousHandCallback: () => void;
-}>;
+type Props = PropsWithPlayer<
+  {
+    match: IPublicMatch;
+    previousHand: IMatchPreviousHand | null;
+    previousHandCallback: () => void;
+  } & Pick<BoxProps, "onMouseEnter" | "onMouseLeave" | "sx">
+>;
 
 export const HandContainer = ({
   onHandOpen,
@@ -31,7 +33,13 @@ export const HandContainer = ({
   );
 };
 
-export const Rounds = ({ match, previousHand, previousHandCallback, player }: Props) => {
+export const Rounds = ({
+  match,
+  previousHand,
+  previousHandCallback,
+  player,
+  ...boxProps
+}: Props) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
   const [rounds] = useRounds(match, previousHand, previousHandCallback);
 
@@ -41,7 +49,7 @@ export const Rounds = ({ match, previousHand, previousHandCallback, player }: Pr
   );
 
   return (
-    <Box maxWidth="100%" height="100%" pt="30%" pr="35%">
+    <Box maxWidth="100%" height="100%" pt="30%" pr="35%" {...boxProps}>
       <HandContainer margin="0 auto" px={4} position="relative" onHandOpen={setOpenHand}>
         {playerCards.map((pc, i) => {
           return (

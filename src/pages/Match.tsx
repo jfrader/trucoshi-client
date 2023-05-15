@@ -1,10 +1,10 @@
 import { Box, Button, Container, Fade, Typography } from "@mui/material";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
-import { EMatchState } from "trucoshi";
+import { EMatchState, IPublicPlayer } from "trucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
@@ -16,6 +16,7 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
 import { TrucoshiLogo } from "../components/TrucoshiLogo";
 import { PropsWithPlayer } from "../trucoshi/types";
+import { Backdrop } from "../components/Backdrop";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -45,6 +46,8 @@ const Match = () => {
     }
   }, [match, navigate, sessionId]);
 
+  const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
+
   const Slot = useCallback(
     ({ player }: PropsWithPlayer) => (
       <MatchPlayer
@@ -65,6 +68,8 @@ const Match = () => {
     ({ player }: PropsWithPlayer) =>
       match ? (
         <Rounds
+          onMouseEnter={() => inspect(player)}
+          onMouseLeave={() => inspect(null)}
           key={player.key}
           previousHand={previousHand}
           previousHandCallback={nextHand}
@@ -86,7 +91,11 @@ const Match = () => {
   );
 
   if (!hydrated) {
-    return <SocketBackdrop message="Cargando..." />;
+    return (
+      <Container maxWidth="sm">
+        <Backdrop open loading message="Cargando..." />
+      </Container>
+    );
   }
 
   if (match && match.winner) {
@@ -142,6 +151,7 @@ const Match = () => {
           <GameTable
             zoomOnIndex={me ? 1 : -1}
             match={match}
+            inspecting={inspecting}
             Slot={Slot}
             InnerSlot={InnerSlot}
             MiddleSlot={MiddleSlot}

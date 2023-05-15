@@ -49,7 +49,7 @@ export const Home = () => {
 
   if (!hydrated || !isLogged) {
     return (
-      <Stack alignItems="center" flexGrow={1}>
+      <Stack pt={2} alignItems="center" flexGrow={1}>
         <CircularProgress />
       </Stack>
     );

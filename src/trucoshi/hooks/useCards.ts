@@ -32,6 +32,10 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
+    if (!theme) {
+      return setReady(true);
+    }
+
     if (disabled) {
       return setReady(false);
     }
