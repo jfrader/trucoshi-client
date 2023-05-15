@@ -32,7 +32,7 @@ const MatchPlayer = ({
         <PlayerTag
           disabled={!player.ready || player.disabled}
           player={player}
-          isTurn={player.isTurn}
+          isTurn={!isPrevious && player.isTurn}
         />
         {player.abandoned ? (
           <Box pt={1}>

@@ -13,7 +13,8 @@ export const useRounds = (
 
   useEffect(() => {
     if (!match) {
-      return setRounds([])
+      setPrevious(true);
+      return setRounds([]);
     }
     if (previousHand) {
       setPrevious(true);
