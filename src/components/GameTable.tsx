@@ -1,69 +1,10 @@
-import { CSSProperties, FC, Fragment, useEffect, useState } from "react";
-import { Box, Paper, styled } from "@mui/material";
+import { CSSProperties, FC, useEffect, useState } from "react";
+import { Box, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
 import { PropsWithPlayer } from "../trucoshi/types";
+import { GameTableSlot, IGameTableSlot } from "./GameTableSlot";
 
-const Container = styled(Box)`
-  padding: 16px;
-  --d: 12.5rem; /* image size */
-  --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
-  --r: calc(0.4 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
-  --s: calc(2 * var(--r) + var(--d)); /* container size */
-  position: relative;
-  margin: 0 auto;
-  width: var(--s);
-  height: var(--s);
-  transform: rotate(90deg);
-`;
-
-const Item = styled(Paper)(({ theme }) => {
-  return `
-    background: ${theme.palette.background.paper};
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    flex-direction: column;
-    margin: calc(-0.5 * var(--d));
-    width: var(--d);
-    height: var(--d);
-    zoom: var(--z);
-    --az: calc(var(--i) * 1turn / var(--m));
-    transform: rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
-      rotate(270deg);
-  `;
-});
-
-const MiddleItem = styled(Box)(() => {
-  return `
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    flex-direction: column;
-    margin: calc(-0.5 * var(--d));
-    width: calc(var(--d));
-    height: calc(var(--d));
-    --az: calc(1turn / var(--m));
-    transform: rotate(calc(-1 * var(--az)))
-      rotate(90deg);
-  `;
-});
-
-const InnerItem = styled(Box)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-left: calc(-0.33 * var(--d));
-  margin-top: calc(-0.18 * var(--d));
-  width: calc(var(--d) / 2);
-  height: calc(var(--d) / 2);
-  --az: calc(var(--i) * 1turn / var(--m));
-  transform: rotate(var(--az)) translate(calc(var(--r) / 2.87)) rotate(calc(-1 * var(--az)))
-    rotate(270deg);
-`;
-
-interface GameTableProps {
+export interface GameTableProps {
   fill?: number;
   match: IPublicMatch;
   Slot: FC<PropsWithPlayer>;
@@ -77,7 +18,7 @@ interface GameTableProps {
 const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) => {
   const length = fill && players.length < fill ? fill : players.length;
   const tan = Math.tan(Math.PI / 7);
-  const items: Array<IPublicPlayer | { key: number; hand?: undefined }> = [];
+  const items: Array<IGameTableSlot> = [];
   const slots = [];
 
   items.push({ key: 0 });
@@ -95,7 +36,10 @@ const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) =>
     items.push({ key: -1 - i });
   }
 
-  return { items, length, tan };
+  return {
+    items,
+    style: { "--m": length, "--tan": tan.toFixed(2) } as CSSProperties,
+  };
 };
 
 export const GameTable = ({
@@ -110,10 +54,9 @@ export const GameTable = ({
 }: GameTableProps) => {
   const { players } = match;
 
-  const [{ items, length, tan }, setState] = useState<{
+  const [{ items, style }, setState] = useState<{
     items: Array<IPublicPlayer | { key: number; hand?: undefined }>;
-    length: number;
-    tan: number;
+    style: CSSProperties;
   }>(() => init({ fill, players }));
 
   useEffect(() => {
@@ -122,53 +65,34 @@ export const GameTable = ({
 
   return (
     <Box position="relative">
-      <Container style={{ "--m": length, "--tan": tan.toFixed(2) } as CSSProperties}>
+      <Container style={style}>
         {items.map((player, i) => (
-          <Fragment key={player.key}>
-            {i === 0 ? (
-              <MiddleItem
-                style={
-                  {
-                    "--mr": "0px",
-                    "--i": `${i - 1}`,
-                    "--z": zoomOnIndex === i ? `1.1` : `1`,
-                    zIndex: 12 - i,
-                  } as CSSProperties
-                }
-              >
-                {MiddleSlot ? <MiddleSlot i={i} /> : null}
-              </MiddleItem>
-            ) : (
-              <Item
-                style={
-                  {
-                    "--mr": "0px",
-                    "--i": `${i - 1}`,
-                    "--z": zoomOnIndex === i ? `1.1` : `1`,
-                    zIndex: 12 - i,
-                  } as CSSProperties
-                }
-              >
-                {player.hand ? (
-                  <Slot player={player} />
-                ) : (
-                  FillSlot &&
-                  player.key > -1 && (
-                    <Box margin="30% auto">
-                      <FillSlot i={i - 1} />
-                    </Box>
-                  )
-                )}
-              </Item>
-            )}
-            {player.hand && InnerSlot ? (
-              <InnerItem style={{ "--i": `${i - 1}`, zIndex: inspecting?.key === player.key ? 9000 : 13 } as CSSProperties}>
-                <InnerSlot player={player} />
-              </InnerItem>
-            ) : null}
-          </Fragment>
+          <GameTableSlot
+            i={i}
+            key={player.key}
+            player={player}
+            Slot={Slot}
+            FillSlot={FillSlot}
+            InnerSlot={InnerSlot}
+            MiddleSlot={MiddleSlot}
+            inspecting={inspecting}
+            zoomOnIndex={zoomOnIndex}
+          />
         ))}
       </Container>
     </Box>
   );
 };
+
+const Container = styled(Box)`
+  padding: 16px;
+  --d: 12.5rem; /* image size */
+  --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
+  --r: calc(0.4 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --s: calc(2 * var(--r) + var(--d)); /* container size */
+  position: relative;
+  margin: 0 auto;
+  width: var(--s);
+  height: var(--s);
+  transform: rotate(90deg);
+`;
