@@ -11,6 +11,12 @@ export const useRounds = (
   const [points, setPoints] = useState<IHandPoints | null>(null);
   const [isPrevious, setPrevious] = useState<boolean>(true);
 
+  const prevHandRef = useRef(previousHand);
+
+  useEffect(() => {
+    prevHandRef.current = previousHand;
+  }, [previousHand]);
+
   useEffect(() => {
     if (!match) {
       setPrevious(true);
@@ -22,10 +28,12 @@ export const useRounds = (
       setRounds(previousHand.rounds);
 
       timerRef.current = setTimeout(() => {
-        setPrevious(false);
-        setPoints(null);
-        setRounds(match.rounds);
-        callback?.();
+        if (prevHandRef.current) {
+          setPrevious(false);
+          setPoints(null);
+          setRounds(match.rounds);
+          callback?.();
+        }
       }, match.options.handAckTime);
 
       return () => clearTimeout(timerRef.current);
