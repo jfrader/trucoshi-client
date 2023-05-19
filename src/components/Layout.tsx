@@ -123,14 +123,6 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 <Close />
               </MenuItem>
             </Menu>
-            <Switch
-              defaultChecked={Boolean(dark)}
-              onChange={() =>
-                setDark((current) => {
-                  return current ? "" : "true";
-                })
-              }
-            />
             {TOOLBAR_LINKS.map(({ to, Icon }) => {
               return (
                 <Link key={to} to={to}>
@@ -138,6 +130,15 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 </Link>
               );
             })}
+            <Switch
+              size="small"
+              defaultChecked={Boolean(dark)}
+              onChange={() =>
+                setDark((current) => {
+                  return current ? "" : "true";
+                })
+              }
+            />
           </Stack>
         </Toolbar>
       </AppBar>
