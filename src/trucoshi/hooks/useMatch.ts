@@ -17,7 +17,7 @@ import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
-  onNewHand?: () => void;
+  onFreshHand?: () => void;
   onPlayedCard?: (pc: IPlayedCard) => void;
   onSaidCommand?: (sc: ISaidCommand) => void;
 }
@@ -36,7 +36,7 @@ export const useMatch = (
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
   const [hash, setHash] = useState("");
 
-  const { onMyTurn, onNewHand, onPlayedCard, onSaidCommand } = options;
+  const { onMyTurn, onFreshHand, onPlayedCard, onSaidCommand } = options;
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -152,8 +152,8 @@ export const useMatch = (
 
     socket.on(EServerEvent.WAITING_POSSIBLE_SAY, (value, callback) => {
       if (value.matchSessionId === matchId) {
-        if (onNewHand && value.isNewHand) {
-          onNewHand();
+        if (onFreshHand && value.freshHand) {
+          onFreshHand();
         }
 
         if (onMyTurn && value.me?.isTurn) {
@@ -190,7 +190,7 @@ export const useMatch = (
       socket.off(EServerEvent.PLAYER_USED_CARD);
       socket.off(EServerEvent.PLAYER_SAID_COMMAND);
     };
-  }, [matchId, onMyTurn, onNewHand, onPlayedCard, onSaidCommand, setMatch, socket]);
+  }, [matchId, onMyTurn, onFreshHand, onPlayedCard, onSaidCommand, setMatch, socket]);
 
   const playCard = useCallback(
     (cardIdx: number, card: ICard) => {

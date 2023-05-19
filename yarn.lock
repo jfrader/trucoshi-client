@@ -9302,10 +9302,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-trucoshi@0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.6.4.tgz#4f48780766ea684436be51c2a7ae7ffab61cd47d"
-  integrity sha512-z1NpY07fDzoNMQQvnOh3WtkcKFTqIhOJhLZq8xKENcZy67xJq0oPgUC0sfLXyWHWFLBS09Ffhu1r1blKxNrOSg==
+trucoshi@0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-0.6.5.tgz#cffa86574beeb92904d3c18b3c3c27528809b81e"
+  integrity sha512-ndA6uinow+q+TtfD2QcEMmtcZPF2bpSSUrWnAWHBQLAupm8PGXZHXBgxxivMwwv3YRguEYN0FaEfEDVdKYTu2A==
   dependencies:
     "@prisma/client" "4.13.0"
     "@types/pino" "^7.0.5"

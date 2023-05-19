@@ -89,7 +89,7 @@ export const theme = createTheme({
             padding: 0,
             minWidth: "initial",
             minHeight: "initial",
-            background: 'transparent',
+            background: "transparent",
             color: theme.palette.background.paper,
             border: "none",
           }),
@@ -123,6 +123,9 @@ export const theme = createTheme({
             border: "1px solid",
             color: theme.palette.background.paper,
             background: theme.palette.error.main,
+            // backgroundImage: "url(/trucoshi-logo.svg)",
+            // backgroundRepeat: "no-repeat",
+            // backgroundPosition: "center center",
             ":active": {
               background: theme.palette.error.main,
             },

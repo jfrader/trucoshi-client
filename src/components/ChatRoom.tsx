@@ -259,7 +259,6 @@ export const ChatMessage = ({
 };
 
 const getMessageContent = (message: IChatMessage) => {
-  console.log({ message });
   if (message.command) {
     const humanCommand = COMMANDS_HUMAN_READABLE[message.content as ECommand];
     if (humanCommand) {

@@ -5,22 +5,26 @@ import { ICardTheme } from "../trucoshi/types";
 import { ElementType } from "react";
 import { useCards } from "../trucoshi/hooks/useCards";
 
+export type GameCardProps = {
+  card: ICard;
+  enableHover?: boolean;
+  zoom?: boolean;
+  width?: string;
+  theme?: ICardTheme | null;
+  request?: boolean;
+  as?: ElementType;
+} & ButtonProps;
+
 export const GameCard = ({
   children,
   card,
   enableHover,
   request,
+  zoom,
   width = "4.4em",
   theme = null,
   ...buttonProps
-}: {
-  card: ICard;
-  enableHover?: boolean;
-  width?: string;
-  theme?: ICardTheme | null;
-  request?: boolean;
-  as?: ElementType;
-} & ButtonProps) => {
+}: GameCardProps) => {
   const [{ cardTheme, cards, cardsReady }] = useTrucoshi();
 
   const usedTheme = theme !== null ? theme : cardTheme;
@@ -36,6 +40,7 @@ export const GameCard = ({
       <GameCardButton
         variant="card"
         name={card || "xx"}
+        zoom={zoom ? 1 : 0}
         enablehover={enableHover ? 1 : 0}
         {...buttonProps}
       >
@@ -59,20 +64,92 @@ export const GameCard = ({
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
-      <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
+      <Box
+        sx={{
+          letterSpacing: 0,
+          pr: "2px",
+        }}
+      >
+        <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
+      </Box>
     </GameCardButton>
+  );
+};
+
+export type FlipGameCardProps = { flip?: boolean } & GameCardProps;
+
+export const FlipGameCard = ({ flip, ...props }: FlipGameCardProps) => {
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        lineHeight: 1,
+        perspective: "28em",
+      }}
+    >
+      <Box
+        sx={[
+          {
+            lineHeight: 1,
+            letterSpacing: 0,
+            pr: "2px",
+            transition: "transform 0.3s",
+            transformStyle: "preserve-3d",
+          },
+          flip
+            ? {
+                transform: "rotateY(180deg)",
+              }
+            : {},
+        ]}
+      >
+        <Box
+          sx={{
+            lineHeight: 1,
+            position: "absolute",
+            backfaceVisibility: "hidden",
+          }}
+        >
+          <GameCard {...props} />
+        </Box>
+        <Box
+          sx={{
+            lineHeight: 1,
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          <GameCard {...props} card={"xx" as ICard} />
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
 const GameCardButton = styled(Button)<{
   enablehover?: boolean | number;
   emojicard?: boolean | number;
-}>(({ theme, enablehover, emojicard }) => [
+  zoom?: boolean | number;
+}>(({ theme, enablehover, emojicard, zoom }) => [
   {
+    backgroundColor: "transparent",
+    lineHeight: 1,
+    position: "relative",
     transition: theme.transitions.create(["transform"], {
       duration: theme.transitions.duration.standard,
     }),
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
   },
+  zoom
+    ? {
+        transform: "scale(1.5)",
+      }
+    : {},
   emojicard
     ? {
         width: "4.4em",
@@ -85,7 +162,7 @@ const GameCardButton = styled(Button)<{
     ? {
         "&:hover": {
           zIndex: 1911,
-          transform: "scale(1.4)",
+          transform: "scale(1.5)",
           "& *": {
             zIndex: 1911,
           },
@@ -95,8 +172,19 @@ const GameCardButton = styled(Button)<{
 ]);
 
 const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
-const getMargin = (i: number, cards: number) =>
-  cards > 1 && i % 2 === 0 ? `calc((7px * ${i}) ${i === 0 ? "- 2.68" : "+ 2"}rem)` : 0;
+const getMargin = (i: number, cards: number) => {
+  const mid = Math.floor(cards / 2);
+
+  if (i < mid) {
+    return `-${3.2 * (mid - i)}em`;
+  }
+
+  if (i > mid) {
+    return `${3 * (i - mid)}em`;
+  }
+
+  return 0;
+};
 
 export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
   ({ theme, open, cards, i }) => {
@@ -115,8 +203,7 @@ export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: 
       },
       open
         ? {
-            transform: `rotate(${randDeg()}deg) scale(1.6)`,
-            marginTop: 0,
+            transform: `rotate(${randDeg()}deg)`,
             marginLeft: openMargin,
             zIndex: 1911,
             "& *": {

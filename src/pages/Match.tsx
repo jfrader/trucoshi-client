@@ -29,7 +29,7 @@ const Match = () => {
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
-    onNewHand: () => queue("round"),
+    onFreshHand: () => queue("round"),
   });
 
   const chatProps = useChatRoom(match);
@@ -68,9 +68,9 @@ const Match = () => {
     ({ player }: PropsWithPlayer) =>
       match ? (
         <Rounds
+          key={player.key}
           onMouseEnter={() => inspect(player)}
           onMouseLeave={() => inspect(null)}
-          key={player.key}
           previousHand={previousHand}
           previousHandCallback={nextHand}
           player={player}

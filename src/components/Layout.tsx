@@ -1,6 +1,7 @@
 import {
   AppBar,
   Button,
+  CircularProgress,
   Menu,
   MenuItem,
   Paper,
@@ -74,7 +75,11 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
               onClick={handleClick}
             >
               {cardTheme ? (
-                <GameCard as={Box} width="1.1em" card={xx} />
+                !cardsReady ? (
+                  <CircularProgress size="1.1em" />
+                ) : (
+                  <GameCard as={Box} width="1.1em" card={xx} />
+                )
               ) : (
                 <TrucoshiLogo style={{ marginBottom: "0.4em" }} />
               )}

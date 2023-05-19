@@ -6,7 +6,7 @@ export type TurnTimer = { isExtension: boolean; progress: number };
 const INITIAL_TIMER = {
   isExtension: false,
   progress: 0,
-}
+};
 
 export const useTurnTimer = (
   player: IPublicPlayer | null,
@@ -43,8 +43,7 @@ export const useTurnTimer = (
     }, 16);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [options, player, serverAheadTime]);
 
   return turnTimer;
 };

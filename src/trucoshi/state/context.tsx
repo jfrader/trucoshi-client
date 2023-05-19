@@ -28,7 +28,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [version, setVersion] = useState("");
   const [session, setSession] = useStateStorage("session");
   const [id, setId] = useStateStorage("id");
-  const [isConnected, setConnected] = useState<boolean>(false); // socket.connected
+  const [isConnected, setConnected] = useState<boolean>(false);
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<number | null>(null);
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
