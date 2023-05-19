@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Container,
   FormGroup,
   IconButton,
   Stack,
@@ -62,87 +63,93 @@ export const Home = () => {
   }
 
   return (
-    <Stack flexGrow={1} spacing={2}>
-      <Button size="large" color="primary" variant="outlined" onClick={onCreateMatch}>
-        Crear Partida
-      </Button>
+    <Container maxWidth="sm">
+      <Stack flexGrow={1} spacing={2}>
+        <Button size="large" color="primary" variant="outlined" onClick={onCreateMatch}>
+          Crear Partida
+        </Button>
 
-      <Button
-        size="large"
-        color="secondary"
-        variant="outlined"
-        onClick={() => navigate("/matches")}
-      >
-        Ver Mesas
-      </Button>
-
-      <Box height="8em" position="relative" left="-2.65em">
-        <HandContainer onHandOpen={setOpenHand} pt={3} sx={{ position: "relative" }}>
-          {randomCards.map((card, i) => {
-            return (
-              <GameCardContainer key={card} open={openHand} cards={randomCards.length} i={i}>
-                <FlipGameCard flip={flip} zoom={openHand} card={card as ICard} />
-              </GameCardContainer>
-            );
-          })}
-          <Box pl={50}>
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setRandomCards(getRandomCards());
-              }}
-              size="large"
-              color="success"
-            >
-              <Refresh />
-            </IconButton>
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setFlip((c) => !c);
-              }}
-              size="large"
-              color="success"
-            >
-              {flip ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          </Box>
-        </HandContainer>
-      </Box>
-
-      <Box pt={2}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onClickChangeName();
-          }}
+        <Button
+          size="large"
+          color="secondary"
+          variant="outlined"
+          onClick={() => navigate("/matches")}
         >
-          <FormGroup>
-            <TextField
-              color="warning"
-              label="Nombre"
-              onChange={onChangeName}
-              type="text"
-              value={name}
-            />
-            <Button disabled={isNameLoading || name === id} color="warning" type="submit">
-              {isNameLoading ? (
-                <Box>
-                  <CircularProgress size={16} />
-                </Box>
-              ) : (
-                "Cambiar Nombre"
-              )}
-            </Button>
-          </FormGroup>
-        </form>
-      </Box>
+          Ver Mesas
+        </Button>
 
-      <Box pt={2}>
-        {activeMatches.length ? (
-          <MatchList matches={activeMatches} title="Partidas activas" />
-        ) : null}
-      </Box>
-    </Stack>
+        <Box height="8em" width="100%">
+          <HandContainer
+            onHandOpen={setOpenHand}
+            pt={3}
+            sx={{ position: "relative", left: "-2.5em", pt: 3 }}
+          >
+            {randomCards.map((card, i) => {
+              return (
+                <GameCardContainer key={card} open={openHand} cards={randomCards.length} i={i}>
+                  <FlipGameCard flip={flip} zoom={openHand} card={card as ICard} />
+                </GameCardContainer>
+              );
+            })}
+            <Stack justifyContent="end" alignItems="end" pr={2}>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setRandomCards(getRandomCards());
+                }}
+                size="large"
+                color="primary"
+              >
+                <Refresh />
+              </IconButton>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFlip((c) => !c);
+                }}
+                size="large"
+                color="success"
+              >
+                {flip ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </Stack>
+          </HandContainer>
+        </Box>
+
+        <Box pt={1}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onClickChangeName();
+            }}
+          >
+            <FormGroup>
+              <TextField
+                color="warning"
+                label="Nombre"
+                onChange={onChangeName}
+                type="text"
+                value={name}
+              />
+              <Button disabled={isNameLoading || name === id} color="warning" type="submit">
+                {isNameLoading ? (
+                  <Box>
+                    <CircularProgress size={16} />
+                  </Box>
+                ) : (
+                  "Cambiar Nombre"
+                )}
+              </Button>
+            </FormGroup>
+          </form>
+        </Box>
+
+        <Box pt={2}>
+          {activeMatches.length ? (
+            <MatchList matches={activeMatches} title="Partidas activas" />
+          ) : null}
+        </Box>
+      </Stack>
+    </Container>
   );
 };

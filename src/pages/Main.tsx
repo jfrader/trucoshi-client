@@ -23,7 +23,7 @@ export const Main = () => {
         alignItems="stretch"
         height="100%"
       >
-        <Box pt={4} pb={4} maxWidth="100%">
+        <Box pt={2} pb={4} maxWidth="100%">
           <Link to="/">
             <TrucoshiText width="100%" style={{ objectFit: "contain" }} />
           </Link>

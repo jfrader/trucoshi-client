@@ -49,7 +49,7 @@ export const Rounds = ({
   );
 
   return (
-    <Box maxWidth="100%" height="100%" pt="30%" pr="35%" {...boxProps}>
+    <Box width="100%" height="100%" pt="30%" pr="35%" {...boxProps}>
       <HandContainer margin="0 auto" px={4} position="relative" onHandOpen={setOpenHand}>
         {playerCards.map((pc, i) => {
           return (
