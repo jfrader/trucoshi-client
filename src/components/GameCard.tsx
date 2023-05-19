@@ -95,6 +95,7 @@ export const FlipGameCard = ({ flip, ...props }: FlipGameCardProps) => {
             pr: "2px",
             transition: "transform 0.3s",
             transformStyle: "preserve-3d",
+            backfaceVisibility: "hidden",
           },
           flip
             ? {
@@ -135,15 +136,11 @@ const GameCardButton = styled(Button)<{
   zoom?: boolean | number;
 }>(({ theme, enablehover, emojicard, zoom }) => [
   {
-    backgroundColor: "transparent",
     lineHeight: 1,
     position: "relative",
     transition: theme.transitions.create(["transform"], {
       duration: theme.transitions.duration.standard,
     }),
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
   },
   zoom
     ? {

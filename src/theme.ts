@@ -15,7 +15,56 @@ declare module "@mui/material/Button" {
   }
 }
 
-const palette = createPalette({
+export const lightPalette = createPalette({
+  mode: "light",
+  primary: {
+    main: "#ec6c34",
+    dark: "#d15829",
+    light: "#f17e59",
+    contrastText: "#000",
+  },
+  secondary: {
+    main: "#9c548c",
+    dark: "#6d315e",
+    light: "#c28fb5",
+    contrastText: "#000",
+  },
+  success: {
+    main: "#749424",
+    dark: "#5d751c",
+    light: "#8bc450",
+    contrastText: "#000",
+  },
+  warning: {
+    main: "#c4941c",
+    dark: "#a0721a",
+    light: "#e2b246",
+    contrastText: "#000",
+  },
+  info: {
+    main: "#248493",
+    dark: "#1c6a7a",
+    light: "#4a9bb2",
+    contrastText: "#000",
+  },
+  error: {
+    main: "#94342c",
+    dark: "#6f2821",
+    light: "#b54940",
+    contrastText: "#000",
+  },
+  background: {
+    paper: "#f4f4f4",
+    default: "#FEFFFD",
+  },
+  text: {
+    primary: "rgba(0, 0, 0, 0.78)",
+    secondary: "#f3e3db",
+    disabled: "rgba(0, 0, 0, 0.34)",
+  },
+});
+
+export const darkPalette = createPalette({
   mode: "dark",
   primary: {
     main: "#ec6c34",
@@ -55,24 +104,17 @@ const palette = createPalette({
   },
   background: {
     paper: "#182c1c",
-    default: "#44644c",
+    default: "#243728",
   },
   text: {
+    primary: "rgba(255, 255, 255, 0.87)",
     secondary: "#f3e3db",
     disabled: "rgba(255, 255, 255, 0.3)",
   },
 });
 
-export const theme = createTheme({
-  palette,
-  typography: [
-    {
-      color: palette.primary.main,
-    },
-    {
-      color: palette.secondary.main,
-    },
-  ],
+const base = {
+  typography: {},
   components: {
     MuiLinearProgress: {
       styleOverrides: {
@@ -92,6 +134,9 @@ export const theme = createTheme({
             background: "transparent",
             color: theme.palette.background.paper,
             border: "none",
+            ":hover": {
+              backgroundColor: "transparent",
+            },
           }),
         },
         {
@@ -99,15 +144,14 @@ export const theme = createTheme({
           style: ({ theme }) => ({
             minWidth: "initial",
             padding: 0,
-            background: theme.palette.text.secondary,
-            color: theme.palette.background.paper,
-            borderColor: theme.palette.background.paper,
-            border: "1px solid",
+            backgroundColor: theme.palette.text.secondary,
+            color: theme.palette.getContrastText(theme.palette.text.secondary),
+            border: `1px solid ${theme.palette.background.paper}`,
             ":active": {
               background: theme.palette.text.secondary,
             },
             ":hover": {
-              background: theme.palette.text.secondary,
+              backgroundColor: theme.palette.text.secondary,
             },
           }),
         },
@@ -136,6 +180,13 @@ export const theme = createTheme({
         },
       ],
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: () => ({
+          backgroundImage: "none",
+        }),
+      },
+    },
     MuiListItemButton: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -155,15 +206,15 @@ export const theme = createTheme({
       variants: [
         {
           props: { color: "success" },
-          style: {
-            color: palette.success.main,
-          },
+          style: ({ theme }) => ({
+            color: theme.palette.success.main,
+          }),
         },
         {
           props: { color: "warning" },
-          style: {
-            color: palette.warning.main,
-          },
+          style: ({ theme }) => ({
+            color: theme.palette.warning.main,
+          }),
         },
       ],
     },
@@ -178,4 +229,16 @@ export const theme = createTheme({
       },
     },
   },
-} as ThemeOptions);
+} satisfies ThemeOptions;
+
+export const light = createTheme({
+  palette: lightPalette,
+  ...base,
+} satisfies ThemeOptions);
+
+export const dark = createTheme({
+  palette: darkPalette,
+  ...base,
+} satisfies ThemeOptions);
+
+export const themes = { dark, light };

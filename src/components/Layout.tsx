@@ -6,6 +6,7 @@ import {
   MenuItem,
   Paper,
   Stack,
+  Switch,
   ThemeProvider,
   Toolbar,
   Typography,
@@ -14,7 +15,7 @@ import {
 import { Box } from "@mui/system";
 import { PropsWithChildren, useState } from "react";
 import { Outlet } from "react-router-dom";
-import { theme } from "../theme";
+import { themes } from "../theme";
 import { Link } from "./Link";
 import { TrucoshiLogo } from "./TrucoshiLogo";
 import { TOOLBAR_LINKS } from "../links/links";
@@ -23,6 +24,7 @@ import { GameCard } from "./GameCard";
 import { ICard } from "trucoshi";
 import { Close } from "@mui/icons-material";
 import { TrucoshiText } from "./TrucoshiText";
+import useStateStorage from "../hooks/useStateStorage";
 
 const LayoutContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -32,7 +34,10 @@ const LayoutContainer = styled(Box)(({ theme }) => ({
 
 const xx = "xx" as ICard;
 
+const themeChoices = [themes.light, themes.dark];
+
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
+  const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
   const [{ cardTheme, cardsReady }, { setCardTheme }] = useTrucoshi();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -45,7 +50,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeChoices[Number(Boolean(dark))]}>
       <AppBar position="fixed">
         <Toolbar variant="dense">
           <Link to="/" lineHeight={4}>
@@ -118,6 +123,14 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 <Close />
               </MenuItem>
             </Menu>
+            <Switch
+              defaultChecked={Boolean(dark)}
+              onChange={() =>
+                setDark((current) => {
+                  return current ? "" : "true";
+                })
+              }
+            />
             {TOOLBAR_LINKS.map(({ to, Icon }) => {
               return (
                 <Link key={to} to={to}>
@@ -129,7 +142,10 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
         </Toolbar>
       </AppBar>
       <main style={{ position: "relative" }}>
-        <Paper className="App" sx={{ borderRadius: 0 }}>
+        <Paper
+          className="App"
+          sx={(theme) => ({ borderRadius: 0, background: theme.palette.background.default })}
+        >
           <Box className="App-header" display="flex" flexDirection="column">
             <Box display="flex" flexDirection="column" minWidth="100%" flexGrow={1}>
               <LayoutContainer

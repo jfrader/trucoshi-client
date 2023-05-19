@@ -50,7 +50,7 @@ export const GameTableSlot = ({
       {i === 0 ? (
         <MiddleItem style={middleStyle}>{MiddleSlot ? <MiddleSlot i={i} /> : null}</MiddleItem>
       ) : (
-        <Item style={itemStyle}>
+        <Item elevation={2} style={itemStyle}>
           {player.hand ? (
             <Slot player={player} />
           ) : (
@@ -75,6 +75,7 @@ export const GameTableSlot = ({
 const Item = styled(Paper)(({ theme }) => {
   return `
       background: ${theme.palette.background.paper};
+      overlay: none;
       position: absolute;
       top: 50%;
       left: 50%;
