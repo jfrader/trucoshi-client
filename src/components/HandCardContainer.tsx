@@ -1,7 +1,7 @@
 import { Box, styled } from "@mui/material";
 
 const OPEN_MARGIN = 4;
-const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
+const randDeg = () => Math.round(Math.random() * 3) * (Math.random() > 0.5 ? 1 : -1);
 const getMargin = (i: number, cards: number) => {
   if (cards === 2) {
     const m = OPEN_MARGIN / 2;

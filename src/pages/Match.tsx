@@ -5,7 +5,7 @@ import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/GameTable";
 import { Rounds } from "../components/Rounds";
 import { EMatchState, IPublicPlayer } from "trucoshi";
-import { SocketBackdrop } from "../components/SocketBackdrop";
+import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
@@ -13,10 +13,10 @@ import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { FloatingProgress } from "../components/FloatingProgress";
+import { FloatingProgress } from "../shared/FloatingProgress";
 import { TrucoshiLogo } from "../shared/TrucoshiLogo";
 import { PropsWithPlayer } from "../trucoshi/types";
-import { Backdrop } from "../components/Backdrop";
+import { Backdrop } from "../shared/Backdrop";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -135,7 +135,6 @@ const Match = () => {
           mb={4}
           position="relative"
           width="100%"
-          height="30rem"
           {...chatProps}
         />
       </Container>

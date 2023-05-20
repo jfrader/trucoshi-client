@@ -46,13 +46,19 @@ export const useMatch = (
 
   const fetchMatch = useCallback(() => {
     if (matchId && context.state.isConnected) {
-      socket.emit(EClientEvent.FETCH_MATCH, context.state.session, matchId, ({ success }) => {
-        if (!success) {
-          setError(new Error("No se pudo encontrar la partida"));
-          return;
+      socket.emit(
+        EClientEvent.FETCH_MATCH,
+        context.state.session,
+        matchId,
+        ({ success, match }) => {
+          if (!success) {
+            setError(new Error("No se pudo encontrar la partida"));
+            return;
+          }
+          _setMatch(match);
+          setError(null);
         }
-        setError(null);
-      });
+      );
     }
   }, [context.state.isConnected, context.state.session, matchId, socket]);
 

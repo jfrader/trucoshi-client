@@ -12,17 +12,35 @@ import { Box } from "@mui/system";
 import { PropsWithChildren } from "react";
 import { Outlet } from "react-router-dom";
 import { themes } from "../theme";
-import { Link } from "../components/Link";
-import { TOOLBAR_LINKS } from "../links/links";
+import { Link } from "./Link";
+import { TOOLBAR_LINKS } from "../assets/links/links";
 import { TrucoshiText } from "./TrucoshiText";
 import useStateStorage from "../hooks/useStateStorage";
 import { CardThemeToggle } from "../components/CardThemeToggle";
 
-const LayoutContainer = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up("md")]: {
-    paddingTop: "52px",
+const LayoutContainer = styled(Box)(({ theme }) => [
+  `
+    *::-webkit-scrollbar {
+      width: ${theme.spacing(1)};
+    }
+    *::-webkit-scrollbar-track {
+      background: ${theme.palette.background.paper};
+    }
+    /* Handle */
+    *::-webkit-scrollbar-thumb {
+      background: ${theme.palette.text.disabled};
+    }
+    /* Handle on hover */
+    *::-webkit-scrollbar-thumb:hover {
+      background: ${theme.palette.text.secondary};
+    }
+  `,
+  {
+    [theme.breakpoints.up("md")]: {
+      paddingTop: "52px",
+    },
   },
-}));
+]);
 
 const themeChoices = [themes.light, themes.dark];
 

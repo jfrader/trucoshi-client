@@ -7,12 +7,12 @@ import { GameTable } from "../components/GameTable";
 import { PlayerTag } from "../components/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { EMatchState } from "trucoshi";
-import { AnimatedButton } from "../components/AnimatedButton";
-import { SocketBackdrop } from "../components/SocketBackdrop";
+import { AnimatedButton } from "../shared/AnimatedButton";
+import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
 import { ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
-import { FloatingProgress } from "../components/FloatingProgress";
+import { FloatingProgress } from "../shared/FloatingProgress";
 
 export const Lobby = () => {
   useSound();

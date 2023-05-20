@@ -1,4 +1,4 @@
-import { Paper, styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { getTeamColor, getTeamName } from "../utils/team";
 
 interface ITeamTagProps {
@@ -13,6 +13,6 @@ export const TeamTag = ({ teamIdx }: ITeamTagProps) => {
   );
 };
 
-export const TeamCard = styled(Paper)(({ theme }) => ({
+export const TeamCard = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2, 1, 2),
 }));

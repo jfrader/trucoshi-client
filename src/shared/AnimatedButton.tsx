@@ -1,5 +1,5 @@
 import { Button, css, styled } from "@mui/material";
-import { bounce } from "../animations/bounce";
+import { bounce } from "../assets/animations/bounce";
 
 export const AnimatedButton = styled(Button)`
   ${css`

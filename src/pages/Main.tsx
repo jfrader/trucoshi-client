@@ -2,11 +2,11 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Container } from "@mui/system";
 import { Outlet } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { SocketBackdrop } from "../components/SocketBackdrop";
+import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { TrucoshiText } from "../shared/TrucoshiText";
-import { Link } from "../components/Link";
-import { FooterLink } from "../components/FooterLink";
-import { GENERAL_LINKS } from "../links/links";
+import { Link } from "../shared/Link";
+import { FooterLink } from "../shared/FooterLink";
+import { GENERAL_LINKS } from "../assets/links/links";
 
 export const Main = () => {
   const [{ version }] = useTrucoshi();

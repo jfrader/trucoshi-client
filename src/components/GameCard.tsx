@@ -12,6 +12,7 @@ export type GameCardProps = {
   width?: string;
   theme?: ICardTheme | null;
   request?: boolean;
+  shadow?: boolean;
   as?: ElementType;
 } & ButtonProps;
 
@@ -21,6 +22,7 @@ export const GameCard = ({
   enableHover,
   request,
   zoom,
+  shadow,
   width = "4.4em",
   theme = null,
   ...buttonProps
@@ -41,6 +43,7 @@ export const GameCard = ({
         variant="card"
         name={card || "xx"}
         zoom={zoom ? 1 : 0}
+        shadow={shadow ? 1 : 0}
         enablehover={enableHover ? 1 : 0}
         {...buttonProps}
       >
@@ -62,6 +65,7 @@ export const GameCard = ({
       name={card || "xx"}
       emojicard={1}
       zoom={zoom ? 1 : 0}
+      shadow={shadow ? 1 : 0}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
@@ -135,18 +139,27 @@ const GameCardButton = styled(Button)<{
   enablehover?: boolean | number;
   emojicard?: boolean | number;
   zoom?: boolean | number;
-}>(({ theme, enablehover, emojicard, zoom }) => [
+  shadow?: boolean | number;
+}>(({ theme, enablehover, emojicard, zoom, shadow }) => [
   {
     lineHeight: 1,
     position: "relative",
-    boxShadow: theme.shadows[3],
     transition: theme.transitions.create(["transform", "box-shadow"], {
       duration: theme.transitions.duration.standard,
     }),
   },
-  zoom
+  shadow
+    ? {
+        boxShadow: theme.shadows[3],
+      }
+    : {},
+  shadow && zoom
     ? {
         boxShadow: theme.shadows[10],
+      }
+    : {},
+  zoom
+    ? {
         transform: "scale(1.5)",
       }
     : {},
@@ -157,7 +170,13 @@ const GameCardButton = styled(Button)<{
         fontWeight: 700,
         padding: "0.6rem 0.2rem",
       }
-    : {},
+    : {
+        padding: 0,
+        margin: 0,
+        background: "transparent",
+        border: "none",
+        outline: "none",
+      },
   enablehover
     ? {
         "&:hover": {

@@ -27,9 +27,11 @@ import {
   IPublicPlayer,
 } from "trucoshi";
 import { getTeamColor, getTeamName } from "../utils/team";
-import { bounce } from "../animations/bounce";
+import { bounce } from "../assets/animations/bounce";
 import { useSound } from "../sound/hooks/useSound";
 import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -70,6 +72,18 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
   };
 };
 
+const ChatContainer = styled(Box)(({ theme }) => ({
+  height: "15rem",
+  width: "17rem",
+  [theme.breakpoints.up("lg")]: {
+    height: "calc(100vh - 48px)",
+    width: "16rem",
+  },
+  transition: theme.transitions.create(["height"], {
+    duration: theme.transitions.duration.standard,
+  }),
+}));
+
 export const ChatRoom = ({
   matchId,
   players,
@@ -80,6 +94,8 @@ export const ChatRoom = ({
   alwaysVisible,
   ...boxProps
 }: Props) => {
+  const theme = useTheme();
+  const isLg = useMediaQuery(theme.breakpoints.up("lg"));
   const [message, setMessage] = useState<string>("");
 
   const [room, chat, isLoading] = useChatState;
@@ -100,84 +116,87 @@ export const ChatRoom = ({
   };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        chat(message);
-        setMessage("");
-      }}
-    >
-      <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
-        <ChatBox
-          active={Number(alwaysVisible || active)}
-          onClick={onActivate}
-          position="absolute"
-          left="0"
-          top="0"
-          height="15rem"
-          width="15rem"
-          display="flex"
-          textAlign="left"
-          flexDirection="column"
-          sx={{ zIndex: (theme) => theme.zIndex.drawer }}
-          {...boxProps}
-        >
-          <List
-            component={Paper}
-            ref={listRef}
-            sx={(theme) => ({
-              justifyContent: "flex-end",
-              m: 0,
-              background: theme.palette.background.paper,
-              overflowY: "scroll",
-              flexGrow: 1,
-              height: "15rem",
-            })}
+    <ChatContainer>
+      <form
+        style={{ height: "100%" }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          chat(message);
+          setMessage("");
+        }}
+      >
+        <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
+          <ChatBox
+            active={Number(alwaysVisible || active)}
+            onClick={onActivate}
+            position="absolute"
+            left="0"
+            top="0"
+            height="100%"
+            width="100%"
+            display="flex"
+            textAlign="left"
+            flexDirection="column"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer }}
+            {...boxProps}
           >
-            {room?.messages.map((message) => {
-              return (
-                <ChatMessage
-                  animate={message.id === latestMessage?.id}
-                  key={message.id}
-                  message={message}
-                  players={players}
-                />
-              );
-            })}
-          </List>
-          <Slide in={alwaysVisible || active} direction="right">
-            <ButtonGroup
-              size="small"
-              fullWidth
+            <List
               component={Paper}
+              ref={listRef}
               sx={(theme) => ({
+                justifyContent: "flex-end",
+                m: 0,
                 background: theme.palette.background.paper,
+                overflowY: "scroll",
+                flexGrow: 1,
+                height: "15rem",
               })}
             >
-              <TextField
-                color="warning"
+              {room?.messages.map((message) => {
+                return (
+                  <ChatMessage
+                    animate={message.id === latestMessage?.id}
+                    key={message.id}
+                    message={message}
+                    players={players}
+                  />
+                );
+              })}
+            </List>
+            <Slide in={isLg || alwaysVisible || active} direction="right">
+              <ButtonGroup
                 size="small"
-                aria-autocomplete="none"
-                autoComplete="off"
                 fullWidth
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-              <Button
-                disabled={isLoading}
-                color="warning"
-                variant="outlined"
-                sx={(theme) => ({ width: theme.spacing(6) })}
-                size="small"
-                type="submit"
+                component={Paper}
+                sx={(theme) => ({
+                  background: theme.palette.background.paper,
+                })}
               >
-                <SendIcon />
-              </Button>
-            </ButtonGroup>
-          </Slide>
-        </ChatBox>
-      </ClickAwayListener>
-    </form>
+                <TextField
+                  fullWidth
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  color="warning"
+                  size="small"
+                  aria-autocomplete="none"
+                  autoComplete="off"
+                />
+                <Button
+                  sx={(theme) => ({ width: theme.spacing(4) })}
+                  disabled={isLoading || !message}
+                  color="warning"
+                  variant="text"
+                  size="small"
+                  type="submit"
+                >
+                  <SendIcon />
+                </Button>
+              </ButtonGroup>
+            </Slide>
+          </ChatBox>
+        </ClickAwayListener>
+      </form>
+    </ChatContainer>
   );
 };
 

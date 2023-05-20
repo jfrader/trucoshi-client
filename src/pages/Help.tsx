@@ -9,8 +9,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { Link } from "../components/Link";
-import { HELP_LINKS } from "../links/links";
+import { Link } from "../shared/Link";
+import { HELP_LINKS } from "../assets/links/links";
 
 export const Help = () => {
   return (
