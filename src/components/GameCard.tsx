@@ -139,12 +139,14 @@ const GameCardButton = styled(Button)<{
   {
     lineHeight: 1,
     position: "relative",
-    transition: theme.transitions.create(["transform"], {
+    boxShadow: theme.shadows[3],
+    transition: theme.transitions.create(["transform", "box-shadow"], {
       duration: theme.transitions.duration.standard,
     }),
   },
   zoom
     ? {
+        boxShadow: theme.shadows[10],
         transform: "scale(1.5)",
       }
     : {},
@@ -159,6 +161,7 @@ const GameCardButton = styled(Button)<{
   enablehover
     ? {
         "&:hover": {
+          boxShadow: theme.shadows[10],
           zIndex: 1911,
           transform: "scale(1.5)",
           "& *": {
@@ -168,52 +171,3 @@ const GameCardButton = styled(Button)<{
       }
     : {},
 ]);
-
-const randDeg = () => Math.round(Math.random() * 4) * (Math.random() > 0.5 ? 1 : -1);
-const getMargin = (i: number, cards: number) => {
-  const mid = Math.floor(cards / 2);
-
-  if (i < mid) {
-    return `-${3.2 * (mid - i)}em`;
-  }
-
-  if (i > mid) {
-    return `${3 * (i - mid)}em`;
-  }
-
-  return 0;
-};
-
-export const GameCardContainer = styled(Box)<{ open: boolean; cards: number; i: number }>(
-  ({ theme, open, cards, i }) => {
-    const margin = 10 * i + "px";
-    const openMargin = getMargin(i, cards);
-    return [
-      {
-        position: "absolute",
-        left: "50%",
-        right: "50%",
-        transform: `rotate(${randDeg()}deg)`,
-        marginLeft: i !== undefined ? margin : 0,
-        transition: theme.transitions.create(["transform", "margin-top", "margin-left"], {
-          duration: theme.transitions.duration.standard,
-        }),
-      },
-      open
-        ? {
-            transform: `rotate(${randDeg()}deg)`,
-            marginLeft: openMargin,
-            zIndex: 1911,
-            "& *": {
-              zIndex: 1911,
-            },
-          }
-        : {
-            zIndex: 1910,
-            "& *": {
-              zIndex: 1910,
-            },
-          },
-    ];
-  }
-);

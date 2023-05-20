@@ -28,17 +28,17 @@ export const GameTableSlot = ({
       middleStyle: {
         "--mr": "0px",
         "--i": `${-1}`,
-        "--z": zoomOnIndex === i ? `1.1` : `1`,
         zIndex: 12 - i,
       },
       itemStyle: {
-        "--mr": "0px",
+        "--mr": zoomOnIndex === i ? "0.8em":"0px",
         "--i": `${i - 1}`,
-        "--z": zoomOnIndex === i ? `1.1` : `1`,
+        "--z": zoomOnIndex === i ? 1.15 : 1,
         zIndex: 12 - i,
       },
       innerStyle: {
         "--i": `${i - 1}`,
+        "--z": zoomOnIndex === i ? 1.15 : 1,
         zIndex: inspecting?.key === player.key ? 9000 : 13,
       },
     }),
@@ -84,12 +84,24 @@ const Item = styled(Paper)(({ theme }) => {
       margin: calc(-0.5 * var(--d));
       width: var(--d);
       height: var(--d);
-      zoom: var(--z);
       --az: calc(var(--i) * 1turn / var(--m));
-      transform: rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
+      transform: scale(calc(var(--z))) rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
         rotate(270deg);
     `;
 });
+
+const InnerItem = styled(Box)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: calc(-0.33 * var(--d));
+  margin-top: calc(-0.18 * var(--d));
+  width: calc(var(--d) / 2);
+  height: calc(var(--d) / 2);
+  --az: calc(var(--i) * 1turn / var(--m));
+  transform: rotate(var(--az)) translate(calc(var(--r) / 2.87)) rotate(calc(-1 * var(--az)))
+    rotate(270deg);
+`;
 
 const MiddleItem = styled(Box)(() => {
   return `
@@ -106,16 +118,3 @@ const MiddleItem = styled(Box)(() => {
         rotate(90deg);
     `;
 });
-
-const InnerItem = styled(Box)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-left: calc(-0.33 * var(--d));
-  margin-top: calc(-0.18 * var(--d));
-  width: calc(var(--d) / 2);
-  height: calc(var(--d) / 2);
-  --az: calc(var(--i) * 1turn / var(--m));
-  transform: rotate(var(--az)) translate(calc(var(--r) / 2.87)) rotate(calc(-1 * var(--az)))
-    rotate(270deg);
-`;

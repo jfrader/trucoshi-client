@@ -2,8 +2,9 @@ import { Box, BoxProps } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { IMatchPreviousHand, IPublicMatch } from "trucoshi";
 import { useRounds } from "../trucoshi/hooks/useRounds";
-import { GameCard, GameCardContainer } from "./GameCard";
+import { GameCard } from "./GameCard";
 import { PropsWithPlayer } from "../trucoshi/types";
+import { HandCardContainer } from "./HandCardContainer";
 
 type Props = PropsWithPlayer<
   {
@@ -49,13 +50,13 @@ export const Rounds = ({
   );
 
   return (
-    <Box width="100%" height="100%" pt="30%" pr="35%" {...boxProps}>
+    <Box width="100%" height="100%" pt="30%" position="relative" right="0.9em" {...boxProps}>
       <HandContainer margin="0 auto" px={4} position="relative" onHandOpen={setOpenHand}>
         {playerCards.map((pc, i) => {
           return (
-            <GameCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
+            <HandCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
               <GameCard zoom={openHand} {...pc} />
-            </GameCardContainer>
+            </HandCardContainer>
           );
         })}
       </HandContainer>

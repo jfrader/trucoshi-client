@@ -14,7 +14,7 @@ import { MatchPoints } from "../components/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../components/FloatingProgress";
-import { TrucoshiLogo } from "../components/TrucoshiLogo";
+import { TrucoshiLogo } from "../shared/TrucoshiLogo";
 import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../components/Backdrop";
 

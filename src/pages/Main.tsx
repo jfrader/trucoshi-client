@@ -3,7 +3,7 @@ import { Container } from "@mui/system";
 import { Outlet } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { SocketBackdrop } from "../components/SocketBackdrop";
-import { TrucoshiText } from "../components/TrucoshiText";
+import { TrucoshiText } from "../shared/TrucoshiText";
 import { Link } from "../components/Link";
 import { FooterLink } from "../components/FooterLink";
 import { GENERAL_LINKS } from "../links/links";

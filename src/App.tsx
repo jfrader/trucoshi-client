@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Layout } from "./components/Layout";
+import { Layout } from "./shared/Layout";
 import { Main } from "./pages/Main";
 import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/state/context";
