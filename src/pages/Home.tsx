@@ -91,7 +91,7 @@ export const Home = () => {
                 </GameCardContainer>
               );
             })}
-            <Stack justifyContent="end" alignItems="end" pr={2}>
+            <Stack justifyContent="end" alignItems="end" position="relative" left="2em" top="-1em">
               <IconButton
                 onClick={(e) => {
                   e.stopPropagation();
