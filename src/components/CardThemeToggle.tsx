@@ -71,6 +71,16 @@ export const CardThemeToggle = () => {
             card={xx}
           />
         </MenuItem>
+        <MenuItem onClick={() => setCardTheme("modern")}>
+          <GameCard
+            request
+            as={Box}
+            sx={{ margin: "0 auto" }}
+            theme="modern"
+            width="1.1em"
+            card={xx}
+          />
+        </MenuItem>
         <MenuItem onClick={() => setCardTheme("classic")}>
           <GameCard
             request

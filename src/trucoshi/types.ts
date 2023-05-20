@@ -73,7 +73,7 @@ export interface ITrucoshiContext {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
-export type ICardTheme = "default" | "classic" | "gnu" | "";
+export type ICardTheme = "default" | "classic" | "gnu" | "modern" | "";
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
 
