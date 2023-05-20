@@ -27,7 +27,7 @@ export const CardToggler = () => {
         {randomCards.map((card, i) => {
           return (
             <HandCardContainer key={card} open={openHand} cards={randomCards.length} i={i}>
-              <FlipGameCard flip={flip} zoom={openHand} card={card as ICard} />
+              <FlipGameCard shadow flip={flip} zoom={openHand} card={card as ICard} />
             </HandCardContainer>
           );
         })}
