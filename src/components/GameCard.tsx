@@ -61,6 +61,7 @@ export const GameCard = ({
       variant="emojicard"
       name={card || "xx"}
       emojicard={1}
+      zoom={zoom ? 1 : 0}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
