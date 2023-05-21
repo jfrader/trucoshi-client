@@ -150,12 +150,7 @@ const GameCardButton = styled(Button)<{
   },
   shadow
     ? {
-        boxShadow: theme.shadows[3],
-      }
-    : {},
-  shadow && zoom
-    ? {
-        boxShadow: theme.shadows[7],
+        boxShadow: theme.shadows[4],
       }
     : {},
   zoom
@@ -166,7 +161,7 @@ const GameCardButton = styled(Button)<{
   emojicard
     ? {
         width: "4.4em",
-        minHeight: "5.32rem",
+        height: "5.58rem",
         fontWeight: 700,
         padding: "0.6rem 0.2rem",
       }
@@ -180,7 +175,7 @@ const GameCardButton = styled(Button)<{
   enablehover
     ? {
         "&:hover": {
-          boxShadow: theme.shadows[10],
+          boxShadow: theme.shadows[4],
           zIndex: 1911,
           transform: "scale(1.5)",
           "& *": {
