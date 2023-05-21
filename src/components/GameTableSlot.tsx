@@ -94,8 +94,8 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.33 * var(--d));
-  margin-top: calc(-0.18 * var(--d));
+  margin-left: calc(-0.36 * var(--d));
+  margin-top: calc(-0.16 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);
   --az: calc(var(--i) * 1turn / var(--m));

@@ -7,7 +7,7 @@ import { Rounds } from "../components/Rounds";
 import { EMatchState, IPublicPlayer } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
-import { ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
+import { FixedChatContainer, ChatMessage, ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/MatchPlayer";
 import { MatchPoints } from "../components/MatchPoints";
@@ -28,7 +28,10 @@ const Match = () => {
     { match, error, canSay, canPlay, previousHand, me },
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
-    onMyTurn: () => queue("turn"),
+    onMyTurn: () => {
+      console.log("onMyTurn")
+      queue("turn")
+    },
     onFreshHand: () => queue("round"),
   });
 
@@ -100,7 +103,7 @@ const Match = () => {
 
   if (match && match.winner) {
     return (
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <SocketBackdrop />
         <MatchBackdrop error={error} />
         <Box>
@@ -135,6 +138,7 @@ const Match = () => {
           mb={4}
           position="relative"
           width="100%"
+          flexGrow={1}
           {...chatProps}
         />
       </Container>
@@ -162,9 +166,9 @@ const Match = () => {
       ) : (
         <FloatingProgress />
       )}
-      <Box position="fixed" left={0} top="48px">
+      <FixedChatContainer>
         <ChatRoom {...chatProps} />
-      </Box>
+      </FixedChatContainer>
     </Box>
   );
 };

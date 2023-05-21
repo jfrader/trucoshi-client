@@ -155,7 +155,7 @@ const GameCardButton = styled(Button)<{
     : {},
   shadow && zoom
     ? {
-        boxShadow: theme.shadows[10],
+        boxShadow: theme.shadows[7],
       }
     : {},
   zoom

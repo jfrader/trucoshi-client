@@ -10,7 +10,7 @@ import { EMatchState } from "trucoshi";
 import { AnimatedButton } from "../shared/AnimatedButton";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/MatchBackdrop";
-import { ChatRoom, useChatRoom } from "../components/ChatRoom";
+import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 
@@ -110,9 +110,9 @@ export const Lobby = () => {
       ) : (
         <FloatingProgress />
       )}
-      <Box position="fixed" left={0} top="48px">
+      <FixedChatContainer>
         <ChatRoom {...useChatRoom(match)} />
-      </Box>
+      </FixedChatContainer>
     </Box>
   );
 };

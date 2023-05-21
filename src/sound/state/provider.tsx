@@ -3,7 +3,7 @@ import { PropsWithChildren, useState, useCallback, useEffect } from "react";
 import { gameSounds } from "../sounds";
 import { ISoundContext, ISoundQueue } from "../types";
 import { SoundContext } from "./context";
-import { debounce } from "@mui/material";
+import { useDebouncedCallback } from "use-debounce";
 
 const INITIAL_QUEUE: ISoundQueue = [];
 
@@ -65,33 +65,28 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
     [sounds]
   );
 
-  const queue = useCallback(
-    (key: string) => {
-      debounce(() => {
-        setReadyToLoad(true);
-        setQueue((q) => {
-          if (q.find((i) => i.key === key)) {
-            return q;
-          }
+  const queue = useDebouncedCallback((key: string) => {
+    setReadyToLoad(true);
+    setQueue((q) => {
+      if (q.find((i) => i.key === key)) {
+        return q;
+      }
 
-          const sound = get(key);
-          if (!sound) {
-            return q;
-          }
+      const sound = get(key);
+      if (!sound) {
+        return q;
+      }
 
-          const promise = () =>
-            new Promise((resolve) => {
-              setPlayingQueueSound(true);
-              sound.on("end", resolve);
-              sound.play();
-            });
-
-          return [...q, { key, promise }];
+      const promise = () =>
+        new Promise((resolve) => {
+          setPlayingQueueSound(true);
+          sound.on("end", resolve);
+          sound.play();
         });
-      }, 300);
-    },
-    [get]
-  );
+
+      return [...q, { key, promise }];
+    });
+  }, 300);
 
   useEffect(() => {
     const [next] = soundQueue;
