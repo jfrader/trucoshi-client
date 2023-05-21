@@ -7,6 +7,7 @@ import {
   IMatchPreviousHand,
   IPublicMatch,
   IPublicPlayer,
+  IPublicUser,
   IWaitingPlayData,
   ServerToClientEvents,
 } from "trucoshi";
@@ -45,6 +46,7 @@ export interface ITrucoshiMatchState {
 }
 
 export interface ITrucoshiActions {
+  login(username: string, password: string, callback: (success: boolean) => void): void;
   setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
@@ -55,6 +57,7 @@ export interface ITrucoshiActions {
 export interface ITrucoshiState {
   version: string;
   id: string | null;
+  user: IPublicUser | null;
   session: string | null;
   lastPong: number | null;
   serverAheadTime: number;

@@ -6,6 +6,7 @@ import {
   EMatchState,
   EServerEvent,
   IPublicMatchInfo,
+  IPublicUser,
   ServerToClientEvents,
 } from "trucoshi";
 import useStateStorage from "../../hooks/useStateStorage";
@@ -28,6 +29,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const [version, setVersion] = useState("");
   const [session, setSession] = useStateStorage("session");
   const [id, setId] = useStateStorage("id");
+  const [user, setUser] = useState<IPublicUser | null>(null);
   const [isConnected, setConnected] = useState<boolean>(false);
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<number | null>(null);
@@ -100,6 +102,20 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
     });
   }, []);
 
+  const login = useCallback(
+    (username: string, password: string, callback: (success: boolean) => void) => {
+      socket.emit(EClientEvent.LOGIN, username, password, ({ success, user }) => {
+        if (user) {
+          setUser(user);
+          setId(user.username);
+        }
+
+        callback(success);
+      });
+    },
+    [setId]
+  );
+
   return (
     <TrucoshiContext.Provider
       value={
@@ -110,6 +126,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
             publicMatches,
             session,
             id,
+            user,
             isConnected,
             isLogged,
             lastPong,
@@ -122,6 +139,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
           dispatch: {
             setCardTheme,
             sendPing,
+            login,
             sendUserId,
             setActiveMatches,
             fetchPublicMatches,

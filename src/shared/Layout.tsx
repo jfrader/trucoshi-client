@@ -1,5 +1,6 @@
 import {
   AppBar,
+  IconButton,
   Paper,
   Stack,
   Switch,
@@ -9,7 +10,7 @@ import {
   styled,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { themes } from "../theme";
 import { Link } from "./Link";
@@ -17,6 +18,8 @@ import { TOOLBAR_LINKS } from "../assets/links/links";
 import { TrucoshiText } from "./TrucoshiText";
 import useStateStorage from "../hooks/useStateStorage";
 import { CardThemeToggle } from "../components/CardThemeToggle";
+import { Sidebar } from "./Sidebar";
+import { Person2 } from "@mui/icons-material";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -45,6 +48,7 @@ const LayoutContainer = styled(Box)(({ theme }) => [
 const themeChoices = [themes.light, themes.dark];
 
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
   return (
     <ThemeProvider theme={themeChoices[Number(Boolean(dark))]}>
@@ -65,6 +69,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 </Link>
               );
             })}
+            <IconButton size="small" onClick={() => setSidebarOpen((current) => !current)}>
+              <Person2 fontSize="small" />
+            </IconButton>
             <Switch
               size="small"
               defaultChecked={Boolean(dark)}
@@ -77,6 +84,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           </Stack>
         </Toolbar>
       </AppBar>
+
+      <Sidebar isOpen={isSidebarOpen} setOpen={setSidebarOpen} />
+
       <main style={{ position: "relative" }}>
         <Paper
           className="App"
