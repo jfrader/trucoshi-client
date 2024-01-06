@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, PropsWithChildren } from "react";
+import { useState, useCallback, useEffect, PropsWithChildren, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -19,6 +19,7 @@ import { Me } from "lightning-accounts";
 import { useLogout } from "../../api/hooks/useLogout";
 import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
 import { is401 } from "../../api/apiClient";
+import { useLogin } from "../../api/hooks/useLogin";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -34,7 +35,7 @@ const sendPing = () => {
   socket.emit(EClientEvent.PING, Date.now());
 };
 
-export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
+export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [account, setAccount] = useState<Me | null>(null);
   const [isLoadingAccount, setLoadingAccount] = useState(false);
   const [version, setVersion] = useState("");
@@ -54,16 +55,19 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
   const { me, error, isPending: isPendingMe } = useMe();
   const { refreshTokens, isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
+  const { isPending: isPendingLogin } = useLogin();
 
   useEffect(() => {
     if (me && !cookies["jwt:identity"]) {
       refreshTokens({});
     }
-  }, [me]);
+  }, [cookies, me, refreshTokens]);
 
   const logout = useCallback(() => {
+    setLoadingAccount(true);
     apiLogout({});
     socket.emit(EClientEvent.LOGOUT, ({ success }) => {
+      setLoadingAccount(false);
       if (success) {
         setLogged(false);
         setAccount(null);
@@ -73,7 +77,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         return;
       }
     });
-  }, []);
+  }, [apiLogout, removeCookie]);
 
   useEffect(() => {
     if (is401(error)) {
@@ -88,10 +92,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         }
       );
     }
-  }, [error]);
+  }, [error, logout, refreshTokens]);
 
   useEffect(() => {
-    if (me && cookies["jwt:identity"]) {
+    if (me && !isLogged && cookies["jwt:identity"]) {
       setLoadingAccount(true);
       socket.emit(EClientEvent.LOGIN, me.data, cookies["jwt:identity"], ({ success }) => {
         setLoadingAccount(false);
@@ -105,7 +109,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
         removeCookie("jwt:identity");
       });
     }
-  }, [me]);
+  }, [cookies, isLogged, me, removeCookie]);
 
   useEffect(() => {
     if (!socket.connected) {
@@ -150,7 +154,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
       socket.off(EServerEvent.PONG);
     };
-  }, [name, session, setSession]);
+  }, [account?.name, name, session, setName, setSession]);
 
   const sendUserId = useCallback(
     (userId: string, callback?: () => void) => {
@@ -158,7 +162,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
       setName(userId);
       callback?.();
     },
-    [session, setName, setSession]
+    [setName]
   );
 
   const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchState> } = {}) => {
@@ -186,7 +190,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren<{}>) => {
             cardTheme,
             cardsReady,
             inspectedCard,
-            isAccountPending: isPendingMe || isPendingRefreshTokens || isLoadingAccount,
+            isAccountPending: useMemo(
+              () => isPendingMe || isPendingRefreshTokens || isLoadingAccount || isPendingLogin,
+              [isLoadingAccount, isPendingLogin, isPendingMe, isPendingRefreshTokens]
+            ),
             cards,
           },
           dispatch: {

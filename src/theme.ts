@@ -55,13 +55,8 @@ export const lightPalette = createPalette({
     contrastText: "#000",
   },
   background: {
-    paper: "#f4f4f4",
-    default: "#FEFFFD",
-  },
-  text: {
-    primary: "rgba(0, 0, 0, 0.78)",
-    secondary: "#f3e3db",
-    disabled: "rgba(0, 0, 0, 0.34)",
+    default: "#f0f4f3",
+    paper: "#FEFFFD",
   },
 });
 
@@ -134,8 +129,7 @@ const base = {
             minHeight: "initial",
             color: theme.palette.background.paper,
             border: "none",
-            ":hover": {
-            },
+            ":hover": {},
           }),
         },
         {
@@ -183,6 +177,13 @@ const base = {
       styleOverrides: {
         root: () => ({
           backgroundImage: "none",
+        }),
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        divider: ({ theme }) => ({
+          borderColor: theme.palette.background.default,
         }),
       },
     },

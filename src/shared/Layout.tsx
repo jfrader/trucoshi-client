@@ -48,7 +48,7 @@ const LayoutContainer = styled(Box)(({ theme }) => [
 
 const themeChoices = [themes.light, themes.dark];
 
-export const Layout = ({ children }: PropsWithChildren<{}>) => {
+export const Layout = ({ children }: PropsWithChildren) => {
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
   const [{ inspectedCard, cardsReady, account }, { inspectCard }] = useTrucoshi();
   return (
@@ -64,9 +64,9 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           <Box flexGrow={1} />
           <Stack pt={1} direction="row" spacing={2} alignItems="center">
             <CardThemeToggle />
-            {TOOLBAR_LINKS.map(({ to, Icon }) => {
+            {TOOLBAR_LINKS.map(({ to, Icon, title }) => {
               return (
-                <Link key={to} to={to}>
+                <Link title={title} key={to} to={to}>
                   <Icon fontSize="small" />
                 </Link>
               );

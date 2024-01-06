@@ -1,7 +1,7 @@
 import { Person } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
 import { Alert, Card, CardContent, Stack, TextField } from "@mui/material";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../components/LoadingButton";
 import { useRegister } from "../api/hooks/useRegister";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -97,7 +97,7 @@ export const Register = () => {
               <TextField
                 name="password2"
                 color="warning"
-                label="Repeat Password"
+                label="Repetir Password"
                 autoComplete="new-password2"
                 onChange={onChangePassword2}
                 type="password"
@@ -108,7 +108,9 @@ export const Register = () => {
                 Registrarse
               </LoadingButton>
               {[...formErrors, error].filter(Boolean).map((error) => (
-                <Alert severity="error">{(error as Error).message}</Alert>
+                <Alert key={error?.message} severity="error">
+                  {error?.message}
+                </Alert>
               ))}
             </Stack>
           </form>

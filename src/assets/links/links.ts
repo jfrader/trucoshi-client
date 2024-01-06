@@ -1,4 +1,4 @@
-import { Favorite, Flag, GitHub, HelpOutlined, Person2, Telegram } from "@mui/icons-material";
+import { Favorite, Flag, GitHub, HelpOutlined, Telegram } from "@mui/icons-material";
 
 export const GENERAL_LINKS = [
   {
@@ -21,6 +21,7 @@ export const GENERAL_LINKS = [
 export const TOOLBAR_LINKS = [
   {
     label: "help",
+    title: "Ayuda",
     to: "/help",
     Icon: HelpOutlined,
   },
@@ -30,16 +31,16 @@ export const HELP_LINKS = [
   {
     label: "Telegram",
     to: "https://t.me/trucoshi",
-    Icon: Telegram
+    Icon: Telegram,
   },
   {
     label: "Como jugar Truco",
     to: "https://www.nhfournier.es/como-jugar/truco/",
-    Icon: Flag
+    Icon: Flag,
   },
   {
     label: "How to play Truco (english)",
     to: "https://www.nhfournier.es/en/como-jugar/truco/",
-    Icon: Flag
+    Icon: Flag,
   },
 ];

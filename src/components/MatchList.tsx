@@ -76,7 +76,7 @@ export const MatchList = ({
           {matches.length ? (
             <Box>
               <List dense={dense}>
-                <ListItem>
+                <ListItem divider>
                   <ListItemText>Host</ListItemText>
                   <ListItemAvatar>Jugadores</ListItemAvatar>
                 </ListItem>

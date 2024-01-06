@@ -19,7 +19,7 @@ export const Home = () => {
       <Stack
         flexGrow={1}
         gap={3}
-        pt={2}
+        pt={3}
         direction={{ xs: "column", md: "row" }}
         alignItems="start"
         justifyContent="center"

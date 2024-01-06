@@ -95,7 +95,7 @@ const Match = () => {
 
   if (!hydrated) {
     return (
-      <Container maxWidth="sm">
+      <Container>
         <Backdrop open loading message="Cargando..." />
       </Container>
     );
@@ -103,7 +103,7 @@ const Match = () => {
 
   if (match && match.winner) {
     return (
-      <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <SocketBackdrop />
         <MatchBackdrop error={error} />
         <Box>

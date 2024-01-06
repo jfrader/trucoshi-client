@@ -3,7 +3,7 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useState } from "react";
 import { TrucoshiLogo } from "../shared/TrucoshiLogo";
 import { GameCard } from "./GameCard";
-import { Close, EmojiSymbols } from "@mui/icons-material";
+import { EmojiSymbols } from "@mui/icons-material";
 import { BURNT_CARD } from "trucoshi";
 
 export const CardThemeToggle = () => {

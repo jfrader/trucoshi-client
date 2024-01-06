@@ -36,19 +36,17 @@ export const Profile = () => {
         <CardContent>
           <Stack direction="row" gap={4}>
             <List dense sx={{ flexGrow: 1 }}>
-              <ListItem>
+              <ListItem divider>
                 <ListItemText primary="Nombre" secondary={me.data.name} />
               </ListItem>
-              <ListItem>
+              <ListItem divider>
                 <ListItemText primary="Email" secondary={me.data.email} />
               </ListItem>
-            </List>
-            <List dense sx={{ flexGrow: 1 }}>
-              <ListItemButton onClick={() => logout()}>
+              <ListItemButton divider onClick={() => logout()}>
+                <ListItemText primary="Cerrar Sesion" />
                 <ListItemIcon>
                   <Logout />
                 </ListItemIcon>
-                <ListItemText>Cerrar Sesion</ListItemText>
               </ListItemButton>
             </List>
           </Stack>
