@@ -28,7 +28,7 @@
     "@welldone-software/why-did-you-render": "^7.0.1",
     "axios": "^1.6.3",
     "howler": "^2.2.3",
-    "lightning-accounts": "^1.0.12",
+    "lightning-accounts": "^2.0.0",
     "react": "^18.2.0",
     "react-cookie": "^7.0.0",
     "react-dom": "^18.2.0",
