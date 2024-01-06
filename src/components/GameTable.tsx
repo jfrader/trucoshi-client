@@ -12,6 +12,8 @@ export interface GameTableProps {
   FillSlot?: FC<{ i: number }>;
   MiddleSlot?: FC<{ i: number }>;
   zoomOnIndex?: number;
+  zoomOnMiddle?: boolean;
+  zoomFactor?: number;
   inspecting?: IPublicPlayer | null;
 }
 
@@ -44,13 +46,15 @@ const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) =>
 
 export const GameTable = ({
   match,
+  fill,
   Slot,
   InnerSlot,
   FillSlot,
   MiddleSlot,
-  fill,
   inspecting,
   zoomOnIndex = -1,
+  zoomOnMiddle = false,
+  zoomFactor = 1.15,
 }: GameTableProps) => {
   const { players } = match;
 
@@ -72,6 +76,8 @@ export const GameTable = ({
             key={player.key}
             player={player}
             Slot={Slot}
+            zoomFactor={zoomFactor}
+            zoomOnMiddle={zoomOnMiddle}
             FillSlot={FillSlot}
             InnerSlot={InnerSlot}
             MiddleSlot={MiddleSlot}

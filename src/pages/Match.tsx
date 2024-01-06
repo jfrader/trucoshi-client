@@ -95,7 +95,7 @@ const Match = () => {
 
   if (!hydrated) {
     return (
-      <Container>
+      <Container maxWidth="sm">
         <Backdrop open loading message="Cargando..." />
       </Container>
     );
@@ -103,7 +103,7 @@ const Match = () => {
 
   if (match && match.winner) {
     return (
-      <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <SocketBackdrop />
         <MatchBackdrop error={error} />
         <Box>
@@ -153,6 +153,8 @@ const Match = () => {
         <>
           <GameTable
             zoomOnIndex={me ? 1 : -1}
+            zoomOnMiddle
+            zoomFactor={1.18}
             match={match}
             inspecting={inspecting}
             Slot={Slot}

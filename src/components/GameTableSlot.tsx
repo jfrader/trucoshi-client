@@ -7,7 +7,14 @@ export type IGameTableSlot = IPublicPlayer | { key: number; hand?: undefined };
 
 type Props = Pick<
   GameTableProps,
-  "FillSlot" | "InnerSlot" | "MiddleSlot" | "Slot" | "zoomOnIndex" | "inspecting"
+  | "FillSlot"
+  | "InnerSlot"
+  | "MiddleSlot"
+  | "Slot"
+  | "zoomOnIndex"
+  | "inspecting"
+  | "zoomFactor"
+  | "zoomOnMiddle"
 > & {
   player: IGameTableSlot;
   i: number;
@@ -16,6 +23,8 @@ type Props = Pick<
 export const GameTableSlot = ({
   player,
   zoomOnIndex,
+  zoomOnMiddle,
+  zoomFactor,
   i,
   inspecting,
   FillSlot,
@@ -28,21 +37,22 @@ export const GameTableSlot = ({
       middleStyle: {
         "--mr": "0px",
         "--i": `${-1}`,
+        "--z": zoomOnIndex === 0 || zoomOnMiddle ? zoomFactor : 1,
         zIndex: 12 - i,
       },
       itemStyle: {
-        "--mr": zoomOnIndex === i ? "0.8em":"0px",
+        "--mr": zoomOnIndex === i ? "0.8em" : "0px",
         "--i": `${i - 1}`,
-        "--z": zoomOnIndex === i ? 1.15 : 1,
+        "--z": zoomOnIndex === i ? zoomFactor : 1,
         zIndex: 12 - i,
       },
       innerStyle: {
         "--i": `${i - 1}`,
-        "--z": zoomOnIndex === i ? 1.15 : 1,
+        "--z": zoomOnIndex === i ? zoomFactor : 1,
         zIndex: inspecting?.key === player.key ? 9000 : 13,
       },
     }),
-    [i, inspecting, player, zoomOnIndex]
+    [i, inspecting?.key, player.key, zoomFactor, zoomOnIndex, zoomOnMiddle]
   );
 
   return (
@@ -85,8 +95,7 @@ const Item = styled(Paper)(({ theme }) => {
       width: var(--d);
       height: var(--d);
       --az: calc(var(--i) * 1turn / var(--m));
-      transform: scale(calc(var(--z))) rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az)))
-        rotate(270deg);
+      transform: scale(calc(var(--z))) rotate(var(--az)) translate(calc(var(--r) - var(--mr))) rotate(calc(-1 * var(--az))) rotate(270deg);
     `;
 });
 
@@ -114,7 +123,6 @@ const MiddleItem = styled(Box)(() => {
       width: calc(var(--d));
       height: calc(var(--d));
       --az: calc(1turn / 2);
-      transform: rotate(calc(-1 * var(--az)))
-        rotate(90deg);
+      transform: rotate(calc(-1 * var(--az))) rotate(90deg) scale(calc(var(--z)));
     `;
 });

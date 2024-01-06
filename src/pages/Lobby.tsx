@@ -57,14 +57,16 @@ export const Lobby = () => {
       {match ? (
         <GameTable
           match={match}
+          zoomOnMiddle
+          zoomFactor={1.3}
           fill={match.options.maxPlayers}
           MiddleSlot={() => {
             return (
               <Box width="100%" height="100%" display="flex">
-                <Card sx={{ width: "100%", pl: 1 }} variant="outlined">
-                  <CardContent>
+                <Card sx={{ zoom: 0.8, width: "100%", pl: 1 }} variant="outlined">
+                  <CardContent sx={{ py: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
-                      <Typography textAlign="left" variant="h6">
+                      <Typography textAlign="left" fontWeight="bold">
                         Reglas
                       </Typography>
                       <IconButton>
@@ -73,13 +75,13 @@ export const Lobby = () => {
                     </Stack>
                     <List dense>
                       <ListItem disablePadding>
-                        <ListItemText>Jugadores</ListItemText>
+                        <ListItemText>Max. Jugadores</ListItemText>
                         <ListItemSecondaryAction>
                           {match.options.maxPlayers}
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText>Puntos</ListItemText>
+                        <ListItemText>Puntos por Etapa</ListItemText>
                         <ListItemSecondaryAction>
                           {match.options.matchPoint}
                         </ListItemSecondaryAction>
