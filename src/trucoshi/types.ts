@@ -12,6 +12,8 @@ import {
 } from "trucoshi";
 import { IPublicMatchInfo } from "trucoshi";
 import { CardSources } from "./hooks/useCards";
+import { Dispatch, SetStateAction } from "react";
+import { Me } from "lightning-accounts";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -50,11 +52,15 @@ export interface ITrucoshiActions {
   sendPing(): void;
   sendUserId(id: string, callback?: () => void): void;
   setCardTheme(theme: ICardTheme): void;
+  inspectCard: Dispatch<SetStateAction<ICard | null>>;
+  logout(): void;
 }
 
 export interface ITrucoshiState {
+  account: Me | null;
+  isAccountPending: boolean;
   version: string;
-  id: string | null;
+  name: string | null;
   session: string | null;
   lastPong: number | null;
   serverAheadTime: number;
@@ -64,6 +70,7 @@ export interface ITrucoshiState {
   activeMatches: Array<IPublicMatchInfo>;
   cardTheme: ICardTheme;
   cardsReady: boolean;
+  inspectedCard: ICard | null;
   cards: CardSources;
 }
 

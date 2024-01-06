@@ -1,29 +1,22 @@
 import { HelpOutlined } from "@mui/icons-material";
 import {
-  Box,
-  Container,
+  Card,
+  CardContent,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Stack,
   Typography,
 } from "@mui/material";
 import { Link } from "../shared/Link";
 import { HELP_LINKS } from "../assets/links/links";
+import { PageLayout } from "../shared/PageLayout";
 
 export const Help = () => {
   return (
-    <Container maxWidth="sm">
-      <Box pt={4}>
-        <Stack alignItems="center" spacing={1}>
-          <Typography textTransform="uppercase" variant="subtitle1">
-            Ayuda
-          </Typography>
-          <HelpOutlined fontSize="large" />
-        </Stack>
-
-        <Box pt={4}>
+    <PageLayout title="Ayuda" icon={<HelpOutlined fontSize="large" />}>
+      <Card>
+        <CardContent>
           <List>
             {HELP_LINKS.map(({ to, label, Icon }) => {
               return (
@@ -40,8 +33,8 @@ export const Help = () => {
               );
             })}
           </List>
-        </Box>
-      </Box>
-    </Container>
+        </CardContent>
+      </Card>
+    </PageLayout>
   );
 };

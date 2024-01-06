@@ -64,7 +64,7 @@ export const GameTable = ({
   }, [fill, players]);
 
   return (
-    <Box position="relative">
+    <Box pt={1} position="relative">
       <Container style={style}>
         {items.map((player, i) => (
           <GameTableSlot

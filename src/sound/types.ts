@@ -1,8 +1,6 @@
-import { Howl, HowlOptions } from "howler";
+import { HowlOptions } from "howler";
 
 export interface ISoundContext {
-  load(key: string, sound: HowlOptions): Promise<[string, Howl]>;
-  get(key: string): Howl | null;
   volume(vol: number): void;
   queue(key: string): void;
   mute(): void;

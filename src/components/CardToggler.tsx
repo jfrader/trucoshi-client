@@ -1,4 +1,4 @@
-import { Box, IconButton, Stack } from "@mui/material";
+import { Box, BoxProps, IconButton, Stack } from "@mui/material";
 import { HandContainer } from "./Rounds";
 import { useEffect, useState } from "react";
 import { getRandomCards } from "../trucoshi/hooks/useCards";
@@ -6,28 +6,26 @@ import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
 import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
-export const CardToggler = () => {
-  const [openHand, setOpenHand] = useState<boolean>(false);
+export const CardToggler = (props: BoxProps) => {
+  const [{ cardTheme }] = useTrucoshi();
   const [randomCards, setRandomCards] = useState<ICard[]>(getRandomCards());
   const [flip, setFlip] = useState(true);
 
   useEffect(() => {
+    setFlip(true);
     const timeout = setTimeout(() => setFlip(false), 750);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [cardTheme]);
 
   return (
-    <Box height="8em" width="100%">
-      <HandContainer
-        sx={{ position: "relative", left: "-2.5em", pt: 3 }}
-        onHandOpen={setOpenHand}
-        pt={3}
-      >
+    <Box height="8em" {...props}>
+      <Box sx={{ position: "relative", left: "-2.5em", pt: 3 }} pt={3}>
         {randomCards.map((card, i) => {
           return (
-            <HandCardContainer key={card} open={openHand} cards={randomCards.length} i={i}>
-              <FlipGameCard shadow flip={flip} zoom={openHand} card={card as ICard} />
+            <HandCardContainer key={card} open cards={randomCards.length} i={i}>
+              <FlipGameCard shadow flip={flip} zoom card={card as ICard} />
             </HandCardContainer>
           );
         })}
@@ -53,7 +51,7 @@ export const CardToggler = () => {
             {flip ? <Visibility /> : <VisibilityOff />}
           </IconButton>
         </Stack>
-      </HandContainer>
+      </Box>
     </Box>
   );
 };

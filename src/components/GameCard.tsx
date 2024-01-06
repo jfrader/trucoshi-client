@@ -1,8 +1,8 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
-import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
+import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { ICardTheme } from "../trucoshi/types";
-import { ElementType } from "react";
+import { ElementType, MouseEventHandler, useCallback } from "react";
 import { useCards } from "../trucoshi/hooks/useCards";
 
 export type GameCardProps = {
@@ -27,11 +27,21 @@ export const GameCard = ({
   theme = null,
   ...buttonProps
 }: GameCardProps) => {
-  const [{ cardTheme, cards, cardsReady }] = useTrucoshi();
+  const [{ cardTheme, cards, cardsReady }, { inspectCard }] = useTrucoshi();
 
   const usedTheme = theme !== null ? theme : cardTheme;
 
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
+
+  const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    (e) => {
+      e.preventDefault();
+      if (e.type !== "click" || e.nativeEvent.button === 2) {
+        inspectCard(card || BURNT_CARD);
+      }
+    },
+    [card, inspectCard]
+  );
 
   if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
     return null;
@@ -41,10 +51,12 @@ export const GameCard = ({
     return (
       <GameCardButton
         variant="card"
-        name={card || "xx"}
+        name={card || BURNT_CARD}
         zoom={zoom ? 1 : 0}
         shadow={shadow ? 1 : 0}
         enablehover={enableHover ? 1 : 0}
+        onClick={onClick}
+        onContextMenu={onClick}
         {...buttonProps}
       >
         <img
@@ -62,10 +74,12 @@ export const GameCard = ({
   return (
     <GameCardButton
       variant="emojicard"
-      name={card || "xx"}
+      name={card || BURNT_CARD}
       emojicard={1}
       zoom={zoom ? 1 : 0}
       shadow={shadow ? 1 : 0}
+      onClick={onClick}
+      onContextMenu={onClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
     >
@@ -128,7 +142,7 @@ export const FlipGameCard = ({ flip, ...props }: FlipGameCardProps) => {
             transform: "rotateY(180deg)",
           }}
         >
-          <GameCard {...props} card={"xx" as ICard} />
+          <GameCard {...props} card={BURNT_CARD} />
         </Box>
       </Box>
     </Box>
@@ -176,10 +190,10 @@ const GameCardButton = styled(Button)<{
     ? {
         "&:hover": {
           boxShadow: theme.shadows[4],
-          zIndex: 1911,
+          zIndex: theme.zIndex.appBar,
           transform: "scale(1.5)",
           "& *": {
-            zIndex: 1911,
+            zIndex: theme.zIndex.appBar,
           },
         },
       }

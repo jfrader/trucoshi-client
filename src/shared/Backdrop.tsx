@@ -19,7 +19,9 @@ export const Backdrop = ({
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         color: "text.primary",
+        maxHeight: "100vh",
         backgroundColor: "rgb(0, 0, 0, 0.9)",
+        overflow: 'hidden',
       }}
     >
       <Box
@@ -27,15 +29,14 @@ export const Backdrop = ({
         flexDirection="column"
         justifyContent="space-between"
         alignItems="center"
-        height="4em"
       >
         {message ? <Typography variant="h4">{message}</Typography> : null}
         {loading ? (
-          <Box mt={8}>
+          <Box mt={4}>
             <CircularProgress color="inherit" />
           </Box>
         ) : null}
-        <Box mt={8}>{children}</Box>
+        <Box>{children}</Box>
       </Box>
     </MuiBackdrop>
   );

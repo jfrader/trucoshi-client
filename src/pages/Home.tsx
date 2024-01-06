@@ -1,45 +1,12 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  FormGroup,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { ChangeEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMatch } from "../trucoshi/hooks/useMatch";
+import { CircularProgress, Container, Stack } from "@mui/material";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { MatchList } from "../components/MatchList";
-import { CardToggler } from "../components/CardToggler";
+import { ProfileMenu } from "../components/ProfileMenu";
 
 export const Home = () => {
-  const [{ id, activeMatches, isLogged }, { sendUserId }, hydrated] = useTrucoshi();
+  const [{ activeMatches, session, isAccountPending }, , hydrated] = useTrucoshi();
 
-  const [name, setName] = useState(id || "Satoshi");
-  const [isNameLoading, setNameLoading] = useState(false);
-
-  const [, { createMatch }] = useMatch();
-  const navigate = useNavigate();
-  const onCreateMatch = () =>
-    createMatch((e, match) => {
-      if (e || !match) {
-        return navigate("/");
-      }
-      navigate(`/lobby/${match.matchSessionId}`);
-    });
-
-  const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const onClickChangeName = () => {
-    setNameLoading(true);
-    name && sendUserId(name, () => setNameLoading(false));
-  };
-
-  if (!hydrated || !isLogged) {
+  if (!hydrated || !session || isAccountPending) {
     return (
       <Stack pt={8} alignItems="center" flexGrow={1}>
         <CircularProgress />
@@ -48,56 +15,23 @@ export const Home = () => {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Stack flexGrow={1} spacing={2}>
-        <Button size="large" color="primary" variant="outlined" onClick={onCreateMatch}>
-          Crear Partida
-        </Button>
-
-        <Button
-          size="large"
-          color="secondary"
-          variant="outlined"
-          onClick={() => navigate("/matches")}
-        >
-          Ver Mesas
-        </Button>
-
-        <CardToggler />
-
-        <Box pt={1}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onClickChangeName();
-            }}
-          >
-            <FormGroup>
-              <TextField
-                color="warning"
-                label="Nombre"
-                onChange={onChangeName}
-                type="text"
-                value={name}
-              />
-              <Button disabled={isNameLoading || name === id} color="warning" type="submit">
-                {isNameLoading ? (
-                  <Box>
-                    <CircularProgress size={16} />
-                  </Box>
-                ) : (
-                  "Cambiar Nombre"
-                )}
-              </Button>
-            </FormGroup>
-          </form>
-        </Box>
-
-        <Box pt={2}>
+    <Container>
+      <Stack
+        flexGrow={1}
+        gap={3}
+        pt={2}
+        direction={{ xs: "column", md: "row" }}
+        alignItems="start"
+        width="100%"
+      >
+        <Stack flexGrow={1} gap={2} justifyContent="start" width="100%">
+          <ProfileMenu />
+        </Stack>
+        <Stack flexGrow={1} gap={2} width="100%">
           {activeMatches.length ? (
-            <MatchList matches={activeMatches} title="Partidas activas" />
+            <MatchList dense matches={activeMatches} title="Partidas activas" />
           ) : null}
-        </Box>
+        </Stack>
       </Stack>
     </Container>
   );

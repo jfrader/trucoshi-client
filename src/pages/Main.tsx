@@ -7,12 +7,13 @@ import { TrucoshiText } from "../shared/TrucoshiText";
 import { Link } from "../shared/Link";
 import { FooterLink } from "../shared/FooterLink";
 import { GENERAL_LINKS } from "../assets/links/links";
+import { CardToggler } from "../components/CardToggler";
 
 export const Main = () => {
   const [{ version }] = useTrucoshi();
 
   return (
-    <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+    <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       <SocketBackdrop message="Conectando..." />
       <Box
         p={4}
@@ -23,11 +24,18 @@ export const Main = () => {
         alignItems="stretch"
         height="100%"
       >
-        <Box pt={2} pb={4} maxWidth="100%">
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          pt={2}
+          pb={4}
+          alignItems="center"
+          justifyContent="center"
+        >
           <Link to="/">
-            <TrucoshiText width="100%" style={{ objectFit: "contain" }} />
+            <TrucoshiText width="100%" height="120em" style={{ objectFit: "contain" }} />
           </Link>
-        </Box>
+          <CardToggler width={{ xs: "80%", md: "33%" }} />
+        </Stack>
         <Outlet />
         <Stack
           flexGrow={1}

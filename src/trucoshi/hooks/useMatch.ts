@@ -48,7 +48,6 @@ export const useMatch = (
     if (matchId && context.state.isConnected) {
       socket.emit(
         EClientEvent.FETCH_MATCH,
-        context.state.session,
         matchId,
         ({ success, match }) => {
           if (!success) {

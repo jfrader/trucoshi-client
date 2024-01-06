@@ -1,11 +1,14 @@
+import { createContext } from "react";
+import { ISoundContext } from "../types";
 import { Howl, HowlOptions } from "howler";
 import { PropsWithChildren, useState, useCallback, useEffect } from "react";
 import { gameSounds } from "../sounds";
-import { ISoundContext, ISoundQueue } from "../types";
-import { SoundContext } from "./context";
+import { ISoundQueue } from "../types";
 import { useDebouncedCallback } from "use-debounce";
 
 const INITIAL_QUEUE: ISoundQueue = [];
+
+export const SoundContext = createContext<ISoundContext | null>(null);
 
 export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   const [sounds, setSounds] = useState<Record<string, Howl>>({});
@@ -16,7 +19,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
   const [readyToLoad, setReadyToLoad] = useState(false);
   const [isLoading, setLoading] = useState(true);
 
-  const load = useCallback(
+  const _load = useCallback(
     async (key: string, sound: HowlOptions): Promise<[string, Howl]> => {
       if (sounds[key]) {
         return Promise.resolve([key, sounds[key]]);
@@ -36,7 +39,43 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
     [sounds]
   );
 
-  const get = useCallback((key: string) => sounds[key] || null, [sounds]);
+  useEffect(() => {
+    const [next] = soundQueue;
+    if (next && !isPlayingQueueSound) {
+      next.promise().then(() => {
+        setQueue((current) => {
+          const newQueue = [...current];
+          newQueue.shift();
+          return newQueue;
+        });
+        setPlayingQueueSound(false);
+      });
+    }
+  }, [isPlayingQueueSound, soundQueue]);
+
+  useEffect(() => {
+    if (readyToLoad && isLoading) {
+      setPlayingQueueSound(true);
+      const promises: Array<Promise<[string, Howl]>> = [];
+      for (const key in gameSounds) {
+        if (gameSounds[key]) {
+          promises.push(_load(key, gameSounds[key]));
+        }
+      }
+      Promise.all(promises)
+        .then((results) => {
+          setPlayingQueueSound(false);
+          setLoading(false);
+          setSounds((current) =>
+            results.reduce((prev, [key, howl]) => ({ ...prev, [key]: howl }), current)
+          );
+        })
+        .catch((e) => {
+          console.error(e);
+          console.error("Failed to load sounds");
+        });
+    }
+  }, [isLoading, _load, readyToLoad]);
 
   const mute = useCallback(() => {
     setMuted((current) => {
@@ -72,7 +111,7 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
         return q;
       }
 
-      const sound = get(key);
+      const sound = sounds[key];
       if (!sound) {
         return q;
       }
@@ -88,43 +127,8 @@ export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
     });
   }, 300);
 
-  useEffect(() => {
-    const [next] = soundQueue;
-    if (next && !isPlayingQueueSound) {
-      next.promise().then(() => {
-        setQueue((current) => {
-          const newQueue = [...current];
-          newQueue.shift();
-          return newQueue;
-        });
-        setPlayingQueueSound(false);
-      });
-    }
-  }, [isPlayingQueueSound, soundQueue]);
-
-  useEffect(() => {
-    if (readyToLoad && isLoading) {
-      setPlayingQueueSound(true);
-      const promises: Array<Promise<[string, Howl]>> = [];
-      for (const key in gameSounds) {
-        if (gameSounds[key]) {
-          promises.push(load(key, gameSounds[key]));
-        }
-      }
-      Promise.all(promises).then((results) => {
-        setPlayingQueueSound(false);
-        setLoading(false);
-        setSounds((current) =>
-          results.reduce((prev, [key, howl]) => ({ ...prev, [key]: howl }), current)
-        );
-      });
-    }
-  }, [isLoading, load, readyToLoad]);
-
   return (
-    <SoundContext.Provider
-      value={{ get, queue, load, mute, volume, isMuted } satisfies ISoundContext}
-    >
+    <SoundContext.Provider value={{ queue, mute, volume, isMuted } satisfies ISoundContext}>
       {children}
     </SoundContext.Provider>
   );

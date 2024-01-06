@@ -6,9 +6,14 @@ import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/state/context";
 import { Match } from "./pages/Match";
 import { Matches } from "./pages/Matches";
-import { SoundProvider } from "./sound/state/provider";
 import { Home } from "./pages/Home";
 import { Help } from "./pages/Help";
+import { SoundProvider } from "./sound/state/context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
+import { Profile } from "./pages/Profile";
+import { NotFound } from "./pages/NotFound";
 
 const AppRouter = createBrowserRouter([
   {
@@ -31,6 +36,18 @@ const AppRouter = createBrowserRouter([
             path: "help",
             element: <Help />,
           },
+          {
+            path: "login",
+            element: <Login />,
+          },
+          {
+            path: "register",
+            element: <Register />,
+          },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
         ],
       },
       {
@@ -41,17 +58,25 @@ const AppRouter = createBrowserRouter([
         path: "match/:sessionId",
         element: <Match />,
       },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
     ],
   },
 ]);
 
+const queryClient = new QueryClient({});
+
 function App() {
   return (
-    <TrucoshiProvider>
-      <SoundProvider>
-        <RouterProvider router={AppRouter} />
-      </SoundProvider>
-    </TrucoshiProvider>
+    <QueryClientProvider client={queryClient}>
+      <TrucoshiProvider>
+        <SoundProvider>
+          <RouterProvider router={AppRouter} />
+        </SoundProvider>
+      </TrucoshiProvider>
+    </QueryClientProvider>
   );
 }
 

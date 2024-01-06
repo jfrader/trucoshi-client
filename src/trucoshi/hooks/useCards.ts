@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ICardTheme } from "../types";
-import { CARDS, ICard } from "trucoshi";
+import { BURNT_CARD, CARDS, ICard } from "trucoshi";
 
 type Options = {
   disabled?: boolean;
@@ -10,8 +10,11 @@ type Options = {
 
 export type CardSources = Record<ICard, string>;
 
-export const getRandomCard = () =>
-  ((Object.keys(CARDS).at(Math.random() * Object.keys(CARDS).length) as unknown) || "xx") as ICard;
+export const getRandomCard = () => {
+  const cardsArray = Object.keys(CARDS);
+  const index = Math.floor(Math.random() * cardsArray.length);
+  return (cardsArray[index] || BURNT_CARD) as ICard;
+};
 
 export const getRandomCards = (len: number = 3) => {
   const cards = [getRandomCard()];
@@ -26,9 +29,9 @@ export const getRandomCards = (len: number = 3) => {
   return cards;
 };
 
-export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
+export const useCards = ({ disabled, theme, cards }: Options) => {
   const [ready, setReady] = useState(false);
-  const [cards, setCards] = useState<CardSources>({} as CardSources);
+  const [sources, setSources] = useState<CardSources>({} as CardSources);
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
 
     const all: Array<Promise<[ICard, string]>> = [];
 
-    const importingCards = (filterCards || Object.keys(CARDS)).concat("xx");
+    const importingCards = (cards || Object.keys(CARDS)).concat(BURNT_CARD);
 
     for (const card of importingCards) {
       if (card) {
@@ -62,7 +65,7 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
 
     Promise.all(Object.values(all))
       .then((results) => {
-        setCards((current) =>
+        setSources((current) =>
           results.reduce((prev, [card, png]) => {
             return { ...prev, [card]: png };
           }, current)
@@ -95,5 +98,5 @@ export const useCards = ({ disabled, theme, cards: filterCards }: Options) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, loadedTheme, ready, theme]);
 
-  return [cards, ready] satisfies [CardSources, boolean];
+  return [sources, ready] satisfies [CardSources, boolean];
 };

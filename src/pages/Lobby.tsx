@@ -2,7 +2,24 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
-import { Box, Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  MenuList,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { GameTable } from "../components/GameTable";
 import { PlayerTag } from "../components/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
@@ -13,6 +30,7 @@ import { MatchBackdrop } from "../components/MatchBackdrop";
 import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
+import { Settings } from "@mui/icons-material";
 
 export const Lobby = () => {
   useSound();
@@ -26,7 +44,7 @@ export const Lobby = () => {
   useEffect(() => {
     if (match) {
       if (match.state === EMatchState.STARTED || match.state === EMatchState.FINISHED) {
-        setTimeout(() => navigate(`/match/${sessionId}`));
+        setTimeout(() => navigate(`/match/${sessionId}`, { replace: true }));
       }
       return;
     }
@@ -44,7 +62,39 @@ export const Lobby = () => {
       {match ? (
         <GameTable
           match={match}
-          fill={6}
+          fill={match.options.maxPlayers}
+          MiddleSlot={() => {
+            return (
+              <Box width="100%" height="100%" display="flex">
+                <Card sx={{ width: "100%", pl: 1 }} variant="outlined">
+                  <CardContent>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Typography textAlign="left" variant="h6">
+                        Reglas
+                      </Typography>
+                      <IconButton>
+                        <Settings />
+                      </IconButton>
+                    </Stack>
+                    <List dense>
+                      <ListItem disablePadding>
+                        <ListItemText>Jugadores</ListItemText>
+                        <ListItemSecondaryAction>
+                          {match.options.maxPlayers}
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemText>Puntos</ListItemText>
+                        <ListItemSecondaryAction>
+                          {match.options.matchPoint}
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    </List>
+                  </CardContent>
+                </Card>
+              </Box>
+            );
+          }}
           FillSlot={({ i }) => {
             const joinTeamIdx = i % 2 === 0 ? 0 : 1;
             return !me || joinTeamIdx !== me.teamIdx ? (

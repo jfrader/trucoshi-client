@@ -24,11 +24,6 @@ export const TOOLBAR_LINKS = [
     to: "/help",
     Icon: HelpOutlined,
   },
-  {
-    label: "account",
-    to: "/",
-    Icon: Person2,
-  },
 ];
 
 export const HELP_LINKS = [

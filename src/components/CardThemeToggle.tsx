@@ -1,12 +1,10 @@
 import { Box, Button, CircularProgress, Menu, MenuItem } from "@mui/material";
-import { ICard } from "trucoshi";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useState } from "react";
 import { TrucoshiLogo } from "../shared/TrucoshiLogo";
 import { GameCard } from "./GameCard";
-import { Close } from "@mui/icons-material";
-
-const xx = "xx" as ICard;
+import { Close, EmojiSymbols } from "@mui/icons-material";
+import { BURNT_CARD } from "trucoshi";
 
 export const CardThemeToggle = () => {
   const [{ cardTheme, cardsReady }, { setCardTheme }] = useTrucoshi();
@@ -34,6 +32,7 @@ export const CardThemeToggle = () => {
         }}
         size="small"
         color="success"
+        title="Cartas"
         id="card-theme-button"
         disabled={Boolean(cardTheme && !cardsReady)}
         aria-controls={anchorEl ? "basic-menu" : undefined}
@@ -45,7 +44,7 @@ export const CardThemeToggle = () => {
           !cardsReady ? (
             <CircularProgress size="1.1em" />
           ) : (
-            <GameCard as={Box} width="1.1em" card={xx} />
+            <GameCard as={Box} width="1.1em" card={BURNT_CARD} />
           )
         ) : (
           <TrucoshiLogo style={{ marginBottom: "0.4em" }} />
@@ -57,42 +56,43 @@ export const CardThemeToggle = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         keepMounted
+        disableScrollLock
         MenuListProps={{
           "aria-labelledby": "card-theme-button",
         }}
       >
-        <MenuItem onClick={() => setCardTheme("gnu")}>
+        <MenuItem title="GNU" onClick={() => setCardTheme("gnu")}>
           <GameCard
             request
             as={Box}
             sx={{ margin: "0 auto" }}
             theme="gnu"
             width="1.1em"
-            card={xx}
+            card={BURNT_CARD}
           />
         </MenuItem>
-        <MenuItem onClick={() => setCardTheme("modern")}>
+        <MenuItem title="Modernas" onClick={() => setCardTheme("modern")}>
           <GameCard
             request
             as={Box}
             sx={{ margin: "0 auto" }}
             theme="modern"
             width="1.1em"
-            card={xx}
+            card={BURNT_CARD}
           />
         </MenuItem>
-        <MenuItem onClick={() => setCardTheme("classic")}>
+        <MenuItem title="Clasicas" onClick={() => setCardTheme("classic")}>
           <GameCard
             request
             as={Box}
             sx={{ margin: "0 auto" }}
             theme="classic"
             width="1.1em"
-            card={xx}
+            card={BURNT_CARD}
           />
         </MenuItem>
-        <MenuItem onClick={() => setCardTheme("")}>
-          <Close />
+        <MenuItem title="Emojis" onClick={() => setCardTheme("")}>
+          <EmojiSymbols />
         </MenuItem>
       </Menu>
     </>

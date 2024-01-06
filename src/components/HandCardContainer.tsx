@@ -40,15 +40,15 @@ export const HandCardContainer = styled(Box)<{ open: boolean; cards: number; i: 
         ? {
             transform: `rotate(${randDeg()}deg)`,
             marginLeft: openMargin,
-            zIndex: 1911,
+            zIndex: theme.zIndex.appBar,
             "& *": {
-              zIndex: 1911,
+              zIndex: theme.zIndex.appBar,
             },
           }
         : {
-            zIndex: 1910,
+            zIndex: theme.zIndex.appBar - 1,
             "& *": {
-              zIndex: 1910,
+              zIndex: theme.zIndex.appBar - 1,
             },
           },
     ];

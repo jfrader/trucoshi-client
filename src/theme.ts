@@ -1,5 +1,6 @@
 import { createTheme, ThemeOptions } from "@mui/material";
 import createPalette from "@mui/material/styles/createPalette";
+import { BURNT_CARD } from "trucoshi";
 
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
@@ -131,11 +132,9 @@ const base = {
             padding: 0,
             minWidth: "initial",
             minHeight: "initial",
-            background: "transparent",
             color: theme.palette.background.paper,
             border: "none",
             ":hover": {
-              backgroundColor: "transparent",
             },
           }),
         },
@@ -162,7 +161,7 @@ const base = {
           }),
         },
         {
-          props: { variant: "emojicard", name: "xx" },
+          props: { variant: "emojicard", name: BURNT_CARD },
           style: ({ theme }) => ({
             border: "1px solid",
             color: theme.palette.background.paper,

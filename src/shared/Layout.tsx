@@ -1,5 +1,6 @@
 import {
   AppBar,
+  CssBaseline,
   Paper,
   Stack,
   Switch,
@@ -17,6 +18,9 @@ import { TOOLBAR_LINKS } from "../assets/links/links";
 import { TrucoshiText } from "./TrucoshiText";
 import useStateStorage from "../hooks/useStateStorage";
 import { CardThemeToggle } from "../components/CardThemeToggle";
+import { CardBackdrop } from "./CardBackdrop";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { Login, Person2 } from "@mui/icons-material";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -46,8 +50,10 @@ const themeChoices = [themes.light, themes.dark];
 
 export const Layout = ({ children }: PropsWithChildren<{}>) => {
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
+  const [{ inspectedCard, cardsReady, account }, { inspectCard }] = useTrucoshi();
   return (
     <ThemeProvider theme={themeChoices[Number(Boolean(dark))]}>
+      <CssBaseline />
       <AppBar position="fixed">
         <Toolbar variant="dense">
           <Link to="/" lineHeight={4}>
@@ -65,8 +71,20 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
                 </Link>
               );
             })}
+
+            {account ? (
+              <Link to="/profile">
+                <Person2 fontSize="small" />
+              </Link>
+            ) : (
+              <Link title="Iniciar Sesion" to="/login">
+                <Login fontSize="small" />
+              </Link>
+            )}
+
             <Switch
               size="small"
+              title="Dark Theme"
               defaultChecked={Boolean(dark)}
               onChange={() =>
                 setDark((current) => {
@@ -106,6 +124,7 @@ export const Layout = ({ children }: PropsWithChildren<{}>) => {
           </Box>
         </Paper>
       </main>
+      <CardBackdrop card={inspectedCard} cardsReady={cardsReady} inspectCard={inspectCard} />
     </ThemeProvider>
   );
 };

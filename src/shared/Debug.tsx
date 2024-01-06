@@ -1,7 +1,7 @@
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Debug = () => {
-  const [{ isConnected, isLogged, id, session, lastPong }, { sendPing }] = useTrucoshi();
+  const [{ isConnected, isLogged, name: id, session, lastPong }, { sendPing }] = useTrucoshi();
   return (
     <div>
       <p>Is connected {JSON.stringify(isConnected) || null}</p>
