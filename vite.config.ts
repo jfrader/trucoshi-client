@@ -11,11 +11,11 @@ export default defineConfig({
     port: 2991,
   },
   optimizeDeps: {
-    exclude: ["trucoshi"],
+    include: ["trucoshi", "lightning-accounts"],
   },
   build: {
     commonjsOptions: {
-      include: [/trucoshi/, /node_modules/],
+      exclude: [/trucoshi/, /lightning-accounts/, /node_modules/],
     },
     rollupOptions: {
       preserveEntrySignatures: "strict",

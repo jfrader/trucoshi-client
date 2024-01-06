@@ -22,16 +22,17 @@ export const Home = () => {
         pt={2}
         direction={{ xs: "column", md: "row" }}
         alignItems="start"
+        justifyContent="center"
         width="100%"
       >
-        <Stack flexGrow={1} gap={2} justifyContent="start" width="100%">
+        <Stack flexGrow={1} gap={2} justifyContent="start" width="100%" maxWidth="sm">
           <ProfileMenu />
         </Stack>
-        <Stack flexGrow={1} gap={2} width="100%">
-          {activeMatches.length ? (
+        {activeMatches.length ? (
+          <Stack flexGrow={1} gap={2} width="100%" maxWidth="sm">
             <MatchList dense matches={activeMatches} title="Partidas activas" />
-          ) : null}
-        </Stack>
+          </Stack>
+        ) : null}
       </Stack>
     </Container>
   );
