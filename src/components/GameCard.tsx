@@ -17,7 +17,6 @@ export type GameCardProps = {
 } & ButtonProps;
 
 export const GameCard = ({
-  children,
   card,
   enableHover,
   request,
@@ -169,7 +168,7 @@ const GameCardButton = styled(Button)<{
     : {},
   zoom
     ? {
-        transform: "scale(1.5)",
+        transform: "scale(1.75)",
       }
     : {},
   emojicard

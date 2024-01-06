@@ -92,9 +92,9 @@ export const GameTable = ({
 
 const Container = styled(Box)`
   padding: 16px;
-  --d: 12.5rem; /* image size */
+  --d: 12.6rem; /* image size */
   --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
-  --r: calc(0.4 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --r: calc(0.41 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   position: relative;
   margin: 0 auto;

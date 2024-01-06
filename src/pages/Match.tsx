@@ -1,4 +1,4 @@
-import { Box, Button, Container, Fade, Typography } from "@mui/material";
+import { Box, Button, Container, Fade, Typography, useMediaQuery } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -21,6 +21,8 @@ import { Backdrop } from "../shared/Backdrop";
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
 
+  const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
+
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
@@ -29,8 +31,8 @@ const Match = () => {
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => {
-      console.log("onMyTurn")
-      queue("turn")
+      console.log("onMyTurn");
+      queue("turn");
     },
     onFreshHand: () => queue("round"),
   });
@@ -154,7 +156,7 @@ const Match = () => {
           <GameTable
             zoomOnIndex={me ? 1 : -1}
             zoomOnMiddle
-            zoomFactor={1.18}
+            zoomFactor={isUpXs ? 1.18 : 1.3}
             match={match}
             inspecting={inspecting}
             Slot={Slot}

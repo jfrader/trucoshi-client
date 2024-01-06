@@ -21,11 +21,11 @@ type Props = Pick<
 };
 
 export const GameTableSlot = ({
+  i,
   player,
   zoomOnIndex,
   zoomOnMiddle,
   zoomFactor,
-  i,
   inspecting,
   FillSlot,
   MiddleSlot,
