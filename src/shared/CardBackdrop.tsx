@@ -1,8 +1,8 @@
-import { BackdropProps, Box, CircularProgress } from "@mui/material";
-import { PropsWithChildren } from "react";
+import { BackdropProps, Box, CircularProgress, Stack, Switch } from "@mui/material";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { ICard } from "trucoshi";
-import { GameCard } from "../components/card/GameCard";
+import { FlipGameCard } from "../components/card/GameCard";
 import { CardThemeToggle } from "../components/card/CardThemeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 
@@ -13,6 +13,12 @@ type Props = PropsWithChildren<
 >;
 
 export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...props }: Props) => {
+  const [flip, setFlip] = useState(false);
+
+  useEffect(() => {
+    setFlip(false);
+  }, [card]);
+
   if (!card) {
     return null;
   }
@@ -28,9 +34,9 @@ export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...prop
         {cardsReady ? (
           <>
             {cardTheme ? (
-              <GameCard card={card} width="11em" />
+              <FlipGameCard card={card} width="11em" flip={flip} />
             ) : (
-              <GameCard card={card} width="11em" sx={{ zoom: '2.55' }} />
+              <FlipGameCard card={card} width="11em" sx={{ zoom: "2.55" }} flip={flip} />
             )}
           </>
         ) : (
@@ -38,9 +44,16 @@ export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...prop
             <CircularProgress />
           </Box>
         )}
-        <Box position="absolute" right="-3em" top="0">
+        <Stack gap={2} position="absolute" right="-3em" top="0">
           <CardThemeToggle />
-        </Box>
+          <Switch
+            title="Dorso"
+            color="info"
+            size="small"
+            checked={flip}
+            onChange={(_e, checked) => setFlip(checked)}
+          />
+        </Stack>
       </Box>
     </Backdrop>
   );
