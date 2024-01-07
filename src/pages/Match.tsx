@@ -1,4 +1,4 @@
-import { Box, Button, Container, Fade, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, Card, Container, Fade, Typography, useMediaQuery } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -7,7 +7,12 @@ import { Rounds } from "../components/game/Rounds";
 import { EMatchState, IPublicPlayer } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
-import { FixedChatContainer, ChatMessage, ChatRoom, useChatRoom } from "../components/chat/ChatRoom";
+import {
+  FixedChatContainer,
+  ChatMessage,
+  ChatRoom,
+  useChatRoom,
+} from "../components/chat/ChatRoom";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/game/MatchPlayer";
 import { MatchPoints } from "../components/game/MatchPoints";
@@ -88,8 +93,25 @@ const Match = () => {
   const MiddleSlot = useCallback(
     () =>
       chatProps.latestMessage && chatProps.latestMessage.command ? (
-        <Box width="100%" height="100%" display="flex" textAlign="center">
-          <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          textAlign="center"
+          alignItems="center"
+          justifyContent="center"
+          position="relative"
+        >
+          <Card
+            sx={{
+              height: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
+          </Card>
         </Box>
       ) : null,
     [chatProps.latestMessage]
@@ -156,12 +178,14 @@ const Match = () => {
           <GameTable
             zoomOnIndex={me ? 1 : -1}
             zoomOnMiddle
-            zoomFactor={isUpXs ? 1.18 : 1.25}
+            zoomFactor={isUpXs ? (match.players.length > 4 ? 1.1 : 1.2) : 1.25}
             match={match}
             inspecting={inspecting}
             Slot={Slot}
             InnerSlot={InnerSlot}
-            MiddleSlot={MiddleSlot}
+            MiddleSlot={
+              chatProps.latestMessage && chatProps.latestMessage.command ? MiddleSlot : undefined
+            }
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
@@ -176,7 +200,5 @@ const Match = () => {
     </Box>
   );
 };
-
-Match.whyDidYouRender = false;
 
 export { Match };

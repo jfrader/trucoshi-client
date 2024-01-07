@@ -41,7 +41,7 @@ const MatchPlayer = ({
           </Box>
         ) : (
           <Box pt={1} minHeight="4em">
-            {!isPrevious &&
+            {!isPrevious && !player.disabled &&
               player.hand.map((card, idx) =>
                 canPlay && player.isMe && player.isTurn ? (
                   <GameCard

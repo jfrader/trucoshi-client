@@ -55,7 +55,7 @@ export const Rounds = ({
         {playerCards.map((pc, i) => {
           return (
             <HandCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
-              <GameCard shadow zoom={openHand} {...pc} />
+              <GameCard shadow zoom={openHand} width={match.players.length > 4 ? undefined : "5em"} {...pc} />
             </HandCardContainer>
           );
         })}

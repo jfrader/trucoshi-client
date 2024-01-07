@@ -1,5 +1,5 @@
 import { CSSProperties, Fragment, useMemo } from "react";
-import { Box, Paper, styled } from "@mui/material";
+import { Box, Paper, styled, useTheme } from "@mui/material";
 import { GameTableProps } from "./GameTable";
 import { IPublicPlayer } from "trucoshi";
 
@@ -32,13 +32,14 @@ export const GameTableSlot = ({
   Slot,
   InnerSlot,
 }: Props) => {
+  const theme = useTheme();
   const { middleStyle, itemStyle, innerStyle } = useMemo<Record<string, CSSProperties>>(
     () => ({
       middleStyle: {
         "--mr": "0px",
         "--i": `${-1}`,
         "--z": zoomOnIndex === 0 || zoomOnMiddle ? zoomFactor : 1,
-        zIndex: 12 - i,
+        zIndex: theme.zIndex.appBar - i,
       },
       itemStyle: {
         "--mr": zoomOnIndex === i ? "0.8em" : "0px",
@@ -52,13 +53,15 @@ export const GameTableSlot = ({
         zIndex: inspecting?.key === player.key ? 9000 : 13,
       },
     }),
-    [i, inspecting?.key, player.key, zoomFactor, zoomOnIndex, zoomOnMiddle]
+    [i, inspecting?.key, player.key, theme.zIndex.appBar, zoomFactor, zoomOnIndex, zoomOnMiddle]
   );
 
   return (
     <Fragment>
       {i === 0 ? (
-        <MiddleItem style={middleStyle}>{MiddleSlot ? <MiddleSlot i={i} /> : null}</MiddleItem>
+        <>
+          {MiddleSlot ? <MiddleItem style={middleStyle}>{<MiddleSlot i={i} />}</MiddleItem> : null}
+        </>
       ) : (
         <Item elevation={2} style={itemStyle}>
           {player.hand ? (
