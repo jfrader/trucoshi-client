@@ -37,6 +37,7 @@ const sendPing = () => {
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useStateStorage("session");
+  const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
   const [cookies, , removeCookie] = useCookies(["jwt:access", "jwt:refresh", "jwt:identity"]);
 
   const [version, setVersion] = useState("");
@@ -93,17 +94,25 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         setAccount(me);
       } else {
         setLoadingAccount(true);
-        socket.emit(EClientEvent.LOGIN, me, cookies["jwt:identity"], ({ success }) => {
-          setLoadingAccount(false);
-          if (success) {
-            setLogged(true);
-            setAccount(me);
-            return;
+        socket.emit(
+          EClientEvent.LOGIN,
+          me,
+          cookies["jwt:identity"],
+          ({ success, activeMatches }) => {
+            setLoadingAccount(false);
+            if (activeMatches) {
+              setActiveMatches(activeMatches);
+            }
+            if (success) {
+              setLogged(true);
+              setAccount(me);
+              return;
+            }
+            setAccount(null);
+            setLogged(false);
+            removeCookie("jwt:identity");
           }
-          setAccount(null);
-          setLogged(false);
-          removeCookie("jwt:identity");
-        });
+        );
       }
     }
   }, [cookies, isLogged, me, removeCookie]);
@@ -174,6 +183,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         {
           socket,
           state: {
+            dark,
             account,
             version,
             publicMatches,
@@ -195,6 +205,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             cards,
           },
           dispatch: {
+            setDark,
             setCardTheme,
             setSidebarOpen,
             sendPing,

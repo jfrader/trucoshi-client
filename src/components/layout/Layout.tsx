@@ -3,7 +3,6 @@ import { Box } from "@mui/system";
 import { PropsWithChildren } from "react";
 import { Outlet } from "react-router-dom";
 import { themes } from "../../theme";
-import useStateStorage from "../../hooks/useStateStorage";
 import { CardBackdrop } from "../../shared/CardBackdrop";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
@@ -35,8 +34,7 @@ const LayoutContainer = styled(Box)(({ theme }) => [
 const themeChoices = [themes.light, themes.dark];
 
 export const Layout = ({ children }: PropsWithChildren) => {
-  const [dark] = useStateStorage<"true" | "">("isDarkTheme", "true");
-  const [{ inspectedCard, cardsReady, cardTheme }, { inspectCard }] = useTrucoshi();
+  const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard }] = useTrucoshi();
   return (
     <ThemeProvider theme={themeChoices[Number(Boolean(dark))]}>
       <CssBaseline />

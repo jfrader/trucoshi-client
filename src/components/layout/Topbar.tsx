@@ -8,7 +8,6 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import useStateStorage from "../../hooks/useStateStorage";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Link } from "../../shared/Link";
 import { TrucoshiText } from "../../shared/TrucoshiText";
@@ -18,8 +17,7 @@ import { Close, Login, Menu, Person2 } from "@mui/icons-material";
 import { Sidebar } from "./Sidebar";
 
 export const Topbar = () => {
-  const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
-  const [{ isSidebarOpen, account }, { setSidebarOpen }] = useTrucoshi();
+  const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
   return (
     <AppBar position="fixed">
       <Toolbar variant="dense">

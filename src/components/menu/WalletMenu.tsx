@@ -13,10 +13,11 @@ import {
 } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useRef, useState } from "react";
-import { Close } from "@mui/icons-material";
+import { Check, Close } from "@mui/icons-material";
 import { DepositMenu } from "./DepositMenu";
 import { Sats } from "../../shared/Sats";
 import { useCreateDeposit } from "../../api/hooks/useCreateDeposit";
+import { SatoshiIcon } from "../../assets/icons/SatoshiIcon";
 
 export const WalletMenu = () => {
   const [{ account }] = useTrucoshi();
@@ -49,7 +50,7 @@ export const WalletMenu = () => {
         <Collapse in={isDeposit === null}>
           <FormGroup>
             <Button
-              color="success"
+              color="warning"
               size="large"
               onClick={() => {
                 setDeposit("");
@@ -80,29 +81,43 @@ export const WalletMenu = () => {
               setTimeout(() => inputRef.current?.blur());
             }}
           >
-            <TextField
-              size="small"
-              variant="outlined"
-              label="Depositar"
-              name="amountInSats"
-              autoComplete="off"
-              color="success"
-              placeholder="Sats"
-              inputRef={inputRef}
-              onChange={(e) => {
-                if (!e.target.value.match(/^[0-9]*\.?[0-9]*$/)) {
-                  return e.preventDefault();
-                }
-                setDeposit(e.target.value);
-              }}
-              InputProps={{
-                endAdornment: (
-                  <IconButton onClick={() => setDeposit(null)} color="error" size="small">
-                    <Close fontSize="small" />
-                  </IconButton>
-                ),
-              }}
-            />
+            <Stack direction="row" alignItems="center" gap={1}>
+              <IconButton
+                title="Cancelar"
+                onClick={() => setDeposit(null)}
+                color="warning"
+                size="small"
+              >
+                <Close fontSize="small" />
+              </IconButton>
+              <TextField
+                size="small"
+                variant="outlined"
+                label="Depositar"
+                name="amountInSats"
+                autoComplete="off"
+                color="warning"
+                placeholder="Sats"
+                inputRef={inputRef}
+                onChange={(e) => {
+                  if (!e.target.value.match(/^[0-9]*\.?[0-9]*$/)) {
+                    return e.preventDefault();
+                  }
+                  setDeposit(e.target.value);
+                }}
+                value={isDeposit}
+                InputProps={{
+                  endAdornment: <SatoshiIcon color="warning" />,
+                }}
+              />
+              <IconButton
+                title="Aceptar"
+                type="submit"
+                size="small"
+              >
+                <Check fontSize="small" />
+              </IconButton>
+            </Stack>
           </form>
         </Collapse>
       </FormGroup>
@@ -113,7 +128,7 @@ export const WalletMenu = () => {
             <DepositMenu
               transaction={deposit}
               onClose={() => {
-                reset()
+                reset();
                 setDepositOpen(false);
               }}
             />

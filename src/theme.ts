@@ -58,6 +58,11 @@ export const lightPalette = createPalette({
     default: "#f0f4f3",
     paper: "#FEFFFD",
   },
+  text: {
+    primary: "rgba(0, 0, 0, 0.87)",
+    secondary: "#03030b",
+    disabled: "rgba(0, 0, 0, 0.33)",
+  },
 });
 
 export const darkPalette = createPalette({
@@ -104,7 +109,7 @@ export const darkPalette = createPalette({
   },
   text: {
     primary: "rgba(255, 255, 255, 0.87)",
-    secondary: "#f3e3db",
+    secondary: "#f9eefb",
     disabled: "rgba(255, 255, 255, 0.3)",
   },
 });

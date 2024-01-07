@@ -47,6 +47,7 @@ export interface ITrucoshiMatchState {
 }
 
 export interface ITrucoshiActions {
+  setDark: Dispatch<SetStateAction<"" | "true">>;
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
   setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
@@ -58,6 +59,7 @@ export interface ITrucoshiActions {
 }
 
 export interface ITrucoshiState {
+  dark: "" | "true";
   account: User | null;
   isAccountPending: boolean;
   version: string;

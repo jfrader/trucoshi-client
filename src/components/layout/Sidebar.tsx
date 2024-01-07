@@ -7,7 +7,7 @@ import { MatchList } from "../game/MatchList";
 
 export const Sidebar = () => {
   const navigate = useNavigate();
-  const [{ isSidebarOpen, account, activeMatches }] = useTrucoshi();
+  const [{ isSidebarOpen, account, activeMatches }, { logout }] = useTrucoshi();
   return (
     <Slide in={isSidebarOpen} direction="left">
       <Card
@@ -22,7 +22,7 @@ export const Sidebar = () => {
           px: 1,
           paddingBottom: "48px",
           height: "100vh",
-          width: { xs: "100vw", sm: "20rem" },
+          width: { xs: "98vw", sm: "20rem" },
         })}
       >
         <CardContent sx={{ display: "flex", direction: "column", height: "100%" }}>
@@ -33,7 +33,11 @@ export const Sidebar = () => {
             {activeMatches.length ? (
               <MatchList dense matches={activeMatches} title="Partidas activas" />
             ) : null}
-            {account ? null : (
+            {account ? (
+              <Button fullWidth size="large" color="error" onClick={() => logout()}>
+                Cerrar Sesion
+              </Button>
+            ) : (
               <Button color="success" fullWidth onClick={() => navigate(`/register`)}>
                 Registrarse
               </Button>
