@@ -37,10 +37,10 @@ export const Profile = () => {
           <Stack direction="row" gap={4}>
             <List dense sx={{ flexGrow: 1 }}>
               <ListItem divider>
-                <ListItemText primary="Nombre" secondary={me.data.name} />
+                <ListItemText primary="Nombre" secondary={me.name} />
               </ListItem>
               <ListItem divider>
-                <ListItemText primary="Email" secondary={me.data.email} />
+                <ListItemText primary="Email" secondary={me.email} />
               </ListItem>
               <ListItemButton divider onClick={() => logout()}>
                 <ListItemText primary="Cerrar Sesion" />
