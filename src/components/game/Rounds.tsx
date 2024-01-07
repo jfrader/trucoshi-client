@@ -1,10 +1,10 @@
 import { Box, BoxProps } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { IMatchPreviousHand, IPublicMatch } from "trucoshi";
-import { useRounds } from "../trucoshi/hooks/useRounds";
-import { GameCard } from "./GameCard";
-import { PropsWithPlayer } from "../trucoshi/types";
-import { HandCardContainer } from "./HandCardContainer";
+import { useRounds } from "../../trucoshi/hooks/useRounds";
+import { GameCard } from "../card/GameCard";
+import { PropsWithPlayer } from "../../trucoshi/types";
+import { HandCardContainer } from "../card/HandCardContainer";
 
 type Props = PropsWithPlayer<
   {

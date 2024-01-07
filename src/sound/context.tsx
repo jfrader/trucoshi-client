@@ -1,16 +1,16 @@
 import { createContext } from "react";
-import { ISoundContext } from "../types";
+import { ISoundContext } from "./types";
 import { Howl, HowlOptions } from "howler";
 import { PropsWithChildren, useState, useCallback, useEffect } from "react";
-import { gameSounds } from "../sounds";
-import { ISoundQueue } from "../types";
+import { gameSounds } from "./sounds";
+import { ISoundQueue } from "./types";
 import { useDebouncedCallback } from "use-debounce";
 
 const INITIAL_QUEUE: ISoundQueue = [];
 
 export const SoundContext = createContext<ISoundContext | null>(null);
 
-export const SoundProvider = ({ children }: PropsWithChildren<{}>) => {
+export const SoundProvider = ({ children }: PropsWithChildren) => {
   const [sounds, setSounds] = useState<Record<string, Howl>>({});
   const [mainVolume, setVolume] = useState<number>(0.5);
   const [isPlayingQueueSound, setPlayingQueueSound] = useState(false);

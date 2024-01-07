@@ -1,8 +1,8 @@
 import { styled, Typography, TypographyProps } from "@mui/material";
 import { Box, css } from "@mui/system";
-import { bounce } from "../assets/animations/bounce";
+import { bounce } from "../../assets/animations/bounce";
 import { TeamTag } from "./TeamTag";
-import { PropsWithPlayer } from "../trucoshi/types";
+import { PropsWithPlayer } from "../../trucoshi/types";
 
 type ITeamTagProps = PropsWithPlayer<{
   isTurn?: boolean;

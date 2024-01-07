@@ -1,8 +1,8 @@
 import { Person } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
-import { Alert, Card, CardContent, Stack, TextField } from "@mui/material";
+import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import { LoadingButton } from "../components/LoadingButton";
+import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
 import { useNavigate } from "react-router-dom";
 
@@ -53,8 +53,15 @@ export const Login = () => {
                 variant="outlined"
               />
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
-                Login
+                Iniciar Sesion
               </LoadingButton>
+              <Button
+                type="submit"
+                onClick={() => navigate("/register")}
+                color="success"
+              >
+                Registrarse
+              </Button>
               {error ? <Alert severity="error">{error.message}</Alert> : null}
             </Stack>
           </form>

@@ -9,4 +9,10 @@ export default defineConfig({
     host: "localhost",
     port: 2991,
   },
+  optimizeDeps: {
+    include: ["lightning-accounts", "react-qr-code"],
+  },
+  build: {
+    sourcemap: true,
+  },
 });

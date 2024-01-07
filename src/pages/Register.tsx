@@ -1,8 +1,8 @@
 import { Person } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
-import { Alert, Card, CardContent, Stack, TextField } from "@mui/material";
+import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
-import { LoadingButton } from "../components/LoadingButton";
+import { LoadingButton } from "../shared/LoadingButton";
 import { useRegister } from "../api/hooks/useRegister";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -107,6 +107,13 @@ export const Register = () => {
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
                 Registrarse
               </LoadingButton>
+              <Button
+                type="submit"
+                onClick={() => navigate("/login")}
+                color="success"
+              >
+                Iniciar Sesion
+              </Button>
               {[...formErrors, error].filter(Boolean).map((error) => (
                 <Alert key={error?.message} severity="error">
                   {error?.message}

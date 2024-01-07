@@ -1,7 +1,8 @@
-import { CircularProgress, Container, Stack } from "@mui/material";
+import { Card, CardContent, CircularProgress, Container, Stack } from "@mui/material";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { MatchList } from "../components/MatchList";
-import { ProfileMenu } from "../components/ProfileMenu";
+import { MatchList } from "../components/game/MatchList";
+import { PlayMenu } from "../components/menu/PlayMenu";
+import { WelcomeMenu } from "../components/menu/WelcomeMenu";
 
 export const Home = () => {
   const [{ activeMatches, session, isAccountPending }, , hydrated] = useTrucoshi();
@@ -25,12 +26,25 @@ export const Home = () => {
         justifyContent="center"
         width="100%"
       >
-        <Stack flexGrow={1} gap={2} justifyContent="start" width="100%" maxWidth="sm">
-          <ProfileMenu />
+        <Stack flexGrow={1} gap={3} justifyContent="start" width="100%" maxWidth="sm">
+          <Card>
+            <CardContent>
+              <PlayMenu />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <WelcomeMenu />
+            </CardContent>
+          </Card>
         </Stack>
         {activeMatches.length ? (
           <Stack flexGrow={1} gap={2} width="100%" maxWidth="sm">
-            <MatchList dense matches={activeMatches} title="Partidas activas" />
+            <Card>
+              <CardContent>
+                <MatchList dense matches={activeMatches} title="Partidas activas" />
+              </CardContent>
+            </Card>
           </Stack>
         ) : null}
       </Stack>

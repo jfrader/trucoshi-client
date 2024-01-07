@@ -1,5 +1,5 @@
 import { Box, styled, Typography } from "@mui/material";
-import { getTeamColor, getTeamName } from "../utils/team";
+import { getTeamColor, getTeamName } from "../../utils/team";
 
 interface ITeamTagProps {
     teamIdx: number;

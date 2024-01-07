@@ -1,14 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Layout } from "./shared/Layout";
+import { Layout } from "./components/layout/Layout";
 import { Main } from "./pages/Main";
 import { Lobby } from "./pages/Lobby";
-import { TrucoshiProvider } from "./trucoshi/state/context";
+import { TrucoshiProvider } from "./trucoshi/context";
 import { Match } from "./pages/Match";
 import { Matches } from "./pages/Matches";
 import { Home } from "./pages/Home";
 import { Help } from "./pages/Help";
-import { SoundProvider } from "./sound/state/context";
+import { SoundProvider } from "./sound/context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";

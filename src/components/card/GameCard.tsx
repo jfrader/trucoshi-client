@@ -1,9 +1,9 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard } from "trucoshi";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { ICardTheme } from "../trucoshi/types";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { ICardTheme } from "../../trucoshi/types";
 import { ElementType, MouseEventHandler, useCallback } from "react";
-import { useCards } from "../trucoshi/hooks/useCards";
+import { useCards } from "../../trucoshi/hooks/useCards";
 
 export type GameCardProps = {
   card: ICard;

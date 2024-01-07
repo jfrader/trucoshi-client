@@ -1,5 +1,5 @@
 import { Stack, Typography } from "@mui/material";
-import { Link, LinkProps } from "./Link";
+import { Link, LinkProps } from "../../shared/Link";
 import { SvgIconComponent } from "@mui/icons-material";
 
 export const FooterLink = ({ Icon, ...props }: LinkProps & { Icon: SvgIconComponent }) => {

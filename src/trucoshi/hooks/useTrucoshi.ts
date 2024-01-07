@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { TrucoshiContext } from "../state/context";
+import { TrucoshiContext } from "../context";
 import { ITrucoshiActions, ITrucoshiState } from "../types";
 
 export const useTrucoshi = (): [ITrucoshiState, ITrucoshiActions, boolean] => {

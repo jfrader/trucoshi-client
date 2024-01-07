@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Backdrop } from "../shared/Backdrop";
+import { Backdrop } from "../../shared/Backdrop";
 
 export const MatchBackdrop = ({ error }: { error: Error | null }) => {
   const navigate = useNavigate();

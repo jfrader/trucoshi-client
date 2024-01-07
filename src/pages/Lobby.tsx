@@ -15,14 +15,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { GameTable } from "../components/GameTable";
-import { PlayerTag } from "../components/PlayerTag";
+import { GameTable } from "../components/game/GameTable";
+import { PlayerTag } from "../components/game/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { EMatchState } from "trucoshi";
 import { AnimatedButton } from "../shared/AnimatedButton";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
-import { MatchBackdrop } from "../components/MatchBackdrop";
-import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/ChatRoom";
+import { MatchBackdrop } from "../components/game/MatchBackdrop";
+import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/chat/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";

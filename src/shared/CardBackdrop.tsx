@@ -2,17 +2,17 @@ import { BackdropProps, Box, CircularProgress } from "@mui/material";
 import { PropsWithChildren } from "react";
 import { Backdrop } from "./Backdrop";
 import { ICard } from "trucoshi";
-import { GameCard } from "../components/GameCard";
-import { CardThemeToggle } from "../components/CardThemeToggle";
+import { GameCard } from "../components/card/GameCard";
+import { CardThemeToggle } from "../components/card/CardThemeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 
 type Props = PropsWithChildren<
   Pick<ITrucoshiActions, "inspectCard"> &
-    Pick<ITrucoshiState, "cardsReady"> &
+    Pick<ITrucoshiState, "cardsReady" | "cardTheme"> &
     Omit<BackdropProps, "open"> & { card: ICard | null }
 >;
 
-export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props) => {
+export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...props }: Props) => {
   if (!card) {
     return null;
   }
@@ -26,7 +26,13 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
         onClick={(e) => e.stopPropagation()}
       >
         {cardsReady ? (
-          <GameCard card={card} width="11em" />
+          <>
+            {cardTheme ? (
+              <GameCard card={card} width="11em" />
+            ) : (
+              <GameCard card={card} width="11em" sx={{ zoom: '2.55' }} />
+            )}
+          </>
         ) : (
           <Box width="11em">
             <CircularProgress />

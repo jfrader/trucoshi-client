@@ -1,11 +1,11 @@
 import { Box, BoxProps, IconButton, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getRandomCards } from "../trucoshi/hooks/useCards";
+import { getRandomCards } from "../../trucoshi/hooks/useCards";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
 import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
 export const CardToggler = (props: BoxProps) => {
   const [{ cardTheme }] = useTrucoshi();

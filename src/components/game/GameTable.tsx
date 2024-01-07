@@ -1,7 +1,7 @@
 import { CSSProperties, FC, useEffect, useState } from "react";
 import { Box, styled } from "@mui/material";
 import { IPublicMatch, IPublicPlayer } from "trucoshi";
-import { PropsWithPlayer } from "../trucoshi/types";
+import { PropsWithPlayer } from "../../trucoshi/types";
 import { GameTableSlot, IGameTableSlot } from "./GameTableSlot";
 
 export interface GameTableProps {

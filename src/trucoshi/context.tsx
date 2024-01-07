@@ -9,17 +9,17 @@ import {
   IPublicMatchInfo,
   ServerToClientEvents,
 } from "trucoshi";
-import useStateStorage from "../../hooks/useStateStorage";
+import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
-import { ICardTheme, ITrucoshiContext } from "../types";
-import { useCards } from "../hooks/useCards";
-import { useMe } from "../../api/hooks/useMe";
+import { ICardTheme, ITrucoshiContext } from "./types";
+import { useCards } from "./hooks/useCards";
+import { useMe } from "../api/hooks/useMe";
 import { useCookies } from "react-cookie";
-import { Me } from "lightning-accounts";
-import { useLogout } from "../../api/hooks/useLogout";
-import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
-import { is401 } from "../../api/apiClient";
-import { useLogin } from "../../api/hooks/useLogin";
+import { User } from "lightning-accounts";
+import { useLogout } from "../api/hooks/useLogout";
+import { useRefreshTokens } from "../api/hooks/useRefreshTokens";
+import { is401 } from "../api/apiClient";
+import { useLogin } from "../api/hooks/useLogin";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -36,21 +36,23 @@ const sendPing = () => {
 };
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
-  const [account, setAccount] = useState<Me | null>(null);
-  const [isLoadingAccount, setLoadingAccount] = useState(false);
-  const [version, setVersion] = useState("");
   const [session, setSession] = useStateStorage("session");
+  const [cookies, , removeCookie] = useCookies(["jwt:access", "jwt:refresh", "jwt:identity"]);
+
+  const [version, setVersion] = useState("");
   const [name, setName] = useStateStorage("id");
+  const [account, setAccount] = useState<User | null>(null);
+  const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [isLoadingAccount, setLoadingAccount] = useState(false);
   const [isConnected, setConnected] = useState<boolean>(false);
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<number | null>(null);
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
-  const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
-  const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "gnu");
   const [cards, cardsReady] = useCards({ theme: cardTheme });
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
-  const [cookies, , removeCookie] = useCookies(["jwt:access", "jwt:refresh", "jwt:identity"]);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const { me, error, isPending: isPendingMe } = useMe();
   const { refreshTokens, isPending: isPendingRefreshTokens } = useRefreshTokens();
@@ -81,33 +83,28 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (is401(error)) {
-      refreshTokens(
-        {},
-        {
-          onError(refreshTokenError) {
-            if (is401(refreshTokenError)) {
-              logout();
-            }
-          },
-        }
-      );
+      logout();
     }
   }, [error, logout, refreshTokens]);
 
   useEffect(() => {
-    if (me && !isLogged && cookies["jwt:identity"]) {
-      setLoadingAccount(true);
-      socket.emit(EClientEvent.LOGIN, me.data, cookies["jwt:identity"], ({ success }) => {
-        setLoadingAccount(false);
-        if (success) {
-          setLogged(true);
-          setAccount(me.data);
-          return;
-        }
-        setAccount(null);
-        setLogged(false);
-        removeCookie("jwt:identity");
-      });
+    if (me && cookies["jwt:identity"]) {
+      if (isLogged) {
+        setAccount(me);
+      } else {
+        setLoadingAccount(true);
+        socket.emit(EClientEvent.LOGIN, me, cookies["jwt:identity"], ({ success }) => {
+          setLoadingAccount(false);
+          if (success) {
+            setLogged(true);
+            setAccount(me);
+            return;
+          }
+          setAccount(null);
+          setLogged(false);
+          removeCookie("jwt:identity");
+        });
+      }
     }
   }, [cookies, isLogged, me, removeCookie]);
 
@@ -189,6 +186,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             serverAheadTime,
             cardTheme,
             cardsReady,
+            isSidebarOpen,
             inspectedCard,
             isAccountPending: useMemo(
               () => isPendingMe || isPendingRefreshTokens || isLoadingAccount || isPendingLogin,
@@ -198,6 +196,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           },
           dispatch: {
             setCardTheme,
+            setSidebarOpen,
             sendPing,
             sendUserId,
             setActiveMatches,

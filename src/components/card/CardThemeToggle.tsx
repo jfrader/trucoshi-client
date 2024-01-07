@@ -1,7 +1,7 @@
 import { Box, Button, CircularProgress, Menu, MenuItem } from "@mui/material";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useState } from "react";
-import { TrucoshiLogo } from "../shared/TrucoshiLogo";
+import { TrucoshiLogo } from "../../shared/TrucoshiLogo";
 import { GameCard } from "./GameCard";
 import { EmojiSymbols } from "@mui/icons-material";
 import { BURNT_CARD } from "trucoshi";

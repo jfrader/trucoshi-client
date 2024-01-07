@@ -13,7 +13,7 @@ import {
 import { IPublicMatchInfo } from "trucoshi";
 import { CardSources } from "./hooks/useCards";
 import { Dispatch, SetStateAction } from "react";
-import { Me } from "lightning-accounts";
+import { User } from "lightning-accounts";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -47,6 +47,7 @@ export interface ITrucoshiMatchState {
 }
 
 export interface ITrucoshiActions {
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>;
   setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
@@ -57,7 +58,7 @@ export interface ITrucoshiActions {
 }
 
 export interface ITrucoshiState {
-  account: Me | null;
+  account: User | null;
   isAccountPending: boolean;
   version: string;
   name: string | null;
@@ -72,6 +73,7 @@ export interface ITrucoshiState {
   cardsReady: boolean;
   inspectedCard: ICard | null;
   cards: CardSources;
+  isSidebarOpen: boolean;
 }
 
 export interface ITrucoshiContext {

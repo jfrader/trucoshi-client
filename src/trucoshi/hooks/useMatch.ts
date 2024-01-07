@@ -12,7 +12,7 @@ import {
   IPlayedCard,
   ISaidCommand,
 } from "trucoshi";
-import { TrucoshiContext } from "../state/context";
+import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 
 export interface UseMatchOptions {
@@ -46,20 +46,16 @@ export const useMatch = (
 
   const fetchMatch = useCallback(() => {
     if (matchId && context.state.isConnected) {
-      socket.emit(
-        EClientEvent.FETCH_MATCH,
-        matchId,
-        ({ success, match }) => {
-          if (!success) {
-            setError(new Error("No se pudo encontrar la partida"));
-            return;
-          }
-          _setMatch(match);
-          setError(null);
+      socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
+        if (!success) {
+          setError(new Error("No se pudo encontrar la partida"));
+          return;
         }
-      );
+        _setMatch(match);
+        setError(null);
+      });
     }
-  }, [context.state.isConnected, context.state.session, matchId, socket]);
+  }, [context.state.isConnected, matchId, socket]);
 
   const setMatch = useCallback(
     (value: IPublicMatch) => {

@@ -16,7 +16,7 @@ import {
   FadeProps,
 } from "@mui/material";
 import { useState, createRef, useLayoutEffect, FC } from "react";
-import { useChat } from "../trucoshi/hooks/useChat";
+import { useChat } from "../../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
 import {
   CARDS_HUMAN_READABLE,
@@ -26,10 +26,10 @@ import {
   IPublicMatch,
   IPublicPlayer,
 } from "trucoshi";
-import { getTeamColor, getTeamName } from "../utils/team";
-import { bounce } from "../assets/animations/bounce";
-import { useSound } from "../sound/hooks/useSound";
-import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
+import { getTeamColor, getTeamName } from "../../utils/team";
+import { bounce } from "../../assets/animations/bounce";
+import { useSound } from "../../sound/hooks/useSound";
+import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -80,7 +80,7 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
   width: "17rem",
   [theme.breakpoints.up("lg")]: {
     height: "calc(100vh - 48px)",
-    width: "16rem",
+    width: "20rem",
   },
   transition: theme.transitions.create(["height"], {
     duration: theme.transitions.duration.standard,
@@ -91,7 +91,6 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
 }));
 
 export const ChatRoom = ({
-  matchId,
   players,
   useChatState,
   active,

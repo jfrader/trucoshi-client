@@ -1,10 +1,10 @@
 import { Box, Button, ButtonGroup, Typography } from "@mui/material";
 import { ICard } from "trucoshi";
-import { useRounds } from "../trucoshi/hooks/useRounds";
-import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../trucoshi/types";
-import { GameCard } from "./GameCard";
+import { useRounds } from "../../trucoshi/hooks/useRounds";
+import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
+import { GameCard } from "../card/GameCard";
 import { PlayerTag } from "./PlayerTag";
-import { DANGEROUS_COMMANDS, COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
+import { DANGEROUS_COMMANDS, COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { TurnProgress } from "./TurnProgress";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "canSay" | "previousHand" | "match"> &
@@ -28,6 +28,7 @@ const MatchPlayer = ({
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">
+    <TurnProgress match={match} player={player} previousHand={previousHand} />
       <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <PlayerTag
           disabled={!player.ready || player.disabled}
@@ -92,7 +93,6 @@ const MatchPlayer = ({
           </Box>
         ) : null}
       </Box>
-      <TurnProgress match={match} player={player} previousHand={previousHand} />
     </Box>
   );
 };

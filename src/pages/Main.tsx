@@ -5,9 +5,9 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { TrucoshiText } from "../shared/TrucoshiText";
 import { Link } from "../shared/Link";
-import { FooterLink } from "../shared/FooterLink";
+import { FooterLink } from "../components/layout/FooterLink";
 import { GENERAL_LINKS } from "../assets/links/links";
-import { CardToggler } from "../components/CardToggler";
+import { CardToggler } from "../components/card/CardToggler";
 
 export const Main = () => {
   const [{ version }] = useTrucoshi();
