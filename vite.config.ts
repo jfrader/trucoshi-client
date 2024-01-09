@@ -10,9 +10,12 @@ export default defineConfig({
     port: 2991,
   },
   optimizeDeps: {
-    include: ["lightning-accounts", "react-qr-code"],
+    include: ["lightning-accounts", "react-qr-code", "trucoshi"],
   },
   build: {
+    commonjsOptions: {
+      include: [/lightning-accounts/, /node_modules/],
+    },
     sourcemap: true,
   },
 });

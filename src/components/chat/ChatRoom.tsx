@@ -235,7 +235,7 @@ export const MessageAuthor = ({
 
   return (
     <Typography color={color} display="inline">
-      {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.id + ": "}
+      {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.name + ": "}
     </Typography>
   );
 };

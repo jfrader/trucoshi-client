@@ -24,7 +24,7 @@ export const PlayerTag = ({
         variant="h5"
         {...props}
       >
-        {player.id}
+        {player.name}
       </PlayerName>
       <Box>
         <TeamTag teamIdx={player.teamIdx} />

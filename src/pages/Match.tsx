@@ -149,7 +149,7 @@ const Match = () => {
             <Box mb={4}>
               {match.winner.players.map((p) => (
                 <Typography key={p.key} display="inline" pt="1em" pr="1.6em" variant="h6">
-                  {p.id}
+                  {p.name}
                 </Typography>
               ))}
             </Box>
