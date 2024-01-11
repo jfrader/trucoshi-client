@@ -4,6 +4,7 @@ import {
   ECommand,
   EMatchState,
   ICard,
+  ILobbyOptions,
   IMatchPreviousHand,
   IPublicMatch,
   IPublicPlayer,
@@ -14,6 +15,8 @@ import { IPublicMatchInfo } from "trucoshi";
 import { CardSources } from "./hooks/useCards";
 import { Dispatch, SetStateAction } from "react";
 import { User } from "lightning-accounts";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
 
 export enum ETrucoshiStateActions {
   SET_SESSION,
@@ -31,6 +34,7 @@ export interface ITrucoshiMatchActions {
   createMatch(callback: ICallbackMatchUpdate): void;
   joinMatch(sessionId: string, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean): void;
+  setOptions(options: Partial<ILobbyOptions>, cb: (success: boolean) => void): void;
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand | number): void;
   nextHand(): void;
@@ -55,6 +59,9 @@ export interface ITrucoshiActions {
   sendUserId(id: string, callback?: () => void): void;
   setCardTheme(theme: ICardTheme): void;
   inspectCard: Dispatch<SetStateAction<ICard | null>>;
+  refetchMe: (
+    options?: RefetchOptions | undefined
+  ) => Promise<QueryObserverResult<AxiosResponse<User, any>, AxiosError<unknown, any>>>;
   logout(): void;
 }
 

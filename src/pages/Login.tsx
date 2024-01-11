@@ -56,7 +56,6 @@ export const Login = () => {
                 Iniciar Sesion
               </LoadingButton>
               <Button
-                type="submit"
                 onClick={() => navigate("/register")}
                 color="success"
               >

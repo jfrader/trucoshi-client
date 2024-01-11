@@ -11,9 +11,12 @@ import {
   IMatchPreviousHand,
   IPlayedCard,
   ISaidCommand,
+  ILobbyOptions,
 } from "trucoshi";
 import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
+import { useCookies } from "react-cookie";
+import { usePayRequest } from "../../api/hooks/usePayRequest";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
@@ -34,7 +37,10 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
+  const [cookies] = useCookies(["jwt:identity"]);
   const [hash, setHash] = useState("");
+
+  const { pay } = usePayRequest();
 
   const { onMyTurn, onFreshHand, onPlayedCard, onSaidCommand } = options;
 
@@ -89,7 +95,7 @@ export const useMatch = (
     [context.dispatch, setMatch, socket]
   );
 
-  const setReady = useCallback(
+  const emitReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
       socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready, ({ success, match }) => {
         if (success && match) {
@@ -100,6 +106,21 @@ export const useMatch = (
       });
     },
     [setMatch, socket]
+  );
+
+  const setReady = useCallback(
+    (matchSessionId: string, ready: boolean) => {
+      if (me?.payRequestId) {
+        return pay(String(me?.payRequestId), {
+          onSuccess() {
+            context.dispatch.refetchMe();
+            emitReady(matchSessionId, ready);
+          },
+        });
+      }
+      emitReady(matchSessionId, ready);
+    },
+    [context.dispatch, emitReady, me?.payRequestId, pay]
   );
 
   const joinMatch = useCallback(
@@ -122,16 +143,52 @@ export const useMatch = (
     [context.dispatch, setMatch, socket]
   );
 
+  const setOptions = useCallback(
+    (options: Partial<ILobbyOptions>, cb: (success: boolean) => void) => {
+      if (!matchId || !match) {
+        return;
+      }
+
+      const identity =
+        options.satsPerPlayer && options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
+
+      socket.emit(
+        EClientEvent.SET_MATCH_OPTIONS,
+        identity,
+        matchId,
+        options,
+        ({ success, activeMatches, match }) => {
+          cb(success);
+          if (!success) {
+            console.error("Failed to set match options");
+          }
+
+          if (activeMatches) {
+            context.dispatch.setActiveMatches(activeMatches);
+          }
+
+          if (match) {
+            setMatch(match);
+          }
+        }
+      );
+    },
+    [context.dispatch, cookies, match, matchId, setMatch, socket]
+  );
+
   const startMatch = useCallback(() => {
-    if (!matchId) {
+    if (!matchId || !match) {
       return;
     }
-    socket.emit(EClientEvent.START_MATCH, matchId, ({ success }) => {
+
+    const identity = match.options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
+
+    socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ success }) => {
       if (!success) {
         console.error("Couldn't start match");
       }
     });
-  }, [matchId, socket]);
+  }, [cookies, match, matchId, socket]);
 
   useEffect(() => {
     fetchMatch();
@@ -250,6 +307,7 @@ export const useMatch = (
       sayCommand,
       joinMatch,
       setReady,
+      setOptions,
       startMatch,
       createMatch,
       leaveMatch,

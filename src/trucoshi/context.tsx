@@ -55,16 +55,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const { me, error, isPending: isPendingMe } = useMe();
-  const { refreshTokens, isPending: isPendingRefreshTokens } = useRefreshTokens();
+  const { me, error, isPending: isPendingMe, refetch: refetchMe } = useMe();
+  const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
-
-  useEffect(() => {
-    if (me && !cookies["jwt:identity"]) {
-      refreshTokens({});
-    }
-  }, [cookies, me, refreshTokens]);
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
@@ -74,8 +68,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       if (success) {
         setLogged(false);
         setAccount(null);
-        removeCookie("jwt:access");
-        removeCookie("jwt:refresh");
         removeCookie("jwt:identity");
         return;
       }
@@ -86,7 +78,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     if (is401(error)) {
       logout();
     }
-  }, [error, logout, refreshTokens]);
+  }, [error, logout]);
 
   useEffect(() => {
     if (me && cookies["jwt:identity"]) {
@@ -214,6 +206,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             fetchPublicMatches,
             inspectCard,
             logout,
+            refetchMe,
           },
         } satisfies ITrucoshiContext
       }

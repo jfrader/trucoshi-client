@@ -35,10 +35,7 @@ const Match = () => {
     { match, error, canSay, canPlay, previousHand, me },
     { playCard, sayCommand, leaveMatch, nextHand },
   ] = useMatch(sessionId, {
-    onMyTurn: () => {
-      console.log("onMyTurn");
-      queue("turn");
-    },
+    onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
   });
 

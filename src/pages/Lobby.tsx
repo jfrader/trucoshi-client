@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -7,6 +7,9 @@ import {
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   IconButton,
   List,
   ListItem,
@@ -26,15 +29,20 @@ import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/chat/Ch
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";
+import { Sats } from "../shared/Sats";
+import { GameOptions } from "../components/game/GameOptions";
 
 export const Lobby = () => {
   useSound();
-  const [{ session }] = useTrucoshi();
+  const [{ session, account }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
+
+  const [isOptionsOpen, setOptionsOpen] = useState(false);
 
   const navigate = useNavigate();
 
-  const [{ match, me, error }, { joinMatch, setReady, startMatch }] = useMatch(sessionId);
+  const [{ match, me, error }, { joinMatch, setReady, startMatch, setOptions }] =
+    useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -69,11 +77,19 @@ export const Lobby = () => {
                       <Typography textAlign="left" fontWeight="bold">
                         Reglas
                       </Typography>
-                      <IconButton>
+                      <IconButton onClick={() => setOptionsOpen(true)}>
                         <Settings />
                       </IconButton>
                     </Stack>
-                    <List dense>
+                    <List>
+                      {account ? (
+                        <ListItem disablePadding>
+                          <ListItemText>Sats por jugador</ListItemText>
+                          <ListItemSecondaryAction>
+                            <Sats>{match.options.satsPerPlayer}</Sats>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ) : null}
                       <ListItem disablePadding>
                         <ListItemText>Max. Jugadores</ListItemText>
                         <ListItemSecondaryAction>
@@ -156,6 +172,17 @@ export const Lobby = () => {
         />
       ) : (
         <FloatingProgress />
+      )}
+      {isOptionsOpen && match && (
+        <Dialog open={isOptionsOpen} onClose={() => setOptionsOpen(false)}>
+          <DialogTitle>Reglas de la partida</DialogTitle>
+          <DialogContent>
+            <GameOptions
+              defaultValues={match.options}
+              onSubmit={(o) => setOptions(o, () => setOptionsOpen(false))}
+            />
+          </DialogContent>
+        </Dialog>
       )}
       <FixedChatContainer>
         <ChatRoom {...useChatRoom(match)} />

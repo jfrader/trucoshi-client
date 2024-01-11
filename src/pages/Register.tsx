@@ -108,7 +108,6 @@ export const Register = () => {
                 Registrarse
               </LoadingButton>
               <Button
-                type="submit"
                 onClick={() => navigate("/login")}
                 color="success"
               >
