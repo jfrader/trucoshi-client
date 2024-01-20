@@ -4,7 +4,7 @@ import { Api } from "lightning-accounts";
 const config = {
   secure: import.meta.env.MODE === "production",
   withCredentials: true,
-  baseURL: import.meta.env.LIGHTNING_ACCOUNTS_URL,
+  baseURL: import.meta.env.VITE_LIGHTNING_ACCOUNTS_URL,
 };
 
 const apiClient = new Api(config);
