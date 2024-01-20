@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../apiClient";
-import { UseQueryOptions, keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UseQueryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse, AxiosError } from "axios";
 import { Transaction } from "lightning-accounts";
 
