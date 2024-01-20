@@ -16,11 +16,11 @@ Edit `.env` file to point to your trucoshi instance
 
 ### Start development server
 
-`yarn dev`
+`yarn start`
 
 # Donations
 
-Donate Bitcoin at [jfrader.com](https://jfrader.com)
+Donate Bitcoin at [geyser.fund/project/trucoshi](https://geyser.fund/project/trucoshi)
 
 # License
 
