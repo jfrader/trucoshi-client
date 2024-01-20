@@ -9,14 +9,16 @@ export const DepositMenu = ({
   transaction,
   onClose,
 }: {
-  transaction: Transaction;
+  transaction?: Transaction;
   onClose(): void;
 }) => {
-  const { deposit, enable } = useDeposit({ transactionId: String(transaction.id) });
+  const { deposit, enable } = useDeposit({ transactionId: String(transaction?.id) });
 
   useEffect(() => {
-    enable();
-  }, [enable]);
+    if (transaction) {
+      enable();
+    }
+  }, [enable, transaction]);
 
   return (
     <Stack>
@@ -46,7 +48,9 @@ export const DepositMenu = ({
           )}
         </>
       ) : (
-        <CircularProgress />
+        <Stack py={2} direction="row" alignItems="center" justifyContent="center">
+          <CircularProgress />
+        </Stack>
       )}
     </Stack>
   );

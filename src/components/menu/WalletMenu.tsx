@@ -118,7 +118,7 @@ export const WalletMenu = () => {
           </form>
         </Collapse>
       </FormGroup>
-      {isDepositOpen && deposit && (
+      {isDepositOpen && (
         <Dialog open onClose={() => setDepositOpen(false)}>
           <DialogTitle>Deposito</DialogTitle>
           <DialogContent>
