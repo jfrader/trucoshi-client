@@ -4435,6 +4435,45 @@ lightning-accounts@2.0.1:
     winston "^3.8.2"
     xss-filters "^1.2.7"
 
+lightning-accounts@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/lightning-accounts/-/lightning-accounts-2.0.2.tgz#8efbee03da0068361d715e6e1910b011a4639676"
+  integrity sha512-nBzlTAqgYzxFm1o5r7z1p6o5fHyXj3GgOmHu3QTky9ycuFoSeeMPWWRz49EUiRxwKyll51LWSf2/GvJ+vEuS+A==
+  dependencies:
+    "@openapi-contrib/json-schema-to-openapi-schema" "^3.0.1"
+    "@prisma/client" "^5.7.1"
+    "@types/bcryptjs" "^2.4.2"
+    "@types/cookie-parser" "^1.4.6"
+    "@types/js-yaml" "^4.0.9"
+    "@types/nodemailer" "^6.4.7"
+    "@types/swagger2openapi" "^7.0.4"
+    axios "^1.6.3"
+    bcryptjs "^2.4.3"
+    compression "^1.7.4"
+    cookie-parser "^1.4.6"
+    cors "^2.8.5"
+    dotenv "^16.0.3"
+    dotenv-cli "^7.3.0"
+    express "^4.18.2"
+    express-rate-limit "^6.7.0"
+    form-data "^4.0.0"
+    helmet "^6.0.1"
+    http-status "^1.5.3"
+    joi "^17.7.0"
+    js-yaml "^4.1.0"
+    lightning "^10.2.1"
+    moment "^2.29.4"
+    morgan "^1.10.0"
+    nodemailer "^6.8.0"
+    passport "^0.6.0"
+    passport-cookie "^1.0.9"
+    passport-jwt "^4.0.0"
+    pm2 "^5.2.2"
+    prisma-json-schema-generator "^5.1.1"
+    swagger2openapi "^7.0.8"
+    winston "^3.8.2"
+    xss-filters "^1.2.7"
+
 lightning@^10.2.1:
   version "10.2.1"
   resolved "https://registry.yarnpkg.com/lightning/-/lightning-10.2.1.tgz#261bad485d2fbc236461410e4f7dab2f972626e3"
@@ -6297,10 +6336,10 @@ triple-beam@^1.3.0:
   resolved "https://registry.yarnpkg.com/triple-beam/-/triple-beam-1.4.1.tgz#6fde70271dc6e5d73ca0c3b24e2d92afb7441984"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
 
-trucoshi@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-2.0.3.tgz#5f83460747456756b86b0b47579f869816ebbb3c"
-  integrity sha512-FTrIeU9Sjcb2HK7pKLLHVEB3lgEw1wrb+MlR7PUgIxTXpgGcwTI38ZSr/R4zqR7ECu5sOqin6qUiRXZbCuVatQ==
+trucoshi@2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-2.0.6.tgz#626514949399d086b3fc24de8057ad06d874897c"
+  integrity sha512-vY5RR33dXo0IE6NguHxEviCZnPMJemkLWaplM95Y0a7Jz8qnrmI/y93AKMZ9YauM+fEE358HN0HrYe6vXIpXJg==
   dependencies:
     "@prisma/client" "^4.14.1"
     "@socket.io/redis-adapter" "^8.2.1"
