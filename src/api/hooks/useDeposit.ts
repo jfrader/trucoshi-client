@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../apiClient";
-import { UseQueryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UseQueryOptions, keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse, AxiosError } from "axios";
 import { Transaction } from "lightning-accounts";
 
@@ -20,6 +20,7 @@ export const useDeposit = ({
     retry: false,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
+    placeholderData: keepPreviousData,
     enabled,
     ...options,
   });
