@@ -110,11 +110,7 @@ export const WalletMenu = () => {
                   endAdornment: <SatoshiIcon color="warning" />,
                 }}
               />
-              <IconButton
-                title="Aceptar"
-                type="submit"
-                size="small"
-              >
+              <IconButton title="Aceptar" type="submit" size="small" disabled={!Number(isDeposit)}>
                 <Check fontSize="small" />
               </IconButton>
             </Stack>

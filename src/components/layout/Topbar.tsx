@@ -27,24 +27,8 @@ export const Topbar = () => {
           </Typography>
         </Link>
         <Box flexGrow={1} />
-        <Stack pt={1} direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} alignItems="center">
           <CardThemeToggle />
-          {TOOLBAR_LINKS.map(({ to, Icon, title }) => {
-            return (
-              <Link title={title} key={to} to={to}>
-                <Icon fontSize="small" />
-              </Link>
-            );
-          })}
-          {account ? (
-            <Link to="/profile">
-              <Person2 fontSize="small" />
-            </Link>
-          ) : (
-            <Link title="Iniciar Sesion" to="/login">
-              <Login fontSize="small" />
-            </Link>
-          )}
           <Switch
             size="small"
             title="Dark Theme"
@@ -55,6 +39,27 @@ export const Topbar = () => {
               })
             }
           />
+          {TOOLBAR_LINKS.map(({ to, Icon, title }) => {
+            return (
+              <Link title={title} key={to} to={to}>
+                <Stack direction="row" alignItems="center">
+                  <Icon fontSize="small" />
+                </Stack>
+              </Link>
+            );
+          })}
+          {account ? (
+            <Link to="/profile">
+              <Stack direction="row" fontSize="small" gap={1} alignItems="center">
+                <Person2 fontSize="small" />
+                {account.name}
+              </Stack>
+            </Link>
+          ) : (
+            <Link title="Iniciar Sesion" to="/login">
+              <Login fontSize="small" />
+            </Link>
+          )}
           <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
             <Box>
               <IconButton

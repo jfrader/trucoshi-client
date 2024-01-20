@@ -31,14 +31,14 @@ export const DepositMenu = ({
             <Stack gap={2}>
               <QRCode value={(deposit.invoice as any)?.request} size={225} />
               <Stack direction="row">
+                <Button color="error" onClick={() => onClose()}>
+                  Cancelar
+                </Button>
                 <Button
                   color="info"
                   onClick={() => navigator.clipboard.writeText((deposit.invoice as any).request)}
                 >
                   Copiar Invoice
-                </Button>
-                <Button color="error" onClick={() => onClose()}>
-                  Cancelar
                 </Button>
               </Stack>
               <Sats amount={deposit.amountInSats} />

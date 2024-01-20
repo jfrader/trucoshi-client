@@ -1,13 +1,15 @@
 import { Person } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
 import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
 import { useNavigate } from "react-router-dom";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const [{ account }] = useTrucoshi();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,6 +24,12 @@ export const Login = () => {
   const onChangePassword = (event: ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
+
+  useEffect(() => {
+    if (account) {
+      navigate("/");
+    }
+  }, [account, navigate]);
 
   return (
     <PageLayout title="Iniciar Sesion" icon={<Person fontSize="large" />}>
@@ -55,10 +63,7 @@ export const Login = () => {
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
                 Iniciar Sesion
               </LoadingButton>
-              <Button
-                onClick={() => navigate("/register")}
-                color="success"
-              >
+              <Button onClick={() => navigate("/register")} color="success">
                 Registrarse
               </Button>
               {error ? <Alert severity="error">{error.message}</Alert> : null}

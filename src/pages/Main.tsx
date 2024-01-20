@@ -26,12 +26,12 @@ export const Main = () => {
       >
         <Stack
           direction={{ xs: "column", md: "row" }}
-          pt={2}
+          pt={1}
           pb={4}
           alignItems="center"
           justifyContent="center"
         >
-          <Link to="/">
+          <Link display={{ xs: "none", md: "block" }} to="/">
             <TrucoshiText width="100%" height="120em" style={{ objectFit: "contain" }} />
           </Link>
           <CardToggler width={{ xs: "80%", md: "33%" }} />

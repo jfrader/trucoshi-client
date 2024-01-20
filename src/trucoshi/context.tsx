@@ -20,6 +20,7 @@ import { useLogout } from "../api/hooks/useLogout";
 import { useRefreshTokens } from "../api/hooks/useRefreshTokens";
 import { is401 } from "../api/apiClient";
 import { useLogin } from "../api/hooks/useLogin";
+import { useToast } from "../hooks/useToast";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -38,7 +39,7 @@ const sendPing = () => {
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useStateStorage("session");
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
-  const [cookies, , removeCookie] = useCookies(["jwt:access", "jwt:refresh", "jwt:identity"]);
+  const [cookies, , removeCookie] = useCookies(["jwt:identity"]);
 
   const [version, setVersion] = useState("");
   const [name, setName] = useStateStorage("id");
@@ -60,6 +61,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
 
+  const toast = useToast();
+
   const logout = useCallback(() => {
     setLoadingAccount(true);
     apiLogout({});
@@ -69,10 +72,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         setLogged(false);
         setAccount(null);
         removeCookie("jwt:identity");
-        return;
+        socket.disconnect();
+        return socket.connect();
       }
+      toast.error("Hubo un error cerrando la sesion, intenta nuevamente");
     });
-  }, [apiLogout, removeCookie]);
+  }, [apiLogout, removeCookie, toast]);
 
   useEffect(() => {
     if (is401(error)) {
@@ -103,11 +108,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             setAccount(null);
             setLogged(false);
             removeCookie("jwt:identity");
+            refetchMe();
           }
         );
       }
     }
-  }, [cookies, isLogged, me, removeCookie]);
+  }, [cookies, isLogged, me, refetchMe, removeCookie, setName, toast]);
 
   useEffect(() => {
     if (!socket.connected) {
@@ -129,8 +135,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on(
       EServerEvent.SET_SESSION,
-      ({ name, session }, serverVersion, newActiveMatches): void => {
-        setName(name);
+      ({ session }, serverVersion, newActiveMatches): void => {
         setActiveMatches(newActiveMatches);
         setVersion(CLIENT_VERSION + "-" + serverVersion);
         setSession(session);
@@ -141,6 +146,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setActiveMatches(newActiveMatches);
     });
 
+    socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
+      console.log({ deletedMatchSessionId });
+      setActiveMatches((current) =>
+        current.filter((m) => m.matchSessionId !== deletedMatchSessionId)
+      );
+    });
+
     socket.on(EServerEvent.PONG, (serverTime, clientTime) => {
       setLastPong(serverTime);
       setServerAheadTime(serverTime - clientTime);
@@ -149,6 +161,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off(EServerEvent.MATCH_DELETED);
+      socket.off(EServerEvent.SET_SESSION);
       socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
       socket.off(EServerEvent.PONG);
     };
@@ -156,11 +170,15 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const sendUserId = useCallback(
     (userId: string, callback?: () => void) => {
+      if (account) {
+        return callback?.();
+      }
+
       socket.disconnect();
       setName(userId);
       callback?.();
     },
-    [setName]
+    [account, setName]
   );
 
   const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchState> } = {}) => {

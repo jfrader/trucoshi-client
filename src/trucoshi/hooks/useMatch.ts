@@ -12,11 +12,14 @@ import {
   IPlayedCard,
   ISaidCommand,
   ILobbyOptions,
+  EMatchState,
 } from "trucoshi";
 import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 import { useCookies } from "react-cookie";
 import { usePayRequest } from "../../api/hooks/usePayRequest";
+import { useToast } from "../../hooks/useToast";
+import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
@@ -30,6 +33,7 @@ export const useMatch = (
   options: UseMatchOptions = {}
 ): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
+  const toast = useToast();
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
   const [turnPlayer, setTurnPlayer] = useState<IPublicPlayer | null>(null);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
@@ -41,6 +45,7 @@ export const useMatch = (
   const [hash, setHash] = useState("");
 
   const { pay } = usePayRequest();
+  const { refreshTokens } = useRefreshTokens();
 
   const { onMyTurn, onFreshHand, onPlayedCard, onSaidCommand } = options;
 
@@ -55,13 +60,16 @@ export const useMatch = (
       socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
         if (!success) {
           setError(new Error("No se pudo encontrar la partida"));
+          context.dispatch.setActiveMatches(
+            context.state.activeMatches.filter((m) => m.matchSessionId !== matchId)
+          );
           return;
         }
         _setMatch(match);
         setError(null);
       });
     }
-  }, [context.state.isConnected, matchId, socket]);
+  }, [context.dispatch, context.state.activeMatches, context.state.isConnected, matchId, socket]);
 
   const setMatch = useCallback(
     (value: IPublicMatch) => {
@@ -90,9 +98,10 @@ export const useMatch = (
           return callback(null, match);
         }
         callback(new Error("No se pudo crear la partida"));
+        toast.error("No se pudo crear la partida, intenta nuevamente.");
       });
     },
-    [context.dispatch, setMatch, socket]
+    [context.dispatch, setMatch, socket, toast]
   );
 
   const emitReady = useCallback(
@@ -102,17 +111,17 @@ export const useMatch = (
           setMatch(match);
           return;
         }
-        console.error("Could not set as ready or unready");
+        toast.error("Hubo un error al ponerse listo, intenta nuevamente.");
       });
     },
-    [setMatch, socket]
+    [setMatch, socket, toast]
   );
 
   const setReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
       if (me?.payRequestId) {
         return pay(String(me?.payRequestId), {
-          onSuccess() {
+          onSettled() {
             context.dispatch.refetchMe();
             emitReady(matchSessionId, ready);
           },
@@ -136,11 +145,11 @@ export const useMatch = (
           if (success && match) {
             return setMatch(match);
           }
-          console.error("Could not join match");
+          toast.error("No se pudo unir a la partida, intenta nuevamente.");
         }
       );
     },
-    [context.dispatch, setMatch, socket]
+    [context.dispatch, setMatch, socket, toast]
   );
 
   const setOptions = useCallback(
@@ -152,6 +161,17 @@ export const useMatch = (
       const identity =
         options.satsPerPlayer && options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
 
+      if (!identity && options.satsPerPlayer && options.satsPerPlayer > 0) {
+        return refreshTokens(
+          {},
+          {
+            onSettled() {
+              toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
+            },
+          }
+        );
+      }
+
       socket.emit(
         EClientEvent.SET_MATCH_OPTIONS,
         identity,
@@ -160,7 +180,7 @@ export const useMatch = (
         ({ success, activeMatches, match }) => {
           cb(success);
           if (!success) {
-            console.error("Failed to set match options");
+            toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
           }
 
           if (activeMatches) {
@@ -173,7 +193,7 @@ export const useMatch = (
         }
       );
     },
-    [context.dispatch, cookies, match, matchId, setMatch, socket]
+    [context.dispatch, cookies, match, matchId, refreshTokens, setMatch, socket, toast]
   );
 
   const startMatch = useCallback(() => {
@@ -185,14 +205,33 @@ export const useMatch = (
 
     socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ success }) => {
       if (!success) {
-        console.error("Couldn't start match");
+        toast.error("Error al iniciar partida, intenta nuevamente.");
       }
     });
-  }, [cookies, match, matchId, socket]);
+  }, [cookies, match, matchId, socket, toast]);
 
   useEffect(() => {
     fetchMatch();
   }, [fetchMatch]);
+
+  // useEffect(() => {
+  //   if (preventLeave) {
+  //     window.onbeforeunload = function () {
+  //       return "";
+  //     };
+
+  //     window.onunload = function () {
+  //       if (match?.matchSessionId) {
+  //         socket.emit(EClientEvent.LEAVE_MATCH, match?.matchSessionId);
+  //       }
+  //     };
+  //   }
+
+  //   return () => {
+  //     window.onbeforeunload = function () {};
+  //     window.onunload = function () {};
+  //   };
+  // }, [match?.matchSessionId, preventLeave, socket]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
@@ -240,6 +279,12 @@ export const useMatch = (
       }
     });
 
+    socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
+      if (deletedMatchSessionId === matchId) {
+        setError(new Error("Esta partida ya no existe"));
+      }
+    });
+
     return () => {
       socket.off(EServerEvent.UPDATE_MATCH);
       socket.off(EServerEvent.WAITING_PLAY);
@@ -276,7 +321,7 @@ export const useMatch = (
   );
 
   const leaveMatch = useCallback(() => {
-    if (matchId && match && match.winner) {
+    if (matchId && match && match.state !== EMatchState.STARTED) {
       socket.emit(EClientEvent.LEAVE_MATCH, matchId);
     }
   }, [match, matchId, socket]);

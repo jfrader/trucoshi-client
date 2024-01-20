@@ -4,5 +4,5 @@ import { Link as RouterLink, NavLinkProps } from "react-router-dom";
 export type LinkProps = MuiLinkProps & NavLinkProps;
 
 export const Link = (props: LinkProps) => {
-  return <MuiLink color="text.primary" {...props} component={RouterLink} />;
+  return <MuiLink sx={{lineHeight: 1 }} color="text.primary" {...props} component={RouterLink} />;
 };

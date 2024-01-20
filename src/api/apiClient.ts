@@ -14,7 +14,6 @@ const is401 = (error: AxiosError | null) => error?.response?.status === 401;
 apiClient.instance.interceptors.response.use(
   (res) => res,
   (error) => {
-    console.log({ error });
     const originalReq = error.config;
     if (!originalReq._retry && is401(error)) {
       originalReq._retry = true;

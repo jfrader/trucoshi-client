@@ -17,30 +17,30 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Profile = () => {
   const navigate = useNavigate();
-  const [, { logout }] = useTrucoshi();
-  const { me, isPending } = useMe();
+  const [{ account }, { logout }] = useTrucoshi();
+  const { isPending } = useMe();
 
   useEffect(() => {
-    if (!me && !isPending) {
+    if (!account && !isPending) {
       navigate("/login");
     }
   });
 
-  if (!me) {
+  if (!account) {
     return null;
   }
 
   return (
-    <PageLayout title="Profile" icon={<Person fontSize="large" />}>
+    <PageLayout title="Perfil" icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           <Stack direction="row" gap={4}>
             <List dense sx={{ flexGrow: 1 }}>
               <ListItem divider>
-                <ListItemText primary="Nombre" secondary={me.name} />
+                <ListItemText primary="Nombre" secondary={account.name} />
               </ListItem>
               <ListItem divider>
-                <ListItemText primary="Email" secondary={me.email} />
+                <ListItemText primary="Email" secondary={account.email} />
               </ListItem>
               <ListItemButton divider onClick={() => logout()}>
                 <ListItemText primary="Cerrar Sesion" />

@@ -26,7 +26,7 @@ export const Home = () => {
         justifyContent="center"
         width="100%"
       >
-        <Stack flexGrow={1} gap={3} justifyContent="start" width="100%" maxWidth="sm">
+        <Stack flexGrow={1} gap={3} justifyContent="start" width="100%" maxWidth={{ md: "sm" }}>
           <Card>
             <CardContent>
               <PlayMenu />

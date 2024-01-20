@@ -179,6 +179,7 @@ export const Lobby = () => {
           <DialogContent>
             <GameOptions
               defaultValues={match.options}
+              onClose={() => setOptionsOpen(false)}
               onSubmit={(o) => setOptions(o, () => setOptionsOpen(false))}
             />
           </DialogContent>

@@ -19,8 +19,8 @@ export const CardToggler = (props: BoxProps) => {
   }, [cardTheme]);
 
   return (
-    <Box height="8em" {...props}>
-      <Box sx={{ position: "relative", left: "-2.5em", pt: 3 }} pt={3}>
+    <Box pt={3} height="8em" sx={{ position: "relative" }} {...props}>
+      <Box position="relative" right={25}>
         {randomCards.map((card, i) => {
           return (
             <HandCardContainer key={card} open cards={randomCards.length} i={i}>
@@ -28,29 +28,29 @@ export const CardToggler = (props: BoxProps) => {
             </HandCardContainer>
           );
         })}
-        <Stack justifyContent="end" alignItems="end" position="relative" left="2em" top="-1em">
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setRandomCards(getRandomCards());
-            }}
-            size="large"
-            color="primary"
-          >
-            <Refresh />
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setFlip((c) => !c);
-            }}
-            size="large"
-            color="success"
-          >
-            {flip ? <Visibility /> : <VisibilityOff />}
-          </IconButton>
-        </Stack>
       </Box>
+      <Stack justifyContent="end" alignItems="end" position="absolute" right="0">
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setRandomCards(getRandomCards());
+          }}
+          size="large"
+          color="primary"
+        >
+          <Refresh />
+        </IconButton>
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setFlip((c) => !c);
+          }}
+          size="large"
+          color="success"
+        >
+          {flip ? <Visibility /> : <VisibilityOff />}
+        </IconButton>
+      </Stack>
     </Box>
   );
 };

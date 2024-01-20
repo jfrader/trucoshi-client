@@ -14,6 +14,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
+import { SnackbarProvider } from "notistack";
 
 const AppRouter = createBrowserRouter([
   {
@@ -71,11 +72,13 @@ const queryClient = new QueryClient({});
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TrucoshiProvider>
-        <SoundProvider>
-          <RouterProvider router={AppRouter} />
-        </SoundProvider>
-      </TrucoshiProvider>
+      <SnackbarProvider>
+        <TrucoshiProvider>
+          <SoundProvider>
+            <RouterProvider router={AppRouter} />
+          </SoundProvider>
+        </TrucoshiProvider>
+      </SnackbarProvider>
     </QueryClientProvider>
   );
 }

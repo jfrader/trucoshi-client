@@ -46,12 +46,12 @@ const MatchPlayer = ({
                 canPlay && player.isMe && player.isTurn ? (
                   <GameCard
                     enableHover
-                    key={card + idx}
+                    key={card + player.key}
                     card={card as ICard}
                     onClick={() => onPlayCard(idx, card as ICard)}
                   />
                 ) : (
-                  <GameCard key={card + idx} card={card as ICard} />
+                  <GameCard key={card + player.key} card={card as ICard} />
                 )
               )}
           </Box>
