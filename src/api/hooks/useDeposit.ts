@@ -20,7 +20,7 @@ export const useDeposit = ({
     retry: false,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
-    placeholderData: keepPreviousData,
+    placeholderData: () => undefined,
     enabled,
     ...options,
   });
