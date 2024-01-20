@@ -22,7 +22,7 @@ export const DepositMenu = ({
 
   return (
     <Stack>
-      {deposit?.invoice ? (
+      {transaction && deposit?.invoice ? (
         <>
           {deposit.walletImpacted ? (
             <Stack gap={2}>
