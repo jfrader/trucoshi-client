@@ -70,11 +70,12 @@ export const WalletMenu = () => {
               if (deposit && !deposit.invoiceSettled && deposit.amountInSats === amountInSats) {
                 return setDepositOpen(true);
               }
+              setDepositOpen(true);
               createDeposit(
                 { amountInSats },
                 {
-                  onSuccess() {
-                    setDepositOpen(true);
+                  onError() {
+                    setDepositOpen(false);
                   },
                 }
               );
