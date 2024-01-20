@@ -20,14 +20,14 @@ export const useDeposit = ({
     retry: false,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
-    placeholderData: () => undefined,
     enabled,
     ...options,
   });
 
   const enable = useCallback(() => {
+    queryClient.resetQueries({ queryKey: ["wallet-get-deposit"] });
     setEnabled(true);
-  }, []);
+  }, [queryClient]);
 
   const disable = useCallback(() => {
     setEnabled(false);
