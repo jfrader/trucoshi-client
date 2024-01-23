@@ -42,7 +42,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [cookies, , removeCookie] = useCookies(["jwt:identity"]);
 
   const [version, setVersion] = useState("");
-  const [name, setName] = useStateStorage("id", "Satoshi");
+  const [name, setName] = useStateStorage("id", "Satoshi" as string);
   const [account, setAccount] = useState<User | null>(null);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
