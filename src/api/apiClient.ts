@@ -19,6 +19,11 @@ apiClient.instance.interceptors.response.use(
       originalReq._retry = true;
       return apiClient.auth.refreshTokensCreate().then(() => apiClient.instance(originalReq));
     }
+
+    if (error.response.data) {
+      return Promise.reject(error.response.data);
+    }
+
     return Promise.reject(error);
   }
 );

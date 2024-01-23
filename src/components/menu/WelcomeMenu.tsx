@@ -9,7 +9,7 @@ export const WelcomeMenu = () => {
   const navigate = useNavigate();
   const [{ name, account }, { sendUserId, logout }] = useTrucoshi();
 
-  const [nameField, setNameField] = useState(() => account?.name || name || "Satoshi");
+  const [nameField, setNameField] = useState(() => account?.name || name);
   const [isNameLoading, setNameLoading] = useState(false);
   const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {
     setNameField(event.target.value);

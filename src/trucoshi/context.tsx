@@ -42,7 +42,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [cookies, , removeCookie] = useCookies(["jwt:identity"]);
 
   const [version, setVersion] = useState("");
-  const [name, setName] = useStateStorage("id");
+  const [name, setName] = useStateStorage("id", "Satoshi");
   const [account, setAccount] = useState<User | null>(null);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
@@ -66,8 +66,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const logout = useCallback(() => {
     setLoadingAccount(true);
     apiLogout({});
-    socket.emit(EClientEvent.LOGOUT, ({ success }) => {
+    socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
       setLoadingAccount(false);
+      if (error) {
+        toast.error(error.message);
+      }
       if (success) {
         setLogged(false);
         setAccount(null);
@@ -95,8 +98,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           EClientEvent.LOGIN,
           me,
           cookies["jwt:identity"],
-          ({ success, activeMatches }) => {
+          ({ success, activeMatches, error }) => {
             setLoadingAccount(false);
+            if (error) {
+              toast.error(error.message);
+            }
             if (activeMatches) {
               setActiveMatches(activeMatches);
             }
@@ -133,14 +139,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setLogged(false);
     });
 
-    socket.on(
-      EServerEvent.SET_SESSION,
-      ({ session }, serverVersion, newActiveMatches): void => {
-        setActiveMatches(newActiveMatches);
-        setVersion(CLIENT_VERSION + "-" + serverVersion);
-        setSession(session);
-      }
-    );
+    socket.on(EServerEvent.SET_SESSION, ({ session }, serverVersion, newActiveMatches): void => {
+      setActiveMatches(newActiveMatches);
+      setVersion(CLIENT_VERSION + "-" + serverVersion);
+      setSession(session);
+    });
 
     socket.on(EServerEvent.UPDATE_ACTIVE_MATCHES, (newActiveMatches) => {
       setActiveMatches(newActiveMatches);

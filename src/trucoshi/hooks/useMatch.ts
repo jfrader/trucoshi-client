@@ -89,16 +89,21 @@ export const useMatch = (
 
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {
-      socket.emit(EClientEvent.CREATE_MATCH, ({ match, activeMatches }) => {
+      socket.emit(EClientEvent.CREATE_MATCH, ({ match, activeMatches, error }) => {
         if (activeMatches) {
           context.dispatch.setActiveMatches(activeMatches);
         }
+
+        if (error) {
+          toast.error(error.message);
+        }
+
         if (match) {
           setMatch(match);
           return callback(null, match);
         }
-        callback(new Error("No se pudo crear la partida"));
-        toast.error("No se pudo crear la partida, intenta nuevamente.");
+
+        callback(error || new Error("No se pudo crear la partida"));
       });
     },
     [context.dispatch, setMatch, socket, toast]
@@ -107,14 +112,16 @@ export const useMatch = (
   const emitReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
       socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready, ({ success, match }) => {
+        if (error) {
+          toast.error(error.message);
+        }
         if (success && match) {
           setMatch(match);
           return;
         }
-        toast.error("Hubo un error al ponerse listo, intenta nuevamente.");
       });
     },
-    [setMatch, socket, toast]
+    [error, setMatch, socket, toast]
   );
 
   const setReady = useCallback(
@@ -125,11 +132,14 @@ export const useMatch = (
             context.dispatch.refetchMe();
             emitReady(matchSessionId, ready);
           },
+          onError() {
+            toast.error("Hubo un error al pagar la entrada de la partida, intenta nuevamente");
+          },
         });
       }
       emitReady(matchSessionId, ready);
     },
-    [context.dispatch, emitReady, me?.payRequestId, pay]
+    [context.dispatch, emitReady, me?.payRequestId, pay, toast]
   );
 
   const joinMatch = useCallback(
@@ -142,14 +152,16 @@ export const useMatch = (
           if (activeMatches) {
             context.dispatch.setActiveMatches(activeMatches);
           }
+          if (error) {
+            toast.error(error.message);
+          }
           if (success && match) {
             return setMatch(match);
           }
-          toast.error("No se pudo unir a la partida, intenta nuevamente.");
         }
       );
     },
-    [context.dispatch, setMatch, socket, toast]
+    [context.dispatch, error, setMatch, socket, toast]
   );
 
   const setOptions = useCallback(
@@ -177,10 +189,10 @@ export const useMatch = (
         identity,
         matchId,
         options,
-        ({ success, activeMatches, match }) => {
+        ({ success, activeMatches, match, error }) => {
           cb(success);
-          if (!success) {
-            toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
+          if (error) {
+            toast.error(error.message);
           }
 
           if (activeMatches) {
@@ -203,9 +215,9 @@ export const useMatch = (
 
     const identity = match.options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
 
-    socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ success }) => {
-      if (!success) {
-        toast.error("Error al iniciar partida, intenta nuevamente.");
+    socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ error }) => {
+      if (error) {
+        toast.error(error.message);
       }
     });
   }, [cookies, match, matchId, socket, toast]);
@@ -213,25 +225,6 @@ export const useMatch = (
   useEffect(() => {
     fetchMatch();
   }, [fetchMatch]);
-
-  // useEffect(() => {
-  //   if (preventLeave) {
-  //     window.onbeforeunload = function () {
-  //       return "";
-  //     };
-
-  //     window.onunload = function () {
-  //       if (match?.matchSessionId) {
-  //         socket.emit(EClientEvent.LEAVE_MATCH, match?.matchSessionId);
-  //       }
-  //     };
-  //   }
-
-  //   return () => {
-  //     window.onbeforeunload = function () {};
-  //     window.onunload = function () {};
-  //   };
-  // }, [match?.matchSessionId, preventLeave, socket]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
