@@ -132,7 +132,10 @@ export const useMatch = (
             context.dispatch.refetchMe();
             emitReady(matchSessionId, ready);
           },
-          onError() {
+          onError(e) {
+            if (Number(e.code) === 302) {
+              return;
+            }
             toast.error("Hubo un error al pagar la entrada de la partida, intenta nuevamente");
           },
         });

@@ -1,9 +1,11 @@
 import { EmojiEvents, LooksOne, LooksTwo, VideogameAsset } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
 import {
+  Box,
   Card,
   CardContent,
   CircularProgress,
+  Divider,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,12 +17,23 @@ import {
 } from "@mui/material";
 import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { TrucoshiContext } from "../trucoshi/context";
-import { EClientEvent, ILobbyOptions, IMatchDetails, ITeamPoints } from "trucoshi";
+import {
+  EClientEvent,
+  ECommand,
+  ILobbyOptions,
+  IMatchDetails,
+  ITeamPoints,
+  IHandRoundLog,
+  CARDS_HUMAN_READABLE,
+  IHandPoints,
+} from "trucoshi";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { SatoshiIcon } from "../assets/icons/SatoshiIcon";
+import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
+import { Link } from "../shared/Link";
 
 export const MatchDetails = () => {
   const navigate = useNavigate();
@@ -57,101 +70,208 @@ export const MatchDetails = () => {
 
   const results = (match?.results || [{}, {}]) as [ITeamPoints, ITeamPoints];
 
+  const finalResults = (
+    <>
+      {results.map((result, idx) => (
+        <ListItem key={idx} divider>
+          <ListItemAvatar>
+            {idx === 0 ? (
+              <LooksOne color={getTeamColor(idx)} />
+            ) : (
+              <LooksTwo color={getTeamColor(idx)} />
+            )}
+          </ListItemAvatar>
+          <ListItemText
+            secondary={match?.winnerIdx === idx ? "Ganador" : "Perdedor"}
+            color={getTeamColor(idx)}
+            primary={getTeamName(idx)}
+          />
+          <ListItemAvatar>
+            {result.buenas || result.malas} {result.buenas ? "Buenas" : "Malas"}
+          </ListItemAvatar>
+        </ListItem>
+      ))}
+    </>
+  );
+
   return (
     <PageLayout title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
       <Card>
         <CardContent>
           {!isLoading ? (
-            <TabContext value={search.get("t") || "1"}>
-              <TabList
-                textColor="inherit"
-                onChange={handleChange}
-                aria-label="lab API tabs example"
-              >
-                <Tab label="Resumen" value="1" />
-                <Tab label="Jugadores" value="2" />
-              </TabList>
-              <TabPanel sx={{ px: 0 }} value="1">
-                {match ? (
-                  <List>
-                    {results.map((result, idx) => (
-                      <ListItem key={idx} divider>
-                        <ListItemAvatar>
-                          {idx === 0 ? (
-                            <LooksOne color={getTeamColor(idx)} />
-                          ) : (
-                            <LooksTwo color={getTeamColor(idx)} />
-                          )}
-                        </ListItemAvatar>
-                        <ListItemText
-                          secondary={match.winnerIdx === idx ? "Ganador" : "Perdedor"}
-                          color={getTeamColor(idx)}
-                          primary={getTeamName(idx)}
-                        />
-                        <ListItemAvatar>
-                          {result.buenas || result.malas} {result.buenas ? "Buenas" : "Malas"}
-                        </ListItemAvatar>
-                      </ListItem>
-                    ))}
-
-                    <ListItem divider>
-                      <ListItemAvatar>
-                        <EmojiEvents color="success" />
-                      </ListItemAvatar>
-                      <ListItemText secondary={match.sessionId} primary="Sesion" />
-                    </ListItem>
-
-                    {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
-                    -1 ? (
+            <>
+              {match ? (
+                <TabContext value={search.get("t") || "1"}>
+                  <TabList
+                    textColor="inherit"
+                    onChange={handleChange}
+                    aria-label="lab API tabs example"
+                  >
+                    <Tab label="Resumen" value="1" />
+                    <Tab label="Jugadores" value="2" />
+                    <Tab label="Manos" value="3" />
+                  </TabList>
+                  <TabPanel sx={{ px: 0 }} value="1">
+                    <List>
+                      {finalResults}
                       <ListItem divider>
                         <ListItemAvatar>
-                          <SatoshiIcon color="warning" />
+                          <EmojiEvents color="success" />
                         </ListItemAvatar>
+                        <ListItemText secondary={match.sessionId} primary="Sesion" />
+                      </ListItem>
+
+                      {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
+                      -1 ? (
+                        <ListItem divider>
+                          <ListItemAvatar>
+                            <SatoshiIcon color="warning" />
+                          </ListItemAvatar>
+                          <ListItemText
+                            secondary={(match.options as any as ILobbyOptions)?.satsPerPlayer}
+                            primary="Sats por jugador"
+                          />
+                        </ListItem>
+                      ) : null}
+                    </List>
+                  </TabPanel>
+                  <TabPanel sx={{ px: 0 }} value="2">
+                    <List>
+                      {match.players
+                        .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+                        .map((player) => (
+                          <ListItemButton
+                            key={player.id}
+                            disabled={!player.accountId}
+                            onClick={() => navigate(`/profile/${player.accountId}`)}
+                          >
+                            <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
+                            <ListItemText
+                              primary={player.name}
+                              secondary={
+                                <Typography
+                                  fontSize="small"
+                                  color={getTeamColor(player.teamIdx || 0)}
+                                >
+                                  {getTeamName(player.teamIdx)}
+                                </Typography>
+                              }
+                            />
+                            <ListItemSecondaryAction>
+                              {results[player.teamIdx].winner && <EmojiEvents />}
+                            </ListItemSecondaryAction>
+                          </ListItemButton>
+                        ))}
+                    </List>
+                  </TabPanel>
+                  <TabPanel sx={{ px: 0 }} value="3">
+                    {match.hands.map((hand) => {
+                      const rounds = hand.rounds as IHandRoundLog[][];
+                      const results = hand.results as any as IHandPoints;
+                      return (
+                        <Box key={hand.id} pb={4}>
+                          <List dense>
+                            <ListItem divider>
+                              <ListItemText>
+                                <Typography variant="h5">Mano {hand.idx}</Typography>
+                              </ListItemText>
+                            </ListItem>
+                            {rounds
+                              .flatMap((round) => round)
+                              .map((round, idx) => (
+                                <ListItem key={idx}>
+                                  <ListItemText
+                                    primary={
+                                      match.players[round.player].accountId ? (
+                                        <Link
+                                          to={`/profile/${match.players[round.player].accountId}`}
+                                        >
+                                          {match.players[round.player].name}
+                                        </Link>
+                                      ) : (
+                                        match.players[round.player].name
+                                      )
+                                    }
+                                    secondary={
+                                      <Typography
+                                        variant="subtitle2"
+                                        color={getTeamColor(match.players[round.player].teamIdx)}
+                                      >
+                                        {getTeamName(match.players[round.player].teamIdx)}
+                                      </Typography>
+                                    }
+                                  />
+                                  <ListItemAvatar>
+                                    <Typography textAlign="right">
+                                      {round.card
+                                        ? CARDS_HUMAN_READABLE[round.card]
+                                        : COMMANDS_HUMAN_READABLE[round.command as ECommand] ||
+                                          `${round.command}`}
+                                    </Typography>
+                                  </ListItemAvatar>
+                                </ListItem>
+                              ))}
+                            <Divider sx={{ pt: 4 }} />
+                            <ListItem divider>
+                              <ListItemText primary={<Typography>Resultados</Typography>} />
+                            </ListItem>
+                            {Object.values(results).map((points, idx) => (
+                              <ListItem divider key={idx}>
+                                <ListItemText secondary={getTeamName(idx)} />
+                                <ListItemAvatar>
+                                  <Typography textAlign="right">{points}</Typography>
+                                </ListItemAvatar>
+                              </ListItem>
+                            ))}
+                            {hand.trucoWinnerIdx !== null ? (
+                              <ListItem divider>
+                                <ListItemText primary="Ganador Truco" />
+                                <ListItemAvatar>
+                                  <Typography textAlign="right">
+                                    {getTeamName(hand.trucoWinnerIdx)}
+                                  </Typography>
+                                </ListItemAvatar>
+                              </ListItem>
+                            ) : null}
+                            {hand.envidoWinnerIdx !== null ? (
+                              <ListItem divider>
+                                <ListItemText primary="Ganador Envido" />
+                                <ListItemAvatar>
+                                  <Typography textAlign="right">
+                                    {getTeamName(hand.envidoWinnerIdx)}
+                                  </Typography>
+                                </ListItemAvatar>
+                              </ListItem>
+                            ) : null}
+                            {hand.florWinnerIdx !== null ? (
+                              <ListItem divider>
+                                <ListItemText primary="Ganador Flor" />
+                                <ListItemAvatar>
+                                  <Typography textAlign="right">
+                                    {getTeamName(hand.florWinnerIdx)}
+                                  </Typography>
+                                </ListItemAvatar>
+                              </ListItem>
+                            ) : null}
+                            <Divider />
+                          </List>
+                        </Box>
+                      );
+                    })}
+                    <List>
+                      <ListItem divider>
                         <ListItemText
-                          secondary={(match.options as any as ILobbyOptions)?.satsPerPlayer}
-                          primary="Sats por jugador"
+                          primary={<Typography variant="h5">Resultado Final</Typography>}
                         />
                       </ListItem>
-                    ) : null}
-                  </List>
-                ) : (
-                  <Typography>No se pudo encontrar la partida</Typography>
-                )}
-              </TabPanel>
-              <TabPanel sx={{ px: 0 }} value="2">
-                {match ? (
-                  <List>
-                    {match.players
-                      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
-                      .map((player) => (
-                        <ListItemButton
-                          key={player.id}
-                          disabled={!player.accountId}
-                          onClick={() => navigate(`/profile/${player.accountId}`)}
-                        >
-                          <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
-                          <ListItemText
-                            primary={player.name}
-                            secondary={
-                              <Typography
-                                fontSize="small"
-                                color={getTeamColor(player.teamIdx || 0)}
-                              >
-                                {getTeamName(player.teamIdx)}
-                              </Typography>
-                            }
-                          />
-                          <ListItemSecondaryAction>
-                            {results[player.teamIdx].winner && <EmojiEvents />}
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      ))}
-                  </List>
-                ) : (
-                  <Typography>No se pudo encontrar la partida</Typography>
-                )}
-              </TabPanel>
-            </TabContext>
+                      {finalResults}
+                    </List>
+                  </TabPanel>
+                </TabContext>
+              ) : (
+                <Typography>No se pudo encontrar la partida</Typography>
+              )}
+            </>
           ) : (
             <CircularProgress />
           )}

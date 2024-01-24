@@ -70,34 +70,36 @@ export const Lobby = () => {
           fill={match.options.maxPlayers}
           MiddleSlot={() => {
             return (
-              <Box width="100%" height="100%" display="flex">
-                <Card sx={{ zoom: 0.8, width: "100%", pl: 1 }} variant="outlined">
+              <Box width="100%" height="100%" display="flex" fontSize="small">
+                <Card sx={{ width: "100%", pl: 1 }} variant="outlined">
                   <CardContent sx={{ py: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Typography textAlign="left" fontWeight="bold">
                         Reglas
                       </Typography>
-                      <IconButton onClick={() => setOptionsOpen(true)}>
-                        <Settings />
-                      </IconButton>
+                      {match.busy ? null : (
+                        <IconButton size="small" onClick={() => setOptionsOpen(true)}>
+                          <Settings fontSize="small" />
+                        </IconButton>
+                      )}
                     </Stack>
                     <List>
                       {account ? (
                         <ListItem disablePadding>
-                          <ListItemText>Sats por jugador</ListItemText>
+                          <ListItemText disableTypography>Sats por jugador</ListItemText>
                           <ListItemSecondaryAction>
                             <Sats>{match.options.satsPerPlayer}</Sats>
                           </ListItemSecondaryAction>
                         </ListItem>
                       ) : null}
                       <ListItem disablePadding>
-                        <ListItemText>Max. Jugadores</ListItemText>
+                        <ListItemText disableTypography>Max. Jugadores</ListItemText>
                         <ListItemSecondaryAction>
                           {match.options.maxPlayers}
                         </ListItemSecondaryAction>
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText>Puntos por Etapa</ListItemText>
+                        <ListItemText disableTypography>Puntos por Etapa</ListItemText>
                         <ListItemSecondaryAction>
                           {match.options.matchPoint}
                         </ListItemSecondaryAction>

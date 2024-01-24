@@ -101,7 +101,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           ({ success, activeMatches, error }) => {
             setLoadingAccount(false);
             if (error) {
-              toast.error(error.message);
+              console.error(error.message);
             }
             if (activeMatches) {
               setActiveMatches(activeMatches);

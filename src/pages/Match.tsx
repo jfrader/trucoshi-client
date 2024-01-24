@@ -33,7 +33,7 @@ const Match = () => {
 
   const [
     { match, error, canSay, canPlay, previousHand, me },
-    { playCard, sayCommand, leaveMatch, nextHand },
+    { playCard, sayCommand, nextHand },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
@@ -42,10 +42,6 @@ const Match = () => {
   const chatProps = useChatRoom(match);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    return () => leaveMatch();
-  }, [leaveMatch]);
 
   useEffect(() => {
     if (match && match.state === EMatchState.UNREADY) {
