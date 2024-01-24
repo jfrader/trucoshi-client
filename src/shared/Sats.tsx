@@ -7,9 +7,9 @@ export const Sats = ({
   ...props
 }: { amount?: number; children?: number } & TypographyProps) => {
   return (
-    <Typography component="span" {...props}>
+    <Typography component="span" fontSize="inherit" variant="inherit" {...props}>
       <Stack component="span" direction="row" justifyContent="center">
-        <SatoshiIcon /> {amount !== undefined ? amount : children}
+        <SatoshiIcon fontSize="inherit" /> <span>{amount !== undefined ? amount : children}</span>
       </Stack>
     </Typography>
   );

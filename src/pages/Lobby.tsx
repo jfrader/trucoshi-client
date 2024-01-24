@@ -17,6 +17,7 @@ import {
   ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { GameTable } from "../components/game/GameTable";
 import { PlayerTag } from "../components/game/PlayerTag";
@@ -31,6 +32,7 @@ import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";
 import { Sats } from "../shared/Sats";
 import { GameOptions } from "../components/game/GameOptions";
+import { dark } from "../theme";
 
 export const Lobby = () => {
   useSound();
@@ -58,6 +60,8 @@ export const Lobby = () => {
   const onSetReady = () => sessionId && setReady(sessionId, true);
   const onSetUnReady = () => sessionId && setReady(sessionId, false);
 
+  const isMobile = useMediaQuery<typeof dark>((theme) => theme.breakpoints.down("md"));
+
   return (
     <Box>
       <SocketBackdrop />
@@ -66,24 +70,37 @@ export const Lobby = () => {
         <GameTable
           match={match}
           zoomOnMiddle
-          zoomFactor={1.3}
+          zoomFactor={1.35}
           fill={match.options.maxPlayers}
           MiddleSlot={() => {
             return (
               <Box width="100%" height="100%" display="flex" fontSize="small">
-                <Card sx={{ width: "100%", pl: 1 }} variant="outlined">
-                  <CardContent sx={{ py: 1 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Card
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    pl: 1,
+                    fontSize: { xs: "10px", sm: "11px", md: "inherit" },
+                  }}
+                  variant="outlined"
+                >
+                  <CardContent sx={{ py: 1, px: 0, pl: 0.5 }}>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      pr={1}
+                    >
                       <Typography textAlign="left" fontWeight="bold">
                         Reglas
                       </Typography>
-                      {match.busy ? null : (
+                      {match.busy || !match.me?.isOwner ? null : (
                         <IconButton size="small" onClick={() => setOptionsOpen(true)}>
                           <Settings fontSize="small" />
                         </IconButton>
                       )}
                     </Stack>
-                    <List>
+                    <List disablePadding={isMobile}>
                       {account ? (
                         <ListItem disablePadding>
                           <ListItemText disableTypography>Sats por jugador</ListItemText>
