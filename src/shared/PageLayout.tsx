@@ -1,13 +1,14 @@
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Container, ContainerProps, Stack, Typography } from "@mui/material";
 import { PropsWithChildren, ReactNode } from "react";
 
 export const PageLayout = ({
   title,
   children,
   icon = null,
-}: PropsWithChildren<{ title: string; icon?: ReactNode }>) => {
+  ...props
+}: PropsWithChildren<{ title: string; icon?: ReactNode } & ContainerProps>) => {
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" {...props}>
       <Box pt={4}>
         <Stack alignItems="center" spacing={1}>
           <Typography textTransform="uppercase" variant="subtitle1">

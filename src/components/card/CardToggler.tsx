@@ -19,17 +19,25 @@ export const CardToggler = (props: BoxProps) => {
   }, [cardTheme]);
 
   return (
-    <Box pt={3} height="8em" sx={{ position: "relative" }} {...props}>
-      <Box position="relative" right={25}>
+    <Box pt={3} height="7em" sx={{ position: "relative" }} {...props}>
+      <Box position="relative" left={-25}>
         {randomCards.map((card, i) => {
           return (
-            <HandCardContainer key={card} open cards={randomCards.length} i={i}>
-              <FlipGameCard shadow flip={flip} zoom card={card as ICard} />
+            <HandCardContainer
+              open
+              openMargin={4}
+              fontSize="11px"
+              key={card}
+              cards={randomCards.length}
+              i={i}
+            >
+              <FlipGameCard width="3rem" shadow flip={flip} zoom card={card as ICard} />
             </HandCardContainer>
           );
         })}
       </Box>
-      <Stack justifyContent="end" alignItems="end" position="absolute" right="0">
+
+      <Stack justifyContent="end" alignItems="end" position="absolute" right="0" top="0">
         <IconButton
           onClick={(e) => {
             e.stopPropagation();

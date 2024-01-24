@@ -15,6 +15,7 @@ import { Register } from "./pages/Register";
 import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
+import { MatchDetails } from "./pages/MatchDetails";
 
 const AppRouter = createBrowserRouter([
   {
@@ -48,6 +49,14 @@ const AppRouter = createBrowserRouter([
           {
             path: "profile",
             element: <Profile />,
+          },
+          {
+            path: "profile/:accountId",
+            element: <Profile />,
+          },
+          {
+            path: "history/:matchId",
+            element: <MatchDetails />,
           },
         ],
       },
