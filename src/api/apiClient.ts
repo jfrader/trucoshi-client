@@ -14,17 +14,20 @@ const is401 = (error: AxiosError | null) => error?.response?.status === 401;
 apiClient.instance.interceptors.response.use(
   (res) => res,
   (error) => {
+    const parsedError =
+      error && "response" in error && error.response?.data ? error.response.data : error;
     const originalReq = error.config;
     if (!originalReq._retry && is401(error)) {
       originalReq._retry = true;
-      return apiClient.auth.refreshTokensCreate().then(() => apiClient.instance(originalReq));
+      return apiClient.auth
+        .refreshTokensCreate()
+        .then(() => apiClient.instance(originalReq))
+        .catch(() => {
+          throw parsedError;
+        });
     }
 
-    if (error.response.data) {
-      return Promise.reject(error.response.data);
-    }
-
-    return Promise.reject(error);
+    return Promise.reject(parsedError);
   }
 );
 
