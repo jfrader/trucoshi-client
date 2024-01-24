@@ -65,7 +65,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
-    apiLogout({});
+    apiLogout({ withCredentials: true });
     socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
       setLoadingAccount(false);
       if (error) {
