@@ -19,7 +19,6 @@ import { TrucoshiContext } from "../trucoshi/context";
 import { useToast } from "../hooks/useToast";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import * as dayjs from "dayjs";
-import * as numeral from "numeral";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -71,6 +70,8 @@ export const Profile = () => {
     return null;
   }
 
+  const kda = String(Math.round((profile.stats?.win || 0) / (profile.stats?.loss || 1)));
+
   return (
     <PageLayout title="Perfil" icon={<Person fontSize="large" />}>
       <Card>
@@ -92,12 +93,7 @@ export const Profile = () => {
                     <ListItemText primary="Email" secondary={profile.account.email} />
                   </ListItem>
                   <ListItem divider>
-                    <ListItemText
-                      primary="Ratio de Victoria"
-                      secondary={numeral(
-                        (profile.stats?.win || 0) / (profile.stats?.loss || 1)
-                      ).format("0.0")}
-                    />
+                    <ListItemText primary="Ratio de Victoria" secondary={kda} />
                   </ListItem>
                   {!accountId || Number(accountId) === me?.id ? (
                     <>
