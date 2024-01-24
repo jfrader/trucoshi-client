@@ -71,6 +71,9 @@ export const Profile = () => {
     return null;
   }
 
+  const wins = profile.stats?.win || 0;
+  const loss = profile.stats?.loss || 0;
+
   return (
     <PageLayout title="Perfil" icon={<Person fontSize="large" />}>
       <Card>
@@ -94,9 +97,7 @@ export const Profile = () => {
                   <ListItem divider>
                     <ListItemText
                       primary="Ratio de Victoria"
-                      secondary={numeral(
-                        (profile.stats?.win || 0) / (profile.stats?.loss || 1)
-                      ).format("0.0")}
+                      secondary={numeral(wins / (wins + loss)).format("0.0")}
                     />
                   </ListItem>
                   {!accountId || Number(accountId) === me?.id ? (
