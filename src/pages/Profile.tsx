@@ -75,7 +75,7 @@ export const Profile = () => {
   const loss = profile.stats?.loss || 0;
 
   return (
-    <PageLayout title="Perfil" icon={<Person fontSize="large" />}>
+    <PageLayout title={profile.account.name} icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           {isLoading ? (

@@ -1,4 +1,4 @@
-import { EmojiEvents, LooksOne, LooksTwo, VideogameAsset } from "@mui/icons-material";
+import { EmojiEvents, LooksOne, LooksTwo, SupervisorAccount, VideogameAsset } from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
 import {
   Box,
@@ -119,6 +119,17 @@ export const MatchDetails = () => {
                           <EmojiEvents color="success" />
                         </ListItemAvatar>
                         <ListItemText secondary={match.sessionId} primary="Sesion" />
+                      </ListItem>
+                      <ListItem divider>
+                        <ListItemAvatar>
+                          <SupervisorAccount color="info" />
+                        </ListItemAvatar>
+                        <ListItemText
+                          secondary={
+                            match.players.find((p) => match.ownerAccountId === p.accountId)?.name
+                          }
+                          primary="Host"
+                        />
                       </ListItem>
 
                       {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==

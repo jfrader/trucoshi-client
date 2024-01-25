@@ -80,7 +80,7 @@ export const Lobby = () => {
                     width: "100%",
                     height: "100%",
                     pl: 1,
-                    fontSize: { xs: "10px", sm: "11px", md: "inherit" },
+                    fontSize: { xs: "10px", sm: "11px", md: "12px" },
                   }}
                   variant="outlined"
                 >

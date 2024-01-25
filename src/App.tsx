@@ -16,6 +16,7 @@ import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
+import { HeadlessMain } from "./pages/HeadlessMain";
 
 const AppRouter = createBrowserRouter([
   {
@@ -30,14 +31,12 @@ const AppRouter = createBrowserRouter([
             index: true,
             element: <Home />,
           },
-          {
-            path: "matches",
-            element: <Matches />,
-          },
-          {
-            path: "help",
-            element: <Help />,
-          },
+        ],
+      },
+      {
+        path: "/",
+        element: <HeadlessMain />,
+        children: [
           {
             path: "login",
             element: <Login />,
@@ -45,6 +44,14 @@ const AppRouter = createBrowserRouter([
           {
             path: "register",
             element: <Register />,
+          },
+          {
+            path: "matches",
+            element: <Matches />,
+          },
+          {
+            path: "help",
+            element: <Help />,
           },
           {
             path: "profile",
@@ -58,19 +65,19 @@ const AppRouter = createBrowserRouter([
             path: "history/:matchId",
             element: <MatchDetails />,
           },
+          {
+            path: "lobby/:sessionId",
+            element: <Lobby />,
+          },
+          {
+            path: "match/:sessionId",
+            element: <Match />,
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
         ],
-      },
-      {
-        path: "lobby/:sessionId",
-        element: <Lobby />,
-      },
-      {
-        path: "match/:sessionId",
-        element: <Match />,
-      },
-      {
-        path: "*",
-        element: <NotFound />,
       },
     ],
   },
