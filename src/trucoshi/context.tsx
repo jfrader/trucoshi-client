@@ -64,17 +64,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast();
 
   const logout = useCallback(() => {
-    setLoadingAccount(true);
     apiLogout({ withCredentials: true });
+    setLoadingAccount(true);
     removeCookie("jwt:identity");
+    setLogged(false);
+    setAccount(null);
     socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
       setLoadingAccount(false);
       if (error) {
         toast.error(error.message);
       }
       if (success) {
-        setLogged(false);
-        setAccount(null);
         socket.disconnect();
         return socket.connect();
       }
@@ -139,18 +139,22 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setLogged(false);
     });
 
-    socket.on(EServerEvent.SET_SESSION, ({ session }, serverVersion, newActiveMatches): void => {
-      setActiveMatches(newActiveMatches);
-      setVersion(CLIENT_VERSION + "-" + serverVersion);
-      setSession(session);
-    });
+    socket.on(
+      EServerEvent.SET_SESSION,
+      ({ session, account }, serverVersion, newActiveMatches): void => {
+        setActiveMatches(newActiveMatches);
+        setVersion(CLIENT_VERSION + "-" + serverVersion);
+        if (!account) {
+          setSession(session);
+        }
+      }
+    );
 
     socket.on(EServerEvent.UPDATE_ACTIVE_MATCHES, (newActiveMatches) => {
       setActiveMatches(newActiveMatches);
     });
 
     socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
-      console.log({ deletedMatchSessionId });
       setActiveMatches((current) =>
         current.filter((m) => m.matchSessionId !== deletedMatchSessionId)
       );

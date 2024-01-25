@@ -36,7 +36,7 @@ import { dark } from "../theme";
 
 export const Lobby = () => {
   useSound();
-  const [{ session, account }] = useTrucoshi();
+  const [{ account }] = useTrucoshi();
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
@@ -53,7 +53,7 @@ export const Lobby = () => {
       }
       return;
     }
-  }, [match, navigate, session, sessionId]);
+  }, [match, navigate, sessionId]);
 
   const onJoinMatch = (teamIdx: 0 | 1) => sessionId && joinMatch(sessionId, teamIdx);
   const onStartMatch = () => startMatch();
