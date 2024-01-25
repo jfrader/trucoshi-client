@@ -2,6 +2,7 @@ import {
   EmojiEvents,
   LooksOne,
   LooksTwo,
+  Person,
   SupervisorAccount,
   VideogameAsset,
 } from "@mui/icons-material";
@@ -128,15 +129,27 @@ export const MatchDetails = () => {
                         </ListItemAvatar>
                         <ListItemText secondary={match.sessionId} primary="Sesion" />
                       </ListItem>
-                      <ListItemButton
-                        onClick={() => navigate(`/profile/${owner?.accountId}`)}
-                        divider
-                      >
-                        <ListItemAvatar>
-                          <SupervisorAccount color="info" />
-                        </ListItemAvatar>
-                        <ListItemText secondary={owner?.name} primary="Host" />
-                      </ListItemButton>
+                      {owner?.accountId ? (
+                        <ListItemButton
+                          onClick={() => navigate(`/profile/${owner?.accountId}`)}
+                          divider
+                        >
+                          <ListItemAvatar>
+                            <SupervisorAccount color="info" />
+                          </ListItemAvatar>
+                          <ListItemText secondary={owner?.name} primary="Host" />
+                          <ListItemAvatar>
+                            <Person />
+                          </ListItemAvatar>
+                        </ListItemButton>
+                      ) : (
+                        <ListItem divider>
+                          <ListItemAvatar>
+                            <SupervisorAccount color="info" />
+                          </ListItemAvatar>
+                          <ListItemText secondary={owner?.name} primary="Host" />
+                        </ListItem>
+                      )}
 
                       {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
                       -1 ? (
