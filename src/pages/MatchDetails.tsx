@@ -1,4 +1,10 @@
-import { EmojiEvents, LooksOne, LooksTwo, SupervisorAccount, VideogameAsset } from "@mui/icons-material";
+import {
+  EmojiEvents,
+  LooksOne,
+  LooksTwo,
+  SupervisorAccount,
+  VideogameAsset,
+} from "@mui/icons-material";
 import { PageLayout } from "../shared/PageLayout";
 import {
   Box,
@@ -94,6 +100,8 @@ export const MatchDetails = () => {
     </>
   );
 
+  const owner = match?.players.find((p) => match.ownerAccountId === p.accountId);
+
   return (
     <PageLayout title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
       <Card>
@@ -120,17 +128,15 @@ export const MatchDetails = () => {
                         </ListItemAvatar>
                         <ListItemText secondary={match.sessionId} primary="Sesion" />
                       </ListItem>
-                      <ListItem divider>
+                      <ListItemButton
+                        onClick={() => navigate(`/profile/${owner?.accountId}`)}
+                        divider
+                      >
                         <ListItemAvatar>
                           <SupervisorAccount color="info" />
                         </ListItemAvatar>
-                        <ListItemText
-                          secondary={
-                            match.players.find((p) => match.ownerAccountId === p.accountId)?.name
-                          }
-                          primary="Host"
-                        />
-                      </ListItem>
+                        <ListItemText secondary={owner?.name} primary="Host" />
+                      </ListItemButton>
 
                       {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
                       -1 ? (
