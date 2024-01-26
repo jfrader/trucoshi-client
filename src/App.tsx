@@ -66,18 +66,18 @@ const AppRouter = createBrowserRouter([
             element: <MatchDetails />,
           },
           {
-            path: "lobby/:sessionId",
-            element: <Lobby />,
-          },
-          {
-            path: "match/:sessionId",
-            element: <Match />,
-          },
-          {
             path: "*",
             element: <NotFound />,
           },
         ],
+      },
+      {
+        path: "lobby/:sessionId",
+        element: <Lobby />,
+      },
+      {
+        path: "match/:sessionId",
+        element: <Match />,
       },
     ],
   },

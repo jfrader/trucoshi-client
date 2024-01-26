@@ -56,7 +56,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const { me, error, isPending: isPendingMe, refetch: refetchMe } = useMe();
+  const {
+    me,
+    error,
+    isFetching: isPendingMe,
+    refetch: refetchMe,
+    reset: resetMe,
+  } = useMe({ enabled: !!cookies["jwt:identity"] });
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
@@ -64,11 +70,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast();
 
   const logout = useCallback(() => {
-    apiLogout({ withCredentials: true });
     setLoadingAccount(true);
-    removeCookie("jwt:identity");
-    setLogged(false);
-    setAccount(null);
     socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
       setLoadingAccount(false);
       if (error) {
@@ -78,9 +80,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         socket.disconnect();
         return socket.connect();
       }
-      toast.error("Hubo un error cerrando la sesion, intenta nuevamente");
     });
-  }, [apiLogout, removeCookie, toast]);
+    apiLogout({ withCredentials: true });
+    resetMe();
+    setLogged(false);
+    setAccount(null);
+    removeCookie("jwt:identity");
+  }, [apiLogout, removeCookie, resetMe, toast]);
 
   useEffect(() => {
     if (is401(error)) {
