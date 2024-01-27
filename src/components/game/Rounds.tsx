@@ -45,7 +45,7 @@ export const Rounds = ({
   const [rounds] = useRounds(match, previousHand, previousHandCallback);
 
   const playerCards = useMemo(
-    () => rounds.flatMap((round) => round.filter((pc) => pc.player.key === player.key)),
+    () => rounds.flatMap((round) => round.filter((pc) => pc.player.idx === player.idx)),
     [player, rounds]
   );
 

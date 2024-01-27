@@ -6,7 +6,7 @@ import {
   SupervisorAccount,
   VideogameAsset,
 } from "@mui/icons-material";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 import {
   Box,
   Card,
@@ -41,6 +41,7 @@ import { getTeamColor, getTeamName } from "../utils/team";
 import { SatoshiIcon } from "../assets/icons/SatoshiIcon";
 import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
 import { Link } from "../shared/Link";
+import { ProvablyFair } from "../components/game/ProvablyFair";
 
 export const MatchDetails = () => {
   const navigate = useNavigate();
@@ -104,7 +105,7 @@ export const MatchDetails = () => {
   const owner = match?.players.find((p) => match.ownerAccountId === p.accountId);
 
   return (
-    <PageLayout title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
+    <PageContainer title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
       <Card>
         <CardContent>
           {!isLoading ? (
@@ -119,7 +120,9 @@ export const MatchDetails = () => {
                     <Tab label="Resumen" value="1" />
                     <Tab label="Jugadores" value="2" />
                     <Tab label="Manos" value="3" />
+                    <Tab label="Provably Fair" value="4" />
                   </TabList>
+
                   <TabPanel sx={{ px: 0 }} value="1">
                     <List>
                       {finalResults}
@@ -150,7 +153,6 @@ export const MatchDetails = () => {
                           <ListItemText secondary={owner?.name} primary="Host" />
                         </ListItem>
                       )}
-
                       {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
                       -1 ? (
                         <ListItem divider>
@@ -165,6 +167,7 @@ export const MatchDetails = () => {
                       ) : null}
                     </List>
                   </TabPanel>
+
                   <TabPanel sx={{ px: 0 }} value="2">
                     <List>
                       {match.players
@@ -194,6 +197,7 @@ export const MatchDetails = () => {
                         ))}
                     </List>
                   </TabPanel>
+
                   <TabPanel sx={{ px: 0 }} value="3">
                     {match.hands.map((hand) => {
                       const rounds = hand.rounds as IHandRoundLog[][];
@@ -297,6 +301,13 @@ export const MatchDetails = () => {
                       {finalResults}
                     </List>
                   </TabPanel>
+
+                  <TabPanel sx={{ px: 0 }} value="4">
+                    <ProvablyFair
+                      players={match.players}
+                      hands={match.hands}
+                    />
+                  </TabPanel>
                 </TabContext>
               ) : (
                 <Typography>No se pudo encontrar la partida</Typography>
@@ -307,6 +318,6 @@ export const MatchDetails = () => {
           )}
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };

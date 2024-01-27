@@ -22,7 +22,6 @@ import {
 import { GameTable } from "../components/game/GameTable";
 import { PlayerTag } from "../components/game/PlayerTag";
 import { getTeamColor, getTeamName } from "../utils/team";
-import { EMatchState } from "trucoshi";
 import { AnimatedButton } from "../shared/AnimatedButton";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
@@ -33,6 +32,7 @@ import { Settings } from "@mui/icons-material";
 import { Sats } from "../shared/Sats";
 import { GameOptions } from "../components/game/GameOptions";
 import { dark } from "../theme";
+import { EMatchState } from "trucoshi";
 
 export const Lobby = () => {
   useSound();
@@ -43,7 +43,7 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [{ match, me, error }, { joinMatch, setReady, startMatch, setOptions }] =
+  const [{ match, me, error }, { joinMatch, setReady, startMatch, setOptions, kickPlayer }] =
     useMatch(sessionId);
 
   useEffect(() => {
@@ -130,7 +130,7 @@ export const Lobby = () => {
           FillSlot={({ i }) => {
             const joinTeamIdx = i % 2 === 0 ? 0 : 1;
             return !me || joinTeamIdx !== me.teamIdx ? (
-              <Box height="6em" display="flex" alignItems="end" justifyContent="center">
+              <Stack pt={4} alignItems="end">
                 <Button
                   variant="text"
                   color={getTeamColor(joinTeamIdx)}
@@ -138,7 +138,7 @@ export const Lobby = () => {
                 >
                   Unirse a {getTeamName(joinTeamIdx)}
                 </Button>
-              </Box>
+              </Stack>
             ) : null;
           }}
           Slot={({ player }) => {
@@ -146,11 +146,11 @@ export const Lobby = () => {
               <Box pt={4}>
                 <Box>
                   <PlayerTag isTurn={player.isMe} player={player} />
-                  <Box pt={2}>
+                  <Stack px={2} pt={2}>
                     {player.isMe ? null : (
                       <Button
                         size="small"
-                        color={player.ready && !player.disabled ? "success" : "error"}
+                        color={player.ready && !player.disabled ? "success" : "warning"}
                       >
                         {player.ready ? "Listo" : "Esperando"}
                       </Button>
@@ -165,26 +165,30 @@ export const Lobby = () => {
                           Estoy Listo
                         </AnimatedButton>
                       )
-                    ) : null}
-                  </Box>
+                    ) : (
+                      <>
+                        {match.ownerKey === match.me?.key ? (
+                          <Button color="error" size="small" onClick={() => kickPlayer(player.key)}>
+                            Quitar
+                          </Button>
+                        ) : null}
+                      </>
+                    )}
+                  </Stack>
                 </Box>
-                <Box>
-                  {player.isMe && player.isOwner ? (
-                    <Box>
-                      <Box>
-                        <Button
-                          disabled={match.state !== EMatchState.READY}
-                          variant="contained"
-                          size="small"
-                          color="success"
-                          onClick={onStartMatch}
-                        >
-                          Empezar Partida
-                        </Button>
-                      </Box>
-                    </Box>
+                <Stack px={2}>
+                  {player.isOwner && player.isMe ? (
+                      <Button
+                        disabled={match.state !== EMatchState.READY}
+                        variant="contained"
+                        size="small"
+                        color="success"
+                        onClick={onStartMatch}
+                      >
+                        Empezar Partida
+                      </Button>
                   ) : null}
-                </Box>
+                </Stack>
               </Box>
             );
           }}

@@ -1555,6 +1555,13 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-1.3.5.tgz#1ef302e01cf7d2b5a0fa526790c9123bf1d06690"
   integrity sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==
 
+"@types/node-forge@^1.3.11":
+  version "1.3.11"
+  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-1.3.11.tgz#0972ea538ddb0f4d9c2fa0ec5db5724773a604da"
+  integrity sha512-FQx220y22OKNTqaByeBGqHWYz4cl94tpcxeFdvBo3wjG6XPBuZ0BNgNZRV5J5TFmmcsJ4IzsLkmGRiQbnYsBEQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@>=10.0.0", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "20.10.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.10.6.tgz#a3ec84c22965802bf763da55b2394424f22bfbb5"
@@ -2302,6 +2309,11 @@ braces@^3.0.2, braces@~3.0.2:
   integrity sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==
   dependencies:
     fill-range "^7.0.1"
+
+browser-crypto@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/browser-crypto/-/browser-crypto-2.1.0.tgz#92d3772012e113c77603382a8f26d04e405f9569"
+  integrity sha512-tHFEr//O3LR/nnqa5fCI9v1C3F08kyW0+EaWIhJOZZ6UL1MIQg616mWAo64qmRpq7kjifOEimAKRXOM+lllEGA==
 
 browserslist@^4.22.2:
   version "4.22.2"
@@ -4819,6 +4831,11 @@ node-fetch@^2.6.1:
   dependencies:
     whatwg-url "^5.0.0"
 
+node-forge@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.3.1.tgz#be8da2af243b2417d5f646a770663a92b7e9ded3"
+  integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
+
 node-readfiles@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/node-readfiles/-/node-readfiles-0.2.0.tgz#dbbd4af12134e2e635c245ef93ffcf6f60673a5d"
@@ -6340,14 +6357,15 @@ triple-beam@^1.3.0:
   resolved "https://registry.yarnpkg.com/triple-beam/-/triple-beam-1.4.1.tgz#6fde70271dc6e5d73ca0c3b24e2d92afb7441984"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
 
-trucoshi@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-3.0.0.tgz#96620f6231347788055f777825a073f0f14e8652"
-  integrity sha512-RfObMQ3QkhN3BK5kaeIOsuFB5TEc/vHf/CQ6jIt0eiG+5SSGV3irgj031AoFsKxUhu87ss7ezt1nD/GatZY7/g==
+trucoshi@4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/trucoshi/-/trucoshi-4.0.4.tgz#898004074feffe75ea29fb3074bfa3946a666b49"
+  integrity sha512-0N9oJXm22tTiJhUkGmb45vmjaeUaFbxknXWRKjW88YgVH4f98WBG/kMNS/8rwiyT1mNV8YL/iXRyULL3jfX64w==
   dependencies:
     "@prisma/client" "^4.14.1"
     "@socket.io/redis-adapter" "^8.2.1"
     "@types/jsonwebtoken" "^9.0.5"
+    "@types/node-forge" "^1.3.11"
     "@types/pino" "^7.0.5"
     "@types/redis" "^4.0.11"
     axios "^1.6.3"
@@ -6357,6 +6375,7 @@ trucoshi@3.0.0:
     form-data "^4.0.0"
     jsonwebtoken "^9.0.2"
     lightning-accounts "2.2.0"
+    node-forge "^1.3.1"
     path-scurry "^1.9.2"
     pino "^8.11.0"
     pino-pretty "^10.0.0"

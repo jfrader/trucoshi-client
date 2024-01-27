@@ -12,8 +12,8 @@ import {
   IPlayedCard,
   ISaidCommand,
   ILobbyOptions,
-  EMatchState,
 } from "trucoshi";
+
 import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 import { useCookies } from "react-cookie";
@@ -70,6 +70,19 @@ export const useMatch = (
       });
     }
   }, [context.dispatch, context.state.activeMatches, context.state.isConnected, matchId, socket]);
+
+  const kickPlayer = useCallback(
+    (key: string) => {
+      if (matchId && context.state.isConnected) {
+        socket.emit(EClientEvent.KICK_PLAYER, matchId, key, ({ error }) => {
+          if (error) {
+            toast.error(error.message);
+          }
+        });
+      }
+    },
+    [context.state.isConnected, matchId, socket, toast]
+  );
 
   const setMatch = useCallback(
     (value: IPublicMatch) => {
@@ -317,7 +330,7 @@ export const useMatch = (
   );
 
   const leaveMatch = useCallback(() => {
-    if (matchId && match && match.state !== EMatchState.STARTED) {
+    if (matchId && match) {
       socket.emit(EClientEvent.LEAVE_MATCH, matchId);
     }
   }, [match, matchId, socket]);
@@ -353,6 +366,7 @@ export const useMatch = (
       createMatch,
       leaveMatch,
       nextHand,
+      kickPlayer,
     },
   ];
 };

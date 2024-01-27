@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { Layout } from "./components/layout/Layout";
-import { Main } from "./pages/Main";
+import { MainLayout } from "./components/layout/MainLayout";
 import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/context";
 import { Match } from "./pages/Match";
@@ -16,7 +16,7 @@ import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
-import { HeadlessMain } from "./pages/HeadlessMain";
+import { PageLayout } from "./components/layout/PageLayout";
 
 const AppRouter = createBrowserRouter([
   {
@@ -25,7 +25,7 @@ const AppRouter = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Main />,
+        element: <MainLayout />,
         children: [
           {
             index: true,
@@ -35,7 +35,7 @@ const AppRouter = createBrowserRouter([
       },
       {
         path: "/",
-        element: <HeadlessMain />,
+        element: <PageLayout />,
         children: [
           {
             path: "login",

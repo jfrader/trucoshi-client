@@ -1,10 +1,23 @@
-import { Box, Button, Card, Container, Fade, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fade,
+  Stack,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/game/GameTable";
 import { Rounds } from "../components/game/Rounds";
-import { EMatchState, IPublicPlayer } from "trucoshi";
+import { IPublicPlayer, EMatchState } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import {
@@ -25,6 +38,7 @@ import { Backdrop } from "../shared/Backdrop";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
+  const [isAbandonOpen, setAbandonOpen] = useState(false);
 
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
 
@@ -33,7 +47,7 @@ const Match = () => {
 
   const [
     { match, error, canSay, canPlay, previousHand, me },
-    { playCard, sayCommand, nextHand },
+    { playCard, sayCommand, nextHand, leaveMatch },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
@@ -54,7 +68,7 @@ const Match = () => {
   const Slot = useCallback(
     ({ player }: PropsWithPlayer) => (
       <MatchPlayer
-        key={player.key}
+        key={player.idx}
         previousHand={previousHand}
         canSay={canSay}
         canPlay={canPlay}
@@ -71,7 +85,7 @@ const Match = () => {
     ({ player }: PropsWithPlayer) =>
       match ? (
         <Rounds
-          key={player.key}
+          key={player.idx}
           onMouseEnter={() => inspect(player)}
           onMouseLeave={() => inspect(null)}
           previousHand={previousHand}
@@ -123,14 +137,17 @@ const Match = () => {
       <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <SocketBackdrop />
         <MatchBackdrop error={error} />
-        <Box>
-          <Typography pt="1em" variant="h4">
+        <Stack>
+          <Typography pt="1em" pb={2} variant="h4">
             Partida Finalizada
           </Typography>
           <Button component={Link} to="/" variant="text">
             Volver al inicio
           </Button>
-        </Box>
+          <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
+            Ver resumen
+          </Button>
+        </Stack>
         <Box display="flex" justifyContent="center" alignItems="center">
           <Box flexGrow={1} textAlign="left">
             <Typography pt="1em" variant="h5">
@@ -163,7 +180,7 @@ const Match = () => {
   }
 
   return (
-    <Box>
+    <Box position="relative" flexGrow={1}>
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       {match ? (
@@ -190,6 +207,35 @@ const Match = () => {
       <FixedChatContainer>
         <ChatRoom {...chatProps} />
       </FixedChatContainer>
+      <Button
+        onClick={() => setAbandonOpen(true)}
+        color="error"
+        sx={{ position: "absolute", bottom: "1em", right: "2em" }}
+      >
+        Rendirse
+      </Button>
+      <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
+        <DialogTitle>Atencion</DialogTitle>
+        <DialogContent>
+          <Typography>Estas a punto de abandonar la partida</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Stack direction="row" width="100%" justifyContent="center" gap={2}>
+            <Button color="success" onClick={() => setAbandonOpen(false)}>
+              Continuar Partida
+            </Button>
+            <Button
+              color="error"
+              onClick={() => {
+                leaveMatch();
+                setAbandonOpen(false);
+              }}
+            >
+              Rendirse
+            </Button>
+          </Stack>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

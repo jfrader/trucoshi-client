@@ -21,7 +21,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "paths": { "@trucoshi/prisma": ["./node_modules/trucoshi/prisma/client"] }
+    "paths": {
+      "@trucoshi/prisma": ["./node_modules/trucoshi/prisma/client"],
+      "crypto": ["./node_modules/crypto-browserify"]
+    },
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

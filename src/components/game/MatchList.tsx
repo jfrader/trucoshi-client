@@ -15,7 +15,7 @@ import {
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { ReactElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMatchState, IPublicMatchInfo } from "trucoshi";
+import { IPublicMatchInfo, EMatchState } from "trucoshi";
 
 const MATCH_STATE_MAP: { [key in EMatchState]: [string, BadgeProps["color"]] } = {
   [EMatchState.FINISHED]: ["Terminada", "error"],

@@ -200,7 +200,7 @@ export const WalletMenu = () => {
         </Collapse>
       </FormGroup>
       {isDepositOpen && (
-        <Dialog open onClose={() => setDepositOpen(false)}>
+        <Dialog open maxWidth="xs" onClose={() => setDepositOpen(false)}>
           <DialogTitle>Deposito</DialogTitle>
           <DialogContent>
             <DepositMenu

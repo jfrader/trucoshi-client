@@ -17,7 +17,11 @@ export const WelcomeMenu = () => {
 
   const onClickChangeName = () => {
     setNameLoading(true);
-    nameField && sendUserId(nameField, () => setNameLoading(false));
+    nameField &&
+      sendUserId(nameField, (newName) => {
+        setNameField(newName);
+        setNameLoading(false);
+      });
   };
   return (
     <Box display="flex" flexDirection="column" justifyContent="center">
@@ -57,10 +61,10 @@ export const WelcomeMenu = () => {
           {account ? (
             <Stack direction="row" justifyContent="center">
               <LoadingButton
+                disabled={nameField === account.name}
                 type="submit"
                 fullWidth
                 isLoading={isNameLoading}
-                disabled={nameField === name}
                 color="warning"
               >
                 Cambiar Nombre

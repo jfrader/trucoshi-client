@@ -1,16 +1,9 @@
 import { ChevronLeft } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Container,
-  ContainerProps,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, ContainerProps, Slide, Stack, Typography } from "@mui/material";
 import { PropsWithChildren, ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export const PageLayout = ({
+export const PageContainer = ({
   title,
   children,
   icon = null,
@@ -43,7 +36,9 @@ export const PageLayout = ({
           {icon}
         </Stack>
 
-        <Box pt={4}>{children}</Box>
+        <Slide in direction="right">
+          <Box pt={4}>{children}</Box>
+        </Slide>
       </Box>
     </Container>
   );

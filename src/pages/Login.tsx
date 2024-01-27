@@ -1,5 +1,5 @@
 import { Person } from "@mui/icons-material";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
@@ -32,7 +32,7 @@ export const Login = () => {
   }, [account, navigate]);
 
   return (
-    <PageLayout title="Iniciar Sesion" icon={<Person fontSize="large" />}>
+    <PageContainer title="Iniciar Sesion" icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           <form
@@ -71,6 +71,6 @@ export const Login = () => {
           </form>
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };

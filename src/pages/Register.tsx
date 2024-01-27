@@ -1,5 +1,5 @@
 import { Person } from "@mui/icons-material";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
@@ -40,7 +40,7 @@ export const Register = () => {
   };
 
   return (
-    <PageLayout title="Registrarse" icon={<Person fontSize="large" />}>
+    <PageContainer title="Registrarse" icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           <form
@@ -122,6 +122,6 @@ export const Register = () => {
           </form>
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };

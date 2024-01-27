@@ -38,6 +38,7 @@ export interface ITrucoshiMatchActions {
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand | number): void;
   nextHand(): void;
+  kickPlayer(key: string): void;
 }
 
 export interface ITrucoshiMatchState {
@@ -56,7 +57,7 @@ export interface ITrucoshiActions {
   setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
-  sendUserId(id: string, callback?: () => void): void;
+  sendUserId(id: string, callback?: (name: string) => void): void;
   setCardTheme(theme: ICardTheme): void;
   inspectCard: Dispatch<SetStateAction<ICard | null>>;
   refetchMe: (

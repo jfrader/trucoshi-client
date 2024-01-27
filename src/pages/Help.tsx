@@ -10,11 +10,11 @@ import {
 } from "@mui/material";
 import { Link } from "../shared/Link";
 import { HELP_LINKS } from "../assets/links/links";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 
 export const Help = () => {
   return (
-    <PageLayout title="Ayuda" icon={<HelpOutlined fontSize="large" />}>
+    <PageContainer title="Ayuda" icon={<HelpOutlined fontSize="large" />}>
       <Card>
         <CardContent>
           <List>
@@ -35,6 +35,6 @@ export const Help = () => {
           </List>
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };

@@ -3,11 +3,11 @@ import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
   EClientEvent,
-  EMatchState,
   EServerEvent,
   ICard,
   IPublicMatchInfo,
   ServerToClientEvents,
+  EMatchState,
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
@@ -21,6 +21,7 @@ import { useRefreshTokens } from "../api/hooks/useRefreshTokens";
 import { is401 } from "../api/apiClient";
 import { useLogin } from "../api/hooks/useLogin";
 import { useToast } from "../hooks/useToast";
+import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -66,6 +67,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
+  const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
 
   const toast = useToast();
 
@@ -94,7 +96,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     }
   }, [error, logout]);
 
-  useEffect(() => {
+  const makeLogin = useCallback(() => {
     if (me && cookies["jwt:identity"]) {
       if (isLogged) {
         setAccount(me);
@@ -125,7 +127,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         );
       }
     }
-  }, [cookies, isLogged, me, refetchMe, removeCookie, setName, toast]);
+  }, [cookies, isLogged, me, refetchMe, removeCookie]);
+
+  useEffect(() => {
+    makeLogin();
+  }, [makeLogin]);
 
   useEffect(() => {
     if (!socket.connected) {
@@ -182,16 +188,38 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [account?.name, name, session, setName, setSession]);
 
   const sendUserId = useCallback(
-    (userId: string, callback?: () => void) => {
+    (name: string, callback?: (name: string) => void) => {
       if (account) {
-        return callback?.();
+        return updateProfile(
+          { name },
+          {
+            onSuccess() {
+              refetchMe()
+                .then((res) => {
+                  if (res.data) {
+                    setAccount(res.data.data);
+                    callback?.(res.data.data.name);
+                    socket.disconnect();
+                  }
+                })
+                .catch((e) => {
+                  toast.error(e.message);
+                  callback?.(name);
+                });
+            },
+            onError(e) {
+              toast.error(e.message);
+              callback?.(name);
+            },
+          }
+        );
       }
 
       socket.disconnect();
-      setName(userId);
-      callback?.();
+      setName(name);
+      callback?.(name);
     },
-    [account, setName]
+    [account, refetchMe, setName, toast, updateProfile]
   );
 
   const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchState> } = {}) => {
@@ -222,8 +250,19 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             isSidebarOpen,
             inspectedCard,
             isAccountPending: useMemo(
-              () => isPendingMe || isPendingRefreshTokens || isLoadingAccount || isPendingLogin,
-              [isLoadingAccount, isPendingLogin, isPendingMe, isPendingRefreshTokens]
+              () =>
+                isPendingMe ||
+                isPendingRefreshTokens ||
+                isLoadingAccount ||
+                isPendingLogin ||
+                isPendingUpdateProfile,
+              [
+                isLoadingAccount,
+                isPendingLogin,
+                isPendingMe,
+                isPendingRefreshTokens,
+                isPendingUpdateProfile,
+              ]
             ),
             cards,
           },

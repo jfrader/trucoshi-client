@@ -1,5 +1,5 @@
 import { Person, VideogameAsset } from "@mui/icons-material";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 import {
   Card,
   CardContent,
@@ -75,7 +75,7 @@ export const Profile = () => {
   const loss = profile.stats?.loss || 0;
 
   return (
-    <PageLayout title={profile.account.name} icon={<Person fontSize="large" />}>
+    <PageContainer title={profile.account.name} icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           {isLoading ? (
@@ -147,6 +147,6 @@ export const Profile = () => {
           )}
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };

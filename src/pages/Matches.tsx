@@ -2,7 +2,7 @@ import { Card, CardContent, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { MatchList } from "../components/game/MatchList";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
-import { PageLayout } from "../shared/PageLayout";
+import { PageContainer } from "../shared/PageContainer";
 import { ManageSearch } from "@mui/icons-material";
 
 export const Matches = () => {
@@ -11,7 +11,7 @@ export const Matches = () => {
     fetchPublicMatches();
   }, [fetchPublicMatches]);
   return (
-    <PageLayout title="Buscar Partida" icon={<ManageSearch fontSize="large" />}>
+    <PageContainer title="Buscar Partida" icon={<ManageSearch fontSize="large" />}>
       <Card>
         <CardContent>
           <MatchList
@@ -22,6 +22,6 @@ export const Matches = () => {
           />
         </CardContent>
       </Card>
-    </PageLayout>
+    </PageContainer>
   );
 };
