@@ -22,8 +22,8 @@ export const CardThemeToggle = () => {
     <>
       <Button
         sx={{
-          minWidth: "3em",
-          width: "3em",
+          minWidth: "2.5em",
+          width: "2.5em",
           heigth: "3em",
           minHeight: "3em",
           display: "flex",

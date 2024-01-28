@@ -141,9 +141,9 @@ export const MatchDetails = () => {
                             <SupervisorAccount color="info" />
                           </ListItemAvatar>
                           <ListItemText secondary={owner?.name} primary="Host" />
-                          <ListItemAvatar>
+                          <ListItemSecondaryAction>
                             <Person />
-                          </ListItemAvatar>
+                          </ListItemSecondaryAction>
                         </ListItemButton>
                       ) : (
                         <ListItem divider>

@@ -13,22 +13,21 @@ import { Link } from "../../shared/Link";
 import { TrucoshiText } from "../../shared/TrucoshiText";
 import { CardThemeToggle } from "../card/CardThemeToggle";
 import { TOOLBAR_LINKS } from "../../assets/links/links";
-import { Close, Login, Menu, Person2 } from "@mui/icons-material";
+import { Close, Login, Menu } from "@mui/icons-material";
 import { Sidebar } from "./Sidebar";
+import { UserAvatar } from "../../shared/UserAvatar";
 
 export const Topbar = () => {
   const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
   return (
     <AppBar position="fixed">
       <Toolbar variant="dense">
-        <Link to="/" lineHeight={4}>
-          <Typography height="26px" variant="h6">
-            <TrucoshiText height="26px" />
-          </Typography>
-        </Link>
-        <Box flexGrow={1} />
         <Stack direction="row" spacing={2} alignItems="center">
-          <CardThemeToggle />
+          <Link to="/" lineHeight={4}>
+            <Typography height="26px" variant="h6">
+              <TrucoshiText height="26px" />
+            </Typography>
+          </Link>
           <Switch
             size="small"
             title="Dark Theme"
@@ -48,10 +47,14 @@ export const Topbar = () => {
               </Link>
             );
           })}
+          <CardThemeToggle />
+        </Stack>
+        <Box flexGrow={1} />
+        <Stack direction="row" spacing={2} alignItems="center">
           {account ? (
             <Link to="/profile">
               <Stack direction="row" fontSize="small" gap={1} alignItems="center">
-                <Person2 fontSize="small" />
+                <UserAvatar size="small" account={account} />
                 {account.name}
               </Stack>
             </Link>

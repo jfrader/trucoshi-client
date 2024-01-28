@@ -1,7 +1,7 @@
 import {
+  AvatarGroup,
   Box,
   Button,
-  Card,
   Container,
   Dialog,
   DialogActions,
@@ -32,9 +32,9 @@ import { MatchPoints } from "../components/game/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../shared/FloatingProgress";
-import { TrucoshiLogo } from "../shared/TrucoshiLogo";
 import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../shared/Backdrop";
+import { UserAvatar } from "../shared/UserAvatar";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -109,16 +109,7 @@ const Match = () => {
           justifyContent="center"
           position="relative"
         >
-          <Card
-            sx={{
-              height: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
-          </Card>
+          <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
         </Box>
       ) : null,
     [chatProps.latestMessage]
@@ -137,44 +128,43 @@ const Match = () => {
       <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <SocketBackdrop />
         <MatchBackdrop error={error} />
-        <Stack>
+        <Stack flexGrow={1} gap={1}>
           <Typography pt="1em" pb={2} variant="h4">
             Partida Finalizada
           </Typography>
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <Stack flexGrow={1} textAlign="left" gap={1}>
+              <Typography variant="h5">
+                Equipo ganador
+              </Typography>
+              <Typography variant="h4" color={getTeamColor(match.winner.id)}>
+                {getTeamName(match.winner.id)}
+              </Typography>
+              <Box mb={1} pr={4}>
+                <AvatarGroup sx={{ justifyContent: "start" }}>
+                  {match.winner.players.map((p) => (
+                    <UserAvatar link size="big" key={p.key} account={p} />
+                  ))}
+                </AvatarGroup>
+              </Box>
+            </Stack>
+            <MatchPoints match={match} prevHandPoints={previousHand?.points} />
+          </Box>
           <Button component={Link} to="/" variant="text">
             Volver al inicio
           </Button>
           <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
             Ver resumen
           </Button>
+          <ChatRoom
+            alwaysVisible
+            mb={4}
+            position="relative"
+            width="100%"
+            flexGrow={1}
+            {...chatProps}
+          />
         </Stack>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Box flexGrow={1} textAlign="left">
-            <Typography pt="1em" variant="h5">
-              Equipo ganador
-            </Typography>
-            <Typography variant="h4" color={getTeamColor(match.winner.id)}>
-              {getTeamName(match.winner.id)}
-            </Typography>
-            <Box mb={4}>
-              {match.winner.players.map((p) => (
-                <Typography key={p.key} display="inline" pt="1em" pr="1.6em" variant="h6">
-                  {p.name}
-                </Typography>
-              ))}
-            </Box>
-          </Box>
-          <TrucoshiLogo width="80em" />
-          <MatchPoints match={match} prevHandPoints={previousHand?.points} />
-        </Box>
-        <ChatRoom
-          alwaysVisible
-          mb={4}
-          position="relative"
-          width="100%"
-          flexGrow={1}
-          {...chatProps}
-        />
       </Container>
     );
   }

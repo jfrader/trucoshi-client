@@ -1,6 +1,20 @@
 import { createTheme, ThemeOptions } from "@mui/material";
-import createPalette from "@mui/material/styles/createPalette";
+import createPalette, { PaletteColorOptions } from "@mui/material/styles/createPalette";
 import { BURNT_CARD } from "trucoshi";
+
+declare module "@mui/material" {
+  interface Palette {
+    twitter: PaletteColorOptions;
+  }
+
+  interface PaletteOptions {
+    twitter: PaletteColorOptions;
+  }
+
+  interface ButtonPropsColorOverrides {
+    twitter: true;
+  }
+}
 
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
@@ -48,6 +62,12 @@ export const lightPalette = createPalette({
     light: "#4a9bb2",
     contrastText: "#000",
   },
+  twitter: {
+    main: "#00acee",
+    dark: "#1381ab",
+    light: "#40bbea",
+    contrastText: "#000",
+  },
   error: {
     main: "#94342c",
     dark: "#6f2821",
@@ -90,6 +110,12 @@ export const darkPalette = createPalette({
     dark: "#a0721a",
     light: "#e2b246",
     contrastText: "#fff",
+  },
+  twitter: {
+    main: "#00acee",
+    dark: "#1381ab",
+    light: "#40bbea",
+    contrastText: "#000",
   },
   info: {
     main: "#248493",

@@ -1,14 +1,25 @@
 import { Person } from "@mui/icons-material";
 import { PageContainer } from "../shared/PageContainer";
-import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useRegister } from "../api/hooks/useRegister";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { TwitterButton } from "../shared/TwitterButton";
+import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const Register = () => {
   const navigate = useNavigate();
   const [search] = useSearchParams();
+  const [{ account }] = useTrucoshi();
 
   const [hydrated, setHydrated] = useState(false);
   const [name, setName] = useState(search.get("name") || "");
@@ -20,6 +31,12 @@ export const Register = () => {
   const { register, error, isPending } = useRegister();
 
   useEffect(() => setHydrated(true), []);
+
+  useEffect(() => {
+    if (account) {
+      navigate("/");
+    }
+  }, [account, navigate]);
 
   const onSubmit = () => register({ name, email, password }, { onSuccess: () => navigate("/") });
 
@@ -107,10 +124,9 @@ export const Register = () => {
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
                 Registrarse
               </LoadingButton>
-              <Button
-                onClick={() => navigate("/login")}
-                color="success"
-              >
+              <Divider />
+              <TwitterButton />
+              <Button onClick={() => navigate("/login")} color="success">
                 Iniciar Sesion
               </Button>
               {[...formErrors, error].filter(Boolean).map((error) => (

@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
 import { useMe } from "./useMe";
+import { useCookies } from "react-cookie";
 
 export const useUpdateProfile = () => {
-  const { me } = useMe();
+  const [cookies] = useCookies(["jwt:identity"]);
+  const { me } = useMe({ enabled: !!cookies["jwt:identity"] });
   const queryClient = useQueryClient();
   const { mutate, error, isPending } = useMutation({
     onSuccess() {

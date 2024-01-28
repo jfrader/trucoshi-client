@@ -14,6 +14,8 @@ import {
   styled,
   SlideProps,
   FadeProps,
+  ListItemAvatar,
+  ButtonProps,
 } from "@mui/material";
 import { useState, createRef, useLayoutEffect, FC } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
@@ -32,6 +34,8 @@ import { useSound } from "../../sound/hooks/useSound";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { UserAvatar } from "../../shared/UserAvatar";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -234,10 +238,28 @@ export const MessageAuthor = ({
   const color = authorColor(message, players);
 
   return (
-    <Typography color={color} display="inline">
+    <Typography color={color} display="inline" variant="inherit">
       {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.name + ": "}
     </Typography>
   );
+};
+
+export const getAvatar = (message: IChatMessage, players: IPublicPlayer[]) => {
+  if (message.command) {
+    return null;
+  }
+
+  const player = players.find((p) => p.key === message.user.key);
+
+  if (player) {
+    return (
+      <ListItemAvatar sx={{ minWidth: "auto", pr: 1 }}>
+        <UserAvatar size="tiny" account={player} bgcolor={getTeamColor(player.teamIdx) + ".main"} />
+      </ListItemAvatar>
+    );
+  }
+
+  return null;
 };
 
 export const ChatMessage = ({
@@ -263,6 +285,7 @@ export const ChatMessage = ({
           py: "0.05em",
         }}
       >
+        {getAvatar(message, players)}
         <ListItemText sx={{ textAlign: "inherit" }}>
           {hideAuthor || message.system ? null : (
             <MessageAuthor message={message} players={players} />
@@ -270,6 +293,7 @@ export const ChatMessage = ({
           <Typography
             color={messageColor(message, players)}
             display="inline"
+            variant="inherit"
             sx={{ wordWrap: "break-word" }}
           >
             <MessageContent>{message}</MessageContent>
@@ -283,17 +307,50 @@ export const ChatMessage = ({
 const getMessageContent = (message: IChatMessage) => {
   if (message.command) {
     const humanCommand = COMMANDS_HUMAN_READABLE[message.content as ECommand];
-    if (humanCommand) {
-      return humanCommand.toUpperCase();
-    }
-    return message.content;
+
+    return (
+      <ChatButton message={message}>
+        {humanCommand ? humanCommand.toUpperCase() : message.content}
+      </ChatButton>
+    );
   }
 
   if (message.card) {
-    return CARDS_HUMAN_READABLE[message.content as ICard] || message.content;
+    return (
+      <ChatButton message={message}>
+        {CARDS_HUMAN_READABLE[message.content as ICard] || message.content}
+      </ChatButton>
+    );
   }
 
   return message.content;
+};
+
+export const ChatButton = ({
+  message,
+  children,
+  ...props
+}: ButtonProps & { message: IChatMessage }) => {
+  const [, { inspectCard }] = useTrucoshi();
+  return (
+    <Button
+      onClick={message.card ? () => inspectCard(message.content as ICard) : undefined}
+      name={message.content}
+      disableElevation
+      disableRipple={!message.card}
+      sx={(theme) => ({
+        ml: 1,
+        p: 0,
+        px: 1,
+        minWidth: "auto",
+        bgcolor: theme.palette.action.disabledBackground,
+        color: theme.palette.action.active,
+      })}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
 };
 
 export const MessageContent = ({ children }: { children: IChatMessage }) => {

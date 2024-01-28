@@ -1,11 +1,12 @@
 import { Person } from "@mui/icons-material";
 import { PageContainer } from "../shared/PageContainer";
-import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/material";
+import { Alert, Button, Card, CardContent, Divider, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
+import { TwitterButton } from "../shared/TwitterButton";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -63,6 +64,8 @@ export const Login = () => {
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
                 Iniciar Sesion
               </LoadingButton>
+              <Divider />
+              <TwitterButton />
               <Button onClick={() => navigate("/register")} color="success">
                 Registrarse
               </Button>

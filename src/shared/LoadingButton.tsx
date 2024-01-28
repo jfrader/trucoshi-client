@@ -1,9 +1,9 @@
 import { Box, Button, ButtonProps, CircularProgress, styled } from "@mui/material";
 
-type Props = {
+export type LoadingButtonProps = {
   label?: string;
   isLoading?: boolean;
-};
+} & ButtonProps;
 
 const StyledButton = styled(Button)({
   whiteSpace: "nowrap",
@@ -16,7 +16,7 @@ export const LoadingButton = ({
   disabled,
   isLoading,
   ...props
-}: Props & ButtonProps) => {
+}: LoadingButtonProps) => {
   return (
     <StyledButton disabled={isLoading || disabled} {...props}>
       <Box visibility={isLoading ? "hidden" : "visible"}>{children || label}</Box>
