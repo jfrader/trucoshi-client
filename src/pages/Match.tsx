@@ -1,5 +1,4 @@
 import {
-  AvatarGroup,
   Box,
   Button,
   Container,
@@ -13,7 +12,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/game/GameTable";
 import { Rounds } from "../components/game/Rounds";
@@ -26,7 +25,6 @@ import {
   ChatRoom,
   useChatRoom,
 } from "../components/chat/ChatRoom";
-import { getTeamColor, getTeamName } from "../utils/team";
 import { MatchPlayer } from "../components/game/MatchPlayer";
 import { MatchPoints } from "../components/game/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
@@ -34,7 +32,8 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../shared/Backdrop";
-import { UserAvatar } from "../shared/UserAvatar";
+import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
+import { CommandBar } from "../components/game/CommandBar";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -70,15 +69,13 @@ const Match = () => {
       <MatchPlayer
         key={player.idx}
         previousHand={previousHand}
-        canSay={canSay}
         canPlay={canPlay}
         player={player}
         onPlayCard={playCard}
-        onSayCommand={sayCommand}
         match={match}
       />
     ),
-    [canPlay, canSay, match, playCard, previousHand, sayCommand]
+    [canPlay, match, playCard, previousHand]
   );
 
   const InnerSlot = useCallback(
@@ -109,7 +106,7 @@ const Match = () => {
           justifyContent="center"
           position="relative"
         >
-          <ChatMessage hideAuthor Component={Fade} message={chatProps.latestMessage} />
+          <ChatMessage Component={Fade} message={chatProps.latestMessage} />
         </Box>
       ) : null,
     [chatProps.latestMessage]
@@ -125,47 +122,12 @@ const Match = () => {
 
   if (match && match.winner) {
     return (
-      <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-        <SocketBackdrop />
-        <MatchBackdrop error={error} />
-        <Stack flexGrow={1} gap={1}>
-          <Typography pt="1em" pb={2} variant="h4">
-            Partida Finalizada
-          </Typography>
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <Stack flexGrow={1} textAlign="left" gap={1}>
-              <Typography variant="h5">
-                Equipo ganador
-              </Typography>
-              <Typography variant="h4" color={getTeamColor(match.winner.id)}>
-                {getTeamName(match.winner.id)}
-              </Typography>
-              <Box mb={1} pr={4}>
-                <AvatarGroup sx={{ justifyContent: "start" }}>
-                  {match.winner.players.map((p) => (
-                    <UserAvatar link size="big" key={p.key} account={p} />
-                  ))}
-                </AvatarGroup>
-              </Box>
-            </Stack>
-            <MatchPoints match={match} prevHandPoints={previousHand?.points} />
-          </Box>
-          <Button component={Link} to="/" variant="text">
-            Volver al inicio
-          </Button>
-          <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
-            Ver resumen
-          </Button>
-          <ChatRoom
-            alwaysVisible
-            mb={4}
-            position="relative"
-            width="100%"
-            flexGrow={1}
-            {...chatProps}
-          />
-        </Stack>
-      </Container>
+      <MatchFinishedScreen
+        match={match}
+        chatProps={chatProps}
+        error={error}
+        previousHand={previousHand}
+      />
     );
   }
 
@@ -204,6 +166,14 @@ const Match = () => {
       >
         Rendirse
       </Button>
+      {match?.me ? (
+        <CommandBar
+          isPrevious={!!previousHand}
+          canSay={canSay}
+          onSayCommand={sayCommand}
+          player={match.me}
+        />
+      ) : null}
       <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
         <DialogTitle>Atencion</DialogTitle>
         <DialogContent>

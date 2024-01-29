@@ -8,6 +8,7 @@ import { useCards } from "../../trucoshi/hooks/useCards";
 export type GameCardProps = {
   card: ICard;
   enableHover?: boolean;
+  burn?: boolean;
   zoom?: boolean;
   width?: string;
   theme?: ICardTheme | null;
@@ -19,6 +20,7 @@ export type GameCardProps = {
 export const GameCard = ({
   card,
   enableHover,
+  burn,
   request,
   zoom,
   shadow,
@@ -45,6 +47,8 @@ export const GameCard = ({
   if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
     return null;
   }
+
+  card = burn ? BURNT_CARD : card;
 
   if (usedTheme) {
     return (
