@@ -56,7 +56,6 @@ export const Rounds = ({
           return (
             <HandCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
               <GameCard
-                burn={player.disabled}
                 shadow
                 zoom={openHand}
                 width={match.players.length > 4 ? undefined : "5em"}
