@@ -73,18 +73,18 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
-    removeCookie("jwt:identity");
-    setLogged(false);
-    setAccount(null);
-    apiLogout(
-      { withCredentials: true },
-      {
-        onSuccess() {
-          resetMe();
-        },
-      }
-    );
     socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
+      removeCookie("jwt:identity");
+      setLogged(false);
+      setAccount(null);
+      apiLogout(
+        { withCredentials: true },
+        {
+          onSuccess() {
+            resetMe();
+          },
+        }
+      );
       setLoadingAccount(false);
       if (error) {
         toast.error(error.message);
