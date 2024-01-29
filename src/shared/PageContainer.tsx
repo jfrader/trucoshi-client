@@ -4,11 +4,11 @@ import { PropsWithChildren, ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const PageContainer = ({
-  title,
+  title = "",
   children,
   icon = null,
   ...props
-}: PropsWithChildren<{ title: string; icon?: ReactNode } & ContainerProps>) => {
+}: PropsWithChildren<{ title?: string; icon?: ReactNode } & ContainerProps>) => {
   const location = useLocation();
   const navigate = useNavigate();
   return (
@@ -20,17 +20,15 @@ export const PageContainer = ({
             textTransform="uppercase"
             variant="h6"
           >
-            {location.key !== "default" ? (
-              <Button
-                onClick={() => navigate(-1)}
-                color="inherit"
-                startIcon={<ChevronLeft />}
-                sx={{ position: "absolute", left: 0 }}
-                size="small"
-              >
-                Atras
-              </Button>
-            ) : null}
+            <Button
+              onClick={() => (location.key === "default" ? navigate("/") : navigate(-1))}
+              color="inherit"
+              startIcon={<ChevronLeft />}
+              sx={{ position: "absolute", left: 0 }}
+              size="small"
+            >
+              Atras
+            </Button>
             {title}
           </Typography>
           {icon}

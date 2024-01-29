@@ -60,6 +60,10 @@ export const Profile = () => {
     if (!accountId && !me && !isPending && !isLoading) {
       navigate("/login");
     }
+
+    if (!accountId && me) {
+      navigate(`/profile/${me.id}`, { replace: true });
+    }
   }, [accountId, isLoading, isPending, me, navigate]);
 
   useEffect(() => {
@@ -84,14 +88,14 @@ export const Profile = () => {
   }, [accountId, context.socket, context.state.isConnected, me?.id, toast]);
 
   if (isLoading) {
-    return <CircularProgress />;
+    return <PageContainer icon={<CircularProgress />}></PageContainer>;
   }
 
   if (!profile?.account) {
     return <NotFound />;
   }
 
-  const isMyProfile = !accountId || Number(accountId) === me?.id;
+  const isMyProfile = Number(accountId) === me?.id;
 
   const wins = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
