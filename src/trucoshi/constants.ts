@@ -12,6 +12,7 @@ export const DANGEROUS_COMMANDS: ECommand[] = [
   ESayCommand.MAZO,
   EAnswerCommand.NO_QUIERO,
   EEnvidoAnswerCommand.SON_BUENAS,
+  EFlorCommand.ACHICO,
 ];
 
 export const COMMANDS_HUMAN_READABLE: Record<ECommand, string> = {

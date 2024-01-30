@@ -124,7 +124,7 @@ export const MatchDetails = () => {
                     <Tab label="Reglas" value="2" />
                     <Tab label="Jugadores" value="3" />
                     <Tab label="Manos" value="4" />
-                    <Tab label="Provably Fair" value="5" />
+                    <Tab label="Azar" value="5" />
                   </TabList>
 
                   <TabPanel sx={{ px: 0 }} value="1">
@@ -189,29 +189,38 @@ export const MatchDetails = () => {
                     <List>
                       {match.players
                         .sort((a, b) => (a.idx || 0) - (b.idx || 0))
-                        .map((player) => (
-                          <ListItemButton
-                            key={player.id}
-                            disabled={!player.accountId}
-                            onClick={() => navigate(`/profile/${player.accountId}`)}
-                          >
-                            <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
-                            <ListItemText
-                              primary={player.name}
-                              secondary={
-                                <Typography
-                                  fontSize="small"
-                                  color={getTeamColor(player.teamIdx || 0)}
-                                >
-                                  {getTeamName(player.teamIdx)}
-                                </Typography>
+                        .map((player) => {
+                          const Component = player.accountId
+                            ? (ListItemButton as typeof ListItem)
+                            : ListItem;
+                          return (
+                            <Component
+                              divider
+                              key={player.id}
+                              onClick={
+                                player.accountId
+                                  ? () => navigate(`/profile/${player.accountId}`)
+                                  : undefined
                               }
-                            />
-                            <ListItemSecondaryAction>
-                              {results[player.teamIdx].winner && <EmojiEvents />}
-                            </ListItemSecondaryAction>
-                          </ListItemButton>
-                        ))}
+                            >
+                              <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
+                              <ListItemText
+                                primary={player.name}
+                                secondary={
+                                  <Typography
+                                    fontSize="small"
+                                    color={getTeamColor(player.teamIdx || 0)}
+                                  >
+                                    {getTeamName(player.teamIdx)}
+                                  </Typography>
+                                }
+                              />
+                              <ListItemSecondaryAction>
+                                {results[player.teamIdx].winner && <EmojiEvents />}
+                              </ListItemSecondaryAction>
+                            </Component>
+                          );
+                        })}
                     </List>
                   </TabPanel>
 
