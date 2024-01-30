@@ -338,7 +338,7 @@ export const ChatButton = ({
         p: 0,
         px: 1,
         minWidth: "auto",
-        bgcolor: theme.palette.action.disabledBackground,
+        bgcolor: props.color ? undefined : theme.palette.action.disabledBackground,
         color: props.color ? undefined : theme.palette.action.active,
       })}
       {...props}
