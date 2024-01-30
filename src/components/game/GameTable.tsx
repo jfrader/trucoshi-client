@@ -90,15 +90,25 @@ export const GameTable = ({
   );
 };
 
-const Container = styled(Box)`
-  padding: 16px;
-  --d: 12.6rem; /* image size */
-  --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
-  --r: calc(0.41 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
-  --s: calc(2 * var(--r) + var(--d)); /* container size */
+const Container = styled(Box)(
+  ({ theme }) => `
   position: relative;
   margin: 0 auto;
   width: var(--s);
   height: var(--s);
   transform: rotate(90deg);
-`;
+  padding: 16px;
+  --r: calc(0.41 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --s: calc(2 * var(--r) + var(--d)); /* container size */
+  --d: 12.6rem; /* image size */
+  --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
+  ${theme.breakpoints.up("md")} {
+    --d: 12.8rem;
+    --rel: 0.52;
+  }
+  ${theme.breakpoints.up("xl")} {
+    --d: 13rem;
+    --rel: 0.55;
+  }
+`
+);

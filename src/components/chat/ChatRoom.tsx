@@ -17,7 +17,7 @@ import {
   ListItemAvatar,
   ButtonProps,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect, FC } from "react";
+import { useState, createRef, useLayoutEffect, FC, PropsWithChildren } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import SendIcon from "@mui/icons-material/Send";
 import {
@@ -264,18 +264,21 @@ export const getAvatar = (message: IChatMessage, players: IPublicPlayer[]) => {
 
 export const ChatMessage = ({
   message,
+  children,
   players = [],
   animate = false,
   hideAuthor = false,
   Component = Slide,
   ...props
-}: {
-  message: IChatMessage;
-  players?: Array<IPublicPlayer>;
-  animate?: boolean;
-  hideAuthor?: boolean;
-  Component?: FC<SlideProps | FadeProps>;
-} & Partial<SlideProps | FadeProps>) => {
+}: PropsWithChildren<
+  {
+    message: IChatMessage;
+    players?: Array<IPublicPlayer>;
+    animate?: boolean;
+    hideAuthor?: boolean;
+    Component?: FC<SlideProps | FadeProps>;
+  } & Partial<SlideProps | FadeProps>
+>) => {
   return (
     <Component in={true} direction="right" mountOnEnter unmountOnExit {...props}>
       <ListItem
@@ -296,7 +299,7 @@ export const ChatMessage = ({
             variant="inherit"
             sx={{ wordWrap: "break-word" }}
           >
-            <MessageContent>{message}</MessageContent>
+            {children ? children : <MessageContent>{message}</MessageContent>}
           </Typography>
         </ListItemText>
       </ListItem>
@@ -304,23 +307,15 @@ export const ChatMessage = ({
   );
 };
 
-const getMessageContent = (message: IChatMessage) => {
+export const getMessageContent = (message: IChatMessage) => {
   if (message.command) {
     const humanCommand = COMMANDS_HUMAN_READABLE[message.content as ECommand];
 
-    return (
-      <ChatButton message={message}>
-        {humanCommand ? humanCommand.toUpperCase() : message.content}
-      </ChatButton>
-    );
+    return humanCommand ? humanCommand.toUpperCase() : message.content;
   }
 
   if (message.card) {
-    return (
-      <ChatButton message={message}>
-        {CARDS_HUMAN_READABLE[message.content as ICard] || message.content}
-      </ChatButton>
-    );
+    return CARDS_HUMAN_READABLE[message.content as ICard] || message.content;
   }
 
   return message.content;
@@ -344,7 +339,7 @@ export const ChatButton = ({
         px: 1,
         minWidth: "auto",
         bgcolor: theme.palette.action.disabledBackground,
-        color: theme.palette.action.active,
+        color: props.color ? undefined : theme.palette.action.active,
       })}
       {...props}
     >
@@ -354,5 +349,8 @@ export const ChatButton = ({
 };
 
 export const MessageContent = ({ children }: { children: IChatMessage }) => {
-  return <span>{getMessageContent(children)}</span>;
+  if (!children.card && !children.command) {
+    return children.content;
+  }
+  return <ChatButton message={children}>{getMessageContent(children)}</ChatButton>;
 };

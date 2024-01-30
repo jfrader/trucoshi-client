@@ -130,9 +130,10 @@ export const Lobby = () => {
           FillSlot={({ i }) => {
             const joinTeamIdx = i % 2 === 0 ? 0 : 1;
             return !me || joinTeamIdx !== me.teamIdx ? (
-              <Stack pt={4} alignItems="end">
+              <Stack pt={3} alignItems="end">
                 <Button
                   variant="text"
+                  sx={{ whiteSpace: 'wrap', maxWidth: '10em' }}
                   color={getTeamColor(joinTeamIdx)}
                   onClick={() => onJoinMatch(joinTeamIdx)}
                 >

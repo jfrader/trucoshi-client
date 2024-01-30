@@ -26,7 +26,7 @@ export const MatchFinishedScreen = ({
   }
   return (
     <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      {match.me?.teamIdx === match.winner.id ? <EmojiRain /> : null}
+      {match.me?.teamIdx === match.winner.id || !match.me ? <EmojiRain /> : null}
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       <Stack flexGrow={1} gap={1}>

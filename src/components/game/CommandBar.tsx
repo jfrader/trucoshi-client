@@ -21,8 +21,8 @@ export const CommandBar = ({
 
   return (
     <Stack
-      position="fixed"
-      bottom={{ xs: "1em", md: "2em", xl: "3em" }}
+      position="absolute"
+      bottom="1.2rem"
       left="50%"
       sx={{ transform: "translate(-50%, 0)" }}
       direction="row"

@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemButton,
+  ListItemSecondaryAction,
   ListItemText,
   Tooltip,
   Typography,
@@ -73,8 +74,8 @@ export const MatchList = ({
         <Box>
           <List dense={dense}>
             <ListItem divider>
-              <ListItemText>Host</ListItemText>
-              <ListItemAvatar>Jugadores</ListItemAvatar>
+              <ListItemAvatar>Host</ListItemAvatar>
+              <ListItemSecondaryAction>Jugadores</ListItemSecondaryAction>
             </ListItem>
             {matches.map((info) => {
               const [state, color] = MATCH_STATE_MAP[info.state];

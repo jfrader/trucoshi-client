@@ -6,7 +6,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Fade,
   Stack,
   Typography,
   useMediaQuery,
@@ -21,9 +20,10 @@ import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import {
   FixedChatContainer,
-  ChatMessage,
   ChatRoom,
   useChatRoom,
+  ChatButton,
+  getMessageContent,
 } from "../components/chat/ChatRoom";
 import { MatchPlayer } from "../components/game/MatchPlayer";
 import { MatchPoints } from "../components/game/MatchPoints";
@@ -34,6 +34,7 @@ import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../shared/Backdrop";
 import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
 import { CommandBar } from "../components/game/CommandBar";
+import { getTeamName } from "../utils/team";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -106,7 +107,12 @@ const Match = () => {
           justifyContent="center"
           position="relative"
         >
-          <ChatMessage Component={Fade} message={chatProps.latestMessage} />
+          <ChatButton color="primary" message={chatProps.latestMessage}>
+            <Stack whiteSpace="nowrap" direction="row" flexWrap="nowrap" gap={1}>
+              <span>{getTeamName(Number(chatProps.latestMessage.user.name))}:</span>
+              <span>{getMessageContent(chatProps.latestMessage)}</span>
+            </Stack>
+          </ChatButton>
         </Box>
       ) : null,
     [chatProps.latestMessage]
@@ -132,7 +138,7 @@ const Match = () => {
   }
 
   return (
-    <Box position="relative" flexGrow={1}>
+    <Box position="relative" flexGrow={1} maxWidth="100%">
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       {match ? (
@@ -140,7 +146,7 @@ const Match = () => {
           <GameTable
             zoomOnIndex={me ? 1 : -1}
             zoomOnMiddle
-            zoomFactor={isUpXs ? (match.players.length > 4 ? 1.1 : 1.2) : 1.25}
+            zoomFactor={isUpXs ? (match.players.length > 4 ? 1.1 : 1.15) : 1.25}
             match={match}
             inspecting={inspecting}
             Slot={Slot}
@@ -162,7 +168,12 @@ const Match = () => {
       <Button
         onClick={() => setAbandonOpen(true)}
         color="error"
-        sx={{ position: "absolute", bottom: "1em", right: "2em" }}
+        sx={{
+          position: "absolute",
+          bottom: { xs: "auto", sm: "1em" },
+          right: { xs: "8em", sm: "2em" },
+          top: { xs: "14em", sm: "auto" },
+        }}
       >
         Rendirse
       </Button>

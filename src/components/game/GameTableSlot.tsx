@@ -39,7 +39,7 @@ export const GameTableSlot = ({
         "--mr": "0px",
         "--i": `${-1}`,
         "--z": zoomOnIndex === 0 || zoomOnMiddle ? zoomFactor : 1,
-        zIndex: theme.zIndex.appBar - i,
+        zIndex: theme.zIndex.drawer - i,
       },
       itemStyle: {
         "--mr": zoomOnIndex === i ? "0.8em" : "0px",
@@ -53,7 +53,7 @@ export const GameTableSlot = ({
         zIndex: inspecting?.key === player.key ? 9000 : 13,
       },
     }),
-    [i, inspecting?.key, player.key, theme.zIndex.appBar, zoomFactor, zoomOnIndex, zoomOnMiddle]
+    [i, inspecting?.key, player.key, theme.zIndex.drawer, zoomFactor, zoomOnIndex, zoomOnMiddle]
   );
 
   return (
@@ -106,7 +106,7 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.36 * var(--d));
+  margin-left: calc(-0.38 * var(--d));
   margin-top: calc(-0.16 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);

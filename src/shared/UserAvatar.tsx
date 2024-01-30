@@ -1,4 +1,4 @@
-import { PsychologyAlt } from "@mui/icons-material";
+import { Person, PsychologyAlt } from "@mui/icons-material";
 import { Avatar, AvatarProps, BoxProps } from "@mui/material";
 import { User } from "lightning-accounts";
 import { useRef, useState } from "react";
@@ -26,15 +26,15 @@ export const UserAvatar = ({
 } & AvatarProps) => {
   const [error, setError] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
+  const iconSx = { height: SIZES[size] * 0.9 + "px", width: SIZES[size] * 0.9 + "px" };
   const opt =
     account.avatarUrl && !error
       ? { src: account.avatarUrl }
       : {
-          children: (
-            <PsychologyAlt
-              sx={{ height: SIZES[size] * 0.9 + "px", width: SIZES[size] * 0.9 + "px" }}
-              color="action"
-            />
+          children: error ? (
+            <Person sx={iconSx} color="action" />
+          ) : (
+            <PsychologyAlt sx={iconSx} color="action" />
           ),
         };
 
@@ -52,12 +52,15 @@ export const UserAvatar = ({
     ...rest,
   };
 
-  const linkProps = link
-    ? {
-        component: Link,
-        to: `/profile/${account.accountId || account.id}`,
-      }
-    : {};
+  const accountId = account.accountId || account.id;
+
+  const linkProps =
+    link && accountId
+      ? {
+          component: Link,
+          to: `/profile/${account.accountId || account.id}`,
+        }
+      : {};
 
   return (
     <Avatar
