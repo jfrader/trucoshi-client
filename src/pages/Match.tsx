@@ -34,7 +34,7 @@ import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../shared/Backdrop";
 import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
 import { CommandBar } from "../components/game/CommandBar";
-import { getTeamColor, getTeamName } from "../utils/team";
+import { getTeamColor } from "../utils/team";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -113,7 +113,6 @@ const Match = () => {
             message={chatProps.latestMessage}
           >
             <Stack whiteSpace="nowrap" direction="row" flexWrap="nowrap" gap={1}>
-              <span>{getTeamName(Number(chatProps.latestMessage.user.name))}:</span>
               <span>{getMessageContent(chatProps.latestMessage)}</span>
             </Stack>
           </ChatButton>

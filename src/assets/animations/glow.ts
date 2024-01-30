@@ -8,3 +8,12 @@ export const glow = keyframes`
     box-shadow: 0 0 10px 10px rgb(100, 255, 100, 0.1);
   }
 `;
+
+export const fade = keyframes`
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+`;
