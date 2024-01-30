@@ -110,6 +110,7 @@ const Match = () => {
           <ChatButton
             color={getTeamColor(Number(chatProps.latestMessage.user.name))}
             variant="contained"
+            sx={{ fontSize: "1.4rem" }}
             message={chatProps.latestMessage}
           >
             <Stack whiteSpace="nowrap" direction="row" flexWrap="nowrap" gap={1}>
