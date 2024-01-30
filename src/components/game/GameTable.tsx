@@ -107,8 +107,8 @@ const Container = styled(Box)(
     --rel: 0.52;
   }
   ${theme.breakpoints.up("xl")} {
-    --d: 13rem;
-    --rel: 0.55;
+    --d: 13.3rem;
+    --rel: 0.56;
   }
 `
 );

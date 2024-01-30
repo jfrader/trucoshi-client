@@ -17,7 +17,7 @@ export const Emoji = styled("div")(() => {
     animation: `${fall} 4.2s linear infinite, ${shake} 3s ease-in-out infinite`,
     animationPlayState: "running, running",
     animationDelay: `${(random() + "s", random() + "s")}`,
-    left: "calc(var(--i) * 2%)",
+    left: "calc(var(--i) * 2.5%)",
   };
 });
 
