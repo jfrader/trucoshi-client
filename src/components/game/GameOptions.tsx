@@ -14,6 +14,8 @@ import { SatoshiIcon } from "../../assets/icons/SatoshiIcon";
 import { Close } from "@mui/icons-material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
+const DEFAULT_TURN_TIMES = [15, 30, 45, 60, 120, 999];
+
 export const GameOptions = ({
   defaultValues,
   onSubmit,
@@ -66,11 +68,11 @@ export const GameOptions = ({
           </IconButton>
         </Stack>
         <FormControl>
-          <InputLabel id="maxPlayers-label">Jugadores</InputLabel>
+          <InputLabel id="maxPlayers-label">Max. Jugadores</InputLabel>
           <Select
             size="small"
             labelId="maxPlayers-label"
-            label="Jugadores"
+            label="Max. Jugadores"
             name="maxPlayers"
             value={options.maxPlayers}
             onChange={(e) => {
@@ -114,6 +116,60 @@ export const GameOptions = ({
                 {a}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+
+        <FormControl>
+          <InputLabel id="faltaEnvido-label">Falta Envido</InputLabel>
+          <Select
+            size="small"
+            labelId="faltaEnvido-label"
+            label="A 1 o 2 faltas"
+            name="matchPoint"
+            value={options.faltaEnvido}
+            onChange={(e) => {
+              if (!["1", "2"].includes(e.target.value as string)) {
+                return e.preventDefault();
+              }
+              setOptions((current) => ({
+                ...current,
+                faltaEnvido: Number(e.target.value) as 1 | 2,
+              }));
+            }}
+          >
+            {[1, 2].map((a) => (
+              <MenuItem key={a} value={String(a)}>
+                {a}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl>
+          <InputLabel id="turnTime-label">Tiempo de Turno</InputLabel>
+          <Select
+            size="small"
+            labelId="turnTime-label"
+            label="Tiempo de Turno"
+            name="matchPoint"
+            value={Math.round(options.turnTime / 1000)}
+            onChange={(e) => {
+              if (!DEFAULT_TURN_TIMES.map((v) => String(v)).includes(e.target.value as string)) {
+                return e.preventDefault();
+              }
+              setOptions((current) => ({
+                ...current,
+                turnTime: Number(e.target.value) * 1000,
+              }));
+            }}
+          >
+            {Array.from(new Set([Math.round(options.turnTime / 1000), ...DEFAULT_TURN_TIMES])).map(
+              (a) => (
+                <MenuItem key={a} value={String(a)}>
+                  {a}s
+                </MenuItem>
+              )
+            )}
           </Select>
         </FormControl>
         <Stack direction="row">

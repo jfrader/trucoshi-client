@@ -11,10 +11,6 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
   Stack,
   Typography,
   useMediaQuery,
@@ -29,10 +25,12 @@ import { FixedChatContainer, ChatRoom, useChatRoom } from "../components/chat/Ch
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";
-import { Sats } from "../shared/Sats";
 import { GameOptions } from "../components/game/GameOptions";
 import { dark } from "../theme";
-import { EMatchState } from "trucoshi";
+import { EMatchState, ILobbyOptions } from "trucoshi";
+import { GameOptionsList } from "../components/game/GameOptionsList";
+
+const OPTIONS_KEYS: (keyof ILobbyOptions)[] = ["matchPoint", "faltaEnvido", "maxPlayers"];
 
 export const Lobby = () => {
   useSound();
@@ -100,28 +98,12 @@ export const Lobby = () => {
                         </IconButton>
                       )}
                     </Stack>
-                    <List disablePadding={isMobile}>
-                      {account ? (
-                        <ListItem disablePadding>
-                          <ListItemText disableTypography>Sats por jugador</ListItemText>
-                          <ListItemSecondaryAction>
-                            <Sats>{match.options.satsPerPlayer}</Sats>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      ) : null}
-                      <ListItem disablePadding>
-                        <ListItemText disableTypography>Max. Jugadores</ListItemText>
-                        <ListItemSecondaryAction>
-                          {match.options.maxPlayers}
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <ListItem disablePadding>
-                        <ListItemText disableTypography>Puntos por Etapa</ListItemText>
-                        <ListItemSecondaryAction>
-                          {match.options.matchPoint}
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    </List>
+                    <GameOptionsList
+                      dense
+                      options={match.options}
+                      keys={account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
+                      disablePadding={isMobile}
+                    />
                   </CardContent>
                 </Card>
               </Box>
@@ -133,7 +115,7 @@ export const Lobby = () => {
               <Stack pt={3} alignItems="end">
                 <Button
                   variant="text"
-                  sx={{ whiteSpace: 'wrap', maxWidth: '10em' }}
+                  sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
                   color={getTeamColor(joinTeamIdx)}
                   onClick={() => onJoinMatch(joinTeamIdx)}
                 >
@@ -179,15 +161,15 @@ export const Lobby = () => {
                 </Box>
                 <Stack px={2}>
                   {player.isOwner && player.isMe ? (
-                      <Button
-                        disabled={match.state !== EMatchState.READY}
-                        variant="contained"
-                        size="small"
-                        color="success"
-                        onClick={onStartMatch}
-                      >
-                        Empezar Partida
-                      </Button>
+                    <Button
+                      disabled={match.state !== EMatchState.READY}
+                      variant="contained"
+                      size="small"
+                      color="success"
+                      onClick={onStartMatch}
+                    >
+                      Empezar Partida
+                    </Button>
                   ) : null}
                 </Stack>
               </Box>

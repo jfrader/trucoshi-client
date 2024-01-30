@@ -42,6 +42,7 @@ import { SatoshiIcon } from "../assets/icons/SatoshiIcon";
 import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
 import { Link } from "../shared/Link";
 import { ProvablyFair } from "../components/game/ProvablyFair";
+import { GameOptionsList, LOBBY_OPTIONS_HUMAN_READABLE } from "../components/game/GameOptionsList";
 
 export const MatchDetails = () => {
   const navigate = useNavigate();
@@ -103,6 +104,8 @@ export const MatchDetails = () => {
   );
 
   const owner = match?.players.find((p) => match.ownerAccountId === p.accountId);
+  const isPlayer =
+    match?.players.findIndex((p) => p.accountId === context.state.account?.id) !== -1;
 
   return (
     <PageContainer title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
@@ -118,9 +121,10 @@ export const MatchDetails = () => {
                     aria-label="lab API tabs example"
                   >
                     <Tab label="Resumen" value="1" />
-                    <Tab label="Jugadores" value="2" />
-                    <Tab label="Manos" value="3" />
-                    <Tab label="Provably Fair" value="4" />
+                    <Tab label="Reglas" value="2" />
+                    <Tab label="Jugadores" value="3" />
+                    <Tab label="Manos" value="4" />
+                    <Tab label="Provably Fair" value="5" />
                   </TabList>
 
                   <TabPanel sx={{ px: 0 }} value="1">
@@ -153,8 +157,7 @@ export const MatchDetails = () => {
                           <ListItemText secondary={owner?.name} primary="Host" />
                         </ListItem>
                       )}
-                      {match.players.findIndex((p) => p.accountId === context.state.account?.id) !==
-                      -1 ? (
+                      {isPlayer ? (
                         <ListItem divider>
                           <ListItemAvatar>
                             <SatoshiIcon color="warning" />
@@ -169,6 +172,20 @@ export const MatchDetails = () => {
                   </TabPanel>
 
                   <TabPanel sx={{ px: 0 }} value="2">
+                    <GameOptionsList
+                      divider
+                      options={match.options as any as ILobbyOptions}
+                      keys={
+                        isPlayer
+                          ? undefined
+                          : (Object.keys(LOBBY_OPTIONS_HUMAN_READABLE).filter(
+                              (o) => o !== "satsPerPlayer"
+                            ) as (keyof ILobbyOptions)[])
+                      }
+                    />
+                  </TabPanel>
+
+                  <TabPanel sx={{ px: 0 }} value="3">
                     <List>
                       {match.players
                         .sort((a, b) => (a.idx || 0) - (b.idx || 0))
@@ -198,7 +215,7 @@ export const MatchDetails = () => {
                     </List>
                   </TabPanel>
 
-                  <TabPanel sx={{ px: 0 }} value="3">
+                  <TabPanel sx={{ px: 0 }} value="4">
                     {match.hands.map((hand) => {
                       const rounds = hand.rounds as IHandRoundLog[][];
                       const results = hand.results as any as IHandPoints;
@@ -302,11 +319,8 @@ export const MatchDetails = () => {
                     </List>
                   </TabPanel>
 
-                  <TabPanel sx={{ px: 0 }} value="4">
-                    <ProvablyFair
-                      players={match.players}
-                      hands={match.hands}
-                    />
+                  <TabPanel sx={{ px: 0 }} value="5">
+                    <ProvablyFair players={match.players} hands={match.hands} />
                   </TabPanel>
                 </TabContext>
               ) : (

@@ -28,22 +28,30 @@ const MatchPlayer = ({ match, previousHand, player, canPlay, onPlayCard }: Playe
             <Typography color="text.disabled">Retirado</Typography>
           </Box>
         ) : (
-          <Box pt={1} minHeight="4em">
-            {!isPrevious &&
-              !player.disabled &&
-              player.hand.map((card, idx) =>
-                canPlay && player.isMe && player.isTurn ? (
-                  <GameCard
-                    enableHover
-                    key={card + player.idx}
-                    card={card as ICard}
-                    onClick={() => onPlayCard(idx, card as ICard)}
-                  />
-                ) : (
-                  <GameCard key={card + player.idx} card={card as ICard} />
-                )
-              )}
-          </Box>
+          <>
+            {player.disabled ? (
+              <Box pt={1}>
+                <Typography color="text.disabled">Al mazo</Typography>
+              </Box>
+            ) : (
+              <Box pt={1} minHeight="4em">
+                {!isPrevious &&
+                  !player.disabled &&
+                  player.hand.map((card, idx) =>
+                    canPlay && player.isMe && player.isTurn ? (
+                      <GameCard
+                        enableHover
+                        key={card + player.idx}
+                        card={card as ICard}
+                        onClick={() => onPlayCard(idx, card as ICard)}
+                      />
+                    ) : (
+                      <GameCard key={card + player.idx} card={card as ICard} />
+                    )
+                  )}
+              </Box>
+            )}
+          </>
         )}
       </Box>
     </Box>

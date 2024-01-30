@@ -26,7 +26,7 @@ export const useTurnTimer = (
           return { isExtension: false, progress: 0 };
         }
         if (isExtension) {
-          const difference = player.turnExtensionExpiresAt - now;
+          const difference = player.turnExtensionExpiresAt - now - player.abandonedTime;
           const progress = Math.floor((difference * 100) / options.abandonTime);
           return { isExtension, progress };
         }

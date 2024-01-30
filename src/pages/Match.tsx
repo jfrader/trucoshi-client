@@ -110,7 +110,7 @@ const Match = () => {
           <ChatButton
             color={getTeamColor(Number(chatProps.latestMessage.user.name))}
             variant="contained"
-            sx={{ fontSize: "1.4rem" }}
+            sx={{ fontSize: "1rem" }}
             message={chatProps.latestMessage}
           >
             <Stack whiteSpace="nowrap" direction="row" flexWrap="nowrap" gap={1}>
@@ -142,7 +142,7 @@ const Match = () => {
   }
 
   return (
-    <Box position="relative" flexGrow={1} maxWidth="100%">
+    <Box flexGrow={1} maxWidth="100%">
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       {match ? (
@@ -161,6 +161,9 @@ const Match = () => {
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
+            <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
+              Rendirse
+            </Button>
           </Box>
         </>
       ) : (
@@ -169,18 +172,7 @@ const Match = () => {
       <FixedChatContainer>
         <ChatRoom {...chatProps} />
       </FixedChatContainer>
-      <Button
-        onClick={() => setAbandonOpen(true)}
-        color="error"
-        sx={{
-          position: "absolute",
-          bottom: { xs: "auto", sm: "1em" },
-          right: { xs: "8em", sm: "2em" },
-          top: { xs: "14em", sm: "auto" },
-        }}
-      >
-        Rendirse
-      </Button>
+
       {match?.me ? (
         <CommandBar
           isPrevious={!!previousHand}
