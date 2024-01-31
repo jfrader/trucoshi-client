@@ -121,13 +121,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             }
             setAccount(null);
             setLogged(false);
-            removeCookie("jwt:identity");
             refetchMe();
           }
         );
       }
     }
-  }, [cookies, isLogged, me, refetchMe, removeCookie]);
+  }, [cookies, isLogged, me, refetchMe]);
 
   useEffect(() => {
     makeLogin();

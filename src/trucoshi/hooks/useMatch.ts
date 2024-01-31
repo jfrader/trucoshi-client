@@ -20,12 +20,29 @@ import { useCookies } from "react-cookie";
 import { usePayRequest } from "../../api/hooks/usePayRequest";
 import { useToast } from "../../hooks/useToast";
 import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
+import { AxiosError } from "axios";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
   onPlayedCard?: (pc: IPlayedCard) => void;
   onSaidCommand?: (sc: ISaidCommand) => void;
+}
+
+function getCookie(cname: string) {
+  const name = cname + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 export const useMatch = (
@@ -41,7 +58,6 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
-  const [cookies] = useCookies(["jwt:identity"]);
   const [hash, setHash] = useState("");
 
   const { pay } = usePayRequest();
@@ -124,17 +140,22 @@ export const useMatch = (
 
   const emitReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
-      socket.emit(EClientEvent.SET_PLAYER_READY, matchSessionId, ready, ({ success, match }) => {
-        if (error) {
-          toast.error(error.message);
+      socket.emit(
+        EClientEvent.SET_PLAYER_READY,
+        matchSessionId,
+        ready,
+        ({ success, match, error }) => {
+          if (error) {
+            toast.error(error.message);
+          }
+          if (success && match) {
+            setMatch(match);
+            return;
+          }
         }
-        if (success && match) {
-          setMatch(match);
-          return;
-        }
-      });
+      );
     },
-    [error, setMatch, socket, toast]
+    [setMatch, socket, toast]
   );
 
   const setReady = useCallback(
@@ -180,63 +201,91 @@ export const useMatch = (
     [context.dispatch, error, setMatch, socket, toast]
   );
 
-  const setOptions = useCallback(
-    (options: Partial<ILobbyOptions>, cb: (success: boolean) => void) => {
-      if (!matchId || !match) {
-        return;
+  const makeRefreshTokens = (
+    onSuccess: () => void,
+    onError: (e: AxiosError) => void
+  ) => {
+    return refreshTokens(
+      { withCredentials: true },
+      {
+        onSettled() {
+          onSuccess();
+        },
+        onError(e) {
+          console.log({ wtf: e });
+          onError(e);
+        },
       }
+    );
+  };
 
-      const identity =
-        options.satsPerPlayer && options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
-
-      if (!identity && options.satsPerPlayer && options.satsPerPlayer > 0) {
-        return refreshTokens(
-          {},
-          {
-            onSettled() {
-              toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
-            },
-          }
-        );
-      }
-
-      socket.emit(
-        EClientEvent.SET_MATCH_OPTIONS,
-        identity,
-        matchId,
-        options,
-        ({ success, activeMatches, match, error }) => {
-          cb(success);
-          if (error) {
-            toast.error(error.message);
-          }
-
-          if (activeMatches) {
-            context.dispatch.setActiveMatches(activeMatches);
-          }
-
-          if (match) {
-            setMatch(match);
-          }
-        }
-      );
-    },
-    [context.dispatch, cookies, match, matchId, refreshTokens, setMatch, socket, toast]
-  );
-
-  const startMatch = useCallback(() => {
+  const setOptions = (
+    options: Partial<ILobbyOptions>,
+    cb: (success: boolean) => void,
+    retry?: boolean,
+  ) => {
     if (!matchId || !match) {
       return;
     }
 
-    const identity = match.options.satsPerPlayer > 0 ? cookies["jwt:identity"] : null;
+    const identity = getCookie("jwt:identity");
+
+    socket.emit(
+      EClientEvent.SET_MATCH_OPTIONS,
+      identity,
+      matchId,
+      options,
+      ({ success, activeMatches, match, error }) => {
+        if (error) {
+          if (!retry) {
+            return makeRefreshTokens(
+              () => {
+                setOptions(options, cb, true);
+              },
+              () => {
+                toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
+              }
+            );
+          }
+          toast.error(error.message);
+        }
+
+        cb(success);
+
+        if (activeMatches) {
+          context.dispatch.setActiveMatches(activeMatches);
+        }
+
+        if (match) {
+          setMatch(match);
+        }
+      }
+    );
+  };
+
+  const startMatch = (retry?: boolean) => {
+    if (!matchId || !match) {
+      return;
+    }
+
+    const identity = getCookie("jwt:identity");
 
     socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ error }) => {
       if (error) {
+        if (!retry) {
+          return makeRefreshTokens(
+            () => {
+              startMatch(true);
+            },
+            () => {
+              toast.error("No se pudo empezar la partida, intenta nuevamente o inicia sesion.");
+            }
+          );
+        }
         toast.error(error.message);
       }
     });
-  }, [cookies, match, matchId, socket, toast]);
+  };
 
   useEffect(() => {
     fetchMatch();

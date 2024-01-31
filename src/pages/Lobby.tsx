@@ -113,7 +113,7 @@ export const Lobby = () => {
             const getJoinTeamIdx = (j: number) => (j % 2 === 0 ? 0 : 1);
 
             const firstPlayerTeamIsZero =
-              me?.teamIdx === 0 || (!me && match.players[0].teamIdx === 0);
+              me?.teamIdx === 0 || (!me && match.players[0]?.teamIdx === 0);
 
             const joinTeamIdx = getJoinTeamIdx(i);
             const newTeamIdx = firstPlayerTeamIsZero ? joinTeamIdx : getJoinTeamIdx(i + 1);
