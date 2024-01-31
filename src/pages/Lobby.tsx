@@ -110,16 +110,26 @@ export const Lobby = () => {
             );
           }}
           FillSlot={({ i }) => {
-            const joinTeamIdx = i % 2 === 0 ? 0 : 1;
-            return !me || joinTeamIdx !== me.teamIdx ? (
+            const getJoinTeamIdx = (j: number) => (j % 2 === 0 ? 0 : 1);
+
+            const firstPlayerTeamIsZero =
+              me?.teamIdx === 0 || (!me && match.players[0].teamIdx === 0);
+
+            const joinTeamIdx = getJoinTeamIdx(i);
+            const newTeamIdx = firstPlayerTeamIsZero ? joinTeamIdx : getJoinTeamIdx(i + 1);
+            const canJoin =
+              match.players.filter((p) => p.teamIdx === newTeamIdx).length <
+              match.options.maxPlayers / 2;
+
+            return canJoin && (!me || newTeamIdx !== me.teamIdx) ? (
               <Stack pt={3} alignItems="end">
                 <Button
                   variant="text"
                   sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
-                  color={getTeamColor(joinTeamIdx)}
-                  onClick={() => onJoinMatch(joinTeamIdx)}
+                  color={getTeamColor(newTeamIdx)}
+                  onClick={() => onJoinMatch(newTeamIdx)}
                 >
-                  Unirse a {getTeamName(joinTeamIdx)}
+                  Unirse a {getTeamName(newTeamIdx)}
                 </Button>
               </Stack>
             ) : null;
