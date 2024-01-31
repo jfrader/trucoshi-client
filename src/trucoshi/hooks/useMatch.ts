@@ -16,7 +16,6 @@ import {
 
 import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
-import { useCookies } from "react-cookie";
 import { usePayRequest } from "../../api/hooks/usePayRequest";
 import { useToast } from "../../hooks/useToast";
 import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
@@ -212,7 +211,6 @@ export const useMatch = (
           onSuccess();
         },
         onError(e) {
-          console.log({ wtf: e });
           onError(e);
         },
       }
