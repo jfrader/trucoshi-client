@@ -57,13 +57,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const {
-    me,
-    error,
-    isFetching: isPendingMe,
-    refetch: refetchMe,
-    reset: resetMe,
-  } = useMe({ enabled: !!cookies["jwt:identity"] });
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe, reset: resetMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
