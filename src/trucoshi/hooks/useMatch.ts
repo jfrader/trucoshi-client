@@ -20,28 +20,13 @@ import { usePayRequest } from "../../api/hooks/usePayRequest";
 import { useToast } from "../../hooks/useToast";
 import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
 import { AxiosError } from "axios";
+import { getIdentityCookie } from "../../utils/cookie";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
   onPlayedCard?: (pc: IPlayedCard) => void;
   onSaidCommand?: (sc: ISaidCommand) => void;
-}
-
-function getCookie(cname: string) {
-  const name = cname + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
 }
 
 export const useMatch = (
@@ -226,7 +211,7 @@ export const useMatch = (
       return;
     }
 
-    const identity = getCookie("jwt:identity");
+    const identity = getIdentityCookie();
 
     socket.emit(
       EClientEvent.SET_MATCH_OPTIONS,
@@ -266,7 +251,7 @@ export const useMatch = (
       return;
     }
 
-    const identity = getCookie("jwt:identity");
+    const identity = getIdentityCookie();
 
     socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ error }) => {
       if (error) {

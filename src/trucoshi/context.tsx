@@ -22,6 +22,7 @@ import { is401 } from "../api/apiClient";
 import { useLogin } from "../api/hooks/useLogin";
 import { useToast } from "../hooks/useToast";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
+import { getIdentityCookie } from "../utils/cookie";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -40,7 +41,7 @@ const sendPing = () => {
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useStateStorage("session");
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
-  const [cookies, , removeCookie] = useCookies(["jwt:identity"]);
+  const [, , removeCookie] = useCookies(["jwt:identity"]);
 
   const [version, setVersion] = useState("");
   const [name, setName] = useStateStorage("id", "Satoshi" as string);
@@ -67,7 +68,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
-    socket.emit(EClientEvent.LOGOUT, ({ success, error }) => {
+    socket.emit(EClientEvent.LOGOUT, ({ error }) => {
       removeCookie("jwt:identity");
       setLogged(false);
       setAccount(null);
@@ -75,18 +76,25 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         { withCredentials: true },
         {
           onSuccess() {
-            resetMe();
+            resetMe().then(() => {
+              setLoadingAccount(false);
+              socket.disconnect();
+              socket.connect();
+            });
+          },
+          onError(error) {
+            toast.error(error.message);
+            setLoadingAccount(false);
+            socket.disconnect();
+            socket.connect();
+          },
+          onSettled() {
+            if (error) {
+              toast.error(error.message);
+            }
           },
         }
       );
-      setLoadingAccount(false);
-      if (error) {
-        toast.error(error.message);
-      }
-      if (success) {
-        socket.disconnect();
-        return socket.connect();
-      }
     });
   }, [apiLogout, removeCookie, resetMe, toast]);
 
@@ -97,36 +105,32 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [error, logout]);
 
   const makeLogin = useCallback(() => {
-    if (me && cookies["jwt:identity"]) {
+    const identity = getIdentityCookie();
+    if (me && identity) {
       if (isLogged) {
         setAccount(me);
       } else {
         setLoadingAccount(true);
-        socket.emit(
-          EClientEvent.LOGIN,
-          me,
-          cookies["jwt:identity"],
-          ({ success, activeMatches, error }) => {
-            setLoadingAccount(false);
-            if (error) {
-              console.error(error.message);
-            }
-            if (activeMatches) {
-              setActiveMatches(activeMatches);
-            }
-            if (success) {
-              setLogged(true);
-              setAccount(me);
-              return;
-            }
-            setAccount(null);
-            setLogged(false);
-            refetchMe();
+        socket.emit(EClientEvent.LOGIN, me, identity, ({ success, activeMatches, error }) => {
+          setLoadingAccount(false);
+          if (error) {
+            console.error(error.message);
           }
-        );
+          if (activeMatches) {
+            setActiveMatches(activeMatches);
+          }
+          if (success) {
+            setLogged(true);
+            setAccount(me);
+            return;
+          }
+          setAccount(null);
+          setLogged(false);
+          refetchMe();
+        });
       }
     }
-  }, [cookies, isLogged, me, refetchMe]);
+  }, [isLogged, me, refetchMe]);
 
   useEffect(() => {
     makeLogin();
