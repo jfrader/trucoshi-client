@@ -32,6 +32,7 @@ export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST, {
   withCredentials: true,
   autoConnect: false,
+  secure: import.meta.env.MODE === "production",
 });
 
 const sendPing = () => {
@@ -58,7 +59,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  const { me, error, isFetching: isPendingMe, refetch: refetchMe, reset: resetMe } = useMe();
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
@@ -68,35 +69,32 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
-    socket.emit(EClientEvent.LOGOUT, ({ error }) => {
-      removeCookie("jwt:identity");
-      setLogged(false);
-      setAccount(null);
-      apiLogout(
-        { withCredentials: true },
-        {
-          onSuccess() {
-            resetMe().then(() => {
+
+    apiLogout(
+      { withCredentials: true },
+      {
+        onError(e) {
+          toast.error(e.message);
+        },
+        onSettled() {
+          setLogged(false);
+          setAccount(null);
+          removeCookie("jwt:identity");
+          refetchMe().then(() => {
+            socket.emit(EClientEvent.LOGOUT, ({ error: e }) => {
+              if (e) {
+                toast.error(e.message);
+              }
+
               setLoadingAccount(false);
               socket.disconnect();
               socket.connect();
             });
-          },
-          onError(error) {
-            toast.error(error.message);
-            setLoadingAccount(false);
-            socket.disconnect();
-            socket.connect();
-          },
-          onSettled() {
-            if (error) {
-              toast.error(error.message);
-            }
-          },
-        }
-      );
-    });
-  }, [apiLogout, removeCookie, resetMe, toast]);
+          });
+        },
+      }
+    );
+  }, [apiLogout, refetchMe, removeCookie, toast]);
 
   useEffect(() => {
     if (is401(error)) {
