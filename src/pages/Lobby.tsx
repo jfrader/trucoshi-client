@@ -29,6 +29,7 @@ import { GameOptions } from "../components/game/GameOptions";
 import { dark } from "../theme";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
+import { LoadingButton } from "../shared/LoadingButton";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = ["matchPoint", "faltaEnvido", "maxPlayers"];
 
@@ -38,6 +39,7 @@ export const Lobby = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
+  const [isReadyLoading, setReadyLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -53,10 +55,19 @@ export const Lobby = () => {
     }
   }, [match, navigate, sessionId]);
 
-  const onJoinMatch = (teamIdx: 0 | 1) => sessionId && joinMatch(sessionId, teamIdx);
+  const onJoinMatch = (teamIdx: 0 | 1) => {
+    setReadyLoading(true);
+    sessionId && joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
+  };
   const onStartMatch = () => startMatch();
-  const onSetReady = () => sessionId && setReady(sessionId, true);
-  const onSetUnReady = () => sessionId && setReady(sessionId, false);
+  const onSetReady = () => {
+    setReadyLoading(true);
+    sessionId && setReady(sessionId, true, () => setReadyLoading(false));
+  };
+  const onSetUnReady = () => {
+    setReadyLoading(true);
+    sessionId && setReady(sessionId, false, () => setReadyLoading(false));
+  };
 
   const isMobile = useMediaQuery<typeof dark>((theme) => theme.breakpoints.down("md"));
 
@@ -123,14 +134,15 @@ export const Lobby = () => {
 
             return canJoin && (!me || newTeamIdx !== me.teamIdx) ? (
               <Stack pt={3} alignItems="end">
-                <Button
+                <LoadingButton
                   variant="text"
+                  isLoading={isReadyLoading}
                   sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
                   color={getTeamColor(newTeamIdx)}
                   onClick={() => onJoinMatch(newTeamIdx)}
                 >
                   Unirse a {getTeamName(newTeamIdx)}
-                </Button>
+                </LoadingButton>
               </Stack>
             ) : null;
           }}
@@ -150,11 +162,21 @@ export const Lobby = () => {
                     )}
                     {player.isMe ? (
                       me?.ready ? (
-                        <Button size="small" color="success" onClick={onSetUnReady}>
+                        <LoadingButton
+                          isLoading={isReadyLoading}
+                          size="small"
+                          color="success"
+                          onClick={onSetUnReady}
+                        >
                           Listo
-                        </Button>
+                        </LoadingButton>
                       ) : (
-                        <AnimatedButton size="small" color="warning" onClick={onSetReady}>
+                        <AnimatedButton
+                          isLoading={isReadyLoading}
+                          size="small"
+                          color="warning"
+                          onClick={onSetReady}
+                        >
                           Estoy Listo
                         </AnimatedButton>
                       )

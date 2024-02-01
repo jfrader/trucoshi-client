@@ -86,7 +86,6 @@ export const useMatch = (
   const setMatch = useCallback(
     (value: IPublicMatch) => {
       if (value.matchSessionId === matchId) {
-        console.log({ a: value.me?.turnExpiresAt, b: value.me?.abandonedTime });
         _setMatch(value);
         const _me = value.players.find((player) => player.isMe);
         const _turnPlayer = value.players.find((player) => player.isTurn) || null;
@@ -120,12 +119,13 @@ export const useMatch = (
   );
 
   const emitReady = useCallback(
-    (matchSessionId: string, ready: boolean) => {
+    (matchSessionId: string, ready: boolean, cb: (success: boolean) => void) => {
       socket.emit(
         EClientEvent.SET_PLAYER_READY,
         matchSessionId,
         ready,
         ({ success, match, error }) => {
+          cb(success);
           if (error) {
             toast.error(error.message);
           }
@@ -140,12 +140,12 @@ export const useMatch = (
   );
 
   const setReady = useCallback(
-    (matchSessionId: string, ready: boolean) => {
+    (matchSessionId: string, ready: boolean, cb: (success: boolean) => void) => {
       if (me?.payRequestId && ready) {
         return pay(String(me?.payRequestId), {
           onSettled() {
             context.dispatch.refetchMe();
-            emitReady(matchSessionId, ready);
+            emitReady(matchSessionId, ready, cb);
           },
           onError(e) {
             if (Number(e.code) === 302) {
@@ -155,18 +155,19 @@ export const useMatch = (
           },
         });
       }
-      emitReady(matchSessionId, ready);
+      emitReady(matchSessionId, ready, cb);
     },
     [context.dispatch, emitReady, me?.payRequestId, pay, toast]
   );
 
   const joinMatch = useCallback(
-    (matchId: string, teamIdx?: 0 | 1) => {
+    (matchId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1) => {
       socket.emit(
         EClientEvent.JOIN_MATCH,
         matchId,
         teamIdx,
         ({ success, match, activeMatches, error }) => {
+          cb(success);
           if (activeMatches) {
             context.dispatch.setActiveMatches(activeMatches);
           }

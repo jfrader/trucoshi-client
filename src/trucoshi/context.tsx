@@ -160,7 +160,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       }
 
       refreshIdentityPromise.current = new Promise<void>((resolve) => {
-        console.log("REFRESHING IDENTITY!");
         refreshTokens(
           { withCredentials: true },
           {
