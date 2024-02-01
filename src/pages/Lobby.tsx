@@ -31,7 +31,12 @@ import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 
-const OPTIONS_KEYS: (keyof ILobbyOptions)[] = ["matchPoint", "faltaEnvido", "maxPlayers", "turnTime"];
+const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
+  "matchPoint",
+  "faltaEnvido",
+  "maxPlayers",
+  "turnTime",
+];
 
 export const Lobby = () => {
   useSound();
@@ -140,15 +145,15 @@ export const Lobby = () => {
 
             return canJoin && (!me || newTeamIdx !== me.teamIdx) ? (
               <Stack pt={3} alignItems="end">
-                <LoadingButton
+                <Button
                   variant="text"
-                  isLoading={isReadyLoading}
+                  disabled={isReadyLoading}
                   sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
                   color={getTeamColor(newTeamIdx)}
                   onClick={() => onJoinMatch(newTeamIdx)}
                 >
                   Unirse a {getTeamName(newTeamIdx)}
-                </LoadingButton>
+                </Button>
               </Stack>
             ) : null;
           }}
@@ -168,17 +173,17 @@ export const Lobby = () => {
                     )}
                     {player.isMe ? (
                       me?.ready ? (
-                        <LoadingButton
-                          isLoading={isReadyLoading}
+                        <Button
+                          disabled={isReadyLoading}
                           size="small"
                           color="success"
                           onClick={onSetUnReady}
                         >
                           Listo
-                        </LoadingButton>
+                        </Button>
                       ) : (
                         <AnimatedButton
-                          isLoading={isReadyLoading}
+                          disabled={isReadyLoading}
                           size="small"
                           color="warning"
                           onClick={onSetReady}
@@ -199,7 +204,8 @@ export const Lobby = () => {
                 </Box>
                 <Stack px={2}>
                   {player.isOwner && player.isMe ? (
-                    <Button
+                    <LoadingButton
+                      isLoading={isReadyLoading}
                       disabled={match.state !== EMatchState.READY}
                       variant="contained"
                       size="small"
@@ -207,7 +213,7 @@ export const Lobby = () => {
                       onClick={onStartMatch}
                     >
                       Empezar Partida
-                    </Button>
+                    </LoadingButton>
                   ) : null}
                 </Stack>
               </Box>
