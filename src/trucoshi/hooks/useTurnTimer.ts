@@ -21,18 +21,18 @@ export const useTurnTimer = (
     }
     const interval = setInterval(() => {
       setTurnTimer(({ isExtension }) => {
-        const now = Math.floor(Date.now()) + serverAheadTime;
+        const now = Date.now() + serverAheadTime;
         if (!player.turnExpiresAt || !player.turnExtensionExpiresAt) {
           return { isExtension: false, progress: 0 };
         }
         if (isExtension) {
           const difference = player.turnExtensionExpiresAt - now - player.abandonedTime;
-          const progress = Math.floor((difference * 100) / options.abandonTime);
+          const progress = (difference * 100) / options.abandonTime;
           return { isExtension, progress };
         }
         const difference = player.turnExpiresAt - now;
         if (difference > 0) {
-          const progress = Math.floor((difference * 100) / options.turnTime);
+          const progress = (difference * 100) / options.turnTime;
           return {
             isExtension: false,
             progress,

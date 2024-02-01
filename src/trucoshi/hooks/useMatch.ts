@@ -9,8 +9,6 @@ import {
   IPublicPlayer,
   ESayCommand,
   IMatchPreviousHand,
-  IPlayedCard,
-  ISaidCommand,
   ILobbyOptions,
 } from "trucoshi";
 
@@ -18,15 +16,10 @@ import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 import { usePayRequest } from "../../api/hooks/usePayRequest";
 import { useToast } from "../../hooks/useToast";
-import { useRefreshTokens } from "../../api/hooks/useRefreshTokens";
-import { AxiosError } from "axios";
-import { getIdentityCookie } from "../../utils/cookie";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
-  onPlayedCard?: (pc: IPlayedCard) => void;
-  onSaidCommand?: (sc: ISaidCommand) => void;
 }
 
 export const useMatch = (
@@ -42,12 +35,11 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
-  const [hash, setHash] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
   const { pay } = usePayRequest();
-  const { refreshTokens } = useRefreshTokens();
 
-  const { onMyTurn, onFreshHand, onPlayedCard, onSaidCommand } = options;
+  const { onMyTurn, onFreshHand } = options;
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -56,7 +48,7 @@ export const useMatch = (
   const { socket } = context;
 
   const fetchMatch = useCallback(() => {
-    if (matchId && context.state.isConnected) {
+    if (!error && matchId && context.state.isConnected) {
       socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
         if (!success) {
           setError(new Error("No se pudo encontrar la partida"));
@@ -69,7 +61,14 @@ export const useMatch = (
         setError(null);
       });
     }
-  }, [context.dispatch, context.state.activeMatches, context.state.isConnected, matchId, socket]);
+  }, [
+    context.dispatch,
+    context.state.activeMatches,
+    context.state.isConnected,
+    error,
+    matchId,
+    socket,
+  ]);
 
   const kickPlayer = useCallback(
     (key: string) => {
@@ -86,18 +85,16 @@ export const useMatch = (
 
   const setMatch = useCallback(
     (value: IPublicMatch) => {
-      const matchHash = JSON.stringify(value);
-      if (hash === matchHash) {
-        return;
+      if (value.matchSessionId === matchId) {
+        console.log({ a: value.me?.turnExpiresAt, b: value.me?.abandonedTime });
+        _setMatch(value);
+        const _me = value.players.find((player) => player.isMe);
+        const _turnPlayer = value.players.find((player) => player.isTurn) || null;
+        setMe(_me || null);
+        setTurnPlayer(_turnPlayer);
       }
-      setHash(matchHash);
-      _setMatch(value);
-      const _me = value.players.find((player) => player.isMe);
-      const _turnPlayer = value.players.find((player) => player.isTurn) || null;
-      setMe(_me || null);
-      setTurnPlayer(_turnPlayer);
     },
-    [hash]
+    [matchId]
   );
 
   const createMatch = useCallback(
@@ -144,7 +141,7 @@ export const useMatch = (
 
   const setReady = useCallback(
     (matchSessionId: string, ready: boolean) => {
-      if (me?.payRequestId) {
+      if (me?.payRequestId && ready) {
         return pay(String(me?.payRequestId), {
           onSettled() {
             context.dispatch.refetchMe();
@@ -169,11 +166,12 @@ export const useMatch = (
         EClientEvent.JOIN_MATCH,
         matchId,
         teamIdx,
-        ({ success, match, activeMatches }) => {
+        ({ success, match, activeMatches, error }) => {
           if (activeMatches) {
             context.dispatch.setActiveMatches(activeMatches);
           }
           if (error) {
+            console.error({ error });
             toast.error(error.message);
           }
           if (success && match) {
@@ -182,54 +180,20 @@ export const useMatch = (
         }
       );
     },
-    [context.dispatch, error, setMatch, socket, toast]
+    [context.dispatch, setMatch, socket, toast]
   );
 
-  const makeRefreshTokens = (
-    onSuccess: () => void,
-    onError: (e: AxiosError) => void
-  ) => {
-    return refreshTokens(
-      { withCredentials: true },
-      {
-        onSettled() {
-          onSuccess();
-        },
-        onError(e) {
-          onError(e);
-        },
-      }
-    );
-  };
-
-  const setOptions = (
-    options: Partial<ILobbyOptions>,
-    cb: (success: boolean) => void,
-    retry?: boolean,
-  ) => {
+  const setOptions = (options: Partial<ILobbyOptions>, cb: (success: boolean) => void) => {
     if (!matchId || !match) {
       return;
     }
 
-    const identity = getIdentityCookie();
-
     socket.emit(
       EClientEvent.SET_MATCH_OPTIONS,
-      identity,
       matchId,
       options,
       ({ success, activeMatches, match, error }) => {
         if (error) {
-          if (!retry) {
-            return makeRefreshTokens(
-              () => {
-                setOptions(options, cb, true);
-              },
-              () => {
-                toast.error("No se pudieron guardar las reglas, intenta nuevamente.");
-              }
-            );
-          }
           toast.error(error.message);
         }
 
@@ -246,33 +210,24 @@ export const useMatch = (
     );
   };
 
-  const startMatch = (retry?: boolean) => {
+  const startMatch = () => {
     if (!matchId || !match) {
       return;
     }
 
-    const identity = getIdentityCookie();
-
-    socket.emit(EClientEvent.START_MATCH, identity, matchId, ({ error }) => {
+    socket.emit(EClientEvent.START_MATCH, matchId, ({ error }) => {
       if (error) {
-        if (!retry) {
-          return makeRefreshTokens(
-            () => {
-              startMatch(true);
-            },
-            () => {
-              toast.error("No se pudo empezar la partida, intenta nuevamente o inicia sesion.");
-            }
-          );
-        }
         toast.error(error.message);
       }
     });
   };
 
   useEffect(() => {
-    fetchMatch();
-  }, [fetchMatch]);
+    if (!hydrated || (!match && !error)) {
+      fetchMatch();
+      setHydrated(true);
+    }
+  }, [error, fetchMatch, hydrated, match]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
@@ -308,18 +263,6 @@ export const useMatch = (
       }
     });
 
-    socket.on(EServerEvent.PLAYER_USED_CARD, (value, card) => {
-      if (value.matchSessionId === matchId) {
-        onPlayedCard?.(card);
-      }
-    });
-
-    socket.on(EServerEvent.PLAYER_SAID_COMMAND, (value, command) => {
-      if (value.matchSessionId === matchId) {
-        onSaidCommand?.(command);
-      }
-    });
-
     socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
       if (deletedMatchSessionId === matchId) {
         setError(new Error("Esta partida ya no existe"));
@@ -331,10 +274,8 @@ export const useMatch = (
       socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY);
       socket.off(EServerEvent.PREVIOUS_HAND);
-      socket.off(EServerEvent.PLAYER_USED_CARD);
-      socket.off(EServerEvent.PLAYER_SAID_COMMAND);
     };
-  }, [matchId, onMyTurn, onFreshHand, onPlayedCard, onSaidCommand, setMatch, socket]);
+  }, [matchId, onMyTurn, onFreshHand, setMatch, socket]);
 
   const playCard = useCallback(
     (cardIdx: number, card: ICard) => {

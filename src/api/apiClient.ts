@@ -17,7 +17,11 @@ apiClient.instance.interceptors.response.use(
     const parsedError =
       error && "response" in error && error.response?.data ? error.response.data : error;
     const originalReq = error.config;
-    if (!originalReq._retry && is401(error)) {
+    if (
+      !originalReq._retry &&
+      is401(error) &&
+      !new RegExp((originalReq as Request).url).test("refresh-token")
+    ) {
       originalReq._retry = true;
       return apiClient.auth
         .refreshTokensCreate()
