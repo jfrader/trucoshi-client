@@ -31,7 +31,7 @@ import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 
-const OPTIONS_KEYS: (keyof ILobbyOptions)[] = ["matchPoint", "faltaEnvido", "maxPlayers"];
+const OPTIONS_KEYS: (keyof ILobbyOptions)[] = ["matchPoint", "faltaEnvido", "maxPlayers", "turnTime"];
 
 export const Lobby = () => {
   useSound();

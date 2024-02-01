@@ -1,6 +1,7 @@
 import { List, ListItem, ListItemSecondaryAction, ListItemText, ListProps } from "@mui/material";
 import { ReactNode } from "react";
 import { ILobbyOptions } from "trucoshi";
+import { Sats } from "../../shared/Sats";
 
 export const LOBBY_OPTIONS_HUMAN_READABLE: Partial<Record<keyof ILobbyOptions, string>> = {
   maxPlayers: "Max. Jugadores",
@@ -20,6 +21,7 @@ export const FILTERS: Partial<Record<keyof ILobbyOptions, (value: number | boole
     handAckTime: getSecondsFromMs,
     turnTime: getSecondsFromMs,
     abandonTime: getSecondsFromMs,
+    satsPerPlayer: (sats) => <Sats>{Number(sats)}</Sats>,
   };
 
 export const GameOptionsList = ({
