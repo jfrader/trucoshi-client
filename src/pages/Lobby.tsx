@@ -59,11 +59,17 @@ export const Lobby = () => {
     setReadyLoading(true);
     sessionId && joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
   };
-  const onStartMatch = () => startMatch();
+
+  const onStartMatch = () => {
+    setReadyLoading(true);
+    startMatch(() => setReadyLoading(false));
+  };
+
   const onSetReady = () => {
     setReadyLoading(true);
     sessionId && setReady(sessionId, true, () => setReadyLoading(false));
   };
+
   const onSetUnReady = () => {
     setReadyLoading(true);
     sessionId && setReady(sessionId, false, () => setReadyLoading(false));

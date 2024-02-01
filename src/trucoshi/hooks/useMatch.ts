@@ -211,12 +211,13 @@ export const useMatch = (
     );
   };
 
-  const startMatch = () => {
+  const startMatch = (cb: (success: boolean) => void) => {
     if (!matchId || !match) {
       return;
     }
 
-    socket.emit(EClientEvent.START_MATCH, matchId, ({ error }) => {
+    socket.emit(EClientEvent.START_MATCH, matchId, ({ error, success }) => {
+      cb(success);
       if (error) {
         toast.error(error.message);
       }

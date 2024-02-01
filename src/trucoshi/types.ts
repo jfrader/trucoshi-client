@@ -29,7 +29,7 @@ export enum ETrucoshiStateActions {
 export type PropsWithPlayer<P = unknown> = P & { player: IPublicPlayer };
 
 export interface ITrucoshiMatchActions {
-  startMatch(): void;
+  startMatch(cb: (success: boolean) => void): void;
   leaveMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
   joinMatch(sessionId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1): void;
