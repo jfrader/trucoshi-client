@@ -2,10 +2,10 @@ import { keyframes } from "@mui/material";
 
 export const glow = keyframes`
   from {
-    box-shadow: 0 0 10px -10px rgb(100, 255, 100, 0.1);
+    box-shadow: 0 0 10px -10px rgb(155, 255, 155, 0.2);
   }
   to {
-    box-shadow: 0 0 10px 10px rgb(100, 255, 100, 0.1);
+    box-shadow: 0 0 10px 10px rgb(155, 255, 155, 0.1);
   }
 `;
 

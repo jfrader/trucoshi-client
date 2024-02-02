@@ -21,24 +21,7 @@ export const useTurnTimer = (
     }
     const interval = setInterval(() => {
       setTurnTimer(({ isExtension }) => {
-        const now = Date.now() + serverAheadTime;
-        if (!player.turnExpiresAt || !player.turnExtensionExpiresAt) {
-          return { isExtension: false, progress: 0 };
-        }
-        if (isExtension) {
-          const difference = player.turnExtensionExpiresAt - now - player.abandonedTime;
-          const progress = (difference * 100) / options.abandonTime;
-          return { isExtension, progress };
-        }
-        const difference = player.turnExpiresAt - now;
-        if (difference > 0) {
-          const progress = (difference * 100) / options.turnTime;
-          return {
-            isExtension: false,
-            progress,
-          };
-        }
-        return { isExtension: true, progress: 100 };
+        return getTimer({ player, serverAheadTime, options, isExtension });
       });
     }, 16);
 
@@ -47,3 +30,34 @@ export const useTurnTimer = (
 
   return turnTimer;
 };
+
+function getTimer({
+  serverAheadTime,
+  player,
+  options,
+  isExtension,
+}: {
+  serverAheadTime: number;
+  player: IPublicPlayer;
+  options: ILobbyOptions;
+  isExtension: boolean;
+}) {
+  const now = Date.now() + serverAheadTime;
+  if (!player.turnExpiresAt || !player.turnExtensionExpiresAt) {
+    return { isExtension: false, progress: 0 };
+  }
+  if (isExtension) {
+    const difference = player.turnExtensionExpiresAt - now - player.abandonedTime;
+    const progress = (difference * 100) / options.abandonTime;
+    return { isExtension, progress };
+  }
+  const difference = player.turnExpiresAt - now;
+  if (difference > 0) {
+    const progress = (difference * 100) / options.turnTime;
+    return {
+      isExtension: false,
+      progress,
+    };
+  }
+  return { isExtension: true, progress: 100 };
+}

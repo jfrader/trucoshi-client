@@ -10,6 +10,7 @@ import {
   ESayCommand,
   IMatchPreviousHand,
   ILobbyOptions,
+  EHandState,
 } from "trucoshi";
 
 import { TrucoshiContext } from "../context";
@@ -35,7 +36,6 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
-  const [hydrated, setHydrated] = useState(false);
 
   const { pay } = usePayRequest();
 
@@ -50,7 +50,7 @@ export const useMatch = (
   const fetchMatch = useCallback(() => {
     if (!error && matchId && context.state.isConnected) {
       socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
-        if (!success) {
+        if (!success || !match) {
           setError(new Error("No se pudo encontrar la partida"));
           context.dispatch.setActiveMatches(
             context.state.activeMatches.filter((m) => m.matchSessionId !== matchId)
@@ -225,11 +225,10 @@ export const useMatch = (
   };
 
   useEffect(() => {
-    if (!hydrated || (!match && !error)) {
+    if (!match && !error && !context.state.isLoggingIn) {
       fetchMatch();
-      setHydrated(true);
     }
-  }, [error, fetchMatch, hydrated, match]);
+  }, [context.state.isLoggingIn, error, fetchMatch, match]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
@@ -317,9 +316,12 @@ export const useMatch = (
     }
   }, [match, previousHand]);
 
-  const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
-  const canSay = useMemo(() => Boolean(match && sayCallback), [match, sayCallback]);
   const memoPreviousHand = useMemo(() => (previousHand ? previousHand[0] : null), [previousHand]);
+  const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
+  const canSay = useMemo(
+    () => Boolean(match && sayCallback && match.handState !== EHandState.BEFORE_FINISHED),
+    [match, sayCallback]
+  );
 
   return [
     {

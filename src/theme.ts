@@ -179,12 +179,18 @@ const base = {
             },
           }),
         },
-        {
-          props: { variant: "emojicard", name: "1e" },
-          style: () => ({
-            // animation: `${glow} 1s infinite alternate`,
-          }),
-        },
+        // {
+        //   props: { variant: "emojicard", name: "1e" },
+        //   style: () => ({
+        //     animation: `${glow} 1s infinite alternate`,
+        //   }),
+        // },
+        // {
+        //   props: { variant: "card", name: "1e" },
+        //   style: () => ({
+        //     animation: `${glow} 1s infinite alternate`,
+        //   }),
+        // },
         {
           props: { variant: "emojicard", name: BURNT_CARD },
           style: ({ theme }) => ({

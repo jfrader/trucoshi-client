@@ -70,6 +70,7 @@ export interface ITrucoshiState {
   dark: "" | "true";
   account: User | null;
   isAccountPending: boolean;
+  isLoggingIn: boolean;
   version: string;
   name: string | null;
   session: string | null;

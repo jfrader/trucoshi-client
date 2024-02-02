@@ -49,7 +49,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [account, setAccount] = useState<User | null>(null);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
-  const [isLoadingAccount, setLoadingAccount] = useState(false);
+  const [isLoadingAccount, setLoadingAccount] = useState(true);
   const [isConnected, setConnected] = useState<boolean>(false);
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<number | null>(null);
@@ -90,7 +90,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
               setLoadingAccount(false);
               socket.disconnect();
-              socket.connect();
             });
           });
         },
@@ -106,13 +105,15 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const makeLogin = useCallback(() => {
     const identity = getIdentityCookie();
+    if (!identity) {
+      return setLoadingAccount(false);
+    }
     if (me && identity) {
       if (isLogged) {
         setAccount(me);
       } else {
         setLoadingAccount(true);
         socket.emit(EClientEvent.LOGIN, me, identity, ({ success, activeMatches, error }) => {
-          setLoadingAccount(false);
           if (error) {
             console.error(error.message);
           }
@@ -122,10 +123,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           if (success) {
             setLogged(true);
             setAccount(me);
+            setLoadingAccount(false);
             return;
           }
           setAccount(null);
           setLogged(false);
+          setLoadingAccount(false);
           refetchMe();
         });
       }
@@ -152,6 +155,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     socket.on("disconnect", () => {
       setConnected(false);
       setLogged(false);
+      setAccount(null);
+      socket.connect();
     });
 
     socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
@@ -274,6 +279,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             cardsReady,
             isSidebarOpen,
             inspectedCard,
+            isLoggingIn: isLoadingAccount,
             isAccountPending: useMemo(
               () =>
                 isPendingMe ||

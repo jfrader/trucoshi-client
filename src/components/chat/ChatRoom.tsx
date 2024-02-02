@@ -325,14 +325,14 @@ export const ChatButton = ({
   message,
   children,
   ...props
-}: ButtonProps & { message: IChatMessage }) => {
+}: ButtonProps & { message?: IChatMessage }) => {
   const [, { inspectCard }] = useTrucoshi();
   return (
     <Button
-      onClick={message.card ? () => inspectCard(message.content as ICard) : undefined}
-      name={message.content}
+      onClick={message?.card ? () => inspectCard(message.content as ICard) : undefined}
+      name={message?.content}
       disableElevation
-      disableRipple={!message.card}
+      disableRipple={!message?.card}
       sx={(theme) => ({
         ml: 1,
         p: 0,

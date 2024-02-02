@@ -82,6 +82,7 @@ export const GameCard = ({
       zoom={zoom ? 1 : 0}
       shadow={shadow ? 1 : 0}
       onClick={onClick}
+      sx={{ width, height: `calc(${width} * 1.5)` }}
       onContextMenu={onClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
@@ -177,8 +178,6 @@ const GameCardButton = styled(Button)<{
     : {},
   emojicard
     ? {
-        width: "4.4em",
-        height: "5.58rem",
         fontWeight: 700,
         padding: "0.6rem 0.2rem",
       }

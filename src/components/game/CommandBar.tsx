@@ -7,19 +7,17 @@ export const CommandBar = ({
   children,
   player,
   canSay,
-  isPrevious,
   onSayCommand,
 }: PropsWithChildren<
   PropsWithPlayer<
     Pick<ITrucoshiMatchState, "canSay"> & {
       onSayCommand: ITrucoshiMatchActions["sayCommand"];
-      isPrevious: boolean;
     }
   >
 >) => {
   const bestEnvido = Math.max(...(player.envido || []));
 
-  if (player.abandoned || !canSay || isPrevious) {
+  if (player.abandoned || !canSay) {
     return null;
   }
 

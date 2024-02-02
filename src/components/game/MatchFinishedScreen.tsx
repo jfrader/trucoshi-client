@@ -22,7 +22,7 @@ export const MatchFinishedScreen = ({
   chatProps: ReturnType<typeof useChatRoom>;
 }) => {
   if (error || !match || !match.winner) {
-    return null;
+    return <MatchBackdrop error={error} />;
   }
   return (
     <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>

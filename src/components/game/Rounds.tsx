@@ -58,7 +58,7 @@ export const Rounds = ({
               <GameCard
                 shadow
                 zoom={openHand}
-                width={match.players.length > 4 ? undefined : "5em"}
+                width={match.players.length > 4 ? undefined : "5.2em"}
                 {...pc}
               />
             </HandCardContainer>

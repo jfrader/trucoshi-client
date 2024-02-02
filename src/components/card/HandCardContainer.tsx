@@ -1,4 +1,5 @@
 import { Box, styled } from "@mui/material";
+import { memo } from "react";
 
 const OPEN_MARGIN = 4;
 const randDeg = () => Math.round(Math.random() * 3) * (Math.random() > 0.5 ? 1 : -1);
@@ -21,7 +22,7 @@ const getMargin = (i: number, cards: number, margin: number = OPEN_MARGIN) => {
   return 0;
 };
 
-export const HandCardContainer = styled(Box)<{
+const Component = styled(Box)<{
   open: boolean;
   cards: number;
   i: number;
@@ -57,4 +58,8 @@ export const HandCardContainer = styled(Box)<{
           },
         },
   ];
+});
+
+export const HandCardContainer = memo(Component, (prev, next) => {
+  return prev.cards === next.cards && prev.i === next.i && prev.open === next.open;
 });

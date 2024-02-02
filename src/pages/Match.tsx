@@ -35,6 +35,7 @@ import { Backdrop } from "../shared/Backdrop";
 import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
 import { CommandBar } from "../components/game/CommandBar";
 import { getTeamColor } from "../utils/team";
+import { debugComponent } from "../utils/debugComponent";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -164,6 +165,7 @@ const Match = () => {
             <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
               Rendirse
             </Button>
+            {debugComponent(match.handState)}
           </Box>
         </>
       ) : (
@@ -174,12 +176,7 @@ const Match = () => {
       </FixedChatContainer>
 
       {match?.me ? (
-        <CommandBar
-          isPrevious={!!previousHand}
-          canSay={canSay}
-          onSayCommand={sayCommand}
-          player={match.me}
-        />
+        <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />
       ) : null}
       <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
         <DialogTitle>Atencion</DialogTitle>
