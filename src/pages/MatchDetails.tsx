@@ -116,6 +116,7 @@ export const MatchDetails = () => {
               {match ? (
                 <TabContext value={search.get("t") || "1"}>
                   <TabList
+                    variant="scrollable"
                     textColor="inherit"
                     onChange={handleChange}
                     aria-label="lab API tabs example"

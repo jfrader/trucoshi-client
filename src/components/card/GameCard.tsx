@@ -48,13 +48,13 @@ export const GameCard = ({
     return null;
   }
 
-  card = burn ? BURNT_CARD : card;
+  const name = burn ? BURNT_CARD : card;
 
   if (usedTheme) {
     return (
       <GameCardButton
         variant="card"
-        name={card || BURNT_CARD}
+        name={name || BURNT_CARD}
         zoom={zoom ? 1 : 0}
         shadow={shadow ? 1 : 0}
         enablehover={enableHover ? 1 : 0}
@@ -63,12 +63,12 @@ export const GameCard = ({
         {...buttonProps}
       >
         <img
-          alt={CARDS_HUMAN_READABLE[card] || "Carta quemada"}
+          alt={CARDS_HUMAN_READABLE[name] || "Carta quemada"}
           style={{
             objectFit: "cover",
             width,
           }}
-          src={request ? reqCards[card] : cards[card]}
+          src={request ? reqCards[name] : cards[name]}
         />
       </GameCardButton>
     );
@@ -90,7 +90,9 @@ export const GameCard = ({
       <Box
         sx={{
           letterSpacing: 0,
-          pr: "2px",
+          px: "2px",
+          width: "100%",
+          textAlign: "center",
         }}
       >
         <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
@@ -179,6 +181,7 @@ const GameCardButton = styled(Button)<{
   emojicard
     ? {
         fontWeight: 700,
+        textAlign: "center",
         padding: "0.6rem 0.2rem",
       }
     : {

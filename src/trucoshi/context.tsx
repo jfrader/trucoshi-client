@@ -103,14 +103,15 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     }
   }, [error, logout]);
 
-  const makeLogin = useCallback(() => {
+  useEffect(() => {
     const identity = getIdentityCookie();
-    if (!identity) {
+    if (!identity && !isPendingMe) {
       return setLoadingAccount(false);
     }
     if (me && identity) {
       if (isLogged) {
         setAccount(me);
+        setLoadingAccount(false);
       } else {
         setLoadingAccount(true);
         socket.emit(EClientEvent.LOGIN, me, identity, ({ success, activeMatches, error }) => {
@@ -133,11 +134,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         });
       }
     }
-  }, [isLogged, me, refetchMe]);
-
-  useEffect(() => {
-    makeLogin();
-  }, [makeLogin]);
+  }, [isLogged, isPendingMe, me, refetchMe]);
 
   useEffect(() => {
     if (!socket.connected) {
@@ -154,8 +151,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on("disconnect", () => {
       setConnected(false);
-      setLogged(false);
-      setAccount(null);
       socket.connect();
     });
 

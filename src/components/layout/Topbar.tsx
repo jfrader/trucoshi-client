@@ -55,7 +55,7 @@ export const Topbar = () => {
             <Link to="/profile">
               <Stack direction="row" fontSize="small" gap={1} alignItems="center">
                 <UserAvatar size="small" account={account} />
-                {account.name}
+                <Box display={{ xs: "none", sm: "inline" }}>{account.name}</Box>
               </Stack>
             </Link>
           ) : (

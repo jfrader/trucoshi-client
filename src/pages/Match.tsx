@@ -143,7 +143,10 @@ const Match = () => {
   }
 
   return (
-    <Box flexGrow={1} maxWidth="100%">
+    <Box flexGrow={1} maxWidth="100%" position="relative">
+      {match?.me ? (
+        <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />
+      ) : null}
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       {match ? (
@@ -171,13 +174,11 @@ const Match = () => {
       ) : (
         <FloatingProgress />
       )}
+
       <FixedChatContainer>
         <ChatRoom {...chatProps} />
       </FixedChatContainer>
 
-      {match?.me ? (
-        <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />
-      ) : null}
       <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
         <DialogTitle>Atencion</DialogTitle>
         <DialogContent>

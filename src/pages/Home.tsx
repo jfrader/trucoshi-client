@@ -16,7 +16,7 @@ export const Home = () => {
   }
 
   return (
-    <Container>
+    <Container maxWidth="xl" sx={{ width: { xs: "100vw", sm: "100%" } }}>
       <Stack
         flexGrow={1}
         gap={3}

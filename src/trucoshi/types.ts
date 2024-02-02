@@ -67,7 +67,7 @@ export interface ITrucoshiActions {
 }
 
 export interface ITrucoshiState {
-  dark: "" | "true";
+  dark: "" | "true" | "false";
   account: User | null;
   isAccountPending: boolean;
   isLoggingIn: boolean;

@@ -82,9 +82,10 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
   top: "48px",
   height: "15rem",
   width: "17rem",
+  zIndex: theme.zIndex.drawer,
   [theme.breakpoints.up("lg")]: {
     height: "calc(100vh - 48px)",
-    width: "20rem",
+    width: "19.5rem",
   },
   transition: theme.transitions.create(["height"], {
     duration: theme.transitions.duration.standard,

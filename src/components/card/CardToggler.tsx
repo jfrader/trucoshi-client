@@ -31,7 +31,7 @@ export const CardToggler = (props: BoxProps) => {
               cards={randomCards.length}
               i={i}
             >
-              <FlipGameCard width="3rem" shadow flip={flip} zoom card={card as ICard} />
+              <FlipGameCard width="3.3rem" shadow flip={flip} zoom card={card as ICard} />
             </HandCardContainer>
           );
         })}

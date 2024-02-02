@@ -77,17 +77,21 @@ export const ProvablyFair = ({ players, hands }: Props) => {
       <Stack pt={2} gap={3}>
         <TextField
           name="secret"
+          color="info"
           label="Secreto Server"
           InputProps={{ readOnly: true }}
           value={deck.random.secret}
+          focused
           size="small"
         />
 
         <TextField
           name={`secret-${clientIdx + 1}`}
+          color="info"
           label={`Secreto Dealer: Jugador ${clientIdx + 1}`}
           InputProps={{ readOnly: true }}
           value={deck.random.clients[clientIdx]}
+          focused
           size="small"
         />
       </Stack>

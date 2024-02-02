@@ -13,7 +13,7 @@ export const PageContainer = ({
   const navigate = useNavigate();
   return (
     <Container maxWidth="sm" {...props}>
-      <Box pt={4} position="relative">
+      <Box pt={4} position="relative" maxWidth="95vw">
         <Stack alignItems="center" spacing={1}>
           <Typography
             sx={{ display: "flex", alignItems: "center", gap: 2 }}

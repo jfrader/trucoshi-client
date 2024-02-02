@@ -26,7 +26,7 @@ import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";
 import { GameOptions } from "../components/game/GameOptions";
-import { dark } from "../theme";
+import { trucoshi } from "../theme";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
@@ -80,7 +80,7 @@ export const Lobby = () => {
     sessionId && setReady(sessionId, false, () => setReadyLoading(false));
   };
 
-  const isMobile = useMediaQuery<typeof dark>((theme) => theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery<typeof trucoshi>((theme) => theme.breakpoints.down("md"));
 
   return (
     <Box>
@@ -104,7 +104,7 @@ export const Lobby = () => {
                   }}
                   variant="outlined"
                 >
-                  <CardContent sx={{ py: 1, px: 0, pl: 0.5 }}>
+                  <CardContent sx={{ py: { xs: 0, sm: 1 }, px: 0, pl: 0.5, overflowY: 'scroll', maxHeight: '112%' }}>
                     <Stack
                       direction="row"
                       alignItems="center"

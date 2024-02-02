@@ -31,14 +31,13 @@ const LayoutContainer = styled(Box)(({ theme }) => [
   },
 ]);
 
-const themeChoices = [themes.light, themes.dark];
-
 export const Layout = ({ children }: PropsWithChildren) => {
   const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard }] = useTrucoshi();
   return (
-    <ThemeProvider theme={themeChoices[Number(Boolean(dark))]}>
+    <ThemeProvider
+      theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
+    >
       <CssBaseline />
-
       <Topbar />
       <main style={{ position: "relative" }}>
         <Paper
@@ -69,7 +68,12 @@ export const Layout = ({ children }: PropsWithChildren) => {
           </Box>
         </Paper>
       </main>
-      <CardBackdrop card={inspectedCard} cardsReady={cardsReady} inspectCard={inspectCard} cardTheme={cardTheme} />
+      <CardBackdrop
+        card={inspectedCard}
+        cardsReady={cardsReady}
+        inspectCard={inspectCard}
+        cardTheme={cardTheme}
+      />
     </ThemeProvider>
   );
 };

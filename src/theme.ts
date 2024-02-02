@@ -85,7 +85,7 @@ export const lightPalette = createPalette({
   },
 });
 
-export const darkPalette = createPalette({
+export const defaultPalette = createPalette({
   mode: "dark",
   primary: {
     main: "#ec6c34",
@@ -111,12 +111,6 @@ export const darkPalette = createPalette({
     light: "#e2b246",
     contrastText: "#fff",
   },
-  twitter: {
-    main: "#00acee",
-    dark: "#1381ab",
-    light: "#40bbea",
-    contrastText: "#000",
-  },
   info: {
     main: "#248493",
     dark: "#1c6a7a",
@@ -129,6 +123,12 @@ export const darkPalette = createPalette({
     light: "#b54940",
     contrastText: "#fff",
   },
+  twitter: {
+    main: "#00acee",
+    dark: "#1381ab",
+    light: "#40bbea",
+    contrastText: "#000",
+  },
   background: {
     paper: "#182c1c",
     default: "#243728",
@@ -140,8 +140,62 @@ export const darkPalette = createPalette({
   },
 });
 
+export const darkPalette = createPalette({
+  mode: "dark",
+  primary: {
+    main: "#ec6c34",
+    dark: "#d15829",
+    light: "#f17e59",
+    contrastText: "#fff",
+  },
+  secondary: {
+    main: "#9c548c",
+    dark: "#6d315e",
+    light: "#c28fb5",
+    contrastText: "#fff",
+  },
+  success: {
+    main: "#4c944c",
+    dark: "#3c703c",
+    light: "#5fa65f",
+    contrastText: "#fff",
+  },
+  warning: {
+    main: "#d79a3e",
+    dark: "#ad7d31",
+    light: "#e1b665",
+    contrastText: "#fff",
+  },
+  info: {
+    main: "#4e9dbd",
+    dark: "#3a7a99",
+    light: "#6fb9d1",
+    contrastText: "#fff",
+  },
+  error: {
+    main: "#c13f3a",
+    dark: "#9f3430",
+    light: "#d77772",
+    contrastText: "#fff",
+  },
+  twitter: {
+    main: "#00acee",
+    dark: "#1381ab",
+    light: "#40bbea",
+    contrastText: "#000",
+  },
+  background: {
+    paper: "#161516",
+    default: "#000",
+  },
+  text: {
+    primary: "rgba(255, 255, 255, 0.87)",
+    secondary: "#f9eefb",
+    disabled: "rgba(255, 255, 255, 0.3)",
+  },
+});
+
 const base = {
-  typography: {},
   components: {
     MuiLinearProgress: {
       styleOverrides: {
@@ -278,4 +332,9 @@ export const dark = createTheme({
   ...base,
 } satisfies ThemeOptions);
 
-export const themes = { dark, light };
+export const trucoshi = createTheme({
+  palette: defaultPalette,
+  ...base,
+} satisfies ThemeOptions);
+
+export const themes = { trucoshi, light, dark };
