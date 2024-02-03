@@ -1,14 +1,6 @@
 import { Person } from "@mui/icons-material";
 import { PageContainer } from "../shared/PageContainer";
-import {
-  Alert,
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Alert, Button, Card, CardContent, Divider, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useRegister } from "../api/hooks/useRegister";
@@ -62,11 +54,14 @@ export const Register = () => {
         <CardContent>
           <form
             onSubmit={(e) => {
+              e.preventDefault();
               setErrors([]);
               if (password !== password2) {
-                setErrors((current) => [...current, new Error("Las passwords no son iguales!")]);
+                return setErrors((current) => [
+                  ...current,
+                  new Error("Las passwords no son iguales!"),
+                ]);
               }
-              e.preventDefault();
               onSubmit();
             }}
           >
