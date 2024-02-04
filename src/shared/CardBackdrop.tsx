@@ -1,11 +1,4 @@
-import {
-  BackdropProps,
-  Box,
-  CircularProgress,
-  IconButton,
-  Stack,
-  styled,
-} from "@mui/material";
+import { BackdropProps, Box, CircularProgress, IconButton, Stack, styled } from "@mui/material";
 import { PropsWithChildren, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { ICard } from "trucoshi";
@@ -22,7 +15,7 @@ type Props = PropsWithChildren<
 
 const StyledBackdrop = styled(Backdrop)({});
 
-export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...props }: Props) => {
+export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props) => {
   const [flip, setFlip] = useState(false);
 
   useEffect(() => {
@@ -42,13 +35,7 @@ export const CardBackdrop = ({ card, cardsReady, cardTheme, inspectCard, ...prop
         onClick={(e) => e.stopPropagation()}
       >
         {cardsReady ? (
-          <>
-            {cardTheme ? (
-              <FlipGameCard card={card} width="13em" flip={flip} />
-            ) : (
-              <FlipGameCard card={card} width="13em" sx={{ zoom: "2.9" }} flip={flip} />
-            )}
-          </>
+          <FlipGameCard card={card} width="13em" flip={flip} />
         ) : (
           <Box width="11em">
             <CircularProgress />

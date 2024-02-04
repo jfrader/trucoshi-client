@@ -106,6 +106,7 @@ export const WalletMenu = () => {
                 name="amountInSats"
                 autoComplete="off"
                 color="warning"
+                fullWidth
                 placeholder="Sats"
                 inputRef={inputRef}
                 onChange={(e) => {
@@ -184,6 +185,7 @@ export const WalletMenu = () => {
                 name="invoice"
                 autoComplete="off"
                 color="warning"
+                fullWidth
                 placeholder="Lightning Invoice"
                 inputRef={inputRef}
                 onChange={(e) => setWithdrawInvoice(e.target.value)}

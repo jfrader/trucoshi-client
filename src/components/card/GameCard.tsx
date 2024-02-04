@@ -82,16 +82,17 @@ export const GameCard = ({
       zoom={zoom ? 1 : 0}
       shadow={shadow ? 1 : 0}
       onClick={onClick}
-      sx={{ width, height: `calc(${width} * 1.5)` }}
       onContextMenu={onClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
+      sx={{ width, height: `calc(${width} * 1.5)`, ...buttonProps.sx }}
     >
       <Box
         sx={{
           letterSpacing: 0,
           px: "2px",
           width: "100%",
+          fontSize: `calc(${width} * 0.26)`,
           textAlign: "center",
         }}
       >

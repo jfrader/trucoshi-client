@@ -1,4 +1,4 @@
-import { Twitter } from "@mui/icons-material";
+import { X } from "@mui/icons-material";
 import { LoadingButton, LoadingButtonProps } from "./LoadingButton";
 import { useTwitterPopup } from "../hooks/useTwitterPopup";
 
@@ -6,13 +6,13 @@ export const TwitterButton = ({ children, ...props }: LoadingButtonProps) => {
   const { open } = useTwitterPopup();
   return (
     <LoadingButton
-      startIcon={<Twitter />}
+      startIcon={<X />}
       onClick={open}
       color="twitter"
       variant="outlined"
       {...props}
     >
-      {children || "Twitter"}
+      {children || "Login con X"}
     </LoadingButton>
   );
 };
