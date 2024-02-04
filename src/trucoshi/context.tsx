@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, PropsWithChildren, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, PropsWithChildren, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -64,8 +64,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
-
-  const refreshIdentityPromise = useRef<Promise<unknown> | null>(null);
 
   const toast = useToast();
 
@@ -151,6 +149,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on("disconnect", () => {
       setConnected(false);
+      setAccount(null);
+      setLogged(false);
       socket.connect();
     });
 
@@ -159,19 +159,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         return cb(null);
       }
 
-      refreshIdentityPromise.current = new Promise<void>((resolve) => {
-        refreshTokens(
-          { withCredentials: true },
-          {
-            onSettled() {
-              cb(getIdentityCookie() || null);
-              resolve();
-            },
-            onError() {
-              cb(null);
-            },
-          }
-        );
+      refetchMe().then(() => {
+        cb(getIdentityCookie() || null);
       });
     });
 
@@ -210,7 +199,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.REFRESH_IDENTITY);
       socket.off(EServerEvent.PONG);
     };
-  }, [account, account?.name, name, refreshTokens, session, setName, setSession]);
+  }, [account, account?.name, name, refetchMe, refreshTokens, session, setName, setSession]);
 
   const sendUserId = useCallback(
     (name: string, callback?: (name: string) => void) => {

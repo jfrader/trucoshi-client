@@ -85,7 +85,7 @@ export const GameCard = ({
       onContextMenu={onClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
-      sx={{ width, height: `calc(${width} * 1.5)`, ...buttonProps.sx }}
+      sx={{ width, height: `calc(${width} * 1.48)`, ...buttonProps.sx }}
     >
       <Box
         sx={{

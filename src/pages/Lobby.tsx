@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import {
   Box,
@@ -30,6 +29,7 @@ import { trucoshi } from "../theme";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
+import { TrucoshiContext } from "../trucoshi/context";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -40,7 +40,12 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
 
 export const Lobby = () => {
   useSound();
-  const [{ account }] = useTrucoshi();
+  const context = useContext(TrucoshiContext);
+
+  if (!context) {
+    throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
+  }
+
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
@@ -59,6 +64,12 @@ export const Lobby = () => {
       return;
     }
   }, [match, navigate, sessionId]);
+
+  useEffect(() => {
+    context.socket.on("disconnect", () => {
+      setReadyLoading(false);
+    });
+  }, [context.socket]);
 
   const onJoinMatch = (teamIdx: 0 | 1) => {
     setReadyLoading(true);
@@ -104,7 +115,15 @@ export const Lobby = () => {
                   }}
                   variant="outlined"
                 >
-                  <CardContent sx={{ py: { xs: 0, sm: 1 }, px: 0, pl: 0.5, overflowY: 'scroll', maxHeight: '112%' }}>
+                  <CardContent
+                    sx={{
+                      py: { xs: 0, sm: 1 },
+                      px: 0,
+                      pl: 0.5,
+                      overflowY: "scroll",
+                      maxHeight: "112%",
+                    }}
+                  >
                     <Stack
                       direction="row"
                       alignItems="center"
@@ -123,7 +142,9 @@ export const Lobby = () => {
                     <GameOptionsList
                       dense
                       options={match.options}
-                      keys={account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
+                      keys={
+                        context.state.account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS
+                      }
                       disablePadding={isMobile}
                     />
                   </CardContent>
