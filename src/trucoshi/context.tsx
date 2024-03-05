@@ -157,6 +157,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
       if (!account || userId !== account.id) {
+        removeCookie("jwt:identity");
         return cb(null);
       }
 
@@ -200,7 +201,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.REFRESH_IDENTITY);
       socket.off(EServerEvent.PONG);
     };
-  }, [account, account?.name, name, refetchMe, refreshTokens, session, setName, setSession]);
+  }, [
+    account,
+    account?.name,
+    name,
+    refetchMe,
+    refreshTokens,
+    removeCookie,
+    session,
+    setName,
+    setSession,
+  ]);
 
   const sendUserId = useCallback(
     (name: string, callback?: (name: string) => void) => {
