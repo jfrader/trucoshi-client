@@ -148,6 +148,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     });
 
     socket.on("disconnect", () => {
+      removeCookie("jwt:identity");
       setConnected(false);
       setAccount(null);
       setLogged(false);
