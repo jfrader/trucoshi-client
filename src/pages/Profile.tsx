@@ -124,9 +124,9 @@ export const Profile = () => {
                   </ListItem>
                   {isMyProfile ? (
                     <>
-                      {profile.account.email && email === null ? (
+                      {me.email && email === null ? (
                         <ListItemButton onClick={openEditEmail} divider>
-                          <ListItemText primary="Email" secondary={profile.account.email} />
+                          <ListItemText primary="Email" secondary={me.email} />
                           <ListItemSecondaryAction>
                             <AlternateEmail />
                           </ListItemSecondaryAction>
@@ -243,9 +243,9 @@ export const Profile = () => {
                           )}
                         </>
                       )}
-                      {profile.account.twitter ? (
+                      {me.twitter ? (
                         <ListItem divider>
-                          <ListItemText primary="Twitter" secondary={profile.account.twitter} />
+                          <ListItemText primary="Twitter" secondary={me.twitter} />
                           <ListItemSecondaryAction>
                             <Twitter />
                           </ListItemSecondaryAction>
