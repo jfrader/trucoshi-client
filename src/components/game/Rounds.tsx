@@ -52,7 +52,19 @@ export const Rounds = ({
   return (
     <Box width="100%" height="100%" pt="33.3%" position="relative" right="0.9em" {...boxProps}>
       <HandContainer margin="1px auto" px={4} position="relative" onHandOpen={setOpenHand}>
-        {playerCards.map((pc, i) => {
+        {(previousHand?.envido && previousHand.envido.winner.key === player.key
+          ? [
+              ...playerCards,
+              ...(previousHand.envido.data?.cards
+                .filter((c) => !playerCards.map((c) => c.card).includes(c))
+                .map((c) => ({
+                  card: c,
+                  key: c + "envido",
+                  player,
+                })) || []),
+            ]
+          : playerCards
+        ).map((pc, i) => {
           return (
             <HandCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
               <GameCard

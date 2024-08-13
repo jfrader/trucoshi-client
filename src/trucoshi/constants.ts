@@ -28,5 +28,6 @@ export const COMMANDS_HUMAN_READABLE: Record<ECommand, string> = {
   [EAnswerCommand.NO_QUIERO]: "No quiero",
   [EFlorCommand.FLOR]: "Flor!",
   [EFlorCommand.CONTRAFLOR]: "Contraflor!",
+  [EFlorCommand.CONTRAFLOR_AL_RESTO]: "Contraflor!",
   [EFlorCommand.ACHICO]: "Con flor me achico"
 };

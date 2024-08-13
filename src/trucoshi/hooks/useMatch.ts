@@ -48,7 +48,7 @@ export const useMatch = (
   const { socket } = context;
 
   const fetchMatch = useCallback(() => {
-    if (!error && matchId && context.state.isConnected) {
+    if (context.state.isConnected && !error && matchId && context.state.isConnected) {
       socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
         if (!success || !match) {
           setError(new Error("No se pudo encontrar la partida"));
@@ -225,10 +225,10 @@ export const useMatch = (
   };
 
   useEffect(() => {
-    if (!match && !error && !context.state.isLoggingIn) {
+    if (context.state.isConnected && !match && !error && !context.state.isLoggingIn) {
       fetchMatch();
     }
-  }, [context.state.isLoggingIn, error, fetchMatch, match]);
+  }, [context.state.isConnected, context.state.isLoggingIn, error, fetchMatch, match]);
 
   useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {

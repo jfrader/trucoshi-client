@@ -15,7 +15,7 @@ export const CommandBar = ({
     }
   >
 >) => {
-  const bestEnvido = Math.max(...(player.envido || []));
+  const bestEnvido = Math.max(...(player.envido?.map((e) => e.value) || []));
 
   if (player.abandoned || !canSay) {
     return null;
@@ -37,16 +37,16 @@ export const CommandBar = ({
         sx={(theme) => ({ zIndex: theme.zIndex.fab })}
       >
         {player.isEnvidoTurn &&
-          Array.from(new Set(player.envido))
-            ?.sort((a, b) => a - b)
+          player.envido
+            ?.sort((a, b) => a.value - b.value)
             .map((points) => (
               <Button
-                key={points}
-                onClick={() => onSayCommand(points)}
+                key={points.value}
+                onClick={() => onSayCommand(points.value)}
                 variant="contained"
-                color={bestEnvido === points ? "success" : "error"}
+                color={bestEnvido === points.value ? "success" : "error"}
               >
-                {points}
+                {points.value}
               </Button>
             ))}
         {player.commands?.map((command) => (

@@ -6,20 +6,24 @@ import { PageContainer } from "../shared/PageContainer";
 import { ManageSearch } from "@mui/icons-material";
 
 export const Matches = () => {
-  const [{ publicMatches }, { fetchPublicMatches }] = useTrucoshi();
+  const [{ publicMatches, isConnected }, { fetchPublicMatches }] = useTrucoshi();
+
   useEffect(() => {
     fetchPublicMatches();
   }, [fetchPublicMatches]);
+
   return (
     <PageContainer title="Buscar Partida" icon={<ManageSearch fontSize="large" />}>
       <Card>
         <CardContent>
-          <MatchList
-            matches={publicMatches}
-            NoMatches={<Typography>No se encontraron partidas</Typography>}
-            title={"Partidas Online"}
-            onRefresh={fetchPublicMatches}
-          />
+          {isConnected ? (
+            <MatchList
+              matches={publicMatches}
+              NoMatches={<Typography>No se encontraron partidas</Typography>}
+              title={"Partidas Online"}
+              onRefresh={fetchPublicMatches}
+            />
+          ) : null}
         </CardContent>
       </Card>
     </PageContainer>
