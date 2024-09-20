@@ -46,7 +46,7 @@ const MatchPlayer = ({ match, previousHand, player, canPlay, onPlayCard }: Playe
                         onClick={() => onPlayCard(idx, card as ICard)}
                       />
                     ) : (
-                      <GameCard key={card + player.idx} card={card as ICard} />
+                      <GameCard key={idx} card={card as ICard} />
                     )
                   )}
               </Box>

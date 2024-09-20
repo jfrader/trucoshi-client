@@ -1,4 +1,4 @@
-import { Favorite, Flag, GitHub, HelpOutlined, Telegram } from "@mui/icons-material";
+import { Favorite, Flag, GitHub, HelpOutlined, Telegram, X } from "@mui/icons-material";
 
 export const GENERAL_LINKS = [
   {
@@ -15,6 +15,11 @@ export const GENERAL_LINKS = [
     label: "github",
     to: "https://github.com/jfrader/trucoshi",
     Icon: GitHub,
+  },
+  {
+    label: "X",
+    to: "https://x.com/trucoshi",
+    Icon: X,
   },
 ];
 

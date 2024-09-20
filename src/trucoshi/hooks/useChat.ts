@@ -17,17 +17,48 @@ export const useChat = (
   const { socket } = context;
 
   useEffect(() => {
-    socket.on(EServerEvent.UPDATE_CHAT, (room, message) => {
+    if (!matchId) {
+      return;
+    }
+
+    if (!room) {
+      socket.emit(EClientEvent.FETCH_CHAT_ROOM, matchId);
+    }
+
+    socket.on(EServerEvent.UPDATE_CHAT, (room) => {
       if (room.id === matchId) {
         setRoom(room);
+      }
+    });
+
+    socket.on(EServerEvent.NEW_MESSAGE, (roomId, message) => {
+      if (message && roomId === matchId) {
+        setRoom((current) => {
+          if (!current) return current;
+          const newMessages = current ? [...current.messages] : [message];
+          newMessages.push(message);
+          return {
+            ...current,
+            messages: newMessages.sort((a, b) => {
+              if (a.date < b.date) {
+                return -1;
+              }
+              if (a.date > b.date) {
+                return 1;
+              }
+              return 0;
+            }),
+          };
+        });
         onMessage?.(message);
       }
     });
 
     return () => {
       socket.off(EServerEvent.UPDATE_CHAT);
+      socket.off(EServerEvent.NEW_MESSAGE);
     };
-  }, [matchId, onMessage, socket]);
+  }, [matchId, onMessage, room, socket]);
 
   const chat = useCallback(
     (message: string) => {

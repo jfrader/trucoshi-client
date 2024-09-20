@@ -4,7 +4,6 @@ import { Howl, HowlOptions } from "howler";
 import { PropsWithChildren, useState, useCallback, useEffect } from "react";
 import { gameSounds } from "./sounds";
 import { ISoundQueue } from "./types";
-import { useDebouncedCallback } from "use-debounce";
 
 const INITIAL_QUEUE: ISoundQueue = [];
 
@@ -104,7 +103,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     [sounds]
   );
 
-  const queue = useDebouncedCallback((key: string) => {
+  const queue = (key: string) => {
     setReadyToLoad(true);
     setQueue((q) => {
       if (q.find((i) => i.key === key)) {
@@ -125,7 +124,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
 
       return [...q, { key, promise }];
     });
-  }, 300);
+  };
 
   return (
     <SoundContext.Provider value={{ queue, mute, volume, isMuted } satisfies ISoundContext}>

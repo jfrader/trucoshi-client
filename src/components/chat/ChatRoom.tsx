@@ -2,14 +2,12 @@ import {
   Box,
   BoxProps,
   Button,
-  ButtonGroup,
   List,
   ListItem,
   ListItemText,
   Paper,
   Slide,
   ClickAwayListener,
-  TextField,
   Typography,
   styled,
   SlideProps,
@@ -19,7 +17,6 @@ import {
 } from "@mui/material";
 import { useState, createRef, useLayoutEffect, FC, PropsWithChildren } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
-import SendIcon from "@mui/icons-material/Send";
 import {
   CARDS_HUMAN_READABLE,
   ECommand,
@@ -32,10 +29,9 @@ import { getTeamColor, getTeamName } from "../../utils/team";
 import { bounce } from "../../assets/animations/bounce";
 import { useSound } from "../../sound/hooks/useSound";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { ChatField } from "./ChatField";
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -104,10 +100,6 @@ export const ChatRoom = ({
   alwaysVisible,
   ...boxProps
 }: Props) => {
-  const theme = useTheme();
-  const isLg = useMediaQuery(theme.breakpoints.up("lg"));
-  const [message, setMessage] = useState<string>("");
-
   const [room, chat, isLoading] = useChatState;
 
   const listRef = createRef<HTMLDivElement>();
@@ -126,85 +118,52 @@ export const ChatRoom = ({
   };
 
   return (
-    <form
-      style={{ height: "100%", flexGrow: 1, display: "flex" }}
-      onSubmit={(e) => {
-        e.preventDefault();
-        chat(message);
-        setMessage("");
-      }}
-    >
-      <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
-        <ChatBox
-          active={Number(alwaysVisible || active)}
-          onClick={onActivate}
-          position="absolute"
-          left="0"
-          top="0"
-          width="100%"
-          flexGrow={1}
-          display="flex"
-          textAlign="left"
-          flexDirection="column"
-          sx={{ zIndex: (theme) => theme.zIndex.drawer }}
-          {...boxProps}
+    <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
+      <ChatBox
+        active={Number(alwaysVisible || active)}
+        onClick={onActivate}
+        position="absolute"
+        left="0"
+        top="0"
+        width="100%"
+        flexGrow={1}
+        display="flex"
+        textAlign="left"
+        flexDirection="column"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer }}
+        {...boxProps}
+      >
+        <List
+          component={Paper}
+          ref={listRef}
+          sx={(theme) => ({
+            justifyContent: "flex-end",
+            m: 0,
+            background: theme.palette.background.paper,
+            overflowY: "scroll",
+            flexGrow: 1,
+            height: "15rem",
+          })}
         >
-          <List
-            component={Paper}
-            ref={listRef}
-            sx={(theme) => ({
-              justifyContent: "flex-end",
-              m: 0,
-              background: theme.palette.background.paper,
-              overflowY: "scroll",
-              flexGrow: 1,
-              height: "15rem",
-            })}
-          >
-            {room?.messages.map((message) => {
-              return (
-                <ChatMessage
-                  animate={message.id === latestMessage?.id}
-                  key={message.id}
-                  message={message}
-                  players={players}
-                />
-              );
-            })}
-          </List>
-          <Slide in={isLg || alwaysVisible || active} direction="right">
-            <ButtonGroup
-              size="small"
-              fullWidth
-              component={Paper}
-              sx={(theme) => ({
-                background: theme.palette.background.paper,
-              })}
-            >
-              <TextField
-                fullWidth
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                color="warning"
-                size="small"
-                aria-autocomplete="none"
-                autoComplete="off"
+          {room?.messages.map((message) => {
+            return (
+              <ChatMessage
+                animate={message.id === latestMessage?.id}
+                key={message.id}
+                message={message}
+                players={players}
               />
-              <Button
-                sx={(theme) => ({ width: theme.spacing(4) })}
-                disabled={isLoading || !message}
-                color="warning"
-                variant="text"
-                size="small"
-                type="submit"
-              >
-                <SendIcon />
-              </Button>
-            </ButtonGroup>
-          </Slide>
-        </ChatBox>
-      </ClickAwayListener>
-    </form>
+            );
+          })}
+        </List>
+        <ChatField
+          alwaysVisible={alwaysVisible}
+          active={active}
+          isLoading={isLoading}
+          chat={chat}
+        />
+      </ChatBox>
+    </ClickAwayListener>
   );
 };
 
@@ -254,8 +213,16 @@ export const getAvatar = (message: IChatMessage, players: IPublicPlayer[]) => {
 
   if (player) {
     return (
-      <ListItemAvatar sx={{ minWidth: "auto", pr: 1 }}>
+      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 1 }}>
         <UserAvatar size="tiny" account={player} bgcolor={getTeamColor(player.teamIdx) + ".main"} />
+      </ListItemAvatar>
+    );
+  }
+
+  if (!message.system && !message.card && !message.command) {
+    return (
+      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 1 }}>
+        <UserAvatar size="tiny" account={{ name: message.user.name }} bgcolor={"text.disabled"} />
       </ListItemAvatar>
     );
   }

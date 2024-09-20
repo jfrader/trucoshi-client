@@ -213,13 +213,18 @@ export const Lobby = () => {
                         </AnimatedButton>
                       )
                     ) : (
-                      <>
+                      <Box pt={1}>
                         {match.ownerKey === match.me?.key ? (
-                          <Button color="error" size="small" onClick={() => kickPlayer(player.key)}>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => kickPlayer(player.key)}
+                          >
                             Quitar
                           </Button>
                         ) : null}
-                      </>
+                      </Box>
                     )}
                   </Stack>
                 </Box>

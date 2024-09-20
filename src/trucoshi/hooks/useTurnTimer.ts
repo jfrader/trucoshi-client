@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { ILobbyOptions, IPublicPlayer } from "trucoshi";
+import { useSound } from "../../sound/hooks/useSound";
 
-export type TurnTimer = { isExtension: boolean; progress: number };
+export type TurnTimer = { isExtension: boolean; progress: number; alert?: boolean };
 
 const INITIAL_TIMER = {
   isExtension: false,
+  alert: false,
   progress: 0,
 };
 
@@ -13,6 +15,7 @@ export const useTurnTimer = (
   serverAheadTime: number,
   options?: ILobbyOptions
 ) => {
+  const { queue } = useSound();
   const [turnTimer, setTurnTimer] = useState<TurnTimer>(INITIAL_TIMER);
 
   useEffect(() => {
@@ -20,18 +23,37 @@ export const useTurnTimer = (
       return;
     }
     const interval = setInterval(() => {
-      setTurnTimer(({ isExtension }) => {
-        return getTimer({ player, serverAheadTime, options, isExtension });
+      setTurnTimer(({ isExtension, progress }) => {
+        const newTimer: TurnTimer = getPlayerTimer({
+          player,
+          serverAheadTime,
+          options,
+          isExtension,
+        });
+        newTimer.alert = false;
+        if (isExtension && progress > 50 && newTimer.progress < 50) {
+          queue("turn");
+          newTimer.alert = true;
+        }
+        if (!isExtension && newTimer.isExtension) {
+          queue("turn");
+          newTimer.alert = true;
+        }
+        if (progress > 15 && newTimer.progress < 15) {
+          queue("turn");
+          newTimer.alert = true;
+        }
+        return newTimer;
       });
     }, 16);
 
     return () => clearInterval(interval);
-  }, [options, player, serverAheadTime]);
+  }, [options, player, queue, serverAheadTime]);
 
   return turnTimer;
 };
 
-function getTimer({
+export function getPlayerTimer({
   serverAheadTime,
   player,
   options,

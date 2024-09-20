@@ -29,11 +29,14 @@ const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
 
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST, {
-  withCredentials: true,
-  autoConnect: false,
-  secure: import.meta.env.MODE === "production",
-});
+export const getSocket = (): Socket<ServerToClientEvents, ClientToServerEvents> =>
+  io(HOST, {
+    withCredentials: true,
+    autoConnect: false,
+    secure: import.meta.env.MODE === "production",
+  });
+
+let socket = getSocket();
 
 const sendPing = () => {
   socket.emit(EClientEvent.PING, Date.now());
@@ -135,7 +138,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [isLogged, isPendingMe, me, refetchMe]);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
     if (!socket.connected) {
+      socket = getSocket();
       if (session) {
         socket.auth = { sessionID: session, name };
       }
@@ -143,6 +149,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     }
 
     socket.on("connect", () => {
+      interval && clearTimeout(interval);
       sendPing();
       setConnected(true);
     });
@@ -152,7 +159,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setConnected(false);
       setAccount(null);
       setLogged(false);
-      socket.connect();
+
+      interval && clearTimeout(interval);
+      interval = setInterval(() => {
+        socket.connect();
+      }, 5000);
     });
 
     socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {

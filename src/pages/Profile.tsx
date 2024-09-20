@@ -47,6 +47,7 @@ export const Profile = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
   const [password2, setPassword2] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState<string>("");
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
     navigate(pathname + "?t=" + newValue);
@@ -100,7 +101,7 @@ export const Profile = () => {
   const wins = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
 
-  const openEditEmail = () => setEmail(profile.account?.email || "");
+  const openEditEmail = () => setEmail("");
 
   return (
     <PageContainer
@@ -145,18 +146,24 @@ export const Profile = () => {
                           ) : (
                             <ListItem divider>
                               <form
+                                style={{ width: "100%" }}
                                 onSubmit={(e) => {
                                   e.preventDefault();
-                                  if (!profile.account?.email && (!password || !password2)) {
+                                  if (!password || !password2) {
                                     setPassword("");
                                     setPassword2("");
                                     return;
                                   }
-                                  if (profile.account?.email === email) {
+                                  if (me.email === email && (!password || !password2)) {
+                                    setEmail(null);
                                     return;
                                   }
                                   updateProfile(
-                                    { email, password: password !== null ? password : undefined },
+                                    {
+                                      email: email ? email : undefined,
+                                      password: password !== null ? password : undefined,
+                                      currentPassword: me.email ? currentPassword : undefined,
+                                    },
                                     {
                                       onSuccess() {
                                         if (email) {
@@ -179,7 +186,13 @@ export const Profile = () => {
                                 }}
                               >
                                 {password === null ? (
-                                  <Stack py={1} direction="row" alignItems="center" gap={1}>
+                                  <Stack
+                                    py={1}
+                                    direction="row"
+                                    alignItems="center"
+                                    gap={1}
+                                    width="100%"
+                                  >
                                     <IconButton
                                       title="Cancelar"
                                       onClick={() => setEmail(null)}
@@ -188,15 +201,28 @@ export const Profile = () => {
                                     >
                                       <Close fontSize="small" />
                                     </IconButton>
-                                    <TextField
-                                      name="email"
-                                      value={email}
-                                      size="small"
-                                      label="Escribe tu email"
-                                      fullWidth
-                                      disabled={isPendingUpdateProfile}
-                                      onChange={(e) => setEmail(e.target.value)}
-                                    />
+                                    {me.email ? (
+                                      <TextField
+                                        name="currentPassword"
+                                        type="password"
+                                        value={currentPassword}
+                                        size="small"
+                                        label="Escribe tu password actual"
+                                        fullWidth
+                                        disabled={isPendingUpdateProfile}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                      />
+                                    ) : (
+                                      <TextField
+                                        name="email"
+                                        value={email}
+                                        size="small"
+                                        label="Escribe tu email"
+                                        fullWidth
+                                        disabled={isPendingUpdateProfile}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                      />
+                                    )}
                                     <IconButton
                                       title="Aceptar"
                                       type="submit"
@@ -210,8 +236,20 @@ export const Profile = () => {
                                   </Stack>
                                 ) : (
                                   <Stack py={1} direction="row" alignItems="center" gap={1}>
+                                    <IconButton
+                                      title="Cancelar"
+                                      onClick={() => {
+                                        setPassword(null);
+                                        setPassword2(null);
+                                      }}
+                                      color="error"
+                                      size="small"
+                                    >
+                                      <Close fontSize="small" />
+                                    </IconButton>
                                     <TextField
                                       name="password"
+                                      type="password"
                                       value={password}
                                       size="small"
                                       label="Escribe tu nuevo password"
@@ -221,6 +259,7 @@ export const Profile = () => {
                                     />
                                     <TextField
                                       name="password2"
+                                      type="password"
                                       value={password2}
                                       size="small"
                                       label="Repite el password"

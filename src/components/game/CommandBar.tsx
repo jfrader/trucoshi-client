@@ -20,7 +20,7 @@ export const CommandBar = ({
   if (player.abandoned || !canSay) {
     return null;
   }
-
+  
   return (
     <Box
       position="absolute"

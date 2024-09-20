@@ -4,6 +4,7 @@ import { Deck, Table } from "trucoshi/dist/lib";
 import { GameCard } from "../card/GameCard";
 import { IMatchDetails } from "trucoshi";
 import { MatchHand } from "trucoshi/prisma/client";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
 type PlayerType = IMatchDetails["players"][0];
 
@@ -22,6 +23,7 @@ const generateTable = ({ players }: { players: PlayerType[] }) => {
 };
 
 export const ProvablyFair = ({ players, hands }: Props) => {
+  const [, { inspectCard }] = useTrucoshi();
   const [handIdx, setHand] = useState(1);
   const [clientIdx, setClient] = useState(0);
   const [deck, setDeck] = useState(() => Deck());
@@ -71,7 +73,7 @@ export const ProvablyFair = ({ players, hands }: Props) => {
       </Stack>
       <Stack pt={1} direction="row" flexWrap="wrap" justifyContent="center">
         {deck.cards.map((card) => (
-          <GameCard key={card} card={card} />
+          <GameCard onClick={() => inspectCard(card)} key={card} card={card} />
         ))}
       </Stack>
       <Stack pt={2} gap={3}>

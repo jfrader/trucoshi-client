@@ -231,6 +231,12 @@ export const useMatch = (
   }, [context.state.isConnected, context.state.isLoggingIn, error, fetchMatch, match]);
 
   useEffect(() => {
+    if (!context.state.isConnected && match) {
+      _setMatch(null);
+    }
+  }, [context.state.isConnected, match, setMatch]);
+
+  useEffect(() => {
     socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
       if (value.matchSessionId === matchId) {
         setMatch(value);
