@@ -61,6 +61,16 @@ export const CardThemeToggle = () => {
           "aria-labelledby": "card-theme-button",
         }}
       >
+        <MenuItem title="GNU" onClick={() => setCardTheme("medieval")}>
+          <GameCard
+            request
+            as={Box}
+            sx={{ margin: "0 auto" }}
+            theme="medieval"
+            width="1.1em"
+            card={BURNT_CARD}
+          />
+        </MenuItem>
         <MenuItem title="GNU" onClick={() => setCardTheme("gnu")}>
           <GameCard
             request
@@ -91,6 +101,16 @@ export const CardThemeToggle = () => {
             card={BURNT_CARD}
           />
         </MenuItem>
+        {/* <MenuItem title="Trucoshi (BETA)" onClick={() => setCardTheme("default")}>
+          <GameCard
+            request
+            as={Box}
+            sx={{ margin: "0 auto" }}
+            theme="default"
+            width="1.1em"
+            card={BURNT_CARD}
+          />
+        </MenuItem> */}
         <MenuItem title="Emojis" onClick={() => setCardTheme("")}>
           <EmojiSymbols />
         </MenuItem>
