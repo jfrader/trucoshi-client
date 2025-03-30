@@ -61,7 +61,7 @@ export const CardThemeToggle = () => {
           "aria-labelledby": "card-theme-button",
         }}
       >
-        <MenuItem title="GNU" onClick={() => setCardTheme("medieval")}>
+        <MenuItem title="Medieval" onClick={() => setCardTheme("medieval")}>
           <GameCard
             request
             as={Box}
