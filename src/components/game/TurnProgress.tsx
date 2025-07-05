@@ -18,9 +18,11 @@ export const TurnProgress = ({ match, player, previousHand }: Props) => {
 
   useEffect(() => {
     setAlert(true);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setAlert(false);
     }, 600);
+
+    return () => clearTimeout(timer);
   }, [turnTimer.alert]);
 
   return (

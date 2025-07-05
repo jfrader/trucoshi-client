@@ -44,6 +44,10 @@ export const GameCard = ({
     [card, inspectCard]
   );
 
+  const onDoubleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
+    inspectCard(card || BURNT_CARD);
+  }, [card, inspectCard]);
+
   if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
     return null;
   }
@@ -60,6 +64,7 @@ export const GameCard = ({
         enablehover={enableHover ? 1 : 0}
         onClick={onClick}
         onContextMenu={onClick}
+        onDoubleClick={onDoubleClick}
         {...buttonProps}
       >
         <img
@@ -83,6 +88,7 @@ export const GameCard = ({
       shadow={shadow ? 1 : 0}
       onClick={onClick}
       onContextMenu={onClick}
+      onDoubleClick={onDoubleClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
       sx={{ width, height: `calc(${width} * 1.48)`, ...buttonProps.sx }}

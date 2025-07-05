@@ -49,26 +49,42 @@ export const Rounds = ({
     [player, rounds]
   );
 
+  const overridePlayerCards = useMemo(() => {
+    if (previousHand?.envido && previousHand.envido.winner.key === player.key) {
+      return [
+        ...playerCards,
+        ...(previousHand.envido.data?.cards
+          .filter((c) => !playerCards.map((c) => c.card).includes(c))
+          .map((c) => ({
+            card: c,
+            key: c + "envido",
+            player,
+          })) || []),
+      ];
+    }
+
+    const findPreviousFlor =
+      previousHand?.flor && previousHand.flor.data.find(({ idx }) => idx === player.idx);
+
+    if (findPreviousFlor) {
+      return findPreviousFlor.cards.map((card) => ({ card, key: card + "flor", player }));
+    }
+
+    return playerCards;
+  }, [player, playerCards, previousHand]);
+
   return (
     <Box width="100%" height="100%" pt="33.3%" position="relative" right="0.9em" {...boxProps}>
       <HandContainer margin="1px auto" px={4} position="relative" onHandOpen={setOpenHand}>
-        {(previousHand?.envido && previousHand.envido.winner.key === player.key
-          ? [
-              ...playerCards,
-              ...(previousHand.envido.data?.cards
-                .filter((c) => !playerCards.map((c) => c.card).includes(c))
-                .map((c) => ({
-                  card: c,
-                  key: c + "envido",
-                  player,
-                })) || []),
-            ]
-          : playerCards
-        ).map((pc, i) => {
+        {overridePlayerCards.map((pc, i) => {
           return (
             <HandCardContainer key={pc.key} i={i} cards={playerCards.length} open={openHand}>
               <GameCard
                 shadow
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
                 zoom={openHand}
                 width={match.players.length > 4 ? undefined : "5.2em"}
                 {...pc}
