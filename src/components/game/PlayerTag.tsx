@@ -50,10 +50,11 @@ export const PlayerName = styled(Typography)<{ isturn: number }>(({ theme, istur
     : {}
 );
 
-export const AnimatedBox = styled(Box)<{ isturn: number }>(({ isturn }) =>
-  isturn
-    ? css`
-        animation: ${bounce} 0.8s ease 2;
-      `
-    : {}
+export const AnimatedBox = styled(Box)<{ isturn: number; infinite?: number }>(
+  ({ isturn, infinite = 0 }) =>
+    isturn
+      ? css`
+          animation: ${bounce} 0.8s ease ${infinite ? "infinite" : "2"};
+        `
+      : {}
 );

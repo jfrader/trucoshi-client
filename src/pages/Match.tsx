@@ -88,7 +88,7 @@ const Match = () => {
           onMouseEnter={() => inspect(player)}
           onMouseLeave={() => inspect(null)}
           previousHand={previousHand}
-          previousHandCallback={nextHand}
+          nextHand={nextHand}
           player={player}
           match={match}
         />

@@ -11,6 +11,7 @@ import {
   IMatchPreviousHand,
   ILobbyOptions,
   EHandState,
+  IMatchFlorBattle,
 } from "trucoshi";
 
 import { TrucoshiContext } from "../context";
@@ -36,6 +37,7 @@ export const useMatch = (
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
+  const [florBattle, setFlorBattle] = useState<[IMatchFlorBattle, () => void] | null>(null);
 
   const { pay } = usePayRequest();
 
@@ -269,7 +271,7 @@ export const useMatch = (
         setPreviousHand([value, callback]);
       }
     });
-
+  
     socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
       if (deletedMatchSessionId === matchId) {
         setError(new Error("Esta partida ya no existe"));
@@ -317,15 +319,27 @@ export const useMatch = (
 
   const nextHand = useCallback(() => {
     setPreviousHand(null);
-    if (match && previousHand && previousHand[1]) {
-      previousHand[1]();
+    setFlorBattle(null);
+    if (match) {
+      if (florBattle && florBattle[1]) {
+        florBattle[1]();
+      }
+      if (previousHand && previousHand[1]) {
+        previousHand[1]();
+      }
     }
-  }, [match, previousHand]);
+  }, [florBattle, match, previousHand]);
 
   const memoPreviousHand = useMemo(() => (previousHand ? previousHand[0] : null), [previousHand]);
   const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
   const canSay = useMemo(
-    () => Boolean(match && sayCallback && match.handState !== EHandState.BEFORE_FINISHED),
+    () =>
+      Boolean(
+        match &&
+          sayCallback &&
+          match.handState !== EHandState.BEFORE_FINISHED &&
+          match.handState !== EHandState.DISPLAY_FLOR_BATTLE
+      ),
     [match, sayCallback]
   );
 
