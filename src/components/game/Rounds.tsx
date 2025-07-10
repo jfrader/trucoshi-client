@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, Theme } from "@mui/material";
+import { Box, BoxProps, Button } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { EHandState, IMatchPreviousHand, IPublicMatch } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
@@ -91,7 +91,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
         <AnimatedBox
           infinite={1}
           isturn={Number(florBattle?.winner?.idx === player.idx)}
-          sx={(theme: Theme) => ({
+          sx={(theme: any) => ({
             top: "50%",
             left: "50%",
             position: "absolute",
