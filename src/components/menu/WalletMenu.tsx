@@ -53,7 +53,7 @@ export const WalletMenu = () => {
         <Sats amount={account.wallet?.balanceInSats || 0} />
       </Stack>
       <FormGroup>
-        <Collapse in={isDeposit === null}>
+        <Collapse in={withdrawInvoice === null && isDeposit === null}>
           <FormGroup>
             <Button
               color="warning"
@@ -68,7 +68,7 @@ export const WalletMenu = () => {
             </Button>
           </FormGroup>
         </Collapse>
-        <Collapse in={isDeposit !== null} mountOnEnter unmountOnExit>
+        <Collapse in={withdrawInvoice === null && isDeposit !== null} mountOnEnter unmountOnExit>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -90,7 +90,7 @@ export const WalletMenu = () => {
               setTimeout(() => inputRef.current?.blur());
             }}
           >
-            <Stack direction="row" alignItems="center" gap={1}>
+            <Stack pt={2} direction="row" alignItems="center" gap={1}>
               <IconButton
                 title="Cancelar"
                 onClick={() => setDeposit(null)}
@@ -134,7 +134,7 @@ export const WalletMenu = () => {
         </Collapse>
       </FormGroup>
       <FormGroup>
-        <Collapse in={withdrawInvoice === null}>
+        <Collapse in={isDeposit === null && withdrawInvoice === null}>
           <FormGroup>
             <Button
               color="warning"
@@ -149,7 +149,7 @@ export const WalletMenu = () => {
             </Button>
           </FormGroup>
         </Collapse>
-        <Collapse in={withdrawInvoice !== null} mountOnEnter unmountOnExit>
+        <Collapse in={isDeposit === null && withdrawInvoice !== null} mountOnEnter unmountOnExit>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -169,7 +169,7 @@ export const WalletMenu = () => {
               setTimeout(() => inputRef.current?.blur());
             }}
           >
-            <Stack direction="row" alignItems="center" gap={1}>
+            <Stack pt={2} direction="row" alignItems="center" gap={1}>
               <IconButton
                 title="Cancelar"
                 onClick={() => setWithdrawInvoice(null)}
@@ -194,7 +194,12 @@ export const WalletMenu = () => {
                   endAdornment: <Bolt color="warning" />,
                 }}
               />
-              <IconButton title="Aceptar" type="submit" size="small" disabled={!withdrawInvoice || isPending}>
+              <IconButton
+                title="Aceptar"
+                type="submit"
+                size="small"
+                disabled={!withdrawInvoice || isPending}
+              >
                 <Check fontSize="small" />
               </IconButton>
             </Stack>

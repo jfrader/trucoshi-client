@@ -10,6 +10,7 @@ export type GameCardProps = {
   enableHover?: boolean;
   burn?: boolean;
   zoom?: boolean;
+  scale?: number;
   width?: string;
   theme?: ICardTheme | null;
   request?: boolean;
@@ -23,6 +24,7 @@ export const GameCard = ({
   burn,
   request,
   zoom,
+  scale,
   shadow,
   width = "4.4em",
   theme = null,
@@ -60,6 +62,7 @@ export const GameCard = ({
         variant="card"
         name={name || BURNT_CARD}
         zoom={zoom ? 1 : 0}
+        scale={scale}
         shadow={shadow ? 1 : 0}
         enablehover={enableHover ? 1 : 0}
         onClick={onClick}
@@ -86,6 +89,7 @@ export const GameCard = ({
       emojicard={1}
       zoom={zoom ? 1 : 0}
       shadow={shadow ? 1 : 0}
+      scale={scale}
       onClick={onClick}
       onContextMenu={onClick}
       onDoubleClick={onDoubleClick}
@@ -167,7 +171,8 @@ const GameCardButton = styled(Button)<{
   emojicard?: boolean | number;
   zoom?: boolean | number;
   shadow?: boolean | number;
-}>(({ theme, enablehover, emojicard, zoom, shadow }) => [
+  scale?: number;
+}>(({ theme, enablehover, emojicard, zoom, shadow , scale = 1.75}) => [
   {
     lineHeight: 1,
     position: "relative",
@@ -182,7 +187,7 @@ const GameCardButton = styled(Button)<{
     : {},
   zoom
     ? {
-        transform: "scale(1.75)",
+        transform: `scale(${scale})`,
       }
     : {},
   emojicard

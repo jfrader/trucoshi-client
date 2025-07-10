@@ -1,11 +1,13 @@
 import {
   Button,
   FormControl,
+  FormControlLabel,
   IconButton,
   InputLabel,
   MenuItem,
   Select,
   Stack,
+  Switch,
   TextField,
 } from "@mui/material";
 import { useState } from "react";
@@ -67,6 +69,7 @@ export const GameOptions = ({
             <Close fontSize="small" />
           </IconButton>
         </Stack>
+
         <FormControl>
           <InputLabel id="maxPlayers-label">Max. Jugadores</InputLabel>
           <Select
@@ -172,6 +175,28 @@ export const GameOptions = ({
             )}
           </Select>
         </FormControl>
+
+        <Stack alignItems="center">
+          <FormControl>
+            <FormControlLabel
+              label="Flor"
+              control={
+                <Switch
+                  name="flor"
+                  value={undefined}
+                  checked={options.flor}
+                  onChange={(_e, checked) => {
+                    setOptions((current) => ({
+                      ...current,
+                      flor: checked,
+                    }));
+                  }}
+                />
+              }
+            />
+          </FormControl>
+        </Stack>
+
         <Stack direction="row">
           <Button fullWidth color="error" onClick={() => onClose()}>
             Cancelar

@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "../shared/Link";
-import { HELP_LINKS } from "../assets/links/links";
+import { GITHUB_LINK_FRAN, HELP_LINKS } from "../assets/links/links";
 import { PageContainer } from "../shared/PageContainer";
 
 export const Help = () => {
@@ -33,6 +33,12 @@ export const Help = () => {
               );
             })}
           </List>
+          <Typography pt={4} display="block" variant="caption">
+            Made with ❤️ by{" "}
+            <Link target="_blank" to={GITHUB_LINK_FRAN.to}>
+              Fran
+            </Link>
+          </Typography>
         </CardContent>
       </Card>
     </PageContainer>

@@ -1,5 +1,11 @@
 import { Favorite, Flag, GitHub, HelpOutlined, Telegram, X } from "@mui/icons-material";
 
+export const GITHUB_LINK_FRAN = {
+  label: "github",
+  to: "https://github.com/jfrader",
+  Icon: GitHub,
+};
+
 export const GENERAL_LINKS = [
   {
     label: "donate",

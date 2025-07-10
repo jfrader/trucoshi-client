@@ -7,7 +7,7 @@ import { Sats } from "../../shared/Sats";
 
 export const WelcomeMenu = () => {
   const navigate = useNavigate();
-  const [{ name, account }, { sendUserId, logout }] = useTrucoshi();
+  const [{ name, account }, { sendUserId, logout, setSidebarOpen }] = useTrucoshi();
 
   const [nameField, setNameField] = useState(() => account?.name || name);
   const [isNameLoading, setNameLoading] = useState(false);
@@ -35,7 +35,14 @@ export const WelcomeMenu = () => {
           Bienvenido
         </Typography>
         {account ? (
-          <Box>
+          <Box
+            role="button"
+            sx={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation()
+              setSidebarOpen(true);
+            }}
+          >
             <Typography color="text.disabled" textTransform="uppercase">
               Balance
             </Typography>

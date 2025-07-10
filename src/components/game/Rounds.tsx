@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button } from "@mui/material";
+import { Box, BoxProps, Button, Theme } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { EHandState, IMatchPreviousHand, IPublicMatch } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
@@ -59,19 +59,6 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
       );
     }
 
-    if (previousHand?.envido && previousHand.envido.winner.key === player.key) {
-      return [
-        ...playerCards,
-        ...(previousHand.envido.data?.cards
-          .filter((c) => !playerCards.map((c) => c.card).includes(c))
-          .map((c) => ({
-            card: c,
-            key: c + "envido",
-            player,
-          })) || []),
-      ];
-    }
-
     const findPreviousFlor =
       previousHand?.flor && previousHand.flor.data.find(({ idx }) => idx === player.idx);
 
@@ -79,10 +66,24 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
       return findPreviousFlor.cards.map((card) => ({ card, key: card + "flor", player }));
     }
 
+    if (previousHand?.envido?.data?.cards && previousHand.envido.winner.key === player.key) {
+      return [
+        ...playerCards.filter((pc) => !previousHand.envido?.data?.cards.includes(pc.card)),
+        ...(previousHand.envido.data.cards.map((c) => ({
+          card: c,
+          key: c + "envido",
+          player,
+        })) || []),
+      ];
+    }
+
     return playerCards;
   }, [florBattlePlayer, player, playerCards, previousHand]);
 
-  console.log({ florBattle, previousHand });
+  const autoOpenHand =
+    (florBattlePlayer && florBattlePlayer.cards) ||
+    previousHand?.flor?.data.find((p) => p.idx === player.idx) ||
+    (previousHand?.envido?.data?.cards && previousHand?.envido?.winner.idx === player.idx);
 
   return (
     <Box width="100%" height="100%" pt="33.3%" position="relative" right="0.9em" {...boxProps}>
@@ -90,11 +91,14 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
         <AnimatedBox
           infinite={1}
           isturn={Number(florBattle?.winner?.idx === player.idx)}
-          sx={{
+          sx={(theme: Theme) => ({
             top: "50%",
             left: "50%",
             position: "absolute",
-          }}
+            opacity: florBattlePlayer.cards ? 0.85 : 1,
+            zIndex: theme.zIndex.snackbar,
+            pointerEvents: "none",
+          })}
         >
           <Button
             sx={{
@@ -109,14 +113,20 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
           </Button>
         </AnimatedBox>
       ) : null}
-      <HandContainer margin="1px auto" px={4} position="relative" onHandOpen={setOpenHand}>
+      <HandContainer
+        margin="1px auto"
+        px={4}
+        position="relative"
+        // left={autoOpenHand ? "-60%" : undefined}
+        onHandOpen={setOpenHand}
+      >
         {overridePlayerCards.map((pc, i) => {
           return (
             <HandCardContainer
               key={pc.key}
               i={i}
-              cards={playerCards.length}
-              open={Boolean(openHand)}
+              cards={overridePlayerCards.length}
+              open={Boolean(openHand || autoOpenHand)}
             >
               <GameCard
                 shadow

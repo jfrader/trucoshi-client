@@ -19,6 +19,7 @@ export const Footer = () => {
           Version {version}
         </Typography>
       ) : null}
+
       <Stack alignContent="space-evenly" alignItems="center" direction="column" spacing={1}>
         {GENERAL_LINKS.map(({ label, to, Icon }) => {
           return (
