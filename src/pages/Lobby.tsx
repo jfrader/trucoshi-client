@@ -36,6 +36,7 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "faltaEnvido",
   "maxPlayers",
   "turnTime",
+  "flor",
 ];
 
 export const Lobby = () => {
