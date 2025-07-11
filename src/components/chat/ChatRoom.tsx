@@ -15,7 +15,7 @@ import {
   ListItemAvatar,
   ButtonProps,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect, FC, PropsWithChildren } from "react";
+import { useState, createRef, useLayoutEffect, FC, PropsWithChildren, useRef } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
   CARDS_HUMAN_READABLE,
@@ -44,6 +44,8 @@ type Props = BoxProps & {
 } & ReturnType<typeof useChatRoom>;
 
 export const useChatRoom = (match?: IPublicMatch | null) => {
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   const [active, setActive] = useState<boolean>(false);
   const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
 
@@ -51,7 +53,7 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
 
   return {
     useChatState: useChat(match?.matchSessionId, (incomingMessage) => {
-      if (incomingMessage) {
+      if (incomingMessage && !incomingMessage.system) {
         setLatestMessage(incomingMessage);
         setActive(true);
         if (incomingMessage.card) {
@@ -59,12 +61,14 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
           queue("play" + rndSound);
         }
 
-        setTimeout(() => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+        timerRef.current = setTimeout(() => {
           setLatestMessage(null);
         }, 2500);
       }
     }),
-    matchId: match?.matchSessionId,
     players: match?.players,
     active,
     setActive,

@@ -106,7 +106,7 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.38 * var(--d));
+  margin-left: calc(-0.42 * var(--d));
   margin-top: calc(-0.16 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);

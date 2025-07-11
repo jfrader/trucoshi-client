@@ -19,9 +19,10 @@ const MatchPlayer = ({ match, previousHand, player, canPlay, onPlayCard }: Playe
       <TurnProgress match={match} player={player} previousHand={previousHand} />
       <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <PlayerTag
-          disabled={!player.ready || player.disabled}
           player={player}
+          isDisabled={!player.ready || player.disabled}
           isTurn={!isPrevious && player.isTurn}
+          isForehand={player.idx === match?.forehandIdx}
         />
         {player.abandoned ? (
           <Box pt={1}>

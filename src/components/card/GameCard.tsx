@@ -7,6 +7,7 @@ import { useCards } from "../../trucoshi/hooks/useCards";
 
 export type GameCardProps = {
   card: ICard;
+  disableDoubleClick?: boolean;
   enableHover?: boolean;
   burn?: boolean;
   zoom?: boolean;
@@ -20,6 +21,7 @@ export type GameCardProps = {
 
 export const GameCard = ({
   card,
+  disableDoubleClick,
   enableHover,
   burn,
   request,
@@ -47,8 +49,9 @@ export const GameCard = ({
   );
 
   const onDoubleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
+    if (disableDoubleClick) return;
     inspectCard(card || BURNT_CARD);
-  }, [card, inspectCard]);
+  }, [card, disableDoubleClick, inspectCard]);
 
   if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
     return null;
@@ -172,7 +175,7 @@ const GameCardButton = styled(Button)<{
   zoom?: boolean | number;
   shadow?: boolean | number;
   scale?: number;
-}>(({ theme, enablehover, emojicard, zoom, shadow , scale = 1.75}) => [
+}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75 }) => [
   {
     lineHeight: 1,
     position: "relative",

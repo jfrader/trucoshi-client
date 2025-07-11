@@ -20,7 +20,7 @@ export const CommandBar = ({
   if (player.abandoned || !canSay) {
     return null;
   }
-  
+
   return (
     <Box
       position="absolute"
@@ -49,16 +49,29 @@ export const CommandBar = ({
                 {points.value}
               </Button>
             ))}
-        {player.commands?.map((command) => (
-          <Button
-            key={command}
-            onClick={() => onSayCommand(command)}
-            variant="contained"
-            color={DANGEROUS_COMMANDS.includes(command) ? "error" : "success"}
-          >
-            {COMMANDS_HUMAN_READABLE[command]}
-          </Button>
-        ))}
+        {player.commands
+          ? [...player.commands]
+              .sort((a, b) => {
+                const hasA = DANGEROUS_COMMANDS.includes(a);
+                const hasB = DANGEROUS_COMMANDS.includes(b);
+
+                if ((hasA && hasB) || (!hasA && hasB)) return 0;
+
+                if (hasA) return 1;
+
+                return -1;
+              })
+              .map((command) => (
+                <Button
+                  key={command}
+                  onClick={() => onSayCommand(command)}
+                  variant="contained"
+                  color={DANGEROUS_COMMANDS.includes(command) ? "error" : "success"}
+                >
+                  {COMMANDS_HUMAN_READABLE[command]}
+                </Button>
+              ))
+          : null}
         {children}
       </Box>
     </Box>

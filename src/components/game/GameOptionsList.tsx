@@ -4,11 +4,11 @@ import { ILobbyOptions } from "trucoshi";
 import { Sats } from "../../shared/Sats";
 
 export const LOBBY_OPTIONS_HUMAN_READABLE: Partial<Record<keyof ILobbyOptions, string>> = {
+  satsPerPlayer: "Sats por jugador",
   maxPlayers: "Max. Jugadores",
   matchPoint: "Puntos por etapa",
-  flor: "Flor",
   faltaEnvido: "Falta envido",
-  satsPerPlayer: "Sats por jugador",
+  flor: "Flor",
   turnTime: "Tiempo de turno",
   abandonTime: "Tiempo de abandono",
   handAckTime: "Tiempo entre manos",

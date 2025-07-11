@@ -21,7 +21,11 @@ const getMargin = (i: number, cards: number, margin: number = OPEN_MARGIN) => {
   return 0;
 };
 
-export const HandCardContainer = styled(Box)<{
+export const HandCardContainer = styled(Box, {
+  shouldForwardProp(propName) {
+    return !["open", "cards", "i", "openMargin", "margin"].includes(propName as string);
+  },
+})<{
   open: boolean;
   cards: number;
   i: number;

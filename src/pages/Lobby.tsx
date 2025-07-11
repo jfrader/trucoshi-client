@@ -30,6 +30,9 @@ import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/context";
+import { HandCardContainer } from "../components/card/HandCardContainer";
+import { getRandomCard } from "../trucoshi/hooks/useCards";
+import { FlipGameCard } from "../components/card/GameCard";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -49,6 +52,7 @@ export const Lobby = () => {
 
   const { sessionId } = useParams<{ sessionId: string }>();
 
+  const [decorationCard, setDecoration] = useState(getRandomCard());
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const [isReadyLoading, setReadyLoading] = useState(false);
 
@@ -161,11 +165,14 @@ export const Lobby = () => {
 
             const joinTeamIdx = getJoinTeamIdx(i);
             const newTeamIdx = firstPlayerTeamIsZero ? joinTeamIdx : getJoinTeamIdx(i + 1);
+            const team0Count = match.players.filter((p) => p.teamIdx === 0).length;
+            const team1Count = match.players.filter((p) => p.teamIdx === 1).length;
             const canJoin =
-              match.players.filter((p) => p.teamIdx === newTeamIdx).length <
-              match.options.maxPlayers / 2;
+              match.players.length < match.options.maxPlayers &&
+              (newTeamIdx === 0 ? team0Count < 2 : team1Count < 2);
 
-            return canJoin && (!me || newTeamIdx !== me.teamIdx) ? (
+            // Only show the button for non-joined users and ensure it reflects the slot's intended team
+            return !me && canJoin ? (
               <Stack pt={3} alignItems="end">
                 <Button
                   variant="text"
@@ -194,28 +201,43 @@ export const Lobby = () => {
                       </Button>
                     )}
                     {player.isMe ? (
-                      me?.ready ? (
-                        <Button
-                          disabled={isReadyLoading}
-                          size="small"
-                          color="success"
-                          onClick={onSetUnReady}
-                        >
-                          Listo
-                        </Button>
-                      ) : (
-                        <AnimatedButton
-                          disabled={isReadyLoading}
-                          size="small"
-                          color="warning"
-                          onClick={onSetReady}
-                        >
-                          Estoy Listo
-                        </AnimatedButton>
-                      )
+                      <>
+                        {me?.ready ? (
+                          <Button
+                            disabled={isReadyLoading}
+                            size="small"
+                            color="success"
+                            onClick={onSetUnReady}
+                          >
+                            Listo
+                          </Button>
+                        ) : (
+                          <AnimatedButton
+                            variant="contained"
+                            disabled={isReadyLoading}
+                            size="small"
+                            color="warning"
+                            onClick={onSetReady}
+                          >
+                            Estoy Listo
+                          </AnimatedButton>
+                        )}
+
+                        {!match.me?.isOwner ? (
+                          <Box pt={1}>
+                            <Button
+                              color="error"
+                              size="small"
+                              onClick={() => match.me && kickPlayer(match.me.key)}
+                            >
+                              Salir
+                            </Button>
+                          </Box>
+                        ) : null}
+                      </>
                     ) : (
                       <Box pt={1}>
-                        {match.ownerKey === match.me?.key ? (
+                        {match.me?.isOwner ? (
                           <Button
                             variant="contained"
                             color="error"
@@ -265,6 +287,28 @@ export const Lobby = () => {
       <FixedChatContainer>
         <ChatRoom {...useChatRoom(match)} />
       </FixedChatContainer>
+      <Box display={{ xs: "none", md: "block" }} position="fixed" right="6em" bottom="8em">
+        <HandCardContainer
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDecoration(getRandomCard());
+          }}
+          open
+          openMargin={4}
+          fontSize="11px"
+          cards={1}
+          i={0}
+        >
+          <FlipGameCard
+            disableDoubleClick
+            width="3.3rem"
+            shadow
+            zoom
+            card={decorationCard}
+          />
+        </HandCardContainer>
+      </Box>
     </Box>
   );
 };

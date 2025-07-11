@@ -59,7 +59,7 @@ const Match = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (match && match.state === EMatchState.UNREADY) {
+    if (match && (match.state === EMatchState.UNREADY || match.state === EMatchState.READY)) {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match, navigate, sessionId]);
@@ -159,15 +159,15 @@ const Match = () => {
             inspecting={inspecting}
             Slot={Slot}
             InnerSlot={InnerSlot}
-            MiddleSlot={
-              chatProps.latestMessage && chatProps.latestMessage.command ? MiddleSlot : undefined
-            }
+            MiddleSlot={MiddleSlot}
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
-            <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
-              Rendirse
-            </Button>
+            {me && !me.abandoned ? (
+              <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
+                Rendirse
+              </Button>
+            ) : null}
             {debugComponent(match.handState)}
           </Box>
         </>
