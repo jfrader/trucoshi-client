@@ -1,11 +1,11 @@
 import { Box, styled, Typography } from "@mui/material";
 import { getTeamColor, getTeamName } from "../../utils/team";
 
-interface ITeamTagProps {
+interface IPublicTeamTagProps {
     teamIdx: number;
 }
 
-export const TeamTag = ({ teamIdx }: ITeamTagProps) => {
+export const TeamTag = ({ teamIdx }: IPublicTeamTagProps) => {
   return (
     <Typography color={getTeamColor(teamIdx)}>
       <span>{getTeamName(teamIdx)}</span>

@@ -9,6 +9,8 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
+import { useEffect, useMemo } from "react";
+import { useSound } from "../../sound/hooks/useSound";
 
 export const MatchFinishedScreen = ({
   match,
@@ -21,12 +23,28 @@ export const MatchFinishedScreen = ({
   previousHand: IMatchPreviousHand | null;
   chatProps: ReturnType<typeof useChatRoom>;
 }) => {
+  const { queue } = useSound();
+
+  const iAmWinner = useMemo(
+    () => match.me?.teamIdx === match.winner?.id || !match.me,
+    [match.me, match.winner?.id]
+  );
+
+  useEffect(() => {
+    if (iAmWinner) {
+      queue("winner");
+    } else {
+      queue("deal");
+      queue("ceba_toma_mate");
+    }
+  }, [iAmWinner, queue]);
+
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;
   }
   return (
     <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      {match.me?.teamIdx === match.winner.id || !match.me ? <EmojiRain /> : null}
+      {iAmWinner ? <EmojiRain /> : null}
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       <Stack flexGrow={1} gap={1}>

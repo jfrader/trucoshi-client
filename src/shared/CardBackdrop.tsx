@@ -1,11 +1,12 @@
 import { BackdropProps, Box, CircularProgress, IconButton, Stack, styled } from "@mui/material";
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, SetStateAction, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "../components/card/GameCard";
 import { CardThemeToggle } from "../components/card/CardThemeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useSound } from "../sound/hooks/useSound";
 
 type Props = PropsWithChildren<
   Pick<ITrucoshiActions, "inspectCard"> &
@@ -16,11 +17,21 @@ type Props = PropsWithChildren<
 const StyledBackdrop = styled(Backdrop)({});
 
 export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props) => {
-  const [flip, setFlip] = useState(false);
+  const { queue } = useSound();
+  const [flip, _setFlip] = useState(false);
+
+  const setFlip = (v: SetStateAction<boolean>) => {
+    const rndSound = Math.round(Math.random() * 2);
+    queue("play" + rndSound);
+    _setFlip(v);
+  };
 
   useEffect(() => {
-    setFlip(false);
-  }, [card]);
+    const rndSound = Math.round(Math.random() * 2);
+    queue("play" + rndSound);
+    _setFlip(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!card) {
     return null;

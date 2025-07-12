@@ -7,7 +7,7 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { getTeamColor } from "../../utils/team";
 import { BackHand } from "@mui/icons-material";
 
-type ITeamTagProps = PropsWithPlayer<{
+type IPublicTeamTagProps = PropsWithPlayer<{
   isTurn?: boolean;
   isDisabled?: boolean;
   isForehand?: boolean;
@@ -19,7 +19,7 @@ export const PlayerTag = ({
   isForehand,
   isDisabled,
   ...props
-}: ITeamTagProps & TypographyProps) => {
+}: IPublicTeamTagProps & TypographyProps) => {
   const theme = useTheme();
   return (
     <AnimatedBox isturn={Number(!isDisabled && isTurn && player.isMe)}>

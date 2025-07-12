@@ -1,6 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { EClientEvent, EServerEvent, IChatMessage, IPublicChatRoom } from "trucoshi";
 import { TrucoshiContext } from "../context";
+import { useSound } from "../../sound/hooks/useSound";
 
 export const useChat = (
   matchId?: string,
@@ -14,6 +15,7 @@ export const useChat = (
   const [room, setRoom] = useState<IPublicChatRoom | null>(null);
   const [isLoading, setLoading] = useState<boolean>(false);
 
+  const { queue } = useSound();
   const { socket } = context;
 
   useEffect(() => {
@@ -35,6 +37,11 @@ export const useChat = (
       if (message && roomId === matchId) {
         setRoom((current) => {
           if (!current) return current;
+
+          if (message.sound) {
+            queue(typeof message.sound === "string" ? message.sound : "chat");
+          }
+
           const newMessages = current ? [...current.messages] : [message];
           newMessages.push(message);
           return {
@@ -58,7 +65,7 @@ export const useChat = (
       socket.off(EServerEvent.UPDATE_CHAT);
       socket.off(EServerEvent.NEW_MESSAGE);
     };
-  }, [matchId, onMessage, room, socket]);
+  }, [matchId, onMessage, queue, room, socket]);
 
   const chat = useCallback(
     (message: string) => {

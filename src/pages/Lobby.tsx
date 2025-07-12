@@ -30,9 +30,7 @@ import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/context";
-import { HandCardContainer } from "../components/card/HandCardContainer";
-import { getRandomCard } from "../trucoshi/hooks/useCards";
-import { FlipGameCard } from "../components/card/GameCard";
+import { CardsDeck } from "../components/card/CardsDeck";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -52,9 +50,9 @@ export const Lobby = () => {
 
   const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [decorationCard, setDecoration] = useState(getRandomCard());
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const [isReadyLoading, setReadyLoading] = useState(false);
+  const [shuffle, setShuffle] = useState(0);
 
   const navigate = useNavigate();
 
@@ -64,9 +62,10 @@ export const Lobby = () => {
   useEffect(() => {
     if (match) {
       if (match.state === EMatchState.STARTED || match.state === EMatchState.FINISHED) {
-        setTimeout(() => navigate(`/match/${sessionId}`, { replace: true }));
+        setShuffle((c) => c + 1);
+        const timer = setTimeout(() => navigate(`/match/${sessionId}`, { replace: true }), 2000);
+        return () => clearTimeout(timer);
       }
-      return;
     }
   }, [match, navigate, sessionId]);
 
@@ -261,7 +260,7 @@ export const Lobby = () => {
                       color="success"
                       onClick={onStartMatch}
                     >
-                      Empezar Partida
+                      {shuffle > 0 ? "Empezando..." : "Empezar Partida"}
                     </LoadingButton>
                   ) : null}
                 </Stack>
@@ -287,27 +286,8 @@ export const Lobby = () => {
       <FixedChatContainer>
         <ChatRoom {...useChatRoom(match)} />
       </FixedChatContainer>
-      <Box display={{ xs: "none", md: "block" }} position="fixed" right="6em" bottom="8em">
-        <HandCardContainer
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setDecoration(getRandomCard());
-          }}
-          open
-          openMargin={4}
-          fontSize="11px"
-          cards={1}
-          i={0}
-        >
-          <FlipGameCard
-            disableDoubleClick
-            width="3.3rem"
-            shadow
-            zoom
-            card={decorationCard}
-          />
-        </HandCardContainer>
+      <Box display={{ xs: "none", md: "block" }}>
+        <CardsDeck shuffle={shuffle} />
       </Box>
     </Box>
   );

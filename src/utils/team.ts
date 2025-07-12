@@ -1,4 +1,9 @@
-export const getTeamName = (idx: number) => {
+import { IPublicTeam } from "trucoshi";
+
+export const getTeamName = (idx: number | IPublicTeam) => {
+  if (typeof idx !== "number" && idx.name) {
+    return idx.name;
+  }
   return idx ? "Ellos" : "Nosotros";
 };
 

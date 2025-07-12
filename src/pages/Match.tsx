@@ -51,7 +51,9 @@ const Match = () => {
     { playCard, sayCommand, nextHand, leaveMatch },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
-    onFreshHand: () => queue("round"),
+    onFreshHand: () => {
+      queue("round");
+    },
   });
 
   const chatProps = useChatRoom(match);
@@ -169,6 +171,7 @@ const Match = () => {
               </Button>
             ) : null}
             {debugComponent(match.handState)}
+            {debugComponent(match.players.find((p) => p.isTurn)?.name || null)}
           </Box>
         </>
       ) : (
@@ -201,6 +204,9 @@ const Match = () => {
           </Stack>
         </DialogActions>
       </Dialog>
+      {/* <Box display={{ xs: "none", md: "block" }}>
+        <CardsDeck shuffle={shuffle} flip />
+      </Box> */}
     </Box>
   );
 };

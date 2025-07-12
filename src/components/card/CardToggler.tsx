@@ -1,21 +1,30 @@
 import { Box, BoxProps, IconButton, Stack } from "@mui/material";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { getRandomCards } from "../../trucoshi/hooks/useCards";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
 import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { useSound } from "../../sound/hooks/useSound";
 
 export const CardToggler = (props: BoxProps) => {
+  const { queue } = useSound();
   const [{ cardTheme }] = useTrucoshi();
   const [randomCards, setRandomCards] = useState<ICard[]>(getRandomCards());
-  const [flip, setFlip] = useState(true);
+  const [flip, _setFlip] = useState(true);
+
+  const setFlip = (v: SetStateAction<boolean>) => {
+    const rndSound = Math.round(Math.random() * 2);
+    queue("play" + rndSound);
+    _setFlip(v);
+  };
 
   useEffect(() => {
     setFlip(true);
     const timeout = setTimeout(() => setFlip(false), 750);
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardTheme]);
 
   return (
@@ -41,6 +50,8 @@ export const CardToggler = (props: BoxProps) => {
         <IconButton
           onClick={(e) => {
             e.stopPropagation();
+            const rndSound = Math.round(Math.random() * 2);
+            queue("play" + rndSound);
             setRandomCards(getRandomCards());
           }}
           size="large"
