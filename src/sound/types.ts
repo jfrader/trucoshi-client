@@ -1,9 +1,11 @@
 import { HowlOptions } from "howler";
+import { Dispatch, SetStateAction } from "react";
 
 export interface ISoundContext {
-  volume(vol: number): void;
+  setVolume: Dispatch<SetStateAction<number>>;
   queue(key: string): void;
   mute(): void;
+  volume: number;
   isMuted: boolean;
 }
 

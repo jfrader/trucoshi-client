@@ -6,6 +6,8 @@ import {
   useEffect,
   PropsWithChildren,
   useMemo,
+  SetStateAction,
+  Dispatch,
 } from "react";
 import { ISoundContext, ISoundQueue } from "./types";
 import { Howl, HowlOptions } from "howler";
@@ -15,14 +17,16 @@ const INITIAL_QUEUE: ISoundQueue = [];
 
 export const SoundContext = createContext<ISoundContext | null>(null);
 
+const getStoredVolume = () => Number(localStorage.getItem("trucoshi:volume") || 0.5);
+
 export const SoundProvider = ({ children }: PropsWithChildren) => {
   const soundsRef = useRef<Record<string, Howl>>({});
   const soundQueueRef = useRef<ISoundQueue>(INITIAL_QUEUE);
   const isPlayingQueueSoundRef = useRef(false);
   const isLoadingRef = useRef(true);
   const readyToLoadRef = useRef(false);
-  const [mainVolume, setVolume] = useState<number>(0.5);
-  const [isMuted, setMuted] = useState(false);
+  const [mainVolume, _setVolume] = useState<number>(getStoredVolume);
+  const [isMuted, setMuted] = useState(() => !getStoredVolume());
   const [queueTrigger, setQueueTrigger] = useState(0);
 
   const load = useCallback(
@@ -68,8 +72,8 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
             soundsRef.current
           );
         })
-        .catch(() => {
-          // Silently handle errors to avoid breaking the app
+        .catch((e) => {
+          console.error(e);
         });
     }
   }, [load]);
@@ -105,16 +109,24 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     });
   }, [mainVolume]);
 
-  const volume = useCallback(
-    (vol: number) => {
-      setVolume(vol);
-      for (const key in soundsRef.current) {
-        if (soundsRef.current[key]) {
-          soundsRef.current[key].volume(isMuted ? 0 : vol);
+  const setVolume: Dispatch<SetStateAction<number>> = useCallback(
+    (vol) => {
+      setMuted(!vol);
+      _setVolume((curr) => {
+        const newVol = typeof vol === "number" ? vol : vol(curr);
+
+        localStorage.setItem("trucoshi:volume", newVol.toString());
+
+        for (const key in soundsRef.current) {
+          if (soundsRef.current[key]) {
+            soundsRef.current[key].volume(newVol);
+          }
         }
-      }
+
+        return newVol;
+      });
     },
-    [isMuted]
+    [_setVolume]
   );
 
   const queue = useCallback((key: string) => {
@@ -142,8 +154,8 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ queue, mute, volume, isMuted } satisfies ISoundContext),
-    [queue, mute, volume, isMuted]
+    () => ({ queue, mute, setVolume, volume: mainVolume, isMuted } satisfies ISoundContext),
+    [queue, mute, setVolume, mainVolume, isMuted]
   );
 
   return <SoundContext.Provider value={contextValue}>{children}</SoundContext.Provider>;

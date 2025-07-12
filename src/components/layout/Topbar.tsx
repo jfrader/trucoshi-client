@@ -16,6 +16,7 @@ import { TOOLBAR_LINKS } from "../../assets/links/links";
 import { Close, Login, Menu } from "@mui/icons-material";
 import { Sidebar } from "./Sidebar";
 import { UserAvatar } from "../../shared/UserAvatar";
+import { VolumeControl } from "./VolumeControl";
 
 export const Topbar = () => {
   const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
@@ -40,13 +41,13 @@ export const Topbar = () => {
           />
           {TOOLBAR_LINKS.map(({ to, Icon, title }) => {
             return (
-              <Link title={title} key={to} to={to}>
-                <Stack direction="row" alignItems="center">
-                  <Icon fontSize="small" />
-                </Stack>
-              </Link>
+              <IconButton size="small" component={Link} title={title} key={to} to={to}>
+                <Icon fontSize="small" />
+              </IconButton>
             );
           })}
+
+          <VolumeControl />
           <CardThemeToggle />
         </Stack>
         <Box flexGrow={1} />
@@ -59,9 +60,9 @@ export const Topbar = () => {
               </Stack>
             </Link>
           ) : (
-            <Link title="Iniciar Sesion" to="/login">
+            <IconButton component={Link} title="Iniciar Sesion" to="/login">
               <Login fontSize="small" />
-            </Link>
+            </IconButton>
           )}
           <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
             <Box>
