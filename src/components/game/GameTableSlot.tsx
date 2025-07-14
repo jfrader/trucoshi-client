@@ -118,12 +118,12 @@ const InnerItem = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: calc(-0.42 * var(--d));
-  margin-top: calc(-0.17 * var(--d));
+  margin-left: calc(-0.4 * var(--d));
+  margin-top: calc(-0.19 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);
   --az: calc(var(--i) * 1turn / var(--m));
-  transform: rotate(var(--az)) translate(calc(var(--r) / 2.87)) rotate(calc(-1 * var(--az)))
+  transform: rotate(var(--az)) translate(calc(var(--r) / 2.5)) rotate(calc(-1 * var(--az)))
     rotate(270deg);
 `;
 

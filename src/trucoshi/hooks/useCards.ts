@@ -47,8 +47,6 @@ export const useCards = ({ disabled, theme, cards }: Options) => {
       return;
     }
 
-    setReady(false);
-
     const all: Array<Promise<[ICard, string]>> = [];
 
     const importingCards = (cards || Object.keys(CARDS)).concat(BURNT_CARD);

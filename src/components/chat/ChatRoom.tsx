@@ -53,13 +53,18 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
 
   return {
     useChatState: useChat(match?.matchSessionId, (incomingMessage) => {
-      if (incomingMessage && !incomingMessage.system) {
+      if (!incomingMessage) {
+        return;
+      }
+
+      if (incomingMessage.card) {
+        const rndSound = Math.round(Math.random() * 2);
+        queue("play" + rndSound);
+      }
+
+      if (incomingMessage.command) {
         setLatestMessage(incomingMessage);
         setActive(true);
-        if (incomingMessage.card) {
-          const rndSound = Math.round(Math.random() * 2);
-          queue("play" + rndSound);
-        }
 
         if (timerRef.current) {
           clearTimeout(timerRef.current);

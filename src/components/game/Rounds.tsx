@@ -86,7 +86,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
     (previousHand?.envido?.data?.cards && previousHand?.envido?.winner.idx === player.idx);
 
   return (
-    <Box width="100%" height="100%" pt="33.3%" position="relative" right="0.9em" {...boxProps}>
+    <Box width="100%" height="100%" pt="29%" position="relative" right="1.4em" {...boxProps}>
       {florBattlePlayer && match.handState !== EHandState.WAITING_PLAY ? (
         <AnimatedBox
           infinite={1}
@@ -130,7 +130,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
                   e.stopPropagation();
                 }}
                 zoom={Boolean(openHand)}
-                width={match.players.length > 4 ? "4.4em" : "5.2em"}
+                width={WIDTH_MAP[match.players.length || 4]}
                 {...pc}
               />
             </HandCardContainer>
@@ -139,4 +139,10 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
       </HandContainer>
     </Box>
   );
+};
+
+const WIDTH_MAP: Record<number, string> = {
+  2: "5.8em",
+  4: "5em",
+  6: "4.4em",
 };
