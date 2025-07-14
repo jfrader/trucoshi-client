@@ -53,7 +53,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
       return (
         florBattlePlayer.cards.map((c) => ({
           card: c,
-          key: c + "flor",
+          key: c + player.idx,
           player,
         })) || []
       );
@@ -71,7 +71,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
         ...playerCards.filter((pc) => !previousHand.envido?.data?.cards.includes(pc.card)),
         ...(previousHand.envido.data.cards.map((c) => ({
           card: c,
-          key: c + "envido",
+          key: c + player.idx,
           player,
         })) || []),
       ];
@@ -119,7 +119,6 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
             <HandCardContainer
               key={pc.key}
               i={i}
-              openMargin={6}
               cards={overridePlayerCards.length}
               open={Boolean(openHand || autoOpenHand)}
             >
