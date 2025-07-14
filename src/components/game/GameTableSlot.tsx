@@ -15,6 +15,7 @@ type Props = Pick<
   | "inspecting"
   | "zoomFactor"
   | "zoomOnMiddle"
+  | "middlePointerEventsDisabled"
 > & {
   player: IGameTableSlot;
   i: number;
@@ -31,6 +32,7 @@ export const GameTableSlot = ({
   MiddleSlot,
   Slot,
   InnerSlot,
+  middlePointerEventsDisabled,
 }: Props) => {
   const theme = useTheme();
   const { middleStyle, itemStyle, innerStyle } = useMemo<Record<string, CSSProperties>>(
@@ -40,7 +42,7 @@ export const GameTableSlot = ({
         "--i": `${-1}`,
         "--z": zoomOnIndex === 0 || zoomOnMiddle ? zoomFactor : 1,
         zIndex: theme.zIndex.drawer - i,
-        pointerEvents: "none",
+        pointerEvents: middlePointerEventsDisabled ? "none" : undefined,
       },
       itemStyle: {
         "--mr": zoomOnIndex === i ? "0.8em" : "0px",
@@ -54,7 +56,16 @@ export const GameTableSlot = ({
         zIndex: inspecting?.key === player.key ? 9000 : 13,
       },
     }),
-    [i, inspecting?.key, player.key, theme.zIndex.drawer, zoomFactor, zoomOnIndex, zoomOnMiddle]
+    [
+      i,
+      inspecting?.key,
+      middlePointerEventsDisabled,
+      player.key,
+      theme.zIndex.drawer,
+      zoomFactor,
+      zoomOnIndex,
+      zoomOnMiddle,
+    ]
   );
 
   return (

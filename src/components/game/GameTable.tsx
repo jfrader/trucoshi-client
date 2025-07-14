@@ -15,6 +15,7 @@ export interface GameTableProps {
   zoomOnMiddle?: boolean;
   zoomFactor?: number;
   inspecting?: IPublicPlayer | null;
+  middlePointerEventsDisabled?: boolean;
 }
 
 const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) => {
@@ -55,6 +56,7 @@ export const GameTable = ({
   zoomOnIndex = -1,
   zoomOnMiddle = false,
   zoomFactor = 1.15,
+  middlePointerEventsDisabled = false,
 }: GameTableProps) => {
   const { players } = match;
 
@@ -83,6 +85,7 @@ export const GameTable = ({
             MiddleSlot={MiddleSlot}
             inspecting={inspecting}
             zoomOnIndex={zoomOnIndex}
+            middlePointerEventsDisabled={middlePointerEventsDisabled}
           />
         ))}
       </Container>

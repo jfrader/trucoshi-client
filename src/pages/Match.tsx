@@ -162,6 +162,7 @@ const Match = () => {
             Slot={Slot}
             InnerSlot={InnerSlot}
             MiddleSlot={MiddleSlot}
+            middlePointerEventsDisabled
           />
           <Box position="fixed" right={0} top="52px">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
