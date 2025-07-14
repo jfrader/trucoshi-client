@@ -5,12 +5,13 @@ import { TeamTag } from "./TeamTag";
 import { PropsWithPlayer } from "../../trucoshi/types";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { getTeamColor } from "../../utils/team";
-import { BackHand } from "@mui/icons-material";
+import { BackHand, Star } from "@mui/icons-material";
 
-type IPublicTeamTagProps = PropsWithPlayer<{
+type ITeamTagProps = PropsWithPlayer<{
   isTurn?: boolean;
   isDisabled?: boolean;
   isForehand?: boolean;
+  isLobby?: boolean;
 }>;
 
 export const PlayerTag = ({
@@ -18,8 +19,9 @@ export const PlayerTag = ({
   isTurn,
   isForehand,
   isDisabled,
+  isLobby,
   ...props
-}: IPublicTeamTagProps & TypographyProps) => {
+}: ITeamTagProps & TypographyProps) => {
   const theme = useTheme();
   return (
     <AnimatedBox isturn={Number(!isDisabled && isTurn && player.isMe)}>
@@ -37,6 +39,15 @@ export const PlayerTag = ({
             >
               <Tooltip placement="left" title="Mano">
                 <BackHand sx={{ fontSize: "13px" }} />
+              </Tooltip>
+            </Box>
+          )}
+          {isLobby && player.isOwner && (
+            <Box
+              sx={{ position: "absolute", zIndex: theme.zIndex.snackbar - 1, left: -8, bottom: -6 }}
+            >
+              <Tooltip placement="left" title="Host">
+                <Star sx={{ fontSize: "13px" }} />
               </Tooltip>
             </Box>
           )}

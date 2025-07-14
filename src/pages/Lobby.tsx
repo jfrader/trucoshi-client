@@ -159,11 +159,7 @@ export const Lobby = () => {
           FillSlot={({ i }) => {
             const getJoinTeamIdx = (j: number) => (j % 2 === 0 ? 0 : 1);
 
-            const firstPlayerTeamIsZero =
-              me?.teamIdx === 0 || (!me && match.players[0]?.teamIdx === 0);
-
-            const joinTeamIdx = getJoinTeamIdx(i);
-            const newTeamIdx = firstPlayerTeamIsZero ? joinTeamIdx : getJoinTeamIdx(i + 1);
+            const newTeamIdx = getJoinTeamIdx(i);
             const team0Count = match.players.filter((p) => p.teamIdx === 0).length;
             const team1Count = match.players.filter((p) => p.teamIdx === 1).length;
             const canJoin =
@@ -173,7 +169,7 @@ export const Lobby = () => {
                 : team1Count < match.options.maxPlayers / 2);
 
             // Only show the button for non-joined users and ensure it reflects the slot's intended team
-            return !me && canJoin ? (
+            return canJoin ? (
               <Stack pt={3} alignItems="end">
                 <Button
                   variant="text"
@@ -191,7 +187,7 @@ export const Lobby = () => {
             return (
               <Box pt={4}>
                 <Box>
-                  <PlayerTag isTurn={player.isMe} player={player} />
+                  <PlayerTag isLobby isTurn={player.isMe} player={player} />
                   <Stack px={2} pt={2}>
                     {player.isMe ? null : (
                       <Button
