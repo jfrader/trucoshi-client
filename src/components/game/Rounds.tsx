@@ -113,18 +113,13 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
           </Button>
         </AnimatedBox>
       ) : null}
-      <HandContainer
-        margin="1px auto"
-        px={4}
-        position="relative"
-        // left={autoOpenHand ? "-60%" : undefined}
-        onHandOpen={setOpenHand}
-      >
+      <HandContainer margin="1px auto" px={4} position="relative" onHandOpen={setOpenHand}>
         {overridePlayerCards.map((pc, i) => {
           return (
             <HandCardContainer
               key={pc.key}
               i={i}
+              openMargin={6}
               cards={overridePlayerCards.length}
               open={Boolean(openHand || autoOpenHand)}
             >
@@ -135,7 +130,7 @@ export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: P
                   e.stopPropagation();
                 }}
                 zoom={Boolean(openHand)}
-                width={match.players.length > 4 ? undefined : "5.2em"}
+                width={match.players.length > 4 ? "4.4em" : "5.2em"}
                 {...pc}
               />
             </HandCardContainer>

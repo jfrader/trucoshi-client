@@ -40,6 +40,7 @@ export const GameTableSlot = ({
         "--i": `${-1}`,
         "--z": zoomOnIndex === 0 || zoomOnMiddle ? zoomFactor : 1,
         zIndex: theme.zIndex.drawer - i,
+        pointerEvents: "none",
       },
       itemStyle: {
         "--mr": zoomOnIndex === i ? "0.8em" : "0px",
@@ -107,7 +108,7 @@ const InnerItem = styled(Box)`
   top: 50%;
   left: 50%;
   margin-left: calc(-0.42 * var(--d));
-  margin-top: calc(-0.16 * var(--d));
+  margin-top: calc(-0.17 * var(--d));
   width: calc(var(--d) / 2);
   height: calc(var(--d) / 2);
   --az: calc(var(--i) * 1turn / var(--m));

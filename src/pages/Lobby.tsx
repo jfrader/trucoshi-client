@@ -168,7 +168,9 @@ export const Lobby = () => {
             const team1Count = match.players.filter((p) => p.teamIdx === 1).length;
             const canJoin =
               match.players.length < match.options.maxPlayers &&
-              (newTeamIdx === 0 ? team0Count < 2 : team1Count < 2);
+              (newTeamIdx === 0
+                ? team0Count < match.options.maxPlayers / 2
+                : team1Count < match.options.maxPlayers / 2);
 
             // Only show the button for non-joined users and ensure it reflects the slot's intended team
             return !me && canJoin ? (
