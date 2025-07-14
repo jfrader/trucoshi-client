@@ -26,6 +26,7 @@ import { getIdentityCookie } from "../utils/cookie";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
+export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "development";
 
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
