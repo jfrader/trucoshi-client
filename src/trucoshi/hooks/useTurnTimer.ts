@@ -32,6 +32,7 @@ export const useTurnTimer = (
         });
         newTimer.alert = false;
         if (isExtension && progress > 50 && newTimer.progress < 50) {
+          queue("deal");
           queue("mate");
           newTimer.alert = true;
         }

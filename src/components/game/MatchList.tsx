@@ -79,6 +79,8 @@ export const MatchList = ({
             </ListItem>
             {matches.map((info) => {
               const [state, color] = MATCH_STATE_MAP[info.state];
+              const isStarted =
+                info.state === EMatchState.STARTED || info.state === EMatchState.FINISHED;
               return (
                 <Tooltip
                   key={info.matchSessionId}
@@ -88,7 +90,7 @@ export const MatchList = ({
                   <ListItemButton
                     onClick={() =>
                       navigate(
-                        info.state === EMatchState.STARTED || info.state === EMatchState.FINISHED
+                        isStarted
                           ? `/match/${info.matchSessionId}`
                           : `/lobby/${info.matchSessionId}`
                       )
@@ -99,7 +101,7 @@ export const MatchList = ({
                     </ListItemText>
                     <ListItemAvatar>
                       <Typography variant="subtitle1">
-                        {info.players} / {info.options.maxPlayers}
+                        {info.players} / {isStarted ? info.players : info.options.maxPlayers}
                       </Typography>
                     </ListItemAvatar>
                     <Badge variant="dot" color={color} />
