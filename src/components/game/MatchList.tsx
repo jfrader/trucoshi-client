@@ -85,7 +85,15 @@ export const MatchList = ({
                   placement="right"
                   title={<Typography color={color}>{state}</Typography>}
                 >
-                  <ListItemButton onClick={() => navigate(`/lobby/${info.matchSessionId}`)}>
+                  <ListItemButton
+                    onClick={() =>
+                      navigate(
+                        info.state === EMatchState.STARTED || info.state === EMatchState.FINISHED
+                          ? `/match/${info.matchSessionId}`
+                          : `/lobby/${info.matchSessionId}`
+                      )
+                    }
+                  >
                     <ListItemText>
                       <p>{info.ownerId}</p>
                     </ListItemText>

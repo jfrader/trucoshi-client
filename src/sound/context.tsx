@@ -39,11 +39,12 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
           const howl = new Howl({
             ...sound,
             volume: isMuted ? 0 : mainVolume,
+            autoplay: false,
           });
-          howl.on("load", () => {
+          howl.once("load", () => {
             resolve([key, howl] as [string, Howl]);
           });
-          howl.on("loaderror", (_id, error) => {
+          howl.once("loaderror", (_id, error) => {
             reject(error);
           });
         } catch (e) {
@@ -81,16 +82,15 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const [next] = soundQueueRef.current;
     if (next && !isPlayingQueueSoundRef.current) {
+      const promise = next.promise();
+      soundQueueRef.current = soundQueueRef.current.slice(1);
       isPlayingQueueSoundRef.current = true;
-      next
-        .promise()
+      promise
         .then(() => {
-          soundQueueRef.current = soundQueueRef.current.slice(1);
           isPlayingQueueSoundRef.current = false;
           setQueueTrigger((prev) => prev + 1);
         })
         .catch(() => {
-          soundQueueRef.current = soundQueueRef.current.slice(1);
           isPlayingQueueSoundRef.current = false;
           setQueueTrigger((prev) => prev + 1);
         });
@@ -129,29 +129,36 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     [_setVolume]
   );
 
-  const queue = useCallback((key: string) => {
-    readyToLoadRef.current = true;
+  const queue = useCallback(
+    (key: string, callback?: (e: Error | null, status?: "playing" | "finished") => void) => {
+      readyToLoadRef.current = true;
 
-    const sound = soundsRef.current[key];
-    if (!sound) {
-      return;
-    }
+      const sound = soundsRef.current[key];
+      if (!sound) {
+        callback?.(new Error("Sound not found"));
+        return;
+      }
 
-    const promise = () =>
-      new Promise((resolve, reject) => {
-        isPlayingQueueSoundRef.current = true;
-        sound.on("end", () => {
-          resolve(undefined);
+      const promise = () =>
+        new Promise((resolve, reject) => {
+          isPlayingQueueSoundRef.current = true;
+          sound.once("end", () => {
+            callback?.(null, "finished");
+            resolve(undefined);
+          });
+          sound.once("playerror", (_id, error) => {
+            callback?.(new Error("Play error"));
+            reject(error);
+          });
+          callback?.(null, "playing");
+          sound.play();
         });
-        sound.on("playerror", (_id, error) => {
-          reject(error);
-        });
-        sound.play();
-      });
 
-    soundQueueRef.current = [...soundQueueRef.current, { key, promise }];
-    setQueueTrigger((prev) => prev + 1);
-  }, []);
+      soundQueueRef.current = [...soundQueueRef.current, { key, promise }];
+      setQueueTrigger((prev) => prev + 1);
+    },
+    []
+  );
 
   const contextValue = useMemo(
     () => ({ queue, mute, setVolume, volume: mainVolume, isMuted } satisfies ISoundContext),

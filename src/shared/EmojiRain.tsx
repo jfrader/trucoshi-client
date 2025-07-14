@@ -48,15 +48,16 @@ const emojis = [
   "🍷",
 ];
 
-export const Emoji = styled("div")(() => {
+export const RainDrop = styled("div")(() => {
   return {
     position: "fixed",
-    top: "-10%",
+    top: "-10vh",
     zIndex: 99999,
     WebkitUserSelect: "none",
     MozUserSelect: "none",
     msUserSelect: "none",
     userSelect: "none",
+    pointerEvents: "none",
     cursor: "default",
     animation: `${fall} 4.2s linear infinite, ${shake} 3s ease-in-out infinite`,
     animationPlayState: "running, running",
@@ -71,9 +72,9 @@ const C = () => {
       {emojis
         .sort(() => Math.random() - Math.random())
         .map((e, i) => (
-          <Emoji key={i} style={{ "--i": i } as CSSProperties}>
+          <RainDrop key={i} style={{ "--i": i } as CSSProperties}>
             {e}
-          </Emoji>
+          </RainDrop>
         ))}
     </Box>
   );

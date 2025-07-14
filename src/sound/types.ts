@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 
 export interface ISoundContext {
   setVolume: Dispatch<SetStateAction<number>>;
-  queue(key: string): void;
+  queue(key: string, callback?: (e: Error | null, status?: "playing" | "finished") => void): void;
   mute(): void;
   volume: number;
   isMuted: boolean;

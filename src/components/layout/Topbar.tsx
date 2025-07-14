@@ -17,6 +17,7 @@ import { Close, Login, Menu } from "@mui/icons-material";
 import { Sidebar } from "./Sidebar";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { VolumeControl } from "./VolumeControl";
+import { TomaMate } from "./TomaMate";
 
 export const Topbar = () => {
   const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
@@ -48,6 +49,7 @@ export const Topbar = () => {
           })}
 
           <VolumeControl />
+          <TomaMate />
           <CardThemeToggle />
         </Stack>
         <Box flexGrow={1} />

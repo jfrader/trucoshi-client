@@ -287,7 +287,7 @@ export const Lobby = () => {
         <ChatRoom {...useChatRoom(match)} />
       </FixedChatContainer>
       <Box display={{ xs: "none", md: "block" }}>
-        <CardsDeck shuffle={shuffle} />
+        <CardsDeck shuffle={shuffle} flip={shuffle > 0} />
       </Box>
     </Box>
   );

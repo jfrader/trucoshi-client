@@ -1,20 +1,12 @@
 import { Box, Button, FormGroup, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { useMatch } from "../../trucoshi/hooks/useMatch";
+import { CreateMatchButton } from "./CreateMatchButton";
 
 export const PlayMenu = () => {
   const navigate = useNavigate();
   const [{ account }] = useTrucoshi();
 
-  const [, { createMatch }] = useMatch();
-  const onCreateMatch = () =>
-    createMatch((e, match) => {
-      if (e || !match) {
-        return navigate("/");
-      }
-      navigate(`/lobby/${match.matchSessionId}`);
-    });
   return (
     <Box display="flex" flexDirection="column" justifyContent="center">
       <Typography
@@ -27,9 +19,7 @@ export const PlayMenu = () => {
         Jugar
       </Typography>
       <FormGroup>
-        <Button size="large" onClick={onCreateMatch}>
-          Crear Partida
-        </Button>
+        <CreateMatchButton />
         <Button color="secondary" size="large" onClick={() => navigate("/matches")}>
           Buscar Partida
         </Button>
