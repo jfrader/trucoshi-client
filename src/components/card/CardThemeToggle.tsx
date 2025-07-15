@@ -61,12 +61,32 @@ export const CardThemeToggle = () => {
           "aria-labelledby": "card-theme-button",
         }}
       >
-        <MenuItem title="Medieval" onClick={() => setCardTheme("medieval")}>
+        <MenuItem title="Default" onClick={() => setCardTheme("default")}>
           <GameCard
             request
             as={Box}
             sx={{ margin: "0 auto" }}
-            theme="medieval"
+            theme="default"
+            width="1.1em"
+            card={BURNT_CARD}
+          />
+        </MenuItem>
+        {/* <MenuItem title="Argento" onClick={() => setCardTheme("argento")}>
+          <GameCard
+            request
+            as={Box}
+            sx={{ margin: "0 auto" }}
+            theme="argento"
+            width="1.1em"
+            card={BURNT_CARD}
+          />
+        </MenuItem> */}
+        <MenuItem title="GNU" onClick={() => setCardTheme("gnu")}>
+          <GameCard
+            request
+            as={Box}
+            sx={{ margin: "0 auto" }}
+            theme="gnu"
             width="1.1em"
             card={BURNT_CARD}
           />
@@ -81,37 +101,7 @@ export const CardThemeToggle = () => {
             card={BURNT_CARD}
           />
         </MenuItem>
-        <MenuItem title="GNU" onClick={() => setCardTheme("gnu")}>
-          <GameCard
-            request
-            as={Box}
-            sx={{ margin: "0 auto" }}
-            theme="gnu"
-            width="1.1em"
-            card={BURNT_CARD}
-          />
-        </MenuItem>
-        <MenuItem title="Modernas" onClick={() => setCardTheme("modern")}>
-          <GameCard
-            request
-            as={Box}
-            sx={{ margin: "0 auto" }}
-            theme="modern"
-            width="1.1em"
-            card={BURNT_CARD}
-          />
-        </MenuItem>
-        <MenuItem title="Clasicas" onClick={() => setCardTheme("classic")}>
-          <GameCard
-            request
-            as={Box}
-            sx={{ margin: "0 auto" }}
-            theme="classic"
-            width="1.1em"
-            card={BURNT_CARD}
-          />
-        </MenuItem>
-        {/* <MenuItem title="Trucoshi (BETA)" onClick={() => setCardTheme("default")}>
+        {/* <MenuItem title="Trucoshi (BETA)" onClick={() => setCardTheme("trucoshi")}>
           <GameCard
             request
             as={Box}

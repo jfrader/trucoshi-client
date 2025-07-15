@@ -13,7 +13,7 @@ export type GameCardProps = {
   zoom?: boolean;
   scale?: number;
   width?: string;
-  theme?: ICardTheme | null;
+  theme?: ICardTheme;
   request?: boolean;
   shadow?: boolean;
   as?: ElementType;
@@ -29,12 +29,12 @@ export const GameCard = ({
   scale,
   shadow,
   width = "4.4em",
-  theme = null,
+  theme = "",
   ...buttonProps
 }: GameCardProps) => {
   const [{ cardTheme, cards, cardsReady }, { inspectCard }] = useTrucoshi();
 
-  const usedTheme = theme !== null ? theme : cardTheme;
+  const usedTheme = theme !== "" ? theme : cardTheme;
 
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
 

@@ -5,23 +5,26 @@ import { shakeSmall } from "../../assets/animations/rain";
 import { useState } from "react";
 import { RainDrop } from "../../shared/EmojiRain";
 import bigMate from "../../assets/other/big_mate.png";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
-const bellySize = 22;
+const bellySize = 21;
 
 export const TomaMate = () => {
   const { queue } = useSound();
+  const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
   const [shake, setShake] = useState(false);
   const [belly, setBelly] = useState(0);
+  const isArgento = cardTheme === "argento";
 
   return (
     <>
       <AnimatedButton
         shake={shake}
         size="small"
-        color={shake ? "success" : "default"}
-        title="Toma mate"
+        color={isArgento ? "primary" : shake ? "success" : "default"}
+        title={isArgento ? "Cartas argentas activadas" : "Toma mate"}
         onClick={() => {
-          if (shake) {
+          if (isArgento || shake) {
             return;
           }
           queue(Math.random() > 0.5 ? "ceba_toma_mate" : "mate", (_e, status) => {
@@ -31,8 +34,8 @@ export const TomaMate = () => {
             if (status === "finished") {
               setShake(false);
               setBelly((c) => {
-                if (c > bellySize + 1) {
-                  return 0;
+                if (c >= bellySize - 1) {
+                  setCardTheme("argento");
                 }
                 return c + 1;
               });
@@ -57,7 +60,12 @@ export const TomaMate = () => {
             },
           }}
         >
-          <img onClick={() => setBelly(0)} src={bigMate} />
+          <img
+            onClick={() => {
+              setBelly((c) => c + 1);
+            }}
+            src={bigMate}
+          />
         </RainDrop>
       </Slide>
     </>

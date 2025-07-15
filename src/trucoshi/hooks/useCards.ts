@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ICardTheme } from "../types";
+import { CardThemes, ICardTheme } from "../types";
 import { BURNT_CARD, CARDS, ICard } from "trucoshi";
 
 type Options = {
   disabled?: boolean;
-  theme: ICardTheme | null;
+  theme: ICardTheme;
   cards?: ICard[];
 };
 
@@ -29,9 +29,12 @@ export const getRandomCards = (len: number = 3) => {
   return cards;
 };
 
-export const useCards = ({ disabled, theme, cards }: Options) => {
+export const useCards = ({ disabled, theme: themeProp = "default", cards }: Options) => {
   const [ready, setReady] = useState(false);
   const [sources, setSources] = useState<CardSources>({} as CardSources);
+
+  const theme = CardThemes.includes(themeProp) ? themeProp : "default";
+
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
 
   useEffect(() => {
