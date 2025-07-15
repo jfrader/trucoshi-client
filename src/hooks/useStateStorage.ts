@@ -2,12 +2,16 @@ import { useCallback, useState } from "react";
 
 export default function useStateStorage<T extends string = string>(
   key: string,
-  value?: T
+  value?: T | (() => T)
 ): [T, (value: T | ((current: T) => T)) => void] {
   const [state, setState] = useState<T>(() => {
     const stored = localStorage.getItem(`trucoshi:${key}`);
     if (stored !== null) {
       return stored as T;
+    }
+
+    if (typeof value === "function") {
+      return value();
     }
 
     return value || ("" as T);

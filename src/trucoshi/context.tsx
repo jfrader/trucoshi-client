@@ -62,6 +62,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [cards, cardsReady] = useCards({ theme: cardTheme });
   const [inspectedCard, inspectCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [identity, setIdentity] = useStateStorage<string>("identity", () => getIdentityCookie());
 
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens, refreshTokens } = useRefreshTokens();
@@ -84,6 +85,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           setLogged(false);
           setAccount(null);
           removeCookie("jwt:identity");
+          setIdentity("");
           refetchMe().then(() => {
             socket.emit(EClientEvent.LOGOUT, ({ error: e }) => {
               if (e) {
@@ -97,7 +99,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         },
       }
     );
-  }, [apiLogout, refetchMe, removeCookie, toast]);
+  }, [apiLogout, refetchMe, removeCookie, setIdentity, toast]);
 
   useEffect(() => {
     if (is401(error)) {
@@ -106,37 +108,39 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [error, logout]);
 
   useEffect(() => {
-    const identity = getIdentityCookie();
-    if (!identity && !isPendingMe) {
-      return setLoadingAccount(false);
+    const hadIdentityCookie = getIdentityCookie();
+    const checkIdentity = identity || hadIdentityCookie;
+
+    if (!checkIdentity && !isPendingMe) {
+      setLoadingAccount(false);
+      return;
     }
-    if (me && identity) {
-      if (isLogged) {
-        setAccount(me);
-        setLoadingAccount(false);
-      } else {
-        setLoadingAccount(true);
-        socket.emit(EClientEvent.LOGIN, me, identity, ({ success, activeMatches, error }) => {
-          if (error) {
-            console.error(error.message);
-          }
-          if (activeMatches) {
-            setActiveMatches(activeMatches);
-          }
-          if (success) {
-            setLogged(true);
-            setAccount(me);
-            setLoadingAccount(false);
-            return;
-          }
+
+    if (me && checkIdentity && !isLogged) {
+      setLoadingAccount(true);
+      socket.emit(EClientEvent.LOGIN, me, checkIdentity, ({ success, activeMatches, error }) => {
+        if (error) {
+          console.error(error.message);
+          toast.error(error.message);
+        }
+        if (activeMatches) {
+          setActiveMatches(activeMatches);
+        }
+        if (success) {
+          setLogged(true);
+          setAccount(me);
+          setLoadingAccount(false);
+        } else {
           setAccount(null);
           setLogged(false);
           setLoadingAccount(false);
-          refetchMe();
-        });
-      }
+        }
+      });
+    } else if (me && isLogged) {
+      setAccount(me);
+      setLoadingAccount(false);
     }
-  }, [isLogged, isPendingMe, me, refetchMe]);
+  }, [identity, isLogged, isPendingMe, me, setIdentity, toast, setActiveMatches]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -157,6 +161,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on("disconnect", () => {
       removeCookie("jwt:identity");
+      setIdentity("");
       setConnected(false);
       setAccount(null);
       setLogged(false);
@@ -170,11 +175,16 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
       if (!account || userId !== account.id) {
         removeCookie("jwt:identity");
+        setIdentity("");
         return cb(null);
       }
 
       refetchMe().then(() => {
-        cb(getIdentityCookie() || null);
+        const token = getIdentityCookie();
+        if (token !== identity) {
+          setIdentity(token || "");
+        }
+        cb(token || null);
       });
     });
 
@@ -215,12 +225,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     };
   }, [
     account,
-    account?.name,
+    identity,
     name,
     refetchMe,
     refreshTokens,
     removeCookie,
     session,
+    setIdentity,
     setName,
     setSession,
   ]);
