@@ -8,13 +8,9 @@ export const useTwitterPopup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onPopupClosed = (data?: any) => {
+  const onPopupClosed = () => {
     setIsLoading(false);
-    if (data?.error) {
-      setError(data.error);
-      return;
-    }
-    queryClient.invalidateQueries({ queryKey: ["me"] });
+    queryClient.resetQueries({ queryKey: ["me"] });
   };
 
   const { open, error: popupError } = useExternalPopup(onPopupClosed);
@@ -23,7 +19,7 @@ export const useTwitterPopup = () => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data.type === "TWITTER_AUTH_ERROR") {
-        setError(event.data.error || "Twitter authentication failed");
+        setError(event.data.error || "X authentication failed");
         setIsLoading(false);
       }
     };
