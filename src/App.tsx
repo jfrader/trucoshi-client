@@ -17,6 +17,8 @@ import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
+import { TwitterCallback } from "./pages/TwitterCallback";
+import TwitterFailure from "./pages/TwitterFailure";
 
 const AppRouter = createBrowserRouter([
   {
@@ -80,6 +82,14 @@ const AppRouter = createBrowserRouter([
         element: <Match />,
       },
     ],
+  },
+  {
+    path: "/auth/twitter/success",
+    element: <TwitterCallback />,
+  },
+  {
+    path: "/auth/twitter/failure",
+    element: <TwitterFailure />,
   },
 ]);
 
