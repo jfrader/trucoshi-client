@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-export const useExternalPopup = (onPopupClosed?: (data?: any) => void) => {
+export const useExternalPopup = (onPopupClosed?: () => void) => {
   const [externalPopup, setExternalPopup] = useState<Window | null>(null);
   const [hasClosed, setClosed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const open = ({
     url,
@@ -21,18 +20,13 @@ export const useExternalPopup = (onPopupClosed?: (data?: any) => void) => {
     const popup = window.open(
       url,
       title,
-      `width=${width},height=${height},left=${left},top=${top}`
+      `width=${width},height=${height},left=${left},top=${top}`,
     );
 
-    if (!popup) {
-      setError("Popup blocked by browser");
-      onPopupClosed?.({ error: "Popup blocked by browser" });
-      return;
+    if (popup) {
+      setClosed(false);
+      setExternalPopup(popup);
     }
-
-    setClosed(false);
-    setError(null);
-    setExternalPopup(popup);
   };
 
   useEffect(() => {
@@ -40,20 +34,17 @@ export const useExternalPopup = (onPopupClosed?: (data?: any) => void) => {
       return;
     }
 
-    const checkPopupClosed = () => {
-      if (externalPopup.closed) {
-        setClosed(true);
-        setExternalPopup(null);
+    if (externalPopup.closed) {
+      setClosed((current) => {
+        if (current) {
+          return current;
+        }
+
         onPopupClosed?.();
-      }
-    };
-
-    const interval = setInterval(checkPopupClosed, 500);
-
-    return () => {
-      clearInterval(interval);
-    };
+        return true;
+      });
+    }
   }, [externalPopup, onPopupClosed]);
 
-  return { externalPopup, hasClosed, open, error };
+  return { externalPopup, hasClosed, open };
 };
