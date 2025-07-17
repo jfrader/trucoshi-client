@@ -1,13 +1,14 @@
 import { X } from "@mui/icons-material";
 import { LoadingButton, LoadingButtonProps } from "./LoadingButton";
-import { useTwitterPopup } from "../hooks/useTwitterPopup";
+import { apiClient } from "../api/apiClient";
+import { Link } from "react-router-dom";
 
 export const TwitterButton = ({ children, ...props }: LoadingButtonProps) => {
-  const { open } = useTwitterPopup();
   return (
     <LoadingButton
       startIcon={<X />}
-      onClick={open}
+      component={Link}
+      to={apiClient.instance.defaults.baseURL + "/auth/twitter"}
       color="twitter"
       variant="outlined"
       {...props}
