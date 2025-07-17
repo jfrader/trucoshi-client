@@ -4,11 +4,7 @@ import { useExternalPopup } from "./useExternalPopup";
 
 export const useTwitterPopup = () => {
   const queryClient = useQueryClient();
-
-  const { open } = useExternalPopup(
-    () => queryClient.resetQueries({ queryKey: ["me"] }), // when closed
-    () => queryClient.resetQueries({ queryKey: ["me"] }) // when message received
-  );
+  const { open } = useExternalPopup(() => queryClient.resetQueries({ queryKey: ["me"] }));
 
   return {
     open: () =>
