@@ -34,7 +34,7 @@ export const useRounds = (
           setRounds(match.rounds);
           callback?.();
         }
-      }, match.options.handAckTime);
+      }, match.options.handAckTime * match.players.length);
 
       return () => clearTimeout(timerRef.current);
     }
