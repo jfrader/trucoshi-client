@@ -21,12 +21,12 @@ import { TrucoshiContext } from "../trucoshi/context";
 import { useToast } from "../hooks/useToast";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import dayjs from "dayjs";
-import numeral from "numeral";
 import { useTwitterPopup } from "../hooks/useTwitterPopup";
 import { UserAvatar } from "../shared/UserAvatar";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { IconButton } from "@mui/material";
 import { NotFound } from "./NotFound";
+import { PlayerRatioListItemText } from "../components/other/PlayerRatioListItemText";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ export const Profile = () => {
 
   const isMyProfile = Number(accountId) === me?.id;
 
-  const wins = profile.stats?.win || 0;
+  const win = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
 
   const openEditEmail = () => setEmail("");
@@ -302,10 +302,7 @@ export const Profile = () => {
                     </>
                   ) : null}
                   <ListItem divider>
-                    <ListItemText
-                      primary="Ratio de Victoria"
-                      secondary={numeral(wins / (wins + loss)).format("0.0")}
-                    />
+                    <PlayerRatioListItemText win={win} loss={loss} />
                   </ListItem>
                   {isMyProfile ? (
                     <>

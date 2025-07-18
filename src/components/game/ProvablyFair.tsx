@@ -1,4 +1,4 @@
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { Alert, AlertTitle, Button, Divider, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Deck, Table } from "trucoshi/dist/lib";
 import { GameCard } from "../card/GameCard";
@@ -39,6 +39,8 @@ export const ProvablyFair = ({ players, hands }: Props) => {
 
     d.random.secret = hand.secret;
     d.random.clients = hand.clientSecrets;
+    d.random.bitcoinHash = hand.bitcoinHash;
+    d.random.bitcoinHeight = hand.bitcoinHeight;
 
     const table = generateTable({ players });
 
@@ -96,6 +98,55 @@ export const ProvablyFair = ({ players, hands }: Props) => {
           focused
           size="small"
         />
+        {deck.random.bitcoinHeight ? <Stack direction="row">
+          <TextField
+            name={`bitcoin-height`}
+            color="info"
+            label="Ultimo bloque de Bitcoin"
+            InputProps={{ readOnly: true }}
+            value={deck.random.bitcoinHeight}
+            focused
+            size="small"
+          />
+          <TextField
+            fullWidth
+            name={`bitcoin-hash`}
+            color="info"
+            label="Hash"
+            InputProps={{ readOnly: true }}
+            value={deck.random.bitcoinHash}
+            focused
+            size="small"
+          />
+        </Stack> : null}
+        <Divider />
+        <Alert sx={{ textAlign: "left" }} severity="info">
+          <AlertTitle>Como funciona?</AlertTitle>
+          <Typography variant="inherit" sx={{ pt: 1 }}>
+            Cada partida el server genera:
+            <ul>
+              <li>Un secreto del server</li>
+              <li>Un secreto para cada jugador</li>
+            </ul>
+            Cada mano el server usa:
+            <ul>
+              <li>El secreto del server</li>
+              <li>El secreto del jugador mano</li>
+              {deck.random.bitcoinHeight ? <li>El hash del ultimo bloque de Bitcoin</li> : null}
+              <li>El numero de mano (1, 2, 3)</li>
+            </ul>
+            Como semilla y genera deterministicamente el reparto de cartas, que se hace como en la vida real:
+            <ul>
+              <li>Una carta para el primer jugador</li>
+              <li>Una carta para el segundo jugador</li>
+              <li>
+                Y asi hasta repartir todas, de izquierda a derecha y de arriba hacia abajo en la
+                grilla
+              </li>
+            </ul>
+            <div>Al finalizar la partida, los secretos son revelados.</div>
+          </Typography>
+        </Alert>
       </Stack>
     </Stack>
   );
