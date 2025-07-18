@@ -18,6 +18,7 @@ import { Sidebar } from "./Sidebar";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { VolumeControl } from "./VolumeControl";
 import { TomaMate } from "./TomaMate";
+import { TrucoshiLogo } from "../../shared/TrucoshiLogo";
 
 export const Topbar = () => {
   const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
@@ -27,7 +28,12 @@ export const Topbar = () => {
         <Stack direction="row" spacing={2} alignItems="center">
           <Link to="/" lineHeight={4}>
             <Typography height="26px" variant="h6">
-              <TrucoshiText height="26px" />
+              <Box display={{ xs: "none", md: "inline-block" }}>
+                <TrucoshiText height="26px" />
+              </Box>
+              <Box display={{ xs: "inline-block", md: "none" }}>
+                <TrucoshiLogo height="26px" />
+              </Box>
             </Typography>
           </Link>
           <Switch

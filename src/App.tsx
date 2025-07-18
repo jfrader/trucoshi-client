@@ -17,6 +17,7 @@ import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
+import { PlayerRanking } from "./pages/PlayerRanking";
 
 const AppRouter = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const AppRouter = createBrowserRouter([
           {
             path: "help",
             element: <Help />,
+          },
+          {
+            path: "ranking",
+            element: <PlayerRanking />,
           },
           {
             path: "profile",

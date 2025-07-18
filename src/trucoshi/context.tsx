@@ -122,6 +122,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         if (error) {
           console.error(error.message);
           toast.error(error.message);
+          setIdentity("");
         }
         if (activeMatches) {
           setActiveMatches(activeMatches);

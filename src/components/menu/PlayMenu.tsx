@@ -23,6 +23,9 @@ export const PlayMenu = () => {
         <Button color="secondary" size="large" onClick={() => navigate("/matches")}>
           Buscar Partida
         </Button>
+        <Button color="warning" size="large" onClick={() => navigate("/ranking")}>
+          Ranking
+        </Button>
         {account ? null : (
           <Button size="large" color="info" onClick={() => navigate("/login")}>
             Iniciar Sesion
