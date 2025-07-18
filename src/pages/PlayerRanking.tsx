@@ -68,7 +68,12 @@ export const PlayerRanking = () => {
                 <ListItem>
                   <ListItemIcon>Pos.</ListItemIcon>
                   <ListItemAvatar>Jugador</ListItemAvatar>
-                  <ListItemSecondaryAction>Tasa de Victoria</ListItemSecondaryAction>
+                  <ListItemSecondaryAction>
+                    Partidas /{" "}
+                    <Typography variant="caption" fontWeight="bold">
+                      Tasa de Victoria
+                    </Typography>
+                  </ListItemSecondaryAction>
                 </ListItem>
                 {ranking.map((player, i) => {
                   const linkProps = {
@@ -89,7 +94,12 @@ export const PlayerRanking = () => {
                         />
                       </ListItemAvatar>
                       <ListItemButton {...linkProps}>{player.name}</ListItemButton>
-                      <ListItemSecondaryAction>{getPlayerWinRatio(player)}</ListItemSecondaryAction>
+                      <ListItemSecondaryAction>
+                        {player.win + player.loss} /{" "}
+                        <Typography variant="caption" fontWeight="bold" color="primary">
+                          {getPlayerWinRatio(player)}
+                        </Typography>
+                      </ListItemSecondaryAction>
                     </ListItem>
                   );
                 })}
