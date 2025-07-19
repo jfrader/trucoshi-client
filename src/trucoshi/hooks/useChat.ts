@@ -39,7 +39,12 @@ export const useChat = (
           if (!current) return current;
 
           if (message.sound) {
-            queue(typeof message.sound === "string" ? message.sound : "chat");
+            if (message.sound === "play") {
+              const rndSound = Math.round(Math.random() * 2);
+              queue("play" + rndSound);
+            } else {
+              queue(typeof message.sound === "string" ? message.sound : "chat");
+            }
           }
 
           const newMessages = current ? [...current.messages] : [message];

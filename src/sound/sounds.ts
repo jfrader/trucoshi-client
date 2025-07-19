@@ -3,7 +3,7 @@ import { IGameSounds } from "./types";
 const DEFAULT_VOLUME = 0.5;
 const DEFAULT_PRELOAD = true;
 
-export const gameSounds: IGameSounds = {
+export const gameSounds = {
   shuffle: {
     src: "/sounds/shuffle.wav",
     volume: DEFAULT_VOLUME,
@@ -74,4 +74,29 @@ export const gameSounds: IGameSounds = {
     volume: DEFAULT_VOLUME,
     preload: DEFAULT_PRELOAD,
   },
-};
+  toasty: {
+    src: "/sounds/toasty.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  espada: {
+    src: "/sounds/espada.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  kiss: {
+    src: "/sounds/kiss.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  fatality: {
+    src: "/sounds/fatality.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: false,
+  },
+  flawless: {
+    src: "/sounds/flawless.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: false,
+  },
+} as const satisfies IGameSounds;

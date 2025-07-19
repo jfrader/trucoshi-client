@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import { PropsWithChildren } from "react";
+import { TrucoshiText } from "./TrucoshiText";
 
 export const Backdrop = ({
   message,
@@ -21,19 +22,21 @@ export const Backdrop = ({
         color: "text.primary",
         maxHeight: "100vh",
         backgroundColor: "rgb(0, 0, 0, 0.9)",
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       <Box
+        gap={4}
         display="flex"
         flexDirection="column"
         justifyContent="space-between"
         alignItems="center"
       >
+        <TrucoshiText height="26px" />
         {message ? <Typography variant="h4">{message}</Typography> : null}
         {loading ? (
-          <Box mt={4}>
-            <CircularProgress color="inherit" />
+          <Box mt={1}>
+            <CircularProgress color="primary" />
           </Box>
         ) : null}
         <Box>{children}</Box>

@@ -27,7 +27,6 @@ import {
 } from "trucoshi";
 import { getTeamColor, getTeamName } from "../../utils/team";
 import { bounce } from "../../assets/animations/bounce";
-import { useSound } from "../../sound/hooks/useSound";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -49,17 +48,10 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
   const [active, setActive] = useState<boolean>(false);
   const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
 
-  const { queue } = useSound();
-
   return {
     useChatState: useChat(match?.matchSessionId, (incomingMessage) => {
       if (!incomingMessage) {
         return;
-      }
-
-      if (incomingMessage.card) {
-        const rndSound = Math.round(Math.random() * 2);
-        queue("play" + rndSound);
       }
 
       if (incomingMessage.command) {

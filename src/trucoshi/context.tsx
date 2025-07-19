@@ -82,11 +82,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           toast.error(e.message);
         },
         onSettled() {
-          setLogged(false);
-          setAccount(null);
-          removeCookie("jwt:identity");
-          setIdentity("");
           refetchMe().then(() => {
+            setLogged(false);
+            setAccount(null);
+            removeCookie("jwt:identity");
+            setIdentity("");
             socket.emit(EClientEvent.LOGOUT, ({ error: e }) => {
               if (e) {
                 toast.error(e.message);
@@ -122,7 +122,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         if (error) {
           console.error(error.message);
           toast.error(error.message);
-          setIdentity("");
         }
         if (activeMatches) {
           setActiveMatches(activeMatches);

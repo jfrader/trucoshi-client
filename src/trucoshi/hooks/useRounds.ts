@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { IHandPoints, IMatchPreviousHand, IPlayedCard, IPublicMatch } from "trucoshi";
 
 export const useRounds = (
@@ -29,12 +29,14 @@ export const useRounds = (
 
       timerRef.current = setTimeout(() => {
         if (prevHandRef.current) {
-          setPrevious(false);
-          setPoints(null);
-          setRounds(match.rounds);
+          startTransition(() => {
+            setPrevious(false);
+            setPoints(null);
+            setRounds(match.rounds);
+          });
           callback?.();
         }
-      }, match.options.handAckTime * match.players.length);
+      }, match.options.handAckTime);
 
       return () => clearTimeout(timerRef.current);
     }

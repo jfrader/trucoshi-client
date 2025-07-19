@@ -9,7 +9,7 @@ import {
   SetStateAction,
   Dispatch,
 } from "react";
-import { ISoundContext, ISoundQueue } from "./types";
+import { IGameSounds, ISoundContext, ISoundQueue } from "./types";
 import { Howl, HowlOptions } from "howler";
 import { gameSounds } from "./sounds";
 
@@ -41,6 +41,12 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
             volume: isMuted ? 0 : mainVolume,
             autoplay: false,
           });
+
+          if (!sound.preload) {
+            resolve([key, howl] as [string, Howl]);
+            return;
+          }
+
           howl.once("load", () => {
             resolve([key, howl] as [string, Howl]);
           });
@@ -60,8 +66,8 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       isPlayingQueueSoundRef.current = true;
       const promises: Array<Promise<[string, Howl]>> = [];
       for (const key in gameSounds) {
-        if (gameSounds[key]) {
-          promises.push(load(key, gameSounds[key]));
+        if ((gameSounds as IGameSounds)[key]) {
+          promises.push(load(key, (gameSounds as IGameSounds)[key]));
         }
       }
       Promise.all(promises)
@@ -130,7 +136,10 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   );
 
   const queue = useCallback(
-    (key: string, callback?: (e: Error | null, status?: "playing" | "finished") => void) => {
+    (
+      key: keyof typeof gameSounds | string,
+      callback?: (e: Error | null, status?: "playing" | "finished") => void
+    ) => {
       readyToLoadRef.current = true;
 
       const sound = soundsRef.current[key];

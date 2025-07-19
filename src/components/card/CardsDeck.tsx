@@ -6,7 +6,7 @@ import { HandCardContainer } from "./HandCardContainer";
 import { shuffle } from "../../assets/animations/shuffle";
 import { useSound } from "../../sound/hooks/useSound";
 
-export const CardsDeck = ({ flip, shuffle }: { flip?: boolean; shuffle?: number }) => {
+export const CardsDeck = ({ flip, shuffle }: { flip?: boolean; shuffle?: any }) => {
   const { queue } = useSound();
   const [running, setRunning] = useState(false);
   const [deck, setDeck] = useState(() => {

@@ -36,6 +36,7 @@ import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
 import { CommandBar } from "../components/game/CommandBar";
 import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
+import Toasty from "../components/game/Toasty";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
@@ -164,7 +165,7 @@ const Match = () => {
             MiddleSlot={MiddleSlot}
             middlePointerEventsDisabled
           />
-          <Box position="fixed" right={0} top="52px">
+          <Box position="fixed" right={0} top="52px" maxWidth="20em">
             <MatchPoints match={match} prevHandPoints={previousHand?.points} />
             {me && !me.abandoned ? (
               <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
@@ -205,9 +206,8 @@ const Match = () => {
           </Stack>
         </DialogActions>
       </Dialog>
-      {/* <Box display={{ xs: "none", md: "block" }}>
-        <CardsDeck shuffle={shuffle} flip />
-      </Box> */}
+
+      <Toasty animate={chatProps.latestMessage?.sound === "toasty"} />
     </Box>
   );
 };

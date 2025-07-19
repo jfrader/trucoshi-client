@@ -48,8 +48,21 @@ export const MatchFinishedScreen = ({
       <SocketBackdrop />
       <MatchBackdrop error={error} />
       <Stack flexGrow={1} gap={1}>
-        <Typography pt="1em" pb={2} variant="h4">
+        <Typography
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          component="div"
+          pt="1em"
+          pb={2}
+          variant="h4"
+        >
           Partida Finalizada
+          {iAmWinner && match.awardedSatsPerPlayer ? (
+            <Typography variant="button" fontSize="0.7em" pt={2} pb={1} color="success">
+              Ganaste {match.awardedSatsPerPlayer} sats!
+            </Typography>
+          ) : null}
         </Typography>
         <Box display="flex" justifyContent="center" alignItems="center">
           <Stack flexGrow={1} textAlign="left" gap={1}>

@@ -5,7 +5,7 @@ export const debugComponent = (children: any) => {
 
   try {
     const format = JSON.stringify(children);
-    return <pre>{format}</pre>;
+    return <pre style={{ whiteSpace: "wrap" }}>{format}</pre>;
   } catch (e) {
     return null;
   }

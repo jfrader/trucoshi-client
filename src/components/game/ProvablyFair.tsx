@@ -1,8 +1,16 @@
-import { Alert, AlertTitle, Button, Divider, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Deck, Table } from "trucoshi/dist/lib";
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  CircularProgress,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useLayoutEffect, useState } from "react";
 import { GameCard } from "../card/GameCard";
-import { IMatchDetails } from "trucoshi";
+import { IDeck, IMatchDetails } from "trucoshi";
 import { MatchHand } from "trucoshi/prisma/client";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
@@ -13,51 +21,53 @@ interface Props {
   hands: MatchHand[];
 }
 
-const generateTable = ({ players }: { players: PlayerType[] }) => {
-  return Table<PlayerType & { key: string }>(
-    players.map((p) => ({
-      ...p,
-      key: p.idx ? p.idx.toString() : p.name,
-    }))
-  );
-};
-
 export const ProvablyFair = ({ players, hands }: Props) => {
   const [, { inspectCard }] = useTrucoshi();
   const [handIdx, setHand] = useState(1);
   const [clientIdx, setClient] = useState(0);
-  const [deck, setDeck] = useState(() => Deck());
+  const [deck, setDeck] = useState<IDeck | null>(null);
 
-  useEffect(() => {
-    const d = Deck();
+  useLayoutEffect(() => {
+    import("trucoshi/dist/lib/classes").then(({ Table, Deck }) => {
+      const d = Deck();
 
-    const hand = hands.find((h) => h.idx === handIdx);
+      const hand = hands.find((h) => h.idx === handIdx);
 
-    if (!hand) {
-      return;
-    }
+      if (!hand) {
+        return;
+      }
 
-    d.random.secret = hand.secret;
-    d.random.clients = hand.clientSecrets;
-    d.random.bitcoinHash = hand.bitcoinHash;
-    d.random.bitcoinHeight = hand.bitcoinHeight;
+      d.random.secret = hand.secret;
+      d.random.clients = hand.clientSecrets;
+      d.random.bitcoinHash = hand.bitcoinHash;
+      d.random.bitcoinHeight = hand.bitcoinHeight;
 
-    const table = generateTable({ players });
+      const table = Table<PlayerType & { key: string }>(
+        players.map((p) => ({
+          ...p,
+          key: p.idx ? p.idx.toString() : p.name,
+        }))
+      );
 
-    for (let i = 1; i < handIdx; i++) {
-      table.nextHand();
-    }
+      for (let i = 1; i < handIdx; i++) {
+        table.nextHand();
+      }
 
-    for (let i = 0; i < handIdx; i++) {
-      d.random.next();
-    }
+      for (let i = 0; i < handIdx; i++) {
+        d.random.next();
+      }
 
-    const c = table.getPlayerByPosition(0, true).idx || 0;
-    d.shuffle(c);
+      const c = table.getPlayerByPosition(0, true).idx || 0;
+      d.shuffle(c);
 
-    setClient(c);
-    setDeck(d);
+      setClient(c);
+      setDeck(d);
+    });
   }, [handIdx, hands, players]);
+
+  if (!deck) {
+    return <CircularProgress />;
+  }
 
   return (
     <Stack gap={2}>
@@ -98,27 +108,29 @@ export const ProvablyFair = ({ players, hands }: Props) => {
           focused
           size="small"
         />
-        {deck.random.bitcoinHeight ? <Stack direction="row">
-          <TextField
-            name={`bitcoin-height`}
-            color="info"
-            label="Ultimo bloque de Bitcoin"
-            InputProps={{ readOnly: true }}
-            value={deck.random.bitcoinHeight}
-            focused
-            size="small"
-          />
-          <TextField
-            fullWidth
-            name={`bitcoin-hash`}
-            color="info"
-            label="Hash"
-            InputProps={{ readOnly: true }}
-            value={deck.random.bitcoinHash}
-            focused
-            size="small"
-          />
-        </Stack> : null}
+        {deck.random.bitcoinHeight ? (
+          <Stack direction="row">
+            <TextField
+              name={`bitcoin-height`}
+              color="info"
+              label="Ultimo bloque de Bitcoin"
+              InputProps={{ readOnly: true }}
+              value={deck.random.bitcoinHeight}
+              focused
+              size="small"
+            />
+            <TextField
+              fullWidth
+              name={`bitcoin-hash`}
+              color="info"
+              label="Hash"
+              InputProps={{ readOnly: true }}
+              value={deck.random.bitcoinHash}
+              focused
+              size="small"
+            />
+          </Stack>
+        ) : null}
         <Divider />
         <Alert sx={{ textAlign: "left" }} severity="info">
           <AlertTitle>Como funciona?</AlertTitle>
@@ -135,7 +147,8 @@ export const ProvablyFair = ({ players, hands }: Props) => {
               {deck.random.bitcoinHeight ? <li>El hash del ultimo bloque de Bitcoin</li> : null}
               <li>El numero de mano (1, 2, 3)</li>
             </ul>
-            Como semilla y genera deterministicamente el reparto de cartas, que se hace como en la vida real:
+            Como semilla y genera deterministicamente el reparto de cartas, que se hace como en la
+            vida real:
             <ul>
               <li>Una carta para el primer jugador</li>
               <li>Una carta para el segundo jugador</li>
