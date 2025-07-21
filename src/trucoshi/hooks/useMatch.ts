@@ -312,7 +312,6 @@ export const useMatch = (
       Boolean(
         match &&
           sayCallback &&
-          match.handState !== EHandState.BEFORE_FINISHED &&
           match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
           match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
       ),
