@@ -8,10 +8,8 @@ import {
   IWaitingSayCallback,
   IPublicPlayer,
   ESayCommand,
-  IMatchPreviousHand,
   ILobbyOptions,
   EHandState,
-  IMatchFlorBattle,
 } from "trucoshi";
 
 import { TrucoshiContext } from "../context";
@@ -36,8 +34,6 @@ export const useMatch = (
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
   const [sayCallback, setSayCallback] = useState<IWaitingSayCallback | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [previousHand, setPreviousHand] = useState<[IMatchPreviousHand, () => void] | null>(null);
-  const [florBattle, setFlorBattle] = useState<[IMatchFlorBattle, () => void] | null>(null);
 
   const { pay } = usePayRequest();
 
@@ -266,12 +262,6 @@ export const useMatch = (
       }
     });
 
-    socket.on(EServerEvent.PREVIOUS_HAND, (value, callback) => {
-      if (value.matchSessionId === matchId) {
-        setPreviousHand([value, callback]);
-      }
-    });
-  
     socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
       if (deletedMatchSessionId === matchId) {
         setError(new Error("Esta partida ya no existe"));
@@ -282,7 +272,6 @@ export const useMatch = (
       socket.off(EServerEvent.UPDATE_MATCH);
       socket.off(EServerEvent.WAITING_PLAY);
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY);
-      socket.off(EServerEvent.PREVIOUS_HAND);
     };
   }, [matchId, onMyTurn, onFreshHand, setMatch, socket]);
 
@@ -317,20 +306,6 @@ export const useMatch = (
     }
   }, [match, matchId, socket]);
 
-  const nextHand = useCallback(() => {
-    setPreviousHand(null);
-    setFlorBattle(null);
-    if (match) {
-      if (florBattle && florBattle[1]) {
-        florBattle[1]();
-      }
-      if (previousHand && previousHand[1]) {
-        previousHand[1]();
-      }
-    }
-  }, [florBattle, match, previousHand]);
-
-  const memoPreviousHand = useMemo(() => (previousHand ? previousHand[0] : null), [previousHand]);
   const canPlay = useMemo(() => Boolean(match && turnCallback), [match, turnCallback]);
   const canSay = useMemo(
     () =>
@@ -338,7 +313,8 @@ export const useMatch = (
         match &&
           sayCallback &&
           match.handState !== EHandState.BEFORE_FINISHED &&
-          match.handState !== EHandState.DISPLAY_FLOR_BATTLE
+          match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
+          match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
       ),
     [match, sayCallback]
   );
@@ -351,7 +327,6 @@ export const useMatch = (
       error,
       canPlay,
       canSay,
-      previousHand: memoPreviousHand,
     },
     {
       playCard,
@@ -362,7 +337,6 @@ export const useMatch = (
       startMatch,
       createMatch,
       leaveMatch,
-      nextHand,
       kickPlayer,
     },
   ];

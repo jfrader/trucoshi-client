@@ -6,17 +6,17 @@ import { GameCard } from "../card/GameCard";
 import { PlayerTag } from "./PlayerTag";
 import { TurnProgress } from "./TurnProgress";
 
-type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "previousHand" | "match"> &
+type PlayerProps = Pick<ITrucoshiMatchState, "canPlay"| "match"> &
   PropsWithPlayer<{
     onPlayCard: ITrucoshiMatchActions["playCard"];
   }>;
 
-const MatchPlayer = ({ match, previousHand, player, canPlay, onPlayCard }: PlayerProps) => {
-  const [, isPrevious] = useRounds(match, previousHand);
+const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
+  const [, isPrevious] = useRounds(match);
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">
-      <TurnProgress match={match} player={player} previousHand={previousHand} />
+      <TurnProgress match={match} player={player} previousHand={match?.previousHand} />
       <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <PlayerTag
           player={player}

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 type Props = PropsWithPlayer<{
   match: IPublicMatch | null;
-  previousHand: IMatchPreviousHand | null;
+  previousHand: IMatchPreviousHand | undefined | null;
 }>;
 
 export const TurnProgress = ({ match, player, previousHand }: Props) => {

@@ -1,6 +1,6 @@
 import { Box, BoxProps, Button } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
-import { EHandState, IMatchPreviousHand, IPublicMatch } from "trucoshi";
+import { EHandState, IPublicMatch } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
 import { GameCard } from "../card/GameCard";
 import { PropsWithPlayer } from "../../trucoshi/types";
@@ -11,8 +11,6 @@ import { AnimatedBox } from "./PlayerTag";
 type Props = PropsWithPlayer<
   {
     match: IPublicMatch;
-    previousHand: IMatchPreviousHand | null;
-    nextHand: () => void;
   } & Pick<BoxProps, "onMouseEnter" | "onMouseLeave" | "sx">
 >;
 
@@ -36,9 +34,11 @@ export const HandContainer = ({
   );
 };
 
-export const Rounds = ({ match, previousHand, nextHand, player, ...boxProps }: Props) => {
+export const Rounds = ({ match, player, ...boxProps }: Props) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
-  const [rounds] = useRounds(match, previousHand, nextHand);
+  const [rounds] = useRounds(match);
+
+  const previousHand = match.previousHand;
 
   const playerCards = useMemo(
     () => rounds.flatMap((round) => round.filter((pc) => pc.player.idx === player.idx)),

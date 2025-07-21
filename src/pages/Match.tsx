@@ -47,15 +47,15 @@ const Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
-  const [
-    { match, error, canSay, canPlay, previousHand, me },
-    { playCard, sayCommand, nextHand, leaveMatch },
-  ] = useMatch(sessionId, {
-    onMyTurn: () => queue("turn"),
-    onFreshHand: () => {
-      queue("round");
-    },
-  });
+  const [{ match, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] = useMatch(
+    sessionId,
+    {
+      onMyTurn: () => queue("turn"),
+      onFreshHand: () => {
+        queue("round");
+      },
+    }
+  );
 
   const chatProps = useChatRoom(match);
 
@@ -73,14 +73,13 @@ const Match = () => {
     ({ player }: PropsWithPlayer) => (
       <MatchPlayer
         key={player.idx}
-        previousHand={previousHand}
         canPlay={canPlay}
         player={player}
         onPlayCard={playCard}
         match={match}
       />
     ),
-    [canPlay, match, playCard, previousHand]
+    [canPlay, match, playCard]
   );
 
   const InnerSlot = useCallback(
@@ -90,18 +89,16 @@ const Match = () => {
           key={player.idx}
           onMouseEnter={() => inspect(player)}
           onMouseLeave={() => inspect(null)}
-          previousHand={previousHand}
-          nextHand={nextHand}
           player={player}
           match={match}
         />
       ) : null,
-    [match, nextHand, previousHand]
+    [match]
   );
 
   const MiddleSlot = useCallback(
     () =>
-      chatProps.latestMessage && chatProps.latestMessage.command ? (
+      match && !match.florBattle && chatProps.latestMessage && chatProps.latestMessage.command ? (
         <Box
           width="100%"
           height="100%"
@@ -123,7 +120,7 @@ const Match = () => {
           </ChatButton>
         </Box>
       ) : null,
-    [chatProps.latestMessage]
+    [chatProps.latestMessage, match]
   );
 
   if (!hydrated) {
@@ -135,14 +132,7 @@ const Match = () => {
   }
 
   if (match && match.winner) {
-    return (
-      <MatchFinishedScreen
-        match={match}
-        chatProps={chatProps}
-        error={error}
-        previousHand={previousHand}
-      />
-    );
+    return <MatchFinishedScreen match={match} chatProps={chatProps} error={error} />;
   }
 
   return (
@@ -166,9 +156,14 @@ const Match = () => {
             middlePointerEventsDisabled
           />
           <Box position="fixed" right={0} top="52px" maxWidth="20em">
-            <MatchPoints match={match} prevHandPoints={previousHand?.points} />
+            <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
             {me && !me.abandoned ? (
-              <Button variant="text" onClick={() => setAbandonOpen(true)} color="error">
+              <Button
+                disabled={!canSay}
+                variant="text"
+                onClick={() => setAbandonOpen(true)}
+                color="error"
+              >
                 Rendirse
               </Button>
             ) : null}

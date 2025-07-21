@@ -1,5 +1,5 @@
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
-import { IMatchPreviousHand, IPublicMatch } from "trucoshi";
+import { IPublicMatch } from "trucoshi";
 import { getTeamColor, getTeamName } from "../../utils/team";
 import { MatchBackdrop } from "./MatchBackdrop";
 import { SocketBackdrop } from "../../shared/SocketBackdrop";
@@ -15,12 +15,10 @@ import { useSound } from "../../sound/hooks/useSound";
 export const MatchFinishedScreen = ({
   match,
   error,
-  previousHand,
   chatProps,
 }: {
   match: IPublicMatch;
   error: Error | null;
-  previousHand: IMatchPreviousHand | null;
   chatProps: ReturnType<typeof useChatRoom>;
 }) => {
   const { queue } = useSound();
@@ -37,7 +35,7 @@ export const MatchFinishedScreen = ({
       queue("deal");
       queue("ceba_toma_mate");
     }
-  }, [iAmWinner, queue]);
+  }, [iAmWinner, match.teams, match.winner, queue]);
 
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;
@@ -78,7 +76,7 @@ export const MatchFinishedScreen = ({
               </AvatarGroup>
             </Box>
           </Stack>
-          <MatchPoints match={match} prevHandPoints={previousHand?.points} />
+          <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
         </Box>
         <Button component={Link} to="/" variant="text">
           Volver al inicio

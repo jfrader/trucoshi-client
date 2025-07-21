@@ -5,7 +5,6 @@ import {
   EMatchState,
   ICard,
   ILobbyOptions,
-  IMatchPreviousHand,
   IPublicMatch,
   IPublicPlayer,
   IWaitingPlayData,
@@ -37,13 +36,11 @@ export interface ITrucoshiMatchActions {
   setOptions(options: Partial<ILobbyOptions>, cb: (success: boolean) => void): void;
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand | number): void;
-  nextHand(): void;
   kickPlayer(key: string): void;
 }
 
 export interface ITrucoshiMatchState {
   turnPlayer: IPublicPlayer | null;
-  previousHand: IMatchPreviousHand | null;
   match: IPublicMatch | null;
   me: IPublicPlayer | null;
   error: Error | null;
