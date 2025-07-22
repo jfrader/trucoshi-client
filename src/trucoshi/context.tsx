@@ -148,7 +148,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     if (!socket.connected) {
       socket = getSocket();
       if (session) {
-        socket.auth = { sessionID: session, name };
+        socket.auth = { sessionID: session, name, identity: getIdentityCookie() };
       }
       socket.connect();
     }
