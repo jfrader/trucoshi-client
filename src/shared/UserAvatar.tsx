@@ -20,7 +20,10 @@ export const UserAvatar = ({
   ...rest
 }: {
   link?: boolean;
-  account: Pick<User, "name" | "avatarUrl" | "id"> & { accountId?: number | null; bot: string | null };
+  account: Pick<User, "name" | "avatarUrl" | "id"> & {
+    accountId?: number | null;
+    bot?: string | null | boolean;
+  };
   size?: keyof typeof SIZES;
   bgcolor?: BoxProps["bgcolor"];
 } & AvatarProps) => {
@@ -31,7 +34,9 @@ export const UserAvatar = ({
     account.avatarUrl && !error
       ? { src: account.avatarUrl }
       : {
-          children: account.bot ? <SmartToy sx={iconSx} color="action" /> : error ? (
+          children: account.bot ? (
+            <SmartToy sx={iconSx} color="action" />
+          ) : error ? (
             <Person sx={iconSx} color="action" />
           ) : (
             <PsychologyAlt sx={iconSx} color="action" />
