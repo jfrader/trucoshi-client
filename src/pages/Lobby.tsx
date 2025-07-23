@@ -287,6 +287,14 @@ export const Lobby = () => {
       ) : (
         <FloatingProgress />
       )}
+
+      <Box pt={2}>
+        {match?.players.some((p) => p.bot) ? (
+          <Typography color="text.disabled" fontSize="small">
+            Las partidas con bots no suman victorias ni derrotas en el perfil.
+          </Typography>
+        ) : null}
+      </Box>
       {isOptionsOpen && match && (
         <Dialog open={isOptionsOpen} onClose={() => setOptionsOpen(false)}>
           <DialogTitle>Reglas de la partida</DialogTitle>

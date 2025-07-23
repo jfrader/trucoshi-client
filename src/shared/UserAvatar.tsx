@@ -20,7 +20,7 @@ export const UserAvatar = ({
   ...rest
 }: {
   link?: boolean;
-  account: Pick<User, "name" | "avatarUrl" | "id"> & { accountId?: number | null; bot?: boolean };
+  account: Pick<User, "name" | "avatarUrl" | "id"> & { accountId?: number | null; bot: string | null };
   size?: keyof typeof SIZES;
   bgcolor?: BoxProps["bgcolor"];
 } & AvatarProps) => {
