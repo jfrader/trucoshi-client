@@ -1,6 +1,6 @@
 import { Box, BoxProps, Button } from "@mui/material";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
-import { EHandState, IPublicMatch } from "trucoshi";
+import { EHandState, ICard, IPlayedCard, IPublicMatch, IPublicPlayer } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
 import { GameCard } from "../card/GameCard";
 import { PropsWithPlayer } from "../../trucoshi/types";
@@ -13,6 +13,19 @@ type Props = PropsWithPlayer<
     match: IPublicMatch;
   } & Pick<BoxProps, "onMouseEnter" | "onMouseLeave" | "sx">
 >;
+
+const concatCards = (
+  playerCards: IPlayedCard[],
+  cards: ICard[],
+  player: IPublicPlayer
+): IPlayedCard[] => {
+  const set = new Set([...playerCards.map((pc) => pc.card), ...cards]);
+  return Array.from(set).map((card) => ({
+    card,
+    key: card + player.idx,
+    player,
+  }));
+};
 
 export const HandContainer = ({
   onHandOpen,
@@ -50,16 +63,7 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
 
   const overridePlayerCards = useMemo(() => {
     if (florBattlePlayer && florBattlePlayer.cards) {
-      return [
-        ...playerCards,
-        ...(florBattlePlayer.cards
-          .filter((card) => !playerCards.map((pc) => pc.card).includes(card))
-          .map((c) => ({
-            card: c,
-            key: c + player.idx,
-            player,
-          })) || []),
-      ];
+      return concatCards(playerCards, florBattlePlayer.cards, player);
     }
 
     const findPreviousFlor =
@@ -68,24 +72,27 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
       previousHand.flor.data.find(({ idx }) => idx === player.idx);
 
     if (findPreviousFlor) {
-      return findPreviousFlor.cards.map((card) => ({ card, key: card + "flor", player }));
+      return concatCards(playerCards, findPreviousFlor.cards, player);
     }
 
     if (previousHand?.envido?.data?.cards && previousHand.envido.winner.key === player.key) {
-      return [
-        ...playerCards,
-        ...(previousHand.envido.data.cards
-          .filter((card) => !playerCards.map((pc) => pc.card).includes(card))
-          .map((c) => ({
-            card: c,
-            key: c + player.idx,
-            player,
-          })) || []),
-      ];
+      return concatCards(playerCards, previousHand.envido.data.cards, player);
     }
 
     return playerCards;
   }, [florBattlePlayer, player, playerCards, previousHand]);
+
+  // const checkDisabledCards = useMemo(() => {
+  //   if (player.disabled) {
+  //     const array = new Array(3);
+  //     array.fill(3);
+  //     return array.map(
+  //       (_a, i) => overridePlayerCards[i] || { card: "xx", key: "xx" + player.idx + i, player }
+  //     );
+  //   }
+
+  //   return overridePlayerCards;
+  // }, [overridePlayerCards, player]);
 
   const autoOpenHand =
     (florBattlePlayer && florBattlePlayer.cards) ||
