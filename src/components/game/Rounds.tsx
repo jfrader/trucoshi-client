@@ -51,12 +51,14 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
   const overridePlayerCards = useMemo(() => {
     if (florBattlePlayer && florBattlePlayer.cards) {
       return [
-        ...playerCards.filter((pc) => !florBattlePlayer.cards?.includes(pc.card)),
-        ...(florBattlePlayer.cards.map((c) => ({
-          card: c,
-          key: c + player.idx,
-          player,
-        })) || []),
+        ...playerCards,
+        ...(florBattlePlayer.cards
+          .filter((card) => !playerCards.map((pc) => pc.card).includes(card))
+          .map((c) => ({
+            card: c,
+            key: c + player.idx,
+            player,
+          })) || []),
       ];
     }
 
@@ -71,12 +73,14 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
 
     if (previousHand?.envido?.data?.cards && previousHand.envido.winner.key === player.key) {
       return [
-        ...playerCards.filter((pc) => !previousHand.envido?.data?.cards.includes(pc.card)),
-        ...(previousHand.envido.data.cards.map((c) => ({
-          card: c,
-          key: c + player.idx,
-          player,
-        })) || []),
+        ...playerCards,
+        ...(previousHand.envido.data.cards
+          .filter((card) => !playerCards.map((pc) => pc.card).includes(card))
+          .map((c) => ({
+            card: c,
+            key: c + player.idx,
+            player,
+          })) || []),
       ];
     }
 
