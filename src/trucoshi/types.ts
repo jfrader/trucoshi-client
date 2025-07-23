@@ -32,6 +32,7 @@ export interface ITrucoshiMatchActions {
   leaveMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
   joinMatch(sessionId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1): void;
+  addBot(sessionId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean, cb: (success: boolean) => void): void;
   setOptions(options: Partial<ILobbyOptions>, cb: (success: boolean) => void): void;
   playCard(cardIdx: number, card: ICard): void;

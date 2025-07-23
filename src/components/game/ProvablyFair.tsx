@@ -19,9 +19,10 @@ type PlayerType = IMatchDetails["players"][0];
 interface Props {
   players: PlayerType[];
   hands: MatchHand[];
+  matchSessionId: string;
 }
 
-export const ProvablyFair = ({ players, hands }: Props) => {
+export const ProvablyFair = ({ matchSessionId, players, hands }: Props) => {
   const [, { inspectCard }] = useTrucoshi();
   const [handIdx, setHand] = useState(1);
   const [clientIdx, setClient] = useState(0);
@@ -43,6 +44,7 @@ export const ProvablyFair = ({ players, hands }: Props) => {
       d.random.bitcoinHeight = hand.bitcoinHeight;
 
       const table = Table<PlayerType & { key: string }>(
+        matchSessionId,
         players.map((p) => ({
           ...p,
           key: p.idx ? p.idx.toString() : p.name,
@@ -63,7 +65,7 @@ export const ProvablyFair = ({ players, hands }: Props) => {
       setClient(c);
       setDeck(d);
     });
-  }, [handIdx, hands, players]);
+  }, [handIdx, hands, matchSessionId, players]);
 
   if (!deck) {
     return <CircularProgress />;

@@ -158,6 +158,22 @@ export const useMatch = (
     [context.dispatch, emitReady, me?.payRequestId, pay, toast]
   );
 
+  const addBot = useCallback(
+    (matchId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1) => {
+      socket.emit(EClientEvent.ADD_BOT, matchId, teamIdx, ({ success, match, error }) => {
+        cb(success);
+        if (error) {
+          console.error({ error });
+          toast.error(error.message);
+        }
+        if (success && match) {
+          return setMatch(match);
+        }
+      });
+    },
+    [setMatch, socket, toast]
+  );
+
   const joinMatch = useCallback(
     (matchId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1) => {
       socket.emit(
@@ -337,6 +353,7 @@ export const useMatch = (
       createMatch,
       leaveMatch,
       kickPlayer,
+      addBot,
     },
   ];
 };

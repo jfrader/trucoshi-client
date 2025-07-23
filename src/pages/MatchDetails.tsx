@@ -43,6 +43,7 @@ import { COMMANDS_HUMAN_READABLE } from "../trucoshi/constants";
 import { Link } from "../shared/Link";
 import { ProvablyFair } from "../components/game/ProvablyFair";
 import { GameOptionsList, LOBBY_OPTIONS_HUMAN_READABLE } from "../components/game/GameOptionsList";
+import { UserAvatar } from "../shared/UserAvatar";
 
 export const MatchDetails = () => {
   const navigate = useNavigate();
@@ -205,6 +206,9 @@ export const MatchDetails = () => {
                               }
                             >
                               <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
+                              <ListItemAvatar>
+                                <UserAvatar account={player} />
+                              </ListItemAvatar>
                               <ListItemText
                                 primary={player.name}
                                 secondary={
@@ -330,7 +334,11 @@ export const MatchDetails = () => {
                   </TabPanel>
 
                   <TabPanel sx={{ px: 0 }} value="5">
-                    <ProvablyFair players={match.players} hands={match.hands} />
+                    <ProvablyFair
+                      matchSessionId={match.sessionId}
+                      players={match.players}
+                      hands={match.hands}
+                    />
                   </TabPanel>
                 </TabContext>
               ) : (

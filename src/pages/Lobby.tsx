@@ -56,8 +56,10 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [{ match, me, error }, { joinMatch, setReady, startMatch, setOptions, kickPlayer }] =
-    useMatch(sessionId);
+  const [
+    { match, me, error },
+    { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer },
+  ] = useMatch(sessionId);
 
   useEffect(() => {
     if (match) {
@@ -78,6 +80,11 @@ export const Lobby = () => {
   const onJoinMatch = (teamIdx: 0 | 1) => {
     setReadyLoading(true);
     sessionId && joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
+  };
+
+  const onAddBot = (teamIdx: 0 | 1) => {
+    setReadyLoading(true);
+    sessionId && addBot(sessionId, () => setReadyLoading(false), teamIdx);
   };
 
   const onStartMatch = () => {
@@ -170,7 +177,7 @@ export const Lobby = () => {
 
             // Only show the button for non-joined users and ensure it reflects the slot's intended team
             return canJoin ? (
-              <Stack pt={3} alignItems="end">
+              <Stack pt={3} alignItems="center">
                 <Button
                   variant="text"
                   disabled={isReadyLoading}
@@ -180,6 +187,17 @@ export const Lobby = () => {
                 >
                   Unirse a {getTeamName(newTeamIdx)}
                 </Button>
+                {match?.me?.isOwner && match.options.satsPerPlayer <= 0 ? (
+                  <Button
+                    variant="text"
+                    disabled={isReadyLoading}
+                    sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
+                    color="warning"
+                    onClick={() => onAddBot(newTeamIdx)}
+                  >
+                    Agregar Bot
+                  </Button>
+                ) : null}
               </Stack>
             ) : null;
           }}
