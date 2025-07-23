@@ -27,12 +27,17 @@ export const TurnProgress = ({ match, player, previousHand }: Props) => {
 
   return (
     <LinearProgress
-      sx={{
-        visibility: player.isTurn && !previousHand && turnTimer.progress ? "visible" : "hidden",
-      }}
+      sx={
+        player.bot
+          ? { visibility: player.isTurn && !previousHand ? "visible" : "hidden" }
+          : {
+              visibility:
+                player.isTurn && !previousHand && turnTimer.progress ? "visible" : "hidden",
+            }
+      }
       variant="determinate"
       color={alert ? "warning" : turnTimer.isExtension ? "error" : "success"}
-      value={turnTimer.progress}
+      value={player.bot ? 100 : turnTimer.progress}
     />
   );
 };
