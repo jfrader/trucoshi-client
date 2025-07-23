@@ -177,7 +177,7 @@ export const Lobby = () => {
 
             // Only show the button for non-joined users and ensure it reflects the slot's intended team
             return canJoin ? (
-              <Stack pt={3} alignItems="center">
+              <Stack pt={2} alignItems="center">
                 <Button
                   variant="text"
                   disabled={isReadyLoading}
@@ -193,6 +193,7 @@ export const Lobby = () => {
                     disabled={isReadyLoading}
                     sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
                     color="warning"
+                    size="small"
                     onClick={() => onAddBot(newTeamIdx)}
                   >
                     Agregar Bot

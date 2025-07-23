@@ -42,6 +42,12 @@ export const useChat = (
             if (message.sound === "play") {
               const rndSound = Math.round(Math.random() * 2);
               queue("play" + rndSound);
+            } else if (message.sound === "bot") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("bot" + rndSound);
+            } else if (message.sound === "botvoice") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("botvoice" + rndSound);
             } else {
               queue(typeof message.sound === "string" ? message.sound : "chat");
             }

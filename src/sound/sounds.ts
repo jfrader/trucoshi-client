@@ -89,6 +89,51 @@ export const gameSounds = {
     volume: DEFAULT_VOLUME,
     preload: DEFAULT_PRELOAD,
   },
+  back: {
+    src: "/sounds/back.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  bot0: {
+    src: "/sounds/bot1.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  bot1: {
+    src: "/sounds/bot2.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  bot2: {
+    src: "/sounds/bot3.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  bot3: {
+    src: "/sounds/bot4.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  botvoice0: {
+    src: "/sounds/botvoice1.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  botvoice1: {
+    src: "/sounds/botvoice2.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  botvoice2: {
+    src: "/sounds/botvoice3.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  botvoice3: {
+    src: "/sounds/botvoice4.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
   fatality: {
     src: "/sounds/fatality.mp3",
     volume: DEFAULT_VOLUME,
