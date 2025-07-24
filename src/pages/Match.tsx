@@ -168,7 +168,7 @@ const Match = () => {
             maxWidth="24em"
           >
             <Stack direction="row">
-              <Button disabled={!canSay} onClick={() => setRulesOpen(true)} color="warning">
+              <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
               </Button>
               {me && !me.abandoned ? (
