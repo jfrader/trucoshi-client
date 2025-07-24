@@ -105,6 +105,9 @@ const Container = styled(Box)(
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   --d: 12.6rem; /* image size */
   --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
+  ${theme.breakpoints.down("sm")} {
+    margin-top: calc(0.15  * (100vh - 100vw));
+  }
   ${theme.breakpoints.up("md")} {
     --d: 12.8rem;
     --rel: 0.52;

@@ -96,7 +96,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           auth: {
             sessionID: session,
             name,
-            identity: me ? getIdentityCookie() : undefined,
+            identity: me && !error ? getIdentityCookie() : undefined,
             user: error ? undefined : me,
           },
         });
@@ -110,17 +110,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     reset();
     setLoadingAccount(true);
     setShouldConnect(false);
-    setSocket(() => {
-      return io(HOST, {
-        withCredentials: true,
-        autoConnect: false,
-        secure: import.meta.env.MODE === "production",
-        auth: {
-          sessionID: session,
-          name,
-        },
-      });
-    });
+    setLogged(false);
+    setAccount(null);
+    setActiveMatches([]);
     apiLogout(
       { withCredentials: true },
       {
@@ -129,23 +121,36 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         },
         onSettled() {
           refetchMe().finally(() => {
-            socket.emit(EClientEvent.LOGOUT, ({ error: e }) => {
-              if (e) {
-                toast.error(e.message);
-              }
-              setTimeout(() => {
-                setShouldConnect(true);
+            setSocket((current) => {
+              current.emit(EClientEvent.LOGOUT, ({ error: e }) => {
+                if (e) {
+                  toast.error(e.message);
+                }
+                current.disconnect();
+              });
+              return io(HOST, {
+                withCredentials: true,
+                autoConnect: false,
+                secure: import.meta.env.MODE === "production",
+                auth: {
+                  sessionID: session,
+                  name,
+                },
               });
             });
+
             setLogged(false);
             setAccount(null);
             setActiveMatches([]);
             removeCookie("jwt:identity");
+            setTimeout(() => {
+              setShouldConnect(true);
+            });
           });
         },
       }
     );
-  }, [reset, apiLogout, session, name, toast, refetchMe, socket, removeCookie]);
+  }, [reset, apiLogout, session, name, toast, refetchMe, removeCookie]);
 
   useEffect(() => {
     let timer: NodeJS.Timer | null = null;
@@ -287,7 +292,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           cardsReady,
           isSidebarOpen,
           inspectedCard,
-          isLoggingIn: isLoadingAccount,
+          isLoggingIn: isLoadingAccount || isPendingLogin,
           isAccountPending: useMemo(
             () =>
               isPendingMe ||

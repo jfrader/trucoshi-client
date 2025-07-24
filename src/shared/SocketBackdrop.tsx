@@ -7,14 +7,14 @@ export const SocketBackdrop = ({
   message,
   ...props
 }: PropsWithChildren<Omit<BackdropProps, "open"> & { message?: string }>) => {
-  const [{ isConnected }] = useTrucoshi();
+  const [{ isConnected, isLoggingIn }] = useTrucoshi();
   return (
     <Backdrop
       {...props}
       mountOnEnter
       unmountOnExit
-      open={!isConnected}
-      message={message || "Reconectando..."}
+      open={!isConnected || isLoggingIn}
+      message={message || "Conectando..."}
       loading={true}
     />
   );

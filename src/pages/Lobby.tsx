@@ -106,7 +106,7 @@ export const Lobby = () => {
 
   return (
     <Box>
-      <SocketBackdrop />
+      <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
       {match ? (
         <GameTable

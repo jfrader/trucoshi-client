@@ -11,7 +11,6 @@ export const LOBBY_OPTIONS_HUMAN_READABLE: Partial<Record<keyof ILobbyOptions, s
   flor: "Flor",
   turnTime: "Tiempo de turno",
   abandonTime: "Tiempo de abandono",
-  handAckTime: "Tiempo entre manos",
 };
 
 const getSecondsFromMs = (value: number | boolean) => `${Math.round(Number(value) / 1000)}s`;

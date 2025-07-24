@@ -7,7 +7,7 @@ import { Footer } from "./Footer";
 export const PageLayout = () => {
   return (
     <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      <SocketBackdrop message="Conectando..." />
+      <SocketBackdrop />
       <Box
         pb={4}
         display="flex"

@@ -10,7 +10,7 @@ import { Footer } from "./Footer";
 export const MainLayout = () => {
   return (
     <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      <SocketBackdrop message="Conectando..." />
+      <SocketBackdrop />
       <Box
         p={4}
         display="flex"

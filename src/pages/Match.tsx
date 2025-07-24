@@ -37,10 +37,12 @@ import { CommandBar } from "../components/game/CommandBar";
 import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
+import { GameOptionsList } from "../components/game/GameOptionsList";
 
 const Match = () => {
   const [, , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
+  const [isRulesOpen, setRulesOpen] = useState(false);
 
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
 
@@ -140,7 +142,7 @@ const Match = () => {
       {match?.me ? (
         <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />
       ) : null}
-      <SocketBackdrop />
+      <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
       {match ? (
         <>
@@ -155,20 +157,33 @@ const Match = () => {
             MiddleSlot={MiddleSlot}
             middlePointerEventsDisabled
           />
-          <Box position="fixed" right={0} top="52px" maxWidth="20em">
-            <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
-            {me && !me.abandoned ? (
-              <Button
-                disabled={!canSay}
-                variant="text"
-                onClick={() => setAbandonOpen(true)}
-                color="error"
-              >
-                Rendirse
+          <Box
+            position="fixed"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            right={0}
+            top="52px"
+            maxWidth="24em"
+          >
+            <Stack direction="row">
+              <Button disabled={!canSay} onClick={() => setRulesOpen(true)} color="warning">
+                Reglas
               </Button>
-            ) : null}
-            {debugComponent(match.handState)}
-            {debugComponent(match.players.find((p) => p.isTurn)?.name || null)}
+              {me && !me.abandoned ? (
+                <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
+                  Rendirse
+                </Button>
+              ) : null}
+            </Stack>
+            <Box>
+              <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
+              <Box position="absolute">
+                {debugComponent(match.handState)}
+                {debugComponent(match.players.find((p) => p.isTurn)?.name || null)}
+              </Box>
+            </Box>
           </Box>
         </>
       ) : (
@@ -201,6 +216,22 @@ const Match = () => {
           </Stack>
         </DialogActions>
       </Dialog>
+
+      {match && (
+        <Dialog fullWidth maxWidth="xs" open={isRulesOpen} onClose={() => setRulesOpen(false)}>
+          <DialogTitle>Reglas de la Partida</DialogTitle>
+          <DialogContent>
+            <GameOptionsList options={match.options} />
+          </DialogContent>
+          <DialogActions>
+            <Stack direction="row" width="100%" justifyContent="center" gap={2}>
+              <Button fullWidth color="success" onClick={() => setRulesOpen(false)}>
+                Continuar Partida
+              </Button>
+            </Stack>
+          </DialogActions>
+        </Dialog>
+      )}
 
       <Toasty animate={chatProps.latestMessage?.sound === "toasty"} />
     </Box>
