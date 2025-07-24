@@ -30,26 +30,15 @@ export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "devel
 
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
-export const getSocket = (): Socket<ServerToClientEvents, ClientToServerEvents> =>
-  io(HOST, {
-    withCredentials: true,
-    autoConnect: false,
-    secure: import.meta.env.MODE === "production",
-  });
-
-let socket = getSocket();
-
-const sendPing = () => {
+const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) => {
   socket.emit(EClientEvent.PING, Date.now());
 };
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
-  const [session, setSession] = useStateStorage("session");
+  // **State Variables**
+  const [session, setSession] = useStateStorage<string | null>("session", null);
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
-  const [, , removeCookie] = useCookies(["jwt:identity"]);
-
-  const [version, setVersion] = useState("");
-  const [name, setName] = useStateStorage("id", "Satoshi" as string);
+  const [name, setName] = useStateStorage<string>("id", "Satoshi");
   const [account, setAccount] = useState<User | null>(null);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
@@ -60,21 +49,58 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "default");
   const [cards, cardsReady] = useCards({ theme: cardTheme });
-  const [inspectedCard, inspectCard] = useState<ICard | null>(null);
+  const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [identity, setIdentity] = useStateStorage<string>("identity", () => getIdentityCookie());
+  const [identity, setIdentity] = useStateStorage<string>(
+    "identity",
+    () => getIdentityCookie() || ""
+  );
+  const [version, setVersion] = useState("");
+  const [shouldConnect, setShouldConnect] = useState(false);
+  const [, , removeCookie] = useCookies(["jwt:identity"]);
 
+  // **Hooks**
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
-  const { isPending: isPendingRefreshTokens, refreshTokens } = useRefreshTokens();
+  const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
-
   const toast = useToast();
+
+  // **Socket Setup**
+  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = useMemo(
+    () =>
+      io(HOST, {
+        withCredentials: true,
+        autoConnect: false,
+        secure: import.meta.env.MODE === "production",
+        auth: {
+          sessionID: session,
+          name,
+          identity: me ? identity || getIdentityCookie() : undefined,
+          user: me ? me : undefined,
+        },
+      }),
+    [session, name, me, identity]
+  );
+
+  // **Control Socket Connection**
+  useEffect(() => {
+    setShouldConnect(!isPendingMe);
+  }, [isPendingMe]);
+
+  useEffect(() => {
+    if (shouldConnect) {
+      socket.connect();
+    }
+    return () => {
+      socket.disconnect();
+    };
+  }, [shouldConnect, socket]);
 
   const logout = useCallback(() => {
     setLoadingAccount(true);
-
+    setShouldConnect(false);
     apiLogout(
       { withCredentials: true },
       {
@@ -82,122 +108,58 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           toast.error(e.message);
         },
         onSettled() {
-          refetchMe().then(() => {
-            setLogged(false);
-            setAccount(null);
-            removeCookie("jwt:identity");
-            setIdentity("");
+          refetchMe().finally(() => {
             socket.emit(EClientEvent.LOGOUT, ({ error: e }) => {
               if (e) {
                 toast.error(e.message);
               }
-
-              setLoadingAccount(false);
-              socket.disconnect();
+              setTimeout(() => {
+                setShouldConnect(true);
+              });
             });
+            setLogged(false);
+            setAccount(null);
+            setActiveMatches([]);
+            removeCookie("jwt:identity");
+            setIdentity("");
           });
         },
       }
     );
-  }, [apiLogout, refetchMe, removeCookie, setIdentity, toast]);
+  }, [apiLogout, refetchMe, removeCookie, setIdentity, toast, socket]);
 
+  // **Socket Event Listeners**
   useEffect(() => {
-    if (is401(error)) {
-      logout();
-    }
-  }, [error, logout]);
-
-  useEffect(() => {
-    const hadIdentityCookie = getIdentityCookie();
-    const checkIdentity = identity || hadIdentityCookie;
-
-    if (!checkIdentity && !isPendingMe) {
-      setLoadingAccount(false);
-      return;
-    }
-
-    if (me && checkIdentity && !isLogged) {
-      setLoadingAccount(true);
-      socket.emit(EClientEvent.LOGIN, me, checkIdentity, ({ success, activeMatches, error }) => {
-        if (error) {
-          console.error(error.message);
-          toast.error(error.message);
-        }
-        if (activeMatches) {
-          setActiveMatches(activeMatches);
-        }
-        if (success) {
-          setLogged(true);
-          setAccount(me);
-          setLoadingAccount(false);
-        } else {
-          setAccount(null);
-          setLogged(false);
-          setLoadingAccount(false);
-        }
-      });
-    } else if (me && isLogged) {
-      setAccount(me);
-      setLoadingAccount(false);
-    }
-  }, [identity, isLogged, isPendingMe, me, setIdentity, toast, setActiveMatches]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (!socket.connected) {
-      socket = getSocket();
-      if (session) {
-        socket.auth = { sessionID: session, name, identity: getIdentityCookie() };
-      }
-      socket.connect();
-    }
+    let timer: NodeJS.Timer | null = null;
 
     socket.on("connect", () => {
-      interval && clearTimeout(interval);
-      sendPing();
       setConnected(true);
+      sendPing(socket);
+      timer && clearInterval(timer);
     });
 
     socket.on("disconnect", () => {
-      removeCookie("jwt:identity");
-      setIdentity("");
       setConnected(false);
-      setAccount(null);
-      setLogged(false);
+      setLoadingAccount(true);
 
-      interval && clearTimeout(interval);
-      interval = setInterval(() => {
-        socket.connect();
+      timer = setInterval(() => {
+        if (!socket.active) {
+          socket.connect();
+          timer && clearInterval(timer);
+        }
       }, 5000);
     });
 
-    socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
-      if (!account || userId !== account.id) {
-        removeCookie("jwt:identity");
-        setIdentity("");
-        return cb(null);
+    socket.on(EServerEvent.SET_SESSION, ({ session, account }, serverVersion, newActiveMatches) => {
+      if (!account) {
+        setSession(session);
       }
-
-      refetchMe().then(() => {
-        const token = getIdentityCookie();
-        if (token !== identity) {
-          setIdentity(token || "");
-        }
-        cb(token || null);
-      });
+      setAccount(account || null);
+      setLogged(!!account);
+      setActiveMatches(newActiveMatches);
+      setVersion(`${CLIENT_VERSION}-${serverVersion}`);
+      setLoadingAccount(false);
     });
-
-    socket.on(
-      EServerEvent.SET_SESSION,
-      ({ session, account }, serverVersion, newActiveMatches): void => {
-        setActiveMatches(newActiveMatches);
-        setVersion(CLIENT_VERSION + "-" + serverVersion);
-        if (!account) {
-          setSession(session);
-        }
-      }
-    );
 
     socket.on(EServerEvent.UPDATE_ACTIVE_MATCHES, (newActiveMatches) => {
       setActiveMatches(newActiveMatches);
@@ -214,27 +176,41 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setServerAheadTime(serverTime - clientTime);
     });
 
+    socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
+      if (!account || userId !== account.id) {
+        return cb(null);
+      }
+      try {
+        await refetchMe();
+        const token = getIdentityCookie();
+        setIdentity(token || "");
+        cb(token || null);
+      } catch (e) {
+        cb(null);
+      }
+    });
+
+    socket.on(EServerEvent.ERROR, ({ message, action }) => {
+      toast.error(message);
+      if (action === "RECONNECT") {
+        socket.disconnect();
+        socket.connect();
+      } else if (action === "LOGIN") {
+        logout();
+      }
+    });
+
     return () => {
       socket.off("connect");
-      socket.off("disconnect");
-      socket.off(EServerEvent.MATCH_DELETED);
       socket.off(EServerEvent.SET_SESSION);
       socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
-      socket.off(EServerEvent.REFRESH_IDENTITY);
+      socket.off(EServerEvent.MATCH_DELETED);
       socket.off(EServerEvent.PONG);
+      socket.off(EServerEvent.REFRESH_IDENTITY);
+      socket.off(EServerEvent.ERROR);
+      timer && clearInterval(timer);
     };
-  }, [
-    account,
-    identity,
-    name,
-    refetchMe,
-    refreshTokens,
-    removeCookie,
-    session,
-    setIdentity,
-    setName,
-    setSession,
-  ]);
+  }, [socket, setSession, account, refetchMe, removeCookie, setIdentity, toast, logout]);
 
   const sendUserId = useCallback(
     (name: string, callback?: (name: string) => void) => {
@@ -245,10 +221,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             onSuccess() {
               refetchMe()
                 .then((res) => {
-                  if (res.data) {
+                  if (res.data?.data) {
                     setAccount(res.data.data);
                     callback?.(res.data.data.name);
-                    socket.disconnect();
                   }
                 })
                 .catch((e) => {
@@ -263,73 +238,81 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           }
         );
       }
-
-      socket.disconnect();
       setName(name);
       callback?.(name);
+      // Socket will reconnect with new name via useMemo dependency
     },
     [account, refetchMe, setName, toast, updateProfile]
   );
 
-  const fetchPublicMatches = useCallback((filters: { state?: Array<EMatchState> } = {}) => {
-    socket.emit(EClientEvent.LIST_MATCHES, filters, ({ matches }) => {
-      setPublicMatches(matches);
-    });
-  }, []);
+  const fetchPublicMatches = useCallback(
+    (filters: { state?: Array<EMatchState> } = {}) => {
+      socket.emit(EClientEvent.LIST_MATCHES, filters, ({ matches }) => {
+        setPublicMatches(matches);
+      });
+    },
+    [socket]
+  );
 
+  // **Error Handling**
+  useEffect(() => {
+    if (is401(error)) {
+      logout();
+    }
+  }, [error, logout]);
+
+  // **Context Value**
   return (
     <TrucoshiContext.Provider
-      value={
-        {
-          socket,
-          state: {
-            dark,
-            account,
-            version,
-            publicMatches,
-            session,
-            name,
-            isConnected,
-            isLogged,
-            lastPong,
-            activeMatches,
-            serverAheadTime,
-            cardTheme,
-            cardsReady,
-            isSidebarOpen,
-            inspectedCard,
-            isLoggingIn: isLoadingAccount,
-            isAccountPending: useMemo(
-              () =>
-                isPendingMe ||
-                isPendingRefreshTokens ||
-                isLoadingAccount ||
-                isPendingLogin ||
-                isPendingUpdateProfile,
-              [
-                isLoadingAccount,
-                isPendingLogin,
-                isPendingMe,
-                isPendingRefreshTokens,
-                isPendingUpdateProfile,
-              ]
-            ),
-            cards,
-          },
-          dispatch: {
-            setDark,
-            setCardTheme,
-            setSidebarOpen,
-            sendPing,
-            sendUserId,
-            setActiveMatches,
-            fetchPublicMatches,
-            inspectCard,
-            logout,
-            refetchMe,
-          },
-        } satisfies ITrucoshiContext
-      }
+      value={{
+        socket,
+        state: {
+          dark,
+          account,
+          version,
+          publicMatches,
+          session,
+          name,
+          isConnected,
+          isLogged,
+          lastPong,
+          activeMatches,
+          serverAheadTime,
+          cardTheme,
+          cardsReady,
+          isSidebarOpen,
+          inspectedCard,
+          isLoggingIn: isLoadingAccount,
+          isAccountPending: useMemo(
+            () =>
+              isPendingMe ||
+              isPendingRefreshTokens ||
+              isLoadingAccount ||
+              isPendingLogin ||
+              isPendingUpdateProfile,
+            [
+              isPendingMe,
+              isPendingRefreshTokens,
+              isLoadingAccount,
+              isPendingLogin,
+              isPendingUpdateProfile,
+            ]
+          ),
+          cards,
+        },
+        dispatch: {
+          setDark,
+          setCardTheme,
+          setSidebarOpen,
+          sendPing: () => sendPing(socket),
+          sendUserId,
+          setActiveMatches,
+          fetchPublicMatches,
+          inspectCard: setInspectedCard,
+          logout,
+          refetchMe,
+        },
+      }}
     >
       {children}
     </TrucoshiContext.Provider>

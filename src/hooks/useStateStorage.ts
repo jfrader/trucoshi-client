@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-export default function useStateStorage<T extends string = string>(
+export default function useStateStorage<T extends string | null = string>(
   key: string,
   value?: T | (() => T)
 ): [T, (value: T | ((current: T) => T)) => void] {
@@ -26,7 +26,13 @@ export default function useStateStorage<T extends string = string>(
         } else {
           res = value;
         }
-        localStorage.setItem(`trucoshi:${key}`, res);
+
+        if (res === null) {
+          localStorage.removeItem(`trucoshi:${key}`);
+        } else {
+          localStorage.setItem(`trucoshi:${key}`, res);
+        }
+
         return res;
       });
     },
