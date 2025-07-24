@@ -28,7 +28,12 @@ export const CardToggler = (props: BoxProps) => {
   }, [cardTheme]);
 
   return (
-    <Box pt={3} height="7em" sx={{ position: "relative" }} {...props}>
+    <Box
+      pt={3}
+      height="7em"
+      sx={(theme) => ({ position: "relative", zIndex: theme.zIndex.appBar - 1 })}
+      {...props}
+    >
       <Box position="relative" left={-25}>
         {randomCards.map((card, i) => {
           return (

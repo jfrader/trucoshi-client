@@ -12,7 +12,7 @@ export const Sidebar = () => {
     <Slide in={isSidebarOpen} direction="left">
       <Card
         sx={(theme) => ({
-          zIndex: theme.zIndex.appBar + 1,
+          zIndex: theme.zIndex.drawer,
           position: "fixed",
           top: "50px",
           borderRadius: 0,
