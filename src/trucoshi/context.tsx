@@ -174,11 +174,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     });
 
     socket.on(EServerEvent.SET_SESSION, ({ session, account }, serverVersion, newActiveMatches) => {
-      if (!account) {
+      if (account) {
+        const logged = Boolean(me && me.id === account.id);
+        if (logged && me) {
+          setAccount(me);
+        }
+        setLogged(logged);
+      } else {
         setSession(session);
+        setLogged(true);
       }
-      setAccount(account || null);
-      setLogged(!!account);
+
       setActiveMatches(newActiveMatches);
       setVersion(`${CLIENT_VERSION}-${serverVersion}`);
       setLoadingAccount(false);
@@ -221,7 +227,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.REFRESH_IDENTITY);
       timer && clearInterval(timer);
     };
-  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout]);
+  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me]);
 
   const sendUserId = useCallback(
     (name: string, callback?: (name: string) => void) => {
