@@ -84,10 +84,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (shouldConnect) {
       setSocket((current) => {
-        if ((current.auth as any).me?.id === me?.id) {
+        if ((current.auth as any).me?.id === me?.id && current.auth.name === name) {
           current.connect();
           return current;
         }
+
+        current.disconnect();
 
         const newSocket = io(HOST, {
           withCredentials: true,
