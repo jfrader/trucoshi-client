@@ -1,4 +1,4 @@
-import { UseQueryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UseQueryOptions, keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
 import { AxiosError, AxiosResponse } from "axios";
 import { User } from "lightning-accounts";
@@ -11,6 +11,7 @@ export const useMe = (
       queryKey: ["me"],
       retry: false,
       queryFn: apiClient.auth.getAuth,
+      placeholderData: keepPreviousData,
       ...options,
     }
   );

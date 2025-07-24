@@ -45,6 +45,12 @@ export const useChat = (
             } else if (message.sound === "bot") {
               const rndSound = Math.round(Math.random() * 3);
               queue("bot" + rndSound);
+            } else if (message.sound === "hit") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("hit" + rndSound);
+            } else if (message.sound === "miss") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("miss" + rndSound);
             } else if (message.sound === "botvoice") {
               const rndSound = Math.round(Math.random() * 3);
               queue("botvoice" + rndSound);

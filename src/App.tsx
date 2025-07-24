@@ -88,7 +88,7 @@ const AppRouter = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient({});
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 2000 } } });
 
 function App() {
   return (

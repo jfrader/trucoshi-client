@@ -51,56 +51,76 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [cards, cardsReady] = useCards({ theme: cardTheme });
   const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [identity, setIdentity] = useStateStorage<string>(
-    "identity",
-    () => getIdentityCookie() || ""
-  );
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
   const [, , removeCookie] = useCookies(["jwt:identity"]);
 
   // **Hooks**
-  const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe, reset } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const toast = useToast();
 
-  // **Socket Setup**
-  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = useMemo(
-    () =>
-      io(HOST, {
-        withCredentials: true,
-        autoConnect: false,
-        secure: import.meta.env.MODE === "production",
-        auth: {
-          sessionID: session,
-          name,
-          identity: me ? identity || getIdentityCookie() : undefined,
-          user: me ? me : undefined,
-        },
-      }),
-    [session, name, me, identity]
+  const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
+    io(HOST, {
+      withCredentials: true,
+      autoConnect: false,
+      secure: import.meta.env.MODE === "production",
+      auth: {
+        sessionID: session,
+        name,
+        identity: me ? getIdentityCookie() : undefined,
+        user: error ? undefined : me,
+      },
+    })
   );
 
-  // **Control Socket Connection**
   useEffect(() => {
     setShouldConnect(!isPendingMe);
   }, [isPendingMe]);
 
   useEffect(() => {
     if (shouldConnect) {
-      socket.connect();
+      setSocket((current) => {
+        if ((current.auth as any).me?.id === me?.id) {
+          current.connect();
+          return current;
+        }
+
+        const newSocket = io(HOST, {
+          withCredentials: true,
+          autoConnect: false,
+          secure: import.meta.env.MODE === "production",
+          auth: {
+            sessionID: session,
+            name,
+            identity: me ? getIdentityCookie() : undefined,
+            user: error ? undefined : me,
+          },
+        });
+        newSocket.connect();
+        return newSocket;
+      });
     }
-    return () => {
-      socket.disconnect();
-    };
-  }, [shouldConnect, socket]);
+  }, [error, me, name, session, shouldConnect]);
 
   const logout = useCallback(() => {
+    reset();
     setLoadingAccount(true);
     setShouldConnect(false);
+    setSocket(() => {
+      return io(HOST, {
+        withCredentials: true,
+        autoConnect: false,
+        secure: import.meta.env.MODE === "production",
+        auth: {
+          sessionID: session,
+          name,
+        },
+      });
+    });
     apiLogout(
       { withCredentials: true },
       {
@@ -121,14 +141,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             setAccount(null);
             setActiveMatches([]);
             removeCookie("jwt:identity");
-            setIdentity("");
           });
         },
       }
     );
-  }, [apiLogout, refetchMe, removeCookie, setIdentity, toast, socket]);
+  }, [reset, apiLogout, session, name, toast, refetchMe, socket, removeCookie]);
 
-  // **Socket Event Listeners**
   useEffect(() => {
     let timer: NodeJS.Timer | null = null;
 
@@ -183,20 +201,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       try {
         await refetchMe();
         const token = getIdentityCookie();
-        setIdentity(token || "");
         cb(token || null);
       } catch (e) {
         cb(null);
-      }
-    });
-
-    socket.on(EServerEvent.ERROR, ({ message, action }) => {
-      toast.error(message);
-      if (action === "RECONNECT") {
-        socket.disconnect();
-        socket.connect();
-      } else if (action === "LOGIN") {
-        logout();
       }
     });
 
@@ -207,10 +214,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.MATCH_DELETED);
       socket.off(EServerEvent.PONG);
       socket.off(EServerEvent.REFRESH_IDENTITY);
-      socket.off(EServerEvent.ERROR);
       timer && clearInterval(timer);
     };
-  }, [socket, setSession, account, refetchMe, removeCookie, setIdentity, toast, logout]);
+  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout]);
 
   const sendUserId = useCallback(
     (name: string, callback?: (name: string) => void) => {
@@ -240,7 +246,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       }
       setName(name);
       callback?.(name);
-      // Socket will reconnect with new name via useMemo dependency
     },
     [account, refetchMe, setName, toast, updateProfile]
   );

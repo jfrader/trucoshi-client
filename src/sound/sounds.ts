@@ -134,6 +134,46 @@ export const gameSounds = {
     volume: DEFAULT_VOLUME,
     preload: DEFAULT_PRELOAD,
   },
+  hit0: {
+    src: "/sounds/hit1.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  hit1: {
+    src: "/sounds/hit2.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  hit2: {
+    src: "/sounds/hit3.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  hit3: {
+    src: "/sounds/hit4.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  miss0: {
+    src: "/sounds/miss1.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  miss1: {
+    src: "/sounds/miss2.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  miss2: {
+    src: "/sounds/miss3.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  miss3: {
+    src: "/sounds/miss4.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
   fatality: {
     src: "/sounds/fatality.mp3",
     volume: DEFAULT_VOLUME,

@@ -24,7 +24,7 @@ export const WelcomeMenu = () => {
       });
   };
   return (
-    <Box display="flex" flexDirection="column" justifyContent="center">
+    <Box key={account?.id} display="flex" flexDirection="column" justifyContent="center">
       <Stack direction="row" justifyContent="space-between">
         <Typography
           textAlign="left"
@@ -39,7 +39,7 @@ export const WelcomeMenu = () => {
             role="button"
             sx={{ cursor: "pointer" }}
             onClick={(e) => {
-              e.stopPropagation()
+              e.stopPropagation();
               setSidebarOpen(true);
             }}
           >
