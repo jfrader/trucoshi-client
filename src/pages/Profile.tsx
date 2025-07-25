@@ -50,7 +50,7 @@ export const Profile = () => {
   const [currentPassword, setCurrentPassword] = useState<string>("");
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    navigate(pathname + "?t=" + newValue);
+    navigate(pathname + "?t=" + newValue, { replace: true });
   };
 
   if (!context) {
@@ -106,7 +106,7 @@ export const Profile = () => {
   return (
     <PageContainer
       title={profile.account.name}
-      icon={<UserAvatar size="large" account={profile.account} />}
+      icon={<UserAvatar status size="large" account={profile.account} />}
     >
       <Card>
         <CardContent>

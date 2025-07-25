@@ -5,7 +5,7 @@ import { PlayMenu } from "../components/menu/PlayMenu";
 import { WelcomeMenu } from "../components/menu/WelcomeMenu";
 
 export const Home = () => {
-  const [{ activeMatches, session, isAccountPending }, , hydrated] = useTrucoshi();
+  const [{ activeMatches, session, isAccountPending }, , ,hydrated] = useTrucoshi();
 
   if (!hydrated || !session || isAccountPending) {
     return (

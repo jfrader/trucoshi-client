@@ -1,23 +1,34 @@
-import { Box, Button, FormGroup, Typography } from "@mui/material";
+import { Box, Button, FormGroup, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CreateMatchButton } from "./CreateMatchButton";
 
 export const PlayMenu = () => {
   const navigate = useNavigate();
-  const [{ account }] = useTrucoshi();
+  const [{ account, stats }] = useTrucoshi();
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center">
-      <Typography
-        width="100%"
-        textAlign="left"
-        color="text.disabled"
-        textTransform="uppercase"
-        variant="subtitle1"
-      >
-        Jugar
-      </Typography>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography
+          textAlign="left"
+          color="text.disabled"
+          textTransform="uppercase"
+          variant="subtitle1"
+        >
+          Jugar
+        </Typography>
+        {stats.onlinePlayers.length ? (
+          <Box textTransform="uppercase">
+            <Typography color="text.disabled" pr={1} component="span" variant="inherit">
+              Online
+            </Typography>
+            <Typography color="success" component="span" fontSize="inherit" variant="inherit">
+              {stats.onlinePlayers.length}
+            </Typography>
+          </Box>
+        ) : null}
+      </Stack>
       <FormGroup>
         <CreateMatchButton />
         <Button color="secondary" size="large" onClick={() => navigate("/matches")}>

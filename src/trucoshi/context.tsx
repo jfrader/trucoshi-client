@@ -1,4 +1,11 @@
-import { useState, useCallback, useEffect, PropsWithChildren, useMemo } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  PropsWithChildren,
+  useMemo,
+  useLayoutEffect,
+} from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -8,6 +15,7 @@ import {
   IPublicMatchInfo,
   ServerToClientEvents,
   EMatchState,
+  ITrucoshiStats,
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
@@ -23,6 +31,7 @@ import { useLogin } from "../api/hooks/useLogin";
 import { useToast } from "../hooks/useToast";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { getIdentityCookie } from "../utils/cookie";
+import { useQueryClient } from "@tanstack/react-query";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -36,6 +45,7 @@ const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) =>
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   // **State Variables**
+  const [loggingOut, setLoggingOut] = useState(false);
   const [session, setSession] = useStateStorage<string | null>("session", null);
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
   const [name, setName] = useStateStorage<string>("id", "Satoshi");
@@ -53,15 +63,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
+  const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
   const [, , removeCookie] = useCookies(["jwt:identity"]);
 
   // **Hooks**
-  const { me, error, isFetching: isPendingMe, refetch: refetchMe, reset } = useMe();
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
@@ -71,21 +83,23 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       auth: {
         sessionID: session,
         name,
-        identity: me ? getIdentityCookie() : undefined,
+        identity: me && !error ? getIdentityCookie() : undefined,
         user: error ? undefined : me,
       },
     })
   );
 
   useEffect(() => {
-    setShouldConnect(!isPendingMe);
-  }, [isPendingMe]);
+    setShouldConnect(!isPendingMe && !loggingOut);
+  }, [isPendingMe, loggingOut]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (shouldConnect) {
       setSocket((current) => {
-        if ((current.auth as any).me?.id === me?.id && current.auth.name === name) {
-          current.connect();
+        if ((current.auth as any).user?.id === me?.id && current.auth.name === name) {
+          if (!current.connected) {
+            current.connect();
+          }
           return current;
         }
 
@@ -106,15 +120,14 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         return newSocket;
       });
     }
-  }, [error, me, name, session, shouldConnect]);
+  }, [error, loggingOut, me, name, session, shouldConnect]);
 
   const logout = useCallback(() => {
-    reset();
+    setLoggingOut(true);
     setLoadingAccount(true);
     setShouldConnect(false);
-    setLogged(false);
-    setAccount(null);
-    setActiveMatches([]);
+    socket.io.reconnection(false);
+    socket.emit(EClientEvent.LOGOUT, () => {});
     apiLogout(
       { withCredentials: true },
       {
@@ -122,37 +135,19 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           toast.error(e.message);
         },
         onSettled() {
-          refetchMe().finally(() => {
-            setSocket((current) => {
-              current.emit(EClientEvent.LOGOUT, ({ error: e }) => {
-                if (e) {
-                  toast.error(e.message);
-                }
-                current.disconnect();
-              });
-              return io(HOST, {
-                withCredentials: true,
-                autoConnect: false,
-                secure: import.meta.env.MODE === "production",
-                auth: {
-                  sessionID: session,
-                  name,
-                },
-              });
-            });
-
-            setLogged(false);
-            setAccount(null);
-            setActiveMatches([]);
-            removeCookie("jwt:identity");
-            setTimeout(() => {
-              setShouldConnect(true);
-            });
-          });
+          queryClient.setQueryData(["me"], () => ({ data: null }));
+          removeCookie("jwt:identity");
+          setLogged(false);
+          setAccount(null);
+          setActiveMatches([]);
+          setTimeout(() => {
+            setLoggingOut(false);
+            setShouldConnect(true);
+          }, 1000);
         },
       }
     );
-  }, [reset, apiLogout, session, name, toast, refetchMe, removeCookie]);
+  }, [socket, apiLogout, toast, queryClient, removeCookie]);
 
   useEffect(() => {
     let timer: NodeJS.Timer | null = null;
@@ -160,6 +155,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     socket.on("connect", () => {
       setConnected(true);
       sendPing(socket);
+      socket.emit(EClientEvent.JOIN_ROOM, "stats");
       timer && clearInterval(timer);
     });
 
@@ -169,11 +165,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
       timer = setInterval(() => {
         if (!socket.active) {
-          socket.connect();
+          setShouldConnect(true);
           timer && clearInterval(timer);
         }
       }, 5000);
     });
+
+    socket.on(EServerEvent.UPDATE_STATS, (updated) => setStats(updated));
 
     socket.on(EServerEvent.SET_SESSION, ({ session, account }, serverVersion, newActiveMatches) => {
       if (account) {
@@ -227,15 +225,20 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.MATCH_DELETED);
       socket.off(EServerEvent.PONG);
       socket.off(EServerEvent.REFRESH_IDENTITY);
-      timer && clearInterval(timer);
+      socket.off(EServerEvent.UPDATE_STATS);
     };
   }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me]);
 
   const sendUserId = useCallback(
-    (name: string, callback?: (name: string) => void) => {
+    (newName: string, callback?: (name: string) => void) => {
+      if (newName.length > 16) {
+        toast.warning("Maximo 16 caracteres");
+        return callback?.(account ? account.name : name);
+      }
+
       if (account) {
         return updateProfile(
-          { name },
+          { name: newName },
           {
             onSuccess() {
               refetchMe()
@@ -247,20 +250,20 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
                 })
                 .catch((e) => {
                   toast.error(e.message);
-                  callback?.(name);
+                  callback?.(newName);
                 });
             },
             onError(e) {
               toast.error(e.message);
-              callback?.(name);
+              callback?.(newName);
             },
           }
         );
       }
-      setName(name);
-      callback?.(name);
+      setName(newName);
+      callback?.(newName);
     },
-    [account, refetchMe, setName, toast, updateProfile]
+    [account, name, refetchMe, setName, toast, updateProfile]
   );
 
   const fetchPublicMatches = useCallback(
@@ -272,19 +275,18 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     [socket]
   );
 
-  // **Error Handling**
   useEffect(() => {
     if (is401(error)) {
       logout();
     }
   }, [error, logout]);
 
-  // **Context Value**
   return (
     <TrucoshiContext.Provider
       value={{
         socket,
         state: {
+          stats,
           dark,
           account,
           version,

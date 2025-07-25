@@ -84,16 +84,11 @@ export const PlayerRanking = () => {
                     <ListItem key={player.accountId}>
                       <ListItemIcon>#{i + 1}</ListItemIcon>
                       <ListItemAvatar>
-                        <UserAvatar
-                          link
-                          account={{
-                            name: player.name,
-                            accountId: player.accountId,
-                            avatarUrl: player.avatarUrl,
-                          }}
-                        />
+                        <UserAvatar status link account={player} />
                       </ListItemAvatar>
-                      <ListItemButton {...linkProps}>{player.name}</ListItemButton>
+                      <ListItemButton sx={{ mr: 6 }} {...linkProps}>
+                        {player.name}
+                      </ListItemButton>
                       <ListItemSecondaryAction>
                         {player.win + player.loss} /{" "}
                         <Typography variant="caption" fontWeight="bold" color="primary">

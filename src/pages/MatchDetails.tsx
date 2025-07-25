@@ -56,7 +56,7 @@ export const MatchDetails = () => {
   const [search] = useSearchParams();
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    navigate(pathname + "?t=" + newValue);
+    navigate(pathname + "?t=" + newValue, { replace: true });
   };
 
   if (!context) {
@@ -207,7 +207,7 @@ export const MatchDetails = () => {
                             >
                               <ListItemAvatar>{(player.idx || 0) + 1}</ListItemAvatar>
                               <ListItemAvatar>
-                                <UserAvatar account={player} />
+                                <UserAvatar status account={player} />
                               </ListItemAvatar>
                               <ListItemText
                                 primary={player.name}

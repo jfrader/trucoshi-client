@@ -40,7 +40,7 @@ import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 
 const Match = () => {
-  const [, , hydrated] = useTrucoshi();
+  const [, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
 

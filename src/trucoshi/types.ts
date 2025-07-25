@@ -7,6 +7,7 @@ import {
   ILobbyOptions,
   IPublicMatch,
   IPublicPlayer,
+  ITrucoshiStats,
   IWaitingPlayData,
   ServerToClientEvents,
 } from "trucoshi";
@@ -83,6 +84,7 @@ export interface ITrucoshiState {
   inspectedCard: ICard | null;
   cards: CardSources;
   isSidebarOpen: boolean;
+  stats: ITrucoshiStats;
 }
 
 export interface ITrucoshiContext {
