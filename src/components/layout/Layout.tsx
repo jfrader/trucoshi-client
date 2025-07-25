@@ -54,7 +54,10 @@ export const Layout = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (versionCheck.data && versionCheck.data.version.trim() !== import.meta.env.APP_VERSION) {
+    if (
+      versionCheck.data &&
+      versionCheck.data.version.trim() !== import.meta.env.VITE_APP_VERSION
+    ) {
       modal.onOpen({
         onConfirm: () => {
           setTimeout(() => {

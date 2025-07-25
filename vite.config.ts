@@ -3,15 +3,13 @@ import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import { writeFile } from "fs/promises";
 import { resolve } from "path";
+import packageJson from "./package.json";
 
 const versionPlugin = () => ({
   name: "vite-plugin-version",
   async writeBundle() {
     try {
-      const packageJson = await import(resolve(process.cwd(), "package.json"), {
-        with: { type: "json" },
-      });
-      const version = packageJson.default.version || "1.0.0";
+      const version = packageJson.version.toString() || "1.0.0";
       const versionData = { version };
       const outputPath = resolve(process.cwd(), "public", "version.json");
       const distPath = resolve(process.cwd(), "dist", "version.json");
@@ -33,9 +31,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["lightning-accounts", "react-qr-code", "trucoshi"],
-  },
-  define: {
-    APP_VERSION: JSON.stringify(process.env.npm_package_version),
   },
   build: {
     commonjsOptions: {
