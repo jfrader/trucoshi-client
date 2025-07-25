@@ -14,7 +14,9 @@ const versionPlugin = () => ({
       const version = packageJson.default.version || "1.0.0";
       const versionData = { version };
       const outputPath = resolve(process.cwd(), "public", "version.json");
+      const distPath = resolve(process.cwd(), "dist", "version.json");
       await writeFile(outputPath, JSON.stringify(versionData, null, 2), "utf-8");
+      await writeFile(distPath, JSON.stringify(versionData, null, 2), "utf-8");
       console.log(`Successfully wrote version.json with version ${version}`);
     } catch (error) {
       console.error("Failed to write version.json:", error);
