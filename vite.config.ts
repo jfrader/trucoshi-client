@@ -1,9 +1,29 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
+import { writeFile } from "fs/promises";
+import { resolve } from "path";
+
+const versionPlugin = () => ({
+  name: "vite-plugin-version",
+  async writeBundle() {
+    try {
+      const packageJson = await import(resolve(process.cwd(), "package.json"), {
+        with: { type: "json" },
+      });
+      const version = packageJson.default.version || "1.0.0";
+      const versionData = { version };
+      const outputPath = resolve(process.cwd(), "public", "version.json");
+      await writeFile(outputPath, JSON.stringify(versionData, null, 2), "utf-8");
+      console.log(`Successfully wrote version.json with version ${version}`);
+    } catch (error) {
+      console.error("Failed to write version.json:", error);
+    }
+  },
+});
 
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths()],
+  plugins: [react(), viteTsconfigPaths(), versionPlugin()],
   server: {
     open: true,
     host: "localhost",
@@ -11,6 +31,9 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["lightning-accounts", "react-qr-code", "trucoshi"],
+  },
+  define: {
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
   },
   build: {
     commonjsOptions: {

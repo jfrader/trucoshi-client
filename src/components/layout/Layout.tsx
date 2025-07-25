@@ -1,11 +1,14 @@
 import { CssBaseline, Paper, ThemeProvider, styled } from "@mui/material";
 import { Box } from "@mui/system";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { themes } from "../../theme";
 import { CardBackdrop } from "../../shared/CardBackdrop";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
+import { useQuery } from "@tanstack/react-query";
+import { ConfirmationModal } from "../../shared/ConfirmationModal";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -31,8 +34,40 @@ const LayoutContainer = styled(Box)(({ theme }) => [
   },
 ]);
 
+const VERSION_CHECK_TIME = 1000 * 5 * 60;
+
 export const Layout = ({ children }: PropsWithChildren) => {
+  const modal = useConfirmationModal();
+
   const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard }] = useTrucoshi();
+
+  const versionCheck = useQuery({
+    queryKey: ["app-version-check"],
+    queryFn: async () => {
+      const res = await fetch("/version.json");
+      return res.json();
+    },
+    enabled: import.meta.env.MODE === "production",
+    refetchInterval: VERSION_CHECK_TIME,
+    gcTime: 0,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (versionCheck.data && versionCheck.data.version.trim() !== import.meta.env.APP_VERSION) {
+      modal.onOpen({
+        onConfirm: () => {
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        },
+        acceptLabel: "Recargar",
+        title: "Una nueva version esta disponible!",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [versionCheck.data, versionCheck.isFetching]);
+
   return (
     <ThemeProvider
       theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
@@ -74,6 +109,8 @@ export const Layout = ({ children }: PropsWithChildren) => {
         inspectCard={inspectCard}
         cardTheme={cardTheme}
       />
+
+      <ConfirmationModal {...modal} />
     </ThemeProvider>
   );
 };

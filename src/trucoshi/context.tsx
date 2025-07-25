@@ -103,6 +103,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           return current;
         }
 
+        current.io.reconnection(false);
         current.disconnect();
 
         const newSocket = io(HOST, {
@@ -162,12 +163,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     socket.on("disconnect", () => {
       setConnected(false);
       setLoadingAccount(true);
+      setLoggingOut(true);
 
       timer = setInterval(() => {
-        if (!socket.active) {
-          setShouldConnect(true);
-          timer && clearInterval(timer);
-        }
+        setLoggingOut(false);
+        setShouldConnect(true);
+        timer && clearInterval(timer);
       }, 5000);
     });
 

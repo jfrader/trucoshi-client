@@ -1,18 +1,22 @@
 import { Box, Typography } from "@mui/material";
-import { ICard } from "trucoshi";
+import { EFlorCommand, ICard } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
 import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
 import { PlayerTag } from "./PlayerTag";
 import { TurnProgress } from "./TurnProgress";
+import { ConfirmationModal } from "../../shared/ConfirmationModal";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 
-type PlayerProps = Pick<ITrucoshiMatchState, "canPlay"| "match"> &
+type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "match"> &
   PropsWithPlayer<{
     onPlayCard: ITrucoshiMatchActions["playCard"];
   }>;
 
 const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
   const [, isPrevious] = useRounds(match);
+
+  const modal = useConfirmationModal();
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">
@@ -44,7 +48,19 @@ const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
                         enableHover
                         key={card + player.idx}
                         card={card as ICard}
-                        onClick={() => onPlayCard(idx, card as ICard)}
+                        onClick={() => {
+                          if (player.commands.includes(EFlorCommand.FLOR)) {
+                            return modal.onOpen({
+                              title: "Atencion",
+                              body: "Si jugas esta carta vas a perder tu flor!",
+                              acceptLabel: "Jugar de todas formas",
+                              onConfirm: () => {
+                                onPlayCard(idx, card as ICard);
+                              },
+                            });
+                          }
+                          onPlayCard(idx, card as ICard);
+                        }}
                       />
                     ) : (
                       <GameCard key={idx} card={card as ICard} />
@@ -55,6 +71,7 @@ const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
           </>
         )}
       </Box>
+      <ConfirmationModal {...modal} />
     </Box>
   );
 };
