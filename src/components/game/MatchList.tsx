@@ -53,11 +53,14 @@ export const MatchList = ({
         color="text.disabled"
         textTransform="uppercase"
         variant="subtitle1"
+        display="flex"
+        gap={4}
       >
-        {title}
+        <Box flexGrow={1}>{title}</Box>
         {onRefresh ? (
           <IconButton
             size="large"
+            sx={{ padding: 0 }}
             color="success"
             onClick={() => {
               onRefresh();
@@ -65,13 +68,17 @@ export const MatchList = ({
             }}
           >
             <Box maxHeight="1em">
-              {isLoading ? <CircularProgress color="success" size="0.8em" /> : <RefreshIcon />}
+              {isLoading ? (
+                <CircularProgress color="success" size="0.9em" />
+              ) : (
+                <RefreshIcon fontSize="large" />
+              )}
             </Box>
           </IconButton>
         ) : null}
       </Typography>
       {matches.length ? (
-        <Box>
+        <Box pt={2}>
           <List dense={dense}>
             <ListItem divider>
               <ListItemAvatar>Host</ListItemAvatar>
@@ -112,7 +119,7 @@ export const MatchList = ({
           </List>
         </Box>
       ) : (
-        <Box textAlign="left" width="100%">
+        <Box pt={2} textAlign="left" width="100%">
           {NoMatches}
         </Box>
       )}

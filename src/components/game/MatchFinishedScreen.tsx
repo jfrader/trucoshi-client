@@ -11,6 +11,7 @@ import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
 import { useEffect, useMemo } from "react";
 import { useSound } from "../../sound/hooks/useSound";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const MatchFinishedScreen = ({
   match,
@@ -21,6 +22,9 @@ export const MatchFinishedScreen = ({
   error: Error | null;
   chatProps: ReturnType<typeof useChatRoom>;
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { queue } = useSound();
 
   const iAmWinner = useMemo(
@@ -78,7 +82,10 @@ export const MatchFinishedScreen = ({
           </Stack>
           <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
         </Box>
-        <Button component={Link} to="/" variant="text">
+        <Button
+          onClick={() => (location.key === "default" ? navigate("/") : navigate(-1))}
+          variant="text"
+        >
           Volver al inicio
         </Button>
         <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
