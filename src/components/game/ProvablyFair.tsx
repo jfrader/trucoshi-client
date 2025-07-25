@@ -31,9 +31,7 @@ export const ProvablyFair = ({ matchSessionId, players, hands }: Props) => {
   useLayoutEffect(() => {
     import("trucoshi/dist/lib/classes").then(({ Table, Deck }) => {
       const d = Deck();
-
       const hand = hands.find((h) => h.idx === handIdx);
-
       if (!hand) {
         return;
       }
@@ -51,13 +49,13 @@ export const ProvablyFair = ({ matchSessionId, players, hands }: Props) => {
         }))
       );
 
+      // Advance table to the correct forehand for handIdx
       for (let i = 1; i < handIdx; i++) {
         table.nextHand();
       }
 
-      for (let i = 0; i < handIdx; i++) {
-        d.random.next();
-      }
+      // Set nonce to match backend: 40 increments per previous hand
+      d.random.nonce = (handIdx - 1) * 40;
 
       const c = table.getPlayerByPosition(0, true).idx || 0;
       d.shuffle(c);
@@ -100,7 +98,6 @@ export const ProvablyFair = ({ matchSessionId, players, hands }: Props) => {
           focused
           size="small"
         />
-
         <TextField
           name={`secret-${clientIdx + 1}`}
           color="info"
@@ -147,7 +144,10 @@ export const ProvablyFair = ({ matchSessionId, players, hands }: Props) => {
               <li>El secreto del server</li>
               <li>El secreto del jugador mano</li>
               {deck.random.bitcoinHeight ? <li>El hash del ultimo bloque de Bitcoin</li> : null}
-              <li>El numero de mano (1, 2, 3)</li>
+              <li>
+                Un contador incremental (nonce) incrementa una vez por cada movimiento de cartas (40
+                veces por cada mano)
+              </li>
             </ul>
             Como semilla y genera deterministicamente el reparto de cartas, que se hace como en la
             vida real:
