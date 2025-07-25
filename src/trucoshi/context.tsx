@@ -5,6 +5,7 @@ import {
   PropsWithChildren,
   useMemo,
   useLayoutEffect,
+  useRef,
 } from "react";
 import { io, Socket } from "socket.io-client";
 import {
@@ -74,6 +75,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const timer = useRef<NodeJS.Timer | null>(null);
 
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
@@ -95,6 +97,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   useLayoutEffect(() => {
     if (shouldConnect) {
+      timer.current && clearInterval(timer.current);
       setSocket((current) => {
         if ((current.auth as any).user?.id === me?.id && current.auth.name === name) {
           if (!current.connected) {
@@ -151,13 +154,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [socket, apiLogout, toast, queryClient, removeCookie]);
 
   useEffect(() => {
-    let timer: NodeJS.Timer | null = null;
-
     socket.on("connect", () => {
       setConnected(true);
       sendPing(socket);
       socket.emit(EClientEvent.JOIN_ROOM, "stats");
-      timer && clearInterval(timer);
+      timer.current && clearInterval(timer.current);
     });
 
     socket.on("disconnect", () => {
@@ -165,10 +166,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setLoadingAccount(true);
       setLoggingOut(true);
 
-      timer = setInterval(() => {
+      timer.current = setInterval(() => {
         setLoggingOut(false);
         setShouldConnect(true);
-        timer && clearInterval(timer);
       }, 5000);
     });
 
