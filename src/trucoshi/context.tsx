@@ -77,24 +77,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient();
   const timer = useRef<NodeJS.Timer | null>(null);
 
-  const getAuth = useCallback(
-    (cb: any) => {
-      cb({
-        sessionID: session,
-        name,
-        identity: me && !error ? getIdentityCookie() : undefined,
-        user: error ? undefined : me,
-      });
-    },
-    [error, me, name, session]
-  );
-
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
       withCredentials: true,
       autoConnect: false,
       secure: import.meta.env.MODE === "production",
-      auth: getAuth,
+      auth: {
+        sessionID: session,
+        name,
+        identity: me && !error ? getIdentityCookie() : undefined,
+        user: error ? undefined : me,
+      },
     })
   );
 
@@ -124,13 +117,18 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           withCredentials: true,
           autoConnect: false,
           secure: import.meta.env.MODE === "production",
-          auth: getAuth,
+          auth: {
+            sessionID: session,
+            name,
+            identity: me && !error ? getIdentityCookie() : undefined,
+            user: error ? undefined : me,
+          },
         });
         newSocket.connect();
         return newSocket;
       });
     }
-  }, [getAuth, me?.id, name, shouldConnect]);
+  }, [error, me, me?.id, name, session, shouldConnect]);
 
   const logout = useCallback(() => {
     setLoggingOut(true);
