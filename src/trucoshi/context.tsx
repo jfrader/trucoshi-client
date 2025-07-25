@@ -211,9 +211,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         return cb(null);
       }
       try {
+        setShouldConnect(false);
         await refetchMe();
-        const token = getIdentityCookie();
-        cb(token || null);
+        setTimeout(() => {
+          cb(getIdentityCookie() || null);
+          setShouldConnect(true);
+        });
       } catch (e) {
         cb(null);
       }
