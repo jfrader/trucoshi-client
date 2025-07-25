@@ -77,17 +77,24 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient();
   const timer = useRef<NodeJS.Timer | null>(null);
 
+  const getAuth = useCallback(
+    (cb: any) => {
+      cb({
+        sessionID: session,
+        name,
+        identity: me && !error ? getIdentityCookie() : undefined,
+        user: error ? undefined : me,
+      });
+    },
+    [error, me, name, session]
+  );
+
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
       withCredentials: true,
       autoConnect: false,
       secure: import.meta.env.MODE === "production",
-      auth: {
-        sessionID: session,
-        name,
-        identity: me && !error ? getIdentityCookie() : undefined,
-        user: error ? undefined : me,
-      },
+      auth: getAuth,
     })
   );
 
@@ -99,7 +106,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     if (shouldConnect) {
       timer.current && clearInterval(timer.current);
       setSocket((current) => {
-        if ((current.auth as any).user?.id === me?.id && current.auth.name === name) {
+        if (
+          current.active &&
+          (current.auth as any).user?.id === me?.id &&
+          current.auth.name === name
+        ) {
           if (!current.connected) {
             current.connect();
           }
@@ -113,18 +124,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           withCredentials: true,
           autoConnect: false,
           secure: import.meta.env.MODE === "production",
-          auth: {
-            sessionID: session,
-            name,
-            identity: me && !error ? getIdentityCookie() : undefined,
-            user: error ? undefined : me,
-          },
+          auth: getAuth,
         });
         newSocket.connect();
         return newSocket;
       });
     }
-  }, [error, loggingOut, me, name, session, shouldConnect]);
+  }, [getAuth, me?.id, name, shouldConnect]);
 
   const logout = useCallback(() => {
     setLoggingOut(true);
@@ -219,24 +225,30 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setServerAheadTime(serverTime - clientTime);
     });
 
-    socket.on(EServerEvent.REFRESH_IDENTITY, async (userId, cb) => {
+    socket.on(EServerEvent.REFRESH_IDENTITY, (userId, cb) => {
       if (!account || userId !== account.id) {
         return cb(null);
       }
-      try {
-        setShouldConnect(false);
-        await refetchMe();
-        setTimeout(() => {
-          cb(getIdentityCookie() || null);
-          setShouldConnect(true);
+      setShouldConnect(false);
+      refetchMe()
+        .then(() => {
+          setTimeout(() => {
+            const token = getIdentityCookie();
+            if (token) {
+              cb(token);
+              setShouldConnect(true);
+            }
+          });
+        })
+        .catch(() => {
+          cb(null);
         });
-      } catch (e) {
-        cb(null);
-      }
     });
 
     return () => {
       socket.off("connect");
+      socket.off("disconnect");
+      socket.off("connect_error");
       socket.off(EServerEvent.SET_SESSION);
       socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
       socket.off(EServerEvent.MATCH_DELETED);
