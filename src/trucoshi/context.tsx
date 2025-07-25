@@ -161,11 +161,24 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       timer.current && clearInterval(timer.current);
     });
 
+    socket.on("connect_error", () => {
+      setConnected(false);
+      setLoadingAccount(true);
+      setLoggingOut(true);
+
+      timer.current && clearInterval(timer.current);
+      timer.current = setInterval(() => {
+        setLoggingOut(false);
+        setShouldConnect(true);
+      }, 5000);
+    });
+
     socket.on("disconnect", () => {
       setConnected(false);
       setLoadingAccount(true);
       setLoggingOut(true);
 
+      timer.current && clearInterval(timer.current);
       timer.current = setInterval(() => {
         setLoggingOut(false);
         setShouldConnect(true);
@@ -230,6 +243,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.PONG);
       socket.off(EServerEvent.REFRESH_IDENTITY);
       socket.off(EServerEvent.UPDATE_STATS);
+      timer.current && clearInterval(timer.current);
     };
   }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me]);
 
