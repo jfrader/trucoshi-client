@@ -198,7 +198,7 @@ export const MatchDetails = () => {
                           return (
                             <Component
                               divider
-                              key={player.id}
+                              key={player.idx}
                               onClick={
                                 player.accountId
                                   ? () => navigate(`/profile/${player.accountId}`)
