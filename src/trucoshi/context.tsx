@@ -1,12 +1,4 @@
-import {
-  useState,
-  useCallback,
-  useEffect,
-  PropsWithChildren,
-  useMemo,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { useState, useCallback, useEffect, PropsWithChildren, useMemo, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -33,6 +25,7 @@ import { useToast } from "../hooks/useToast";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { getCookieName, getIdentityCookie } from "../utils/cookie";
 import { useQueryClient } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -80,26 +73,37 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       withCredentials: true,
       autoConnect: false,
       secure: import.meta.env.MODE === "production",
-      auth: {
-        sessionID: session,
-        name,
-        identity: me && !error ? getIdentityCookie() : undefined,
-        user: error ? undefined : me,
+      auth: (cb) => {
+        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+        cb({
+          sessionID: session,
+          name,
+          identity: cachedMe ? getIdentityCookie() : undefined,
+          user: cachedMe,
+        });
       },
     })
   );
 
   useEffect(() => {
-    setShouldConnect(!isPendingMe && !!(me || error) && !loggingOut);
-  }, [error, isPendingMe, loggingOut, me]);
+    setShouldConnect(!isPendingLogin && !isPendingMe && !!(me || error) && !loggingOut);
+  }, [error, isPendingMe, loggingOut, me, isPendingLogin]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (shouldConnect) {
       timer.current && clearInterval(timer.current);
       setSocket((current) => {
-        const userId = (current.auth as any).user?.id;
-        const meId = me?.id;
-        if (current.active && userId === meId && current.auth.name === name) {
+        let userId;
+        let authName;
+
+        (current as any).auth((data: any) => {
+          userId = data.user?.id;
+          authName = data.name;
+        });
+
+        const meId = account?.id;
+
+        if (current.active && userId === meId && authName === name) {
           if (!current.connected) {
             current.connect();
           }
@@ -113,18 +117,21 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           withCredentials: true,
           autoConnect: false,
           secure: import.meta.env.MODE === "production",
-          auth: {
-            sessionID: session,
-            name,
-            identity: me && !error ? getIdentityCookie() : undefined,
-            user: error ? undefined : me,
+          auth: (cb) => {
+            const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+            cb({
+              sessionID: session,
+              name,
+              identity: cachedMe ? getIdentityCookie() : undefined,
+              user: cachedMe,
+            });
           },
         });
         newSocket.connect();
         return newSocket;
       });
     }
-  }, [error, me, me?.id, name, session, shouldConnect]);
+  }, [account?.id, name, queryClient, session, shouldConnect]);
 
   const logout = useCallback(() => {
     setLoggingOut(true);
