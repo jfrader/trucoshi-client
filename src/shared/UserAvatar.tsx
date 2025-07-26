@@ -78,7 +78,7 @@ export const UserAvatar = ({
       variant="dot"
       overlap="circular"
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      invisible={!status || !!account.bot}
+      invisible={!status || !!account.bot || !accountId}
       online={online}
       title={online ? "Conectado" : "Desconectado"}
     >
