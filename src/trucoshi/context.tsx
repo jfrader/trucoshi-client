@@ -31,7 +31,7 @@ import { is401 } from "../api/apiClient";
 import { useLogin } from "../api/hooks/useLogin";
 import { useToast } from "../hooks/useToast";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
-import { getIdentityCookie } from "../utils/cookie";
+import { getCookieName, getIdentityCookie } from "../utils/cookie";
 import { useQueryClient } from "@tanstack/react-query";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
@@ -64,7 +64,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
-  const [, , removeCookie] = useCookies(["identity"]);
+  const [, , removeCookie] = useCookies([getCookieName("identity")]);
 
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
@@ -140,7 +140,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         },
         onSettled() {
           queryClient.setQueryData(["me"], () => ({ data: null }));
-          removeCookie("identity");
+          removeCookie(getCookieName("identity"));
           setLogged(false);
           setAccount(null);
           setActiveMatches([]);
