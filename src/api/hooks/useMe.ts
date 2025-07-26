@@ -12,7 +12,7 @@ export const useMe = (
       retry: false,
       queryFn: apiClient.auth.getAuth,
       placeholderData: keepPreviousData,
-      refetchInterval: 4000,
+      refetchInterval: 1000 * 60 * 4,
       ...options,
     }
   );
