@@ -90,15 +90,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   );
 
   useEffect(() => {
-    (async () => {
-      if (me && !getIdentityCookie()) {
-        await refetchMe();
-      }
-      setTimeout(() => {
-        setShouldConnect(!isPendingMe && !!(me || error) && !loggingOut);
-      });
-    })();
-  }, [error, isPendingMe, loggingOut, me, refetchMe]);
+    setShouldConnect(!isPendingMe && !!(me || error) && !loggingOut);
+  }, [error, isPendingMe, loggingOut, me]);
 
   useLayoutEffect(() => {
     if (shouldConnect) {
