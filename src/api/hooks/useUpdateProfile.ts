@@ -4,8 +4,8 @@ import { useMe } from "./useMe";
 import { useCookies } from "react-cookie";
 
 export const useUpdateProfile = () => {
-  const [cookies] = useCookies(["jwt:identity"]);
-  const { me } = useMe({ enabled: !!cookies["jwt:identity"] });
+  const [cookies] = useCookies(["identity"]);
+  const { me } = useMe({ enabled: !!cookies["identity"] });
   const queryClient = useQueryClient();
   const { mutate, error, isPending } = useMutation({
     onSuccess() {

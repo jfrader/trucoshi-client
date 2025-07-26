@@ -64,7 +64,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
-  const [, , removeCookie] = useCookies(["jwt:identity"]);
+  const [, , removeCookie] = useCookies(["identity"]);
 
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
@@ -140,7 +140,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         },
         onSettled() {
           queryClient.setQueryData(["me"], () => ({ data: null }));
-          removeCookie("jwt:identity");
+          removeCookie("identity");
           setLogged(false);
           setAccount(null);
           setActiveMatches([]);

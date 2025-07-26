@@ -14,4 +14,4 @@ export function getCookie(cname: string) {
   return "";
 }
 
-export const getIdentityCookie = () => getCookie("jwt:identity");
+export const getIdentityCookie = () => getCookie("identity");
