@@ -1,7 +1,8 @@
 import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
+import { forwardRef, Ref } from "react";
 
-export const MateIcon = (props: SvgIconProps) => (
-  <SvgIcon {...props}>
+export const MateIcon = forwardRef((props: SvgIconProps, ref: Ref<SVGSVGElement>) => (
+  <SvgIcon ref={ref} {...props}>
     <svg fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -13,6 +14,8 @@ export const MateIcon = (props: SvgIconProps) => (
       </g>
     </svg>
   </SvgIcon>
-);
+));
+
+MateIcon.displayName = "MateIcon";
 
 export default MateIcon;

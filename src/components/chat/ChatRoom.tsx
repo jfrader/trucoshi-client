@@ -214,7 +214,7 @@ export const getAvatar = (message: IChatMessage, players: IPublicPlayer[]) => {
 
   if (player) {
     return (
-      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 1 }}>
+      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 0.3 }}>
         <UserAvatar size="tiny" account={player} bgcolor={getTeamColor(player.teamIdx) + ".main"} />
       </ListItemAvatar>
     );
@@ -222,7 +222,7 @@ export const getAvatar = (message: IChatMessage, players: IPublicPlayer[]) => {
 
   if (!message.system && !message.card && !message.command) {
     return (
-      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 1 }}>
+      <ListItemAvatar sx={{ minWidth: "auto", pr: 1, alignSelf: "start", mt: 0.3 }}>
         <UserAvatar size="tiny" account={{ name: message.user.name }} bgcolor={"text.disabled"} />
       </ListItemAvatar>
     );

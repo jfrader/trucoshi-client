@@ -61,6 +61,8 @@ const Match = () => {
 
   const chatProps = useChatRoom(match);
 
+  const [, , , say] = chatProps.useChatState;
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,13 +77,14 @@ const Match = () => {
     ({ player }: PropsWithPlayer) => (
       <MatchPlayer
         key={player.idx}
+        say={say}
         canPlay={canPlay}
         player={player}
         onPlayCard={playCard}
         match={match}
       />
     ),
-    [canPlay, match, playCard]
+    [canPlay, match, playCard, say]
   );
 
   const InnerSlot = useCallback(

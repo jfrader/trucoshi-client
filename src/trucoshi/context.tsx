@@ -45,7 +45,6 @@ const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) =>
 };
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
-  // **State Variables**
   const [loggingOut, setLoggingOut] = useState(false);
   const [session, setSession] = useStateStorage<string | null>("session", null);
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
@@ -67,7 +66,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
   const [, , removeCookie] = useCookies(["jwt:identity"]);
 
-  // **Hooks**
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
@@ -92,18 +90,23 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   );
 
   useEffect(() => {
-    setShouldConnect(!isPendingMe && !loggingOut);
-  }, [isPendingMe, loggingOut]);
+    (async () => {
+      if (me && !getIdentityCookie()) {
+        await refetchMe();
+      }
+      setTimeout(() => {
+        setShouldConnect(!isPendingMe && !!(me || error) && !loggingOut);
+      });
+    })();
+  }, [error, isPendingMe, loggingOut, me, refetchMe]);
 
   useLayoutEffect(() => {
     if (shouldConnect) {
       timer.current && clearInterval(timer.current);
       setSocket((current) => {
-        if (
-          current.active &&
-          (current.auth as any).user?.id === me?.id &&
-          current.auth.name === name
-        ) {
+        const userId = (current.auth as any).user?.id;
+        const meId = me?.id;
+        if (current.active && userId === meId && current.auth.name === name) {
           if (!current.connected) {
             current.connect();
           }

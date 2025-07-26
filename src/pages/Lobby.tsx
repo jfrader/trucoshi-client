@@ -61,11 +61,18 @@ export const Lobby = () => {
     { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer },
   ] = useMatch(sessionId);
 
+  const chatRoom = useChatRoom(match);
+
+  const [, , , say] = chatRoom.useChatState;
+
   useEffect(() => {
     if (match) {
       if (match.state === EMatchState.STARTED || match.state === EMatchState.FINISHED) {
-        setShuffle((c) => c + 1);
-        const timer = setTimeout(() => navigate(`/match/${sessionId}`, { replace: true }), 2000);
+        match.state === EMatchState.STARTED ? setShuffle((c) => c + 1) : null;
+        const timer = setTimeout(
+          () => navigate(`/match/${sessionId}`, { replace: true }),
+          match.state === EMatchState.FINISHED ? 0 : 2000
+        );
         return () => clearTimeout(timer);
       }
     }
@@ -206,7 +213,7 @@ export const Lobby = () => {
             return (
               <Box pt={4}>
                 <Box>
-                  <PlayerTag isLobby isTurn={player.isMe} player={player} />
+                  <PlayerTag say={say} isLobby isTurn={player.isMe} player={player} />
                   <Stack px={2} pt={2}>
                     {player.isMe ? null : (
                       <Button
@@ -309,7 +316,7 @@ export const Lobby = () => {
         </Dialog>
       )}
       <FixedChatContainer>
-        <ChatRoom {...useChatRoom(match)} />
+        <ChatRoom {...chatRoom} />
       </FixedChatContainer>
       <Box display={{ xs: "none", md: "block" }}>
         <CardsDeck shuffle={shuffle} flip={shuffle > 0} />

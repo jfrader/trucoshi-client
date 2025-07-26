@@ -13,10 +13,15 @@ export const CardToggler = (props: BoxProps) => {
   const [{ cardTheme }] = useTrucoshi();
   const [randomCards, setRandomCards] = useState<ICard[]>(getRandomCards());
   const [flip, _setFlip] = useState(true);
+  const [disabled, setDisabled] = useState(false);
 
   const setFlip = (v: SetStateAction<boolean>) => {
-    const rndSound = Math.round(Math.random() * 2);
-    queue("play" + rndSound);
+    setDisabled(true);
+    queue("play0", (_e, status) => {
+      if (status === "finished") {
+        setDisabled(false);
+      }
+    });
     _setFlip(v);
   };
 
@@ -53,10 +58,16 @@ export const CardToggler = (props: BoxProps) => {
 
       <Stack justifyContent="end" alignItems="end" position="absolute" right="0" top="0">
         <IconButton
+          disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
-            const rndSound = Math.round(Math.random() * 2);
-            queue("play" + rndSound);
+            setDisabled(true);
+            const rndSound = Math.ceil(Math.random() * 2);
+            queue("play" + rndSound, (_e, status) => {
+              if (status === "finished") {
+                setDisabled(false);
+              }
+            });
             setRandomCards(getRandomCards());
           }}
           size="large"
@@ -65,6 +76,7 @@ export const CardToggler = (props: BoxProps) => {
           <Refresh />
         </IconButton>
         <IconButton
+          disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
             setFlip((c) => !c);

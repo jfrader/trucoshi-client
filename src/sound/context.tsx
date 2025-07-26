@@ -22,7 +22,7 @@ const getStoredVolume = () => Number(localStorage.getItem("trucoshi:volume") || 
 export const SoundProvider = ({ children }: PropsWithChildren) => {
   const soundsRef = useRef<Record<string, Howl>>({});
   const soundQueueRef = useRef<ISoundQueue>(INITIAL_QUEUE);
-  const isPlayingQueueSoundRef = useRef(false);
+  const isPlayingQueueSoundRef = useRef<boolean | string>(false);
   const isLoadingRef = useRef(true);
   const readyToLoadRef = useRef(false);
   const [mainVolume, _setVolume] = useState<number>(getStoredVolume);
@@ -90,7 +90,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     if (next && !isPlayingQueueSoundRef.current) {
       const promise = next.promise();
       soundQueueRef.current = soundQueueRef.current.slice(1);
-      isPlayingQueueSoundRef.current = true;
+      isPlayingQueueSoundRef.current = next.key;
       promise
         .then(() => {
           isPlayingQueueSoundRef.current = false;
@@ -140,6 +140,10 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       key: keyof typeof gameSounds | string,
       callback?: (e: Error | null, status?: "playing" | "finished") => void
     ) => {
+      if (isMuted) {
+        return;
+      }
+
       readyToLoadRef.current = true;
 
       const sound = soundsRef.current[key];
@@ -150,7 +154,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
 
       const promise = () =>
         new Promise((resolve, reject) => {
-          isPlayingQueueSoundRef.current = true;
+          isPlayingQueueSoundRef.current = key;
           sound.once("end", () => {
             callback?.(null, "finished");
             resolve(undefined);
@@ -166,11 +170,11 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       soundQueueRef.current = [...soundQueueRef.current, { key, promise }];
       setQueueTrigger((prev) => prev + 1);
     },
-    []
+    [isMuted]
   );
 
   const contextValue = useMemo(
-    () => ({ queue, mute, setVolume, volume: mainVolume, isMuted } satisfies ISoundContext),
+    () => ({ queue, mute, setVolume, volume: mainVolume, isMuted, isPlayingQueueSoundRef } satisfies ISoundContext),
     [queue, mute, setVolume, mainVolume, isMuted]
   );
 

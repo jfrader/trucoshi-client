@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { EFlorCommand, ICard } from "trucoshi";
+import { EFlorCommand, ICard, IChatMessage } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
 import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
@@ -11,9 +11,10 @@ import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "match"> &
   PropsWithPlayer<{
     onPlayCard: ITrucoshiMatchActions["playCard"];
+    say: IChatMessage | null;
   }>;
 
-const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
+const MatchPlayer = ({ match, player, say, canPlay, onPlayCard }: PlayerProps) => {
   const [, isPrevious] = useRounds(match);
 
   const modal = useConfirmationModal();
@@ -24,6 +25,7 @@ const MatchPlayer = ({ match, player, canPlay, onPlayCard }: PlayerProps) => {
       <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <PlayerTag
           player={player}
+          say={say}
           isDisabled={!player.ready || player.disabled}
           isTurn={!isPrevious && player.isTurn}
           isForehand={player.idx === match?.forehandIdx}

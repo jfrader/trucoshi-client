@@ -9,8 +9,7 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
-import { useEffect, useMemo } from "react";
-import { useSound } from "../../sound/hooks/useSound";
+import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const MatchFinishedScreen = ({
@@ -25,21 +24,10 @@ export const MatchFinishedScreen = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { queue } = useSound();
-
   const iAmWinner = useMemo(
     () => match.me?.teamIdx === match.winner?.id || !match.me,
     [match.me, match.winner?.id]
   );
-
-  useEffect(() => {
-    if (iAmWinner) {
-      queue("winner");
-    } else {
-      queue("deal");
-      queue("ceba_toma_mate");
-    }
-  }, [iAmWinner, match.teams, match.winner, queue]);
 
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;

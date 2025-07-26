@@ -1,4 +1,12 @@
-import { Stack, styled, Tooltip, Typography, TypographyProps, useTheme } from "@mui/material";
+import {
+  Stack,
+  styled,
+  SvgIconProps,
+  Tooltip,
+  Typography,
+  TypographyProps,
+  useTheme,
+} from "@mui/material";
 import { Box, css } from "@mui/system";
 import { bounce } from "../../assets/animations/bounce";
 import { TeamTag } from "./TeamTag";
@@ -6,16 +14,26 @@ import { PropsWithPlayer } from "../../trucoshi/types";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { getTeamColor } from "../../utils/team";
 import { BackHand, Star } from "@mui/icons-material";
+import { IChatMessage, SayType } from "trucoshi";
+import MateIcon from "../../assets/icons/MateIcon";
+import { ReactNode } from "react";
 
 type ITeamTagProps = PropsWithPlayer<{
   isTurn?: boolean;
   isDisabled?: boolean;
   isForehand?: boolean;
   isLobby?: boolean;
+  say?: IChatMessage | null;
 }>;
+
+const SAY_MAP: Record<SayType, (props: SvgIconProps) => ReactNode> = {
+  ceba_toma_mate: MateIcon,
+  mate: MateIcon,
+};
 
 export const PlayerTag = ({
   player,
+  say,
   isTurn,
   isForehand,
   isDisabled,
@@ -23,8 +41,12 @@ export const PlayerTag = ({
   ...props
 }: ITeamTagProps & TypographyProps) => {
   const theme = useTheme();
+
+  const isSay = say && player.key === say.user.key;
+  const SayIcon = isSay ? SAY_MAP[say.sound as SayType] || (() => null) : () => null;
+
   return (
-    <AnimatedBox isturn={Number(!isDisabled && isTurn && player.isMe)}>
+    <AnimatedBox isturn={Number(isSay || (!isDisabled && isTurn && player.isMe))}>
       <Stack alignItems="center" gap="0.2rem">
         <Stack
           direction="row"
@@ -33,6 +55,18 @@ export const PlayerTag = ({
           gap={1}
           position="relative"
         >
+          {isSay ? (
+            <Box
+              sx={{
+                position: "absolute",
+                zIndex: theme.zIndex.snackbar - 1,
+                left: -24,
+                top: -4,
+              }}
+            >
+              <SayIcon color="success" />
+            </Box>
+          ) : null}
           {isForehand && (
             <Box
               sx={{ position: "absolute", zIndex: theme.zIndex.snackbar - 1, left: -8, bottom: -6 }}

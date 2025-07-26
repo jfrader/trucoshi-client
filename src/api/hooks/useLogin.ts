@@ -4,8 +4,8 @@ import { apiClient } from "../apiClient";
 export const useLogin = () => {
   const queryClient = useQueryClient();
   const { mutate, error, isPending } = useMutation({
-    onSuccess() {
-      queryClient.resetQueries({ queryKey: ["me"] });
+    onSuccess(data) {
+      queryClient.setQueryData(["me"], data);
     },
     mutationKey: ["login"],
     mutationFn: apiClient.auth.loginCreate,

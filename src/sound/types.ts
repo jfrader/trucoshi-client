@@ -1,5 +1,5 @@
 import { HowlOptions } from "howler";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { gameSounds } from "./sounds";
 
 export interface ISoundContext {
@@ -11,6 +11,7 @@ export interface ISoundContext {
   mute(): void;
   volume: number;
   isMuted: boolean;
+  isPlayingQueueSoundRef: MutableRefObject<string | boolean>;
 }
 
 export type ISoundQueue = Array<{ key: string; promise: () => Promise<unknown> }>;

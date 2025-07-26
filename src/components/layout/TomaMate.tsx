@@ -6,15 +6,21 @@ import { useState } from "react";
 import { RainDrop } from "../../shared/EmojiRain";
 import bigMate from "../../assets/other/big_mate.png";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { useMatch } from "react-router-dom";
+import { EClientEvent } from "trucoshi";
 
 const bellySize = 21;
 
 export const TomaMate = () => {
   const { queue } = useSound();
-  const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
+  const [{ cardTheme }, { setCardTheme }, socket] = useTrucoshi();
   const [shake, setShake] = useState(false);
+  const [disabled, setDisabled] = useState(false);
   const [belly, setBelly] = useState(0);
   const isArgento = cardTheme === "argento";
+
+  const match = useMatch("/match/:sessionId");
+  const lobby = useMatch("/lobby/:sessionId");
 
   return (
     <>
@@ -23,11 +29,23 @@ export const TomaMate = () => {
         size="small"
         color={isArgento ? "primary" : shake ? "success" : "default"}
         title={isArgento ? "Cartas argentas activadas" : "Toma mate"}
+        disabled={disabled}
         onClick={() => {
           if (isArgento || shake) {
             return;
           }
-          queue(Math.random() > 0.5 ? "ceba_toma_mate" : "mate", (_e, status) => {
+
+          const sound = Math.random() > 0.5 ? "ceba_toma_mate" : "mate";
+          const ml = match || lobby;
+          if (ml && ml.params.sessionId) {
+            setDisabled(true);
+            socket.emit(EClientEvent.SAY, ml.params.sessionId, sound);
+            setTimeout(() => {
+              setDisabled(false);
+            }, 4000);
+          }
+
+          queue(sound, (_e, status) => {
             if (status === "playing") {
               setShake(true);
             }
