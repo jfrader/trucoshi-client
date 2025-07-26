@@ -15,7 +15,7 @@ export function getCookie(cname: string) {
 }
 
 export const getCookieName = (name: string) => {
-  return name + (import.meta.env.VITE_LIGHTNING_ACCOUNTS_COOKIE_PREFIX || "");
+  return (import.meta.env.VITE_LIGHTNING_ACCOUNTS_COOKIE_PREFIX || "") + name;
 };
 
 export const getIdentityCookie = () => getCookie(getCookieName("identity"));
