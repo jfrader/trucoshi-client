@@ -24,7 +24,7 @@ apiClient.instance.interceptors.response.use(
     ) {
       originalReq._retry = true;
       return apiClient.auth
-        .refreshTokensCreate()
+        .refreshAuthTokens()
         .then(() => apiClient.instance(originalReq))
         .catch(() => {
           throw parsedError;
