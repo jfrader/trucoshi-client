@@ -16,7 +16,7 @@ export const useDeposit = ({
 
   const { data, error, isPending } = useQuery<AxiosResponse<Transaction>, AxiosError>({
     queryKey: ["wallet-get-deposit"],
-    queryFn: () => apiClient.wallet.depositDetail(transactionId),
+    queryFn: () => apiClient.wallet.getDepositTransaction(transactionId),
     retry: false,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,

@@ -98,7 +98,12 @@ export const GameCard = ({
       onDoubleClick={onDoubleClick}
       enablehover={enableHover ? 1 : 0}
       {...buttonProps}
-      sx={{ width, height: `calc(${width} * 1.48)`, ...buttonProps.sx }}
+      sx={{
+        width,
+        height: `calc(${width} * 1.48)`,
+        borderRadius: `calc(${width} / 13)`,
+        ...buttonProps.sx,
+      }}
     >
       <Box
         sx={{

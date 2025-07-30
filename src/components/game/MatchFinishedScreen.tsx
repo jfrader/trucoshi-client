@@ -9,8 +9,9 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useMe } from "../../api/hooks/useMe";
 
 export const MatchFinishedScreen = ({
   match,
@@ -24,10 +25,18 @@ export const MatchFinishedScreen = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { refetch: refetchMe } = useMe();
+
   const iAmWinner = useMemo(
     () => match.me?.teamIdx === match.winner?.id || !match.me,
     [match.me, match.winner?.id]
   );
+
+  useEffect(() => {
+    if (match.options.satsPerPlayer) {
+      refetchMe();
+    }
+  }, [match.options.satsPerPlayer, refetchMe]);
 
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;
@@ -49,8 +58,18 @@ export const MatchFinishedScreen = ({
         >
           Partida Finalizada
           {iAmWinner && match.awardedSatsPerPlayer ? (
-            <Typography variant="button" fontSize="0.7em" pt={2} pb={1} color="success">
-              Ganaste {match.awardedSatsPerPlayer} sats!
+            <Typography
+              fontWeight="bold"
+              variant="button"
+              fontSize="0.6em"
+              py={1}
+              color="success.light"
+            >
+              Ganaste{" "}
+              <Typography component="span" fontWeight="bold" fontSize="1.3em" variant="inherit">
+                {match.awardedSatsPerPlayer - match.options.satsPerPlayer}
+              </Typography>{" "}
+              sats!
             </Typography>
           ) : null}
         </Typography>

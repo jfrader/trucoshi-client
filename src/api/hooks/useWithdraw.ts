@@ -6,7 +6,7 @@ export const useWithdraw = () => {
 
   const { data, mutate, error, isPending, reset } = useMutation({
     mutationKey: ["wallet-withdraw"],
-    mutationFn: apiClient.wallet.withdrawCreate,
+    mutationFn: apiClient.wallet.payWithdrawInvoice,
     onSuccess() {
       queryClient.resetQueries({ queryKey: ["me"] })
     }

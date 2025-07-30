@@ -8,7 +8,7 @@ export const useLogout = () => {
       queryClient.resetQueries({ queryKey: ["me"] });
     },
     mutationKey: ["logout"],
-    mutationFn: apiClient.auth.logoutCreate,
+    mutationFn: apiClient.auth.logoutUser,
   });
 
   return {

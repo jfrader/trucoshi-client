@@ -1,9 +1,10 @@
-import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import QRCode from "react-qr-code";
 import { Sats } from "../../shared/Sats";
 import { Transaction } from "lightning-accounts";
 import { useDeposit } from "../../api/hooks/useDeposit";
 import { useEffect } from "react";
+import { useToast } from "../../hooks/useToast";
 
 export const DepositMenu = ({
   transaction,
@@ -12,6 +13,7 @@ export const DepositMenu = ({
   transaction?: Transaction;
   onClose(): void;
 }) => {
+  const toast = useToast();
   const { deposit, enable } = useDeposit({ transactionId: String(transaction?.id) });
 
   useEffect(() => {
@@ -19,6 +21,15 @@ export const DepositMenu = ({
       enable();
     }
   }, [enable, transaction]);
+
+  const onCopy = () => {
+    navigator.clipboard
+      .writeText(invoice)
+      .then(() => toast.info("Invoice copiado al portapapeles"))
+      .catch(() => toast.error("Error al copiar"));
+  };
+
+  const invoice = (deposit?.invoice as any)?.request;
 
   return (
     <Stack>
@@ -31,18 +42,22 @@ export const DepositMenu = ({
             </Stack>
           ) : (
             <Stack gap={2}>
-              <QRCode value={(deposit.invoice as any)?.request} size={"15em" as any as number} />
+              <QRCode value={invoice} size={"15em" as any as number} />
               <Stack direction="row" width="100%" justifyContent="center">
                 <Button color="error" onClick={() => onClose()}>
                   Cancelar
                 </Button>
-                <Button
-                  color="info"
-                  onClick={() => navigator.clipboard.writeText((deposit.invoice as any).request)}
-                >
+                <Button color="info" onClick={onCopy}>
                   Copiar Invoice
                 </Button>
               </Stack>
+              <TextField
+                onClick={onCopy}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                name="invoice-text"
+                value={invoice || ""}
+              />
               <Sats variant="h2" amount={deposit.amountInSats} />
             </Stack>
           )}

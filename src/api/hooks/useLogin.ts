@@ -10,7 +10,7 @@ export const useLogin = () => {
       queryClient.resetQueries({ queryKey: ["me"] })
     },
     mutationKey: ["login"],
-    mutationFn: apiClient.auth.loginCreate,
+    mutationFn: apiClient.auth.loginUser,
   });
 
   return { login: mutate, error, isPending };

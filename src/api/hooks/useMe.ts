@@ -10,7 +10,7 @@ export const useMe = (
     {
       queryKey: ["me"],
       retry: false,
-      queryFn: apiClient.auth.getAuth,
+      queryFn: apiClient.auth.getUserProfile,
       placeholderData: keepPreviousData,
       refetchInterval: 1000 * 60 * 4,
       ...options,

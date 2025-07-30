@@ -12,7 +12,7 @@ export const useRefreshTokens = (
     isPending,
   } = useMutation({
     mutationKey: ["refresh-tokens"],
-    mutationFn: apiClient.auth.refreshTokensCreate,
+    mutationFn: apiClient.auth.refreshAuthTokens,
     onSuccess(...params) {
       options.onSuccess?.(...params);
       queryClient.resetQueries({ queryKey: ["me"] });

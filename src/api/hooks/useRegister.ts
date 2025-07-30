@@ -8,7 +8,7 @@ export const useRegister = () => {
       queryClient.resetQueries({ queryKey: ["me"] });
     },
     mutationKey: ["register"],
-    mutationFn: apiClient.auth.registerCreate,
+    mutationFn: apiClient.auth.registerUser,
   });
 
   return { register: mutate, error, isPending };

@@ -20,7 +20,10 @@ export const FILTERS: Partial<Record<keyof ILobbyOptions, (value: number | boole
     handAckTime: getSecondsFromMs,
     turnTime: getSecondsFromMs,
     abandonTime: getSecondsFromMs,
-    satsPerPlayer: (sats) => <Sats>{Number(sats)}</Sats>,
+    satsPerPlayer: (sats) => {
+      const props = sats ? { fontSize: "medium", color: "success.light", fontWeight: "bold" } : {};
+      return <Sats {...props}>{Number(sats)}</Sats>;
+    },
   };
 
 export const GameOptionsList = ({

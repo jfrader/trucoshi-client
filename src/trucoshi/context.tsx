@@ -90,6 +90,18 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [error, isPendingMe, loggingOut, me, isPendingLogin]);
 
   useEffect(() => {
+    let userId;
+
+    (socket as any).auth((data: any) => {
+      userId = data.user?.id;
+    });
+
+    if (me && userId === me.id) {
+      setAccount(me);
+    }
+  }, [me, socket]);
+
+  useEffect(() => {
     if (shouldConnect) {
       timer.current && clearInterval(timer.current);
       setSocket((current) => {
@@ -169,6 +181,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     });
 
     socket.on("connect_error", () => {
+      setLogged(false);
       setConnected(false);
       setLoadingAccount(true);
       setLoggingOut(true);
@@ -181,6 +194,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     });
 
     socket.on("disconnect", () => {
+      setLogged(false);
       setConnected(false);
       setLoadingAccount(true);
       setLoggingOut(true);
