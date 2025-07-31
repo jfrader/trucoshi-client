@@ -133,6 +133,7 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
             <HandCardContainer
               key={pc.key}
               i={i}
+              margin={1.2}
               cards={overridePlayerCards.length}
               open={Boolean(openHand || autoOpenHand)}
             >
