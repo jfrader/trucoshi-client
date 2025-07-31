@@ -28,7 +28,7 @@ const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) =>
     const currentTeamIdx = i % 2 === 0 ? 0 : 1;
 
     const player = players.find(
-      (p) => p.teamIdx === currentTeamIdx && !readyPlayers.includes(p.key)
+      (p) => (!fill || p.teamIdx === currentTeamIdx) && !readyPlayers.includes(p.key)
     );
 
     if (player) {
