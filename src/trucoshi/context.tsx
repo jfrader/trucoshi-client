@@ -90,18 +90,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   }, [error, isPendingMe, loggingOut, me, isPendingLogin]);
 
   useEffect(() => {
-    let userId;
-
-    (socket as any).auth((data: any) => {
-      userId = data.user?.id;
-    });
-
-    if (me && userId === me.id) {
-      setAccount(me);
-    }
-  }, [me, socket]);
-
-  useEffect(() => {
     if (shouldConnect) {
       timer.current && clearInterval(timer.current);
       setSocket((current) => {
@@ -114,6 +102,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         });
 
         const meId = account?.id;
+
+        if (me && userId === meId) {
+          setAccount(me);
+        } else {
+          setAccount(null);
+        }
 
         if (current.active && userId === meId && authName === name) {
           if (!current.connected) {
@@ -143,7 +137,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         return newSocket;
       });
     }
-  }, [account?.id, name, queryClient, session, shouldConnect]);
+  }, [account?.id, me, name, queryClient, session, shouldConnect]);
 
   const logout = useCallback(() => {
     setLoggingOut(true);

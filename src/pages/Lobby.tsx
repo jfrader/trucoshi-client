@@ -31,6 +31,7 @@ import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/context";
 import { CardsDeck } from "../components/card/CardsDeck";
+import { Link } from "../shared/Link";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -79,7 +80,7 @@ export const Lobby = () => {
   }, [match, navigate, sessionId]);
 
   useEffect(() => {
-    context.socket.on("disconnect", () => {
+    context.socket?.on("disconnect", () => {
       setReadyLoading(false);
     });
   }, [context.socket]);
@@ -182,18 +183,28 @@ export const Lobby = () => {
                 ? team0Count < match.options.maxPlayers / 2
                 : team1Count < match.options.maxPlayers / 2);
 
+            const canJoinBet =
+              !match.options.satsPerPlayer ||
+              (context.state.account?.wallet?.balanceInSats || 0) >= match.options.satsPerPlayer;
+
             // Only show the button for non-joined users and ensure it reflects the slot's intended team
-            return canJoin ? (
+            return canJoin && canJoinBet ? (
               <Stack pt={2} alignItems="center">
-                <Button
-                  variant="text"
-                  disabled={isReadyLoading}
-                  sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
-                  color={getTeamColor(newTeamIdx)}
-                  onClick={() => onJoinMatch(newTeamIdx)}
-                >
-                  Unirse a {getTeamName(newTeamIdx)}
-                </Button>
+                {newTeamIdx !== match?.me?.teamIdx ? (
+                  <Button
+                    variant="text"
+                    disabled={isReadyLoading}
+                    sx={{ whiteSpace: "wrap", maxWidth: "10em" }}
+                    color={getTeamColor(newTeamIdx)}
+                    onClick={() => onJoinMatch(newTeamIdx)}
+                  >
+                    Unirse a {getTeamName(newTeamIdx)}
+                  </Button>
+                ) : (
+                  <Typography color={getTeamColor(newTeamIdx)}>
+                    {getTeamName(newTeamIdx)}
+                  </Typography>
+                )}
                 {match?.me?.isOwner && match.options.satsPerPlayer <= 0 ? (
                   <Button
                     variant="text"
@@ -207,7 +218,21 @@ export const Lobby = () => {
                   </Button>
                 ) : null}
               </Stack>
-            ) : null;
+            ) : (
+              canJoin && !canJoinBet && (
+                <Stack pt={2} alignItems="center">
+                  {context.state.account?.wallet ? (
+                    <Typography color={getTeamColor(newTeamIdx)}>
+                      Necesitas depositar sats para entrar
+                    </Typography>
+                  ) : (
+                    <Button color={getTeamColor(newTeamIdx)} component={Link} to="/login">
+                      Inicia Sesion para depositar Sats
+                    </Button>
+                  )}
+                </Stack>
+              )
+            );
           }}
           Slot={({ player }) => {
             return (

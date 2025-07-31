@@ -4,6 +4,7 @@ import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ICardTheme } from "../../trucoshi/types";
 import { ElementType, MouseEventHandler, useCallback } from "react";
 import { useCards } from "../../trucoshi/hooks/useCards";
+import { SUITS_HUMAN_READABLE } from "trucoshi";
 
 export type GameCardProps = {
   card: ICard;
@@ -85,6 +86,9 @@ export const GameCard = ({
     );
   }
 
+  const humanCard = CARDS_HUMAN_READABLE[card];
+  const suit = SUITS_HUMAN_READABLE[card.charAt(1) as "e" | "o" | "c" | "b"];
+
   return (
     <GameCardButton
       variant="emojicard"
@@ -110,11 +114,13 @@ export const GameCard = ({
           letterSpacing: 0,
           px: "2px",
           width: "100%",
-          fontSize: `calc(${width} * 0.26)`,
+          fontSize: `calc(${width} * 0.3)`,
           textAlign: "center",
         }}
       >
-        <Box>{CARDS_HUMAN_READABLE[card] || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
+        <Box sx={{ position: "absolute", top: "3%", right: 0, opacity: 0.15 }}>{suit}</Box>
+        <Box>{humanCard || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
+        <Box sx={{ position: "absolute", bottom: "3%", left: 0, opacity: 0.15 }}>{suit}</Box>
       </Box>
     </GameCardButton>
   );

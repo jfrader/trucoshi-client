@@ -22,25 +22,25 @@ const init = ({ fill, players }: { fill?: number; players: IPublicPlayer[] }) =>
   const length = fill && players.length < fill ? fill : players.length;
   const tan = Math.tan(Math.PI / 7);
   const items: Array<IGameTableSlot> = [];
-  const slots = [];
-
-  items.push({ key: 0 });
+  const readyPlayers: string[] = [];
 
   for (let i = 0; i < length; i++) {
-    if (players[i]) {
-      items.push(players[i]);
+    const currentTeamIdx = i % 2 === 0 ? 0 : 1;
+
+    const player = players.find(
+      (p) => p.teamIdx === currentTeamIdx && !readyPlayers.includes(p.key)
+    );
+
+    if (player) {
+      readyPlayers.push(player.key);
+      items.push(player);
       continue;
     }
-    if (slots.length < 2) {
-      items.push({ key: i + 1 });
-      slots.push(i + 1);
-      continue;
-    }
-    items.push({ key: -1 - i });
+    items.push({ key: i + 1 });
   }
 
   return {
-    items,
+    items: [{ key: 0 }, ...items],
     style: { "--m": length, "--tan": tan.toFixed(2) } as CSSProperties,
   };
 };

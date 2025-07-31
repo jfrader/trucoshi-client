@@ -1,5 +1,5 @@
 import { Box, BoxProps, IconButton, Stack } from "@mui/material";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { getRandomCards } from "../../trucoshi/hooks/useCards";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
@@ -15,20 +15,26 @@ export const CardToggler = (props: BoxProps) => {
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
+  const timer = useRef<NodeJS.Timeout | null>(null);
+
   const setFlip = (v: SetStateAction<boolean>) => {
     setDisabled(true);
-    queue("play0", (_e, status) => {
-      if (status === "finished") {
-        setDisabled(false);
-      }
-    });
+    timer.current && clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setDisabled(false);
+    }, 350);
+
+    queue("play0");
     _setFlip(v);
   };
 
   useEffect(() => {
     setFlip(true);
     const timeout = setTimeout(() => setFlip(false), 750);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      timer.current && clearTimeout(timer.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardTheme]);
 
@@ -44,7 +50,7 @@ export const CardToggler = (props: BoxProps) => {
           return (
             <HandCardContainer
               open
-              openMargin={4}
+              openMargin={6}
               fontSize="11px"
               key={card}
               cards={randomCards.length}
@@ -61,13 +67,15 @@ export const CardToggler = (props: BoxProps) => {
           disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
+
             setDisabled(true);
+            timer.current && clearTimeout(timer.current);
+            timer.current = setTimeout(() => {
+              setDisabled(false);
+            }, 200);
+
             const rndSound = Math.ceil(Math.random() * 2);
-            queue("play" + rndSound, (_e, status) => {
-              if (status === "finished") {
-                setDisabled(false);
-              }
-            });
+            queue("play" + rndSound);
             setRandomCards(getRandomCards());
           }}
           size="large"
