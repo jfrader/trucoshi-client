@@ -76,7 +76,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       auth: (cb) => {
         const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
         cb({
-          sessionID: session,
+          sessionID: localStorage.getItem(`trucoshi:session`),
           name,
           identity: cachedMe ? getIdentityCookie() : undefined,
           user: cachedMe,
@@ -126,7 +126,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           auth: (cb) => {
             const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
             cb({
-              sessionID: session,
+              sessionID: localStorage.getItem(`trucoshi:session`),
               name,
               identity: cachedMe ? getIdentityCookie() : undefined,
               user: cachedMe,
