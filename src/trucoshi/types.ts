@@ -90,7 +90,7 @@ export interface ITrucoshiState {
 export interface ITrucoshiContext {
   state: ITrucoshiState;
   dispatch: ITrucoshiActions;
-  socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
 
 export type ICardTheme = "default" | "argento" | "trucoshi" | "gnu" | "criollo" | "";
