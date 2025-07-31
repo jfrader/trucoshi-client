@@ -38,9 +38,10 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
+import { useCards } from "../trucoshi/hooks/useCards";
 
 const Match = () => {
-  const [, , , hydrated] = useTrucoshi();
+  const [{ cardTheme }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
 
@@ -48,6 +49,8 @@ const Match = () => {
 
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
+
+  const [sources] = useCards({ theme: cardTheme });
 
   const [{ match, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] = useMatch(
     sessionId,
@@ -237,6 +240,10 @@ const Match = () => {
       )}
 
       <Toasty animate={chatProps.latestMessage?.sound === "toasty"} />
+
+      {Object.entries(sources).map(([c, src]) => (
+        <img key={c} className="is-hidden" src={src} alt={c} />
+      ))}
     </Box>
   );
 };
