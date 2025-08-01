@@ -39,7 +39,7 @@ export const useDeposit = ({
     }
     if (data?.data.walletImpacted) {
       disable();
-      queryClient.resetQueries({ queryKey: ["me"] });
+      queryClient.refetchQueries({ queryKey: ["me"] });
       return;
     }
   }, [data?.data.walletImpacted, error, disable, queryClient]);
