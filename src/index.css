@@ -21,7 +21,9 @@ button {
   margin: 0;
 }
 
-.is-hidden {
+.card-is-hidden {
   opacity: 0;
+  bottom: 0;
+  right: 0;
   position: fixed;
 }
