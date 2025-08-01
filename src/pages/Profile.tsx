@@ -1,4 +1,11 @@
-import { AlternateEmail, Check, Close, Twitter, VideogameAsset } from "@mui/icons-material";
+import {
+  AlternateEmail,
+  Check,
+  Close,
+  EmojiEvents,
+  Twitter,
+  VideogameAsset,
+} from "@mui/icons-material";
 import { PageContainer } from "../shared/PageContainer";
 import {
   Card,
@@ -27,6 +34,7 @@ import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { IconButton } from "@mui/material";
 import { NotFound } from "./NotFound";
 import { PlayerRatioListItemText } from "../components/other/PlayerRatioListItemText";
+import SatoshiIcon from "../assets/icons/SatoshiIcon";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -330,21 +338,31 @@ export const Profile = () => {
               </TabPanel>
               <TabPanel sx={{ px: 0 }} value="2">
                 <List dense sx={{ flexGrow: 1 }}>
-                  {profile.matches.map((match) => (
-                    <ListItemButton
-                      key={match.id}
-                      divider
-                      onClick={() => navigate(`/history/${match.id}`)}
-                    >
-                      <ListItemText
-                        secondary={dayjs(match.createdAt).format("DD/MM/YYYY")}
-                        primary={match.sessionId}
-                      />
-                      <ListItemSecondaryAction>
-                        <VideogameAsset />
-                      </ListItemSecondaryAction>
-                    </ListItemButton>
-                  ))}
+                  {profile.matches.map((match) => {
+                    const isWinner =
+                      match.winnerIdx ===
+                      match.players.find((p) => p.accountId === profile.account?.id)?.teamIdx;
+                    return (
+                      <ListItemButton
+                        key={match.id}
+                        divider
+                        onClick={() => navigate(`/history/${match.id}`)}
+                      >
+                        <ListItemText
+                          secondary={dayjs(match.createdAt).format("DD/MM/YYYY")}
+                          primary={match.sessionId}
+                        />
+                        <ListItemSecondaryAction>
+                          {(match.bet?.satsPerPlayer || 0) > 0 &&
+                          (isMyProfile || match.players.find((p) => p.accountId === me?.id)) ? (
+                            <SatoshiIcon color={isWinner ? "success" : "error"} sx={{ mr: 2 }} />
+                          ) : null}
+                          {isWinner ? <EmojiEvents color="warning" sx={{ mr: 2 }} /> : null}
+                          <VideogameAsset />
+                        </ListItemSecondaryAction>
+                      </ListItemButton>
+                    );
+                  })}
                 </List>
               </TabPanel>
             </TabContext>
