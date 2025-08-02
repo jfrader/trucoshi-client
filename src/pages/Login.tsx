@@ -175,7 +175,7 @@ export const Login = () => {
                   name="seedPhrase"
                   color="warning"
                   label="Frase de Semilla"
-                  autoComplete="off"
+                  autoComplete="password"
                   onChange={onChangeSeedPhrase}
                   value={seedPhrase}
                   variant="outlined"
