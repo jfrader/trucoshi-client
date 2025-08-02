@@ -5291,10 +5291,10 @@ lightning-accounts@5.0.2:
     winston "^3.8.2"
     xss-filters "^1.2.7"
 
-lightning-accounts@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/lightning-accounts/-/lightning-accounts-6.0.0.tgz#9f28a9c1889ebfe5acdd762d6fdeb1f3473d64de"
-  integrity sha512-5JtBSzaiUa6BVvBJ7bWTjM6Sxyw7FHV/Wi6p6KHMXDDJCw1jbe3gWqyzfnb/N8S048/hPilfzpnWHehd9THlEw==
+lightning-accounts@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/lightning-accounts/-/lightning-accounts-6.0.1.tgz#c5d71db0c1808e8e791baf232374248108ab8ccc"
+  integrity sha512-5K1Gtp+8RiksoAh/CImC0qFhMOUM80U8qAWsMhsS783yzS6mrMRxLxYiceQG0yRUcYFT6eJYDQ9JkqD2EK7S2w==
   dependencies:
     "@openapi-contrib/json-schema-to-openapi-schema" "^3.0.2"
     "@prisma/client" "^6.12.0"
