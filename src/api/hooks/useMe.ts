@@ -13,6 +13,7 @@ export const useMe = (
       queryFn: apiClient.auth.getUserProfile,
       placeholderData: keepPreviousData,
       refetchInterval: 1000 * 60 * 4,
+      refetchOnWindowFocus: true,
       ...options,
     }
   );

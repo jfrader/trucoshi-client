@@ -12,6 +12,9 @@ import { SoundProvider } from "./sound/context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
+import { ResetPassword } from "./pages/ResetPassword";
+import { VerifyEmail } from "./pages/VerifyEmail";
+import { ForgotPassword } from "./pages/ForgotPassword";
 import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
@@ -45,6 +48,18 @@ const AppRouter = createBrowserRouter([
           {
             path: "register",
             element: <Register />,
+          },
+          {
+            path: "forgot-password",
+            element: <ForgotPassword />,
+          },
+          {
+            path: "reset-password",
+            element: <ResetPassword />,
+          },
+          {
+            path: "verify-email",
+            element: <VerifyEmail />,
           },
           {
             path: "matches",

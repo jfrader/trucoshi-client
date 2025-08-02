@@ -5291,6 +5291,55 @@ lightning-accounts@5.0.2:
     winston "^3.8.2"
     xss-filters "^1.2.7"
 
+lightning-accounts@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/lightning-accounts/-/lightning-accounts-6.0.0.tgz#9f28a9c1889ebfe5acdd762d6fdeb1f3473d64de"
+  integrity sha512-5JtBSzaiUa6BVvBJ7bWTjM6Sxyw7FHV/Wi6p6KHMXDDJCw1jbe3gWqyzfnb/N8S048/hPilfzpnWHehd9THlEw==
+  dependencies:
+    "@openapi-contrib/json-schema-to-openapi-schema" "^3.0.2"
+    "@prisma/client" "^6.12.0"
+    "@superfaceai/passport-twitter-oauth2" "1.2.4"
+    "@types/bcryptjs" "^2.4.2"
+    "@types/cookie-parser" "^1.4.6"
+    "@types/express-session" "^1.17.10"
+    "@types/joi" "^17.2.3"
+    "@types/js-yaml" "^4.0.9"
+    "@types/nodemailer" "^6.4.7"
+    "@types/swagger2openapi" "^7.0.4"
+    axios "^1.6.3"
+    bcryptjs "^2.4.3"
+    compression "^1.7.4"
+    cookie-parser "^1.4.6"
+    cors "^2.8.5"
+    dotenv "^16.0.3"
+    dotenv-cli "^7.3.0"
+    express "^4.19.2"
+    express-rate-limit "^6.7.0"
+    express-session "^1.18.0"
+    form-data "^4.0.0"
+    helmet "^6.0.1"
+    http-status "^1.5.3"
+    install "^0.13.0"
+    joi "^17.12.0"
+    js-yaml "^4.1.0"
+    lightning "^10.26.0"
+    lnurl "^0.27.0"
+    moment "^2.29.4"
+    morgan "^1.10.0"
+    nodemailer "^6.9.9"
+    nostr-tools "^2.7.2"
+    npm "^10.4.0"
+    passport "^0.7.0"
+    passport-cookie "^1.0.9"
+    passport-custom "^1.1.1"
+    passport-jwt "^4.0.0"
+    passport-strategy "^1.0.0"
+    prisma-json-schema-generator "^5.1.1"
+    swagger2openapi "^7.0.8"
+    wait-on "^8.0.4"
+    winston "^3.8.2"
+    xss-filters "^1.2.7"
+
 lightning-backends@1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/lightning-backends/-/lightning-backends-1.7.0.tgz#ed83e4cb2ed4a8504785ca282602bc6381570506"
@@ -6333,6 +6382,13 @@ passport-cookie@^1.0.9:
   integrity sha512-8a6foX2bbGoJzup0RAiNcC2tTqzYS46RQEK3Z4u8p86wesPUjgDaji3C7+5j4TGyCq4ZoOV+3YLw1Hy6cV6kyw==
   dependencies:
     passport-strategy "^1.0.0"
+
+passport-custom@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/passport-custom/-/passport-custom-1.1.1.tgz#71db3d7ec1d7d0085e8768507f61b26d88051c0a"
+  integrity sha512-/2m7jUGxmCYvoqenLB9UrmkCgPt64h8ZtV+UtuQklZ/Tn1NpKBeOorCYkB/8lMRoiZ5hUrCoMmDtxCS/d38mlg==
+  dependencies:
+    passport-strategy "1.x.x"
 
 passport-jwt@^4.0.0:
   version "4.0.1"

@@ -33,7 +33,7 @@ export const Login = () => {
   }, [account, navigate]);
 
   return (
-    <PageContainer title="Iniciar Sesion" icon={<Person fontSize="large" />}>
+    <PageContainer title="Iniciar Sesión" icon={<Person fontSize="large" />}>
       <Card>
         <CardContent>
           <form
@@ -62,8 +62,11 @@ export const Login = () => {
                 variant="outlined"
               />
               <LoadingButton type="submit" isLoading={isPending} color="warning" variant="outlined">
-                Iniciar Sesion
+                Iniciar Sesión
               </LoadingButton>
+              <Button onClick={() => navigate("/forgot-password")} color="info">
+                ¿Olvidaste tu contraseña?
+              </Button>
               <Divider />
               <TwitterButton />
               <Button onClick={() => navigate("/register")} color="success">
