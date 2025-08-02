@@ -15,8 +15,11 @@ export const DANGEROUS_COMMANDS: ECommand[] = [
   EFlorCommand.ACHICO,
 ];
 
+export const WARNING_COMMANDS: ECommand[] = [ESayCommand.PASO];
+
 export const COMMANDS_HUMAN_READABLE: Record<ECommand, string> = {
   [ESayCommand.MAZO]: "Mazo",
+  [ESayCommand.PASO]: "Paso...",
   [ETrucoCommand.TRUCO]: "Truco!",
   [ETrucoCommand.RE_TRUCO]: "Re-truco!",
   [ETrucoCommand.VALE_CUATRO]: "Vale cuatro!",
@@ -29,5 +32,5 @@ export const COMMANDS_HUMAN_READABLE: Record<ECommand, string> = {
   [EFlorCommand.FLOR]: "Flor!",
   [EFlorCommand.CONTRAFLOR]: "Contraflor!",
   [EFlorCommand.CONTRAFLOR_AL_RESTO]: "Contraflor al resto!",
-  [EFlorCommand.ACHICO]: "Con flor me achico"
+  [EFlorCommand.ACHICO]: "Con flor me achico",
 };

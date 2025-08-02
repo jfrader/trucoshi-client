@@ -1,7 +1,12 @@
 import { Box, Button } from "@mui/material";
 import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
-import { COMMANDS_HUMAN_READABLE, DANGEROUS_COMMANDS } from "../../trucoshi/constants";
+import {
+  COMMANDS_HUMAN_READABLE,
+  DANGEROUS_COMMANDS,
+  WARNING_COMMANDS,
+} from "../../trucoshi/constants";
 import { PropsWithChildren } from "react";
+import { ECommand } from "trucoshi";
 
 export const CommandBar = ({
   children,
@@ -51,24 +56,34 @@ export const CommandBar = ({
             ))}
         {player.commands
           ? [...player.commands]
-              .sort((a, b) => {
-                const hasA = DANGEROUS_COMMANDS.includes(a);
-                const hasB = DANGEROUS_COMMANDS.includes(b);
+              .map((c): [number, ECommand] => {
+                if (DANGEROUS_COMMANDS.includes(c)) {
+                  return [2, c];
+                }
 
-                if ((hasA && hasB) || (!hasA && hasB)) return 0;
+                if (WARNING_COMMANDS.includes(c)) {
+                  return [1, c];
+                }
 
-                if (hasA) return 1;
-
-                return -1;
+                return [0, c];
               })
-              .map((command) => (
+              .sort(([a], [b]) => {
+                return a - b;
+              })
+              .map(([, command]) => (
                 <Button
                   key={command}
                   onClick={() => onSayCommand(command)}
                   variant="contained"
-                  color={DANGEROUS_COMMANDS.includes(command) ? "error" : "success"}
+                  color={
+                    DANGEROUS_COMMANDS.includes(command)
+                      ? "error"
+                      : WARNING_COMMANDS.includes(command)
+                      ? "warning"
+                      : "success"
+                  }
                 >
-                  {COMMANDS_HUMAN_READABLE[command]}
+                  {COMMANDS_HUMAN_READABLE[command] || command}
                 </Button>
               ))
           : null}
