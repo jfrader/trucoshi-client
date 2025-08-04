@@ -2,6 +2,24 @@ import { Box, Button, FormGroup, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CreateMatchButton } from "./CreateMatchButton";
+import { ITrucoshiStats } from "trucoshi";
+
+export const OnlinePlayers = ({ stats }: { stats: ITrucoshiStats }) => {
+  if (!stats.onlinePlayers.length) {
+    return null;
+  }
+
+  return (
+    <Box textTransform="uppercase">
+      <Typography color="text.disabled" pr={1} component="span" variant="inherit">
+        Online
+      </Typography>
+      <Typography color="success" component="span" fontSize="inherit" variant="inherit">
+        {stats.onlinePlayers.length}
+      </Typography>
+    </Box>
+  );
+};
 
 export const PlayMenu = () => {
   const navigate = useNavigate();
@@ -18,16 +36,7 @@ export const PlayMenu = () => {
         >
           Jugar
         </Typography>
-        {stats.onlinePlayers.length ? (
-          <Box textTransform="uppercase">
-            <Typography color="text.disabled" pr={1} component="span" variant="inherit">
-              Online
-            </Typography>
-            <Typography color="success" component="span" fontSize="inherit" variant="inherit">
-              {stats.onlinePlayers.length}
-            </Typography>
-          </Box>
-        ) : null}
+        <OnlinePlayers stats={stats} />
       </Stack>
       <FormGroup>
         <CreateMatchButton />

@@ -11,6 +11,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemSecondaryAction,
+  Stack,
   Typography,
 } from "@mui/material";
 import { EClientEvent, IPlayerRanking } from "trucoshi";
@@ -20,6 +21,7 @@ import { getPlayerWinRatio } from "../utils/player";
 import { Link } from "../shared/Link";
 import { PageContainer } from "../shared/PageContainer";
 import { Star } from "@mui/icons-material";
+import { OnlinePlayers } from "../components/menu/PlayMenu";
 
 export const PlayerRanking = () => {
   const context = useContext(TrucoshiContext);
@@ -55,15 +57,17 @@ export const PlayerRanking = () => {
             <CircularProgress />
           ) : (
             <Box display="flex" flexDirection="column" justifyContent="center">
-              <Typography
-                textAlign="left"
-                color="text.disabled"
-                textTransform="uppercase"
-                variant="subtitle1"
-              >
-                Ranking
-              </Typography>
-
+              <Stack direction="row" justifyContent="space-between">
+                <Typography
+                  textAlign="left"
+                  color="text.disabled"
+                  textTransform="uppercase"
+                  variant="subtitle1"
+                >
+                  Ranking
+                </Typography>
+                <OnlinePlayers stats={context.state.stats} />
+              </Stack>
               <List>
                 <ListItem>
                   <ListItemIcon>Pos.</ListItemIcon>

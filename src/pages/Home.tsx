@@ -3,9 +3,11 @@ import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { MatchList } from "../components/game/MatchList";
 import { PlayMenu } from "../components/menu/PlayMenu";
 import { WelcomeMenu } from "../components/menu/WelcomeMenu";
+import { useCards } from "../trucoshi/hooks/useCards";
 
 export const Home = () => {
-  const [{ activeMatches, session, isAccountPending }, , ,hydrated] = useTrucoshi();
+  const [{ activeMatches, session, isAccountPending, cardTheme }, , , hydrated] = useTrucoshi();
+  const [sources] = useCards({ theme: cardTheme });
 
   if (!hydrated || !session || isAccountPending) {
     return (
@@ -54,6 +56,11 @@ export const Home = () => {
           </Slide>
         ) : null}
       </Stack>
+
+      {cardTheme !== "" &&
+        Object.entries(sources).map(([c, src]) => (
+          <img key={c} className="card-is-hidden" src={src} alt={c} />
+        ))}
     </Container>
   );
 };

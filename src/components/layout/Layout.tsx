@@ -9,7 +9,6 @@ import { Topbar } from "./Topbar";
 import { useQuery } from "@tanstack/react-query";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
-import { useCards } from "../../trucoshi/hooks/useCards";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -41,7 +40,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const modal = useConfirmationModal();
 
   const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard }] = useTrucoshi();
-  const [sources] = useCards({ theme: cardTheme });
 
   const versionCheck = useQuery({
     queryKey: ["app-version-check"],
@@ -108,11 +106,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
           </Box>
         </Paper>
       </main>
-
-      {cardTheme !== "" &&
-        Object.entries(sources).map(([c, src]) => (
-          <img key={c} className="card-is-hidden" src={src} alt={c} />
-        ))}
 
       <CardBackdrop
         card={inspectedCard}
