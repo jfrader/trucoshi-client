@@ -1,4 +1,5 @@
 import {
+  alpha,
   Box,
   Button,
   Container,
@@ -7,6 +8,7 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -38,6 +40,7 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
+import { Visibility } from "@mui/icons-material";
 
 const Match = () => {
   const [, , , hydrated] = useTrucoshi();
@@ -49,15 +52,13 @@ const Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
 
-  const [{ match, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] = useMatch(
-    sessionId,
-    {
+  const [{ match, stats, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] =
+    useMatch(sessionId, {
       onMyTurn: () => queue("turn"),
       onFreshHand: () => {
         queue("round");
       },
-    }
-  );
+    });
 
   const chatProps = useChatRoom(match);
 
@@ -196,6 +197,29 @@ const Match = () => {
       <FixedChatContainer>
         <ChatRoom {...chatProps} />
       </FixedChatContainer>
+
+      {stats && stats.spectators ? (
+        <Tooltip
+          placement="top"
+          title={`${stats.spectators} Espectador${stats.spectators > 1 ? "es" : ""}`}
+        >
+          <Box
+            sx={(theme) => ({
+              position: "fixed",
+              right: "1em",
+              bottom: "1.3em",
+              borderRadius: theme.spacing(1),
+              padding: theme.spacing(1),
+              bgcolor: alpha(theme.palette.background.paper, 0.5),
+            })}
+            textTransform="uppercase"
+          >
+            <Typography color="text.secondary" display="flex" gap={1.5} alignItems="center">
+              <Visibility fontSize="small" /> {stats.spectators}
+            </Typography>
+          </Box>
+        </Tooltip>
+      ) : null}
 
       <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
         <DialogTitle>Atencion</DialogTitle>

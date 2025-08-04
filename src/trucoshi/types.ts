@@ -6,6 +6,7 @@ import {
   ICard,
   ILobbyOptions,
   IPublicMatch,
+  IPublicMatchStats,
   IPublicPlayer,
   ITrucoshiStats,
   IWaitingPlayData,
@@ -44,6 +45,7 @@ export interface ITrucoshiMatchActions {
 export interface ITrucoshiMatchState {
   turnPlayer: IPublicPlayer | null;
   match: IPublicMatch | null;
+  stats: IPublicMatchStats | null;
   me: IPublicPlayer | null;
   error: Error | null;
   canPlay: boolean;

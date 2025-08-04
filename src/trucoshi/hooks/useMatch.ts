@@ -10,6 +10,7 @@ import {
   ESayCommand,
   ILobbyOptions,
   EHandState,
+  IPublicMatchStats,
 } from "trucoshi";
 
 import { TrucoshiContext } from "../context";
@@ -29,6 +30,7 @@ export const useMatch = (
   const context = useContext(TrucoshiContext);
   const toast = useToast();
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
+  const [stats, setStats] = useState<IPublicMatchStats | null>(null);
   const [turnPlayer, setTurnPlayer] = useState<IPublicPlayer | null>(null);
   const [me, setMe] = useState<IPublicPlayer | null>(null);
   const [turnCallback, setTurnCallback] = useState<IWaitingPlayCallback | null>(null);
@@ -82,9 +84,14 @@ export const useMatch = (
   );
 
   const setMatch = useCallback(
-    (value: IPublicMatch) => {
+    (value: IPublicMatch, stats?: IPublicMatchStats) => {
       if (value.matchSessionId === matchId) {
         _setMatch(value);
+
+        if (stats) {
+          setStats(stats);
+        }
+
         const _me = value.players.find((player) => player.isMe);
         const _turnPlayer = value.players.find((player) => player.isTurn) || null;
         setMe(_me || null);
@@ -251,9 +258,9 @@ export const useMatch = (
   }, [context.state.isConnected, match, setMatch]);
 
   useEffect(() => {
-    socket.on(EServerEvent.UPDATE_MATCH, (value: IPublicMatch) => {
+    socket.on(EServerEvent.UPDATE_MATCH, (value, stats) => {
       if (value.matchSessionId === matchId) {
-        setMatch(value);
+        setMatch(value, stats);
       }
     });
 
@@ -337,6 +344,7 @@ export const useMatch = (
   return [
     {
       match,
+      stats,
       me,
       turnPlayer,
       error,

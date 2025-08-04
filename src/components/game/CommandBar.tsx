@@ -32,14 +32,16 @@ export const CommandBar = ({
       bottom="1.2rem"
       left="50%"
       width="90vw"
-      sx={(theme) => ({ zIndex: theme.zIndex.fab, transform: "translate(-50%, 0)" })}
+      sx={(theme) => ({ zIndex: theme.zIndex.fab, transform: "translate(-50%, 0)", pointerEvents: "none" })}
     >
       <Box
         display="flex"
         gap={1}
+        margin="0 auto"
         flexWrap="wrap"
         justifyContent="center"
-        sx={(theme) => ({ zIndex: theme.zIndex.fab })}
+        width="fit-content"
+        sx={(theme) => ({ zIndex: theme.zIndex.fab, pointerEvents: "initial" })}
       >
         {player.isEnvidoTurn &&
           player.envido
