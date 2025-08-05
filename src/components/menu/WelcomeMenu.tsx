@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ChangeEvent, useState } from "react";
-import { Box, Button, FormGroup, Stack, TextField, Typography } from "@mui/material";
+import { Box, BoxProps, Button, FormGroup, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "../../shared/LoadingButton";
 import { Sats } from "../../shared/Sats";
 
-export const WelcomeMenu = () => {
+export const WelcomeMenu = ({ ...props }: BoxProps) => {
   const navigate = useNavigate();
   const [{ name, account }, { sendUserId, logout, setSidebarOpen }] = useTrucoshi();
 
@@ -24,7 +24,7 @@ export const WelcomeMenu = () => {
       });
   };
   return (
-    <Box key={account?.id} display="flex" flexDirection="column" justifyContent="center">
+    <Box key={account?.id} display="flex" flexDirection="column" justifyContent="center" {...props}>
       <Stack direction="row" justifyContent="space-between">
         <Typography
           textAlign="left"

@@ -7,7 +7,10 @@ import { MatchList } from "../game/MatchList";
 
 export const Sidebar = () => {
   const navigate = useNavigate();
-  const [{ isSidebarOpen, account, activeMatches }, { logout }] = useTrucoshi();
+  const [{ isSidebarOpen, account, activeMatches }, { logout, setSidebarOpen }] = useTrucoshi();
+
+  const onMenuClick = () => setSidebarOpen(false);
+
   return (
     <Slide in={isSidebarOpen} direction="left">
       <Card
@@ -28,7 +31,7 @@ export const Sidebar = () => {
         <CardContent sx={{ display: "flex", direction: "column", height: "100%" }}>
           <Stack gap={3} height="100%" width="100%">
             <WalletMenu />
-            <PlayMenu />
+            <PlayMenu onMenuClick={onMenuClick} />
             <Box flexGrow={1} />
             {activeMatches.length ? (
               <MatchList dense matches={activeMatches} title="Partidas activas" />
@@ -38,7 +41,14 @@ export const Sidebar = () => {
                 Cerrar Sesion
               </Button>
             ) : (
-              <Button color="success" fullWidth onClick={() => navigate(`/register`)}>
+              <Button
+                color="success"
+                fullWidth
+                onClick={() => {
+                  onMenuClick();
+                  navigate(`/register`);
+                }}
+              >
                 Registrarse
               </Button>
             )}

@@ -1,17 +1,19 @@
 import { Box, BoxProps, IconButton, Stack } from "@mui/material";
 import { SetStateAction, useEffect, useRef, useState } from "react";
-import { getRandomCards } from "../../trucoshi/hooks/useCards";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
 import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useSound } from "../../sound/hooks/useSound";
+import { IDeck } from "trucoshi";
+import { Deck } from "trucoshi/dist/lib";
 
 export const CardToggler = (props: BoxProps) => {
+  const deck = useRef<IDeck>(Deck().shuffle(0));
   const { queue } = useSound();
   const [{ cardTheme }] = useTrucoshi();
-  const [randomCards, setRandomCards] = useState<ICard[]>(getRandomCards());
+  const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.current.takeThree());
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
@@ -76,7 +78,8 @@ export const CardToggler = (props: BoxProps) => {
 
             const rndSound = Math.ceil(Math.random() * 2);
             queue("play" + rndSound);
-            setRandomCards(getRandomCards());
+            deck.current.shuffle(0);
+            setRandomCards(deck.current.takeThree());
           }}
           size="large"
           color="primary"

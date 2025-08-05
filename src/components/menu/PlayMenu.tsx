@@ -1,8 +1,9 @@
-import { Box, Button, FormGroup, Stack, Typography } from "@mui/material";
+import { Box, BoxProps, Button, FormGroup, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CreateMatchButton } from "./CreateMatchButton";
 import { ITrucoshiStats } from "trucoshi";
+import { SyntheticEvent } from "react";
 
 export const OnlinePlayers = ({ stats }: { stats: ITrucoshiStats }) => {
   if (!stats.onlinePlayers.length) {
@@ -21,12 +22,15 @@ export const OnlinePlayers = ({ stats }: { stats: ITrucoshiStats }) => {
   );
 };
 
-export const PlayMenu = () => {
+export const PlayMenu = ({
+  onMenuClick,
+  ...props
+}: BoxProps & { onMenuClick?: (e: SyntheticEvent) => void }) => {
   const navigate = useNavigate();
   const [{ account, stats }] = useTrucoshi();
 
   return (
-    <Box display="flex" flexDirection="column" justifyContent="center">
+    <Box display="flex" flexDirection="column" justifyContent="center" {...props}>
       <Stack direction="row" justifyContent="space-between">
         <Typography
           textAlign="left"
@@ -38,7 +42,7 @@ export const PlayMenu = () => {
         </Typography>
         <OnlinePlayers stats={stats} />
       </Stack>
-      <FormGroup>
+      <FormGroup onClick={onMenuClick}>
         <CreateMatchButton />
         <Button color="secondary" size="large" onClick={() => navigate("/matches")}>
           Buscar Partida

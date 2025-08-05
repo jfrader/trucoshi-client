@@ -41,18 +41,18 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
       <Box
         position="relative"
         bottom="6em"
-        width="11em"
+        width="17em"
         minHeight="15em"
         onClick={(e) => e.stopPropagation()}
       >
         {cardsReady ? (
           <FlipGameCard card={card} width="17em" flip={flip} />
         ) : (
-          <Box width="11em">
+          <Box width="17em">
             <CircularProgress />
           </Box>
         )}
-        <Stack gap={2} alignItems="center" position="absolute" right="-8em" top="0">
+        <Stack gap={2} alignItems="center" position="absolute" right="-1.8em" top="0">
           <CardThemeToggle />
           <IconButton
             title={flip ? "Revelar" : "Ocultar"}

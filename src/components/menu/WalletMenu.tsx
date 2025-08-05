@@ -1,5 +1,6 @@
 import {
   Box,
+  BoxProps,
   Button,
   Collapse,
   Dialog,
@@ -21,7 +22,7 @@ import { SatoshiIcon } from "../../assets/icons/SatoshiIcon";
 import { useWithdraw } from "../../api/hooks/useWithdraw";
 import { useToast } from "../../hooks/useToast";
 
-export const WalletMenu = () => {
+export const WalletMenu = ({ ...props }: BoxProps) => {
   const toast = useToast();
   const [{ account }] = useTrucoshi();
   const { createDeposit, deposit, reset: resetDeposit } = useCreateDeposit();
@@ -39,7 +40,7 @@ export const WalletMenu = () => {
   }
 
   return (
-    <Box display="flex" flexDirection="column" justifyContent="center">
+    <Box display="flex" flexDirection="column" justifyContent="center" {...props}>
       <Stack direction="row" justifyContent="space-between" pb={1}>
         <Typography
           width="100%"
