@@ -7,8 +7,11 @@ export const PageContainer = ({
   title = "",
   children,
   icon = null,
+  action = null,
   ...props
-}: PropsWithChildren<{ title?: string; icon?: ReactNode } & ContainerProps>) => {
+}: PropsWithChildren<
+  { title?: string; icon?: ReactNode; action?: ReactNode } & ContainerProps
+>) => {
   const location = useLocation();
   const navigate = useNavigate();
   return (
@@ -30,10 +33,12 @@ export const PageContainer = ({
               Atras
             </Button>
             {title}
+            <Box position="absolute" right={0}>
+              {action}
+            </Box>
           </Typography>
           {icon}
         </Stack>
-
         <Slide in direction="right">
           <Box pt={4}>{children}</Box>
         </Slide>

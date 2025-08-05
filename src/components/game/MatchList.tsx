@@ -2,8 +2,6 @@ import {
   Badge,
   BadgeProps,
   Box,
-  CircularProgress,
-  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -13,8 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IPublicMatchInfo, EMatchState } from "trucoshi";
 
@@ -26,24 +23,19 @@ const MATCH_STATE_MAP: { [key in EMatchState]: [string, BadgeProps["color"]] } =
 };
 
 export const MatchList = ({
+  action,
   matches,
   title,
   dense,
   NoMatches = null,
-  onRefresh,
 }: {
   title: string;
   dense?: boolean;
   matches: Array<IPublicMatchInfo>;
   NoMatches?: ReactElement | null;
-  onRefresh?(): void;
+  action?: ReactNode;
 }) => {
-  const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setLoading(false);
-  }, [matches]);
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center">
@@ -57,25 +49,7 @@ export const MatchList = ({
         gap={4}
       >
         <Box flexGrow={1}>{title}</Box>
-        {onRefresh ? (
-          <IconButton
-            size="large"
-            sx={{ padding: 0 }}
-            color="success"
-            onClick={() => {
-              onRefresh();
-              setLoading(true);
-            }}
-          >
-            <Box maxHeight="1em">
-              {isLoading ? (
-                <CircularProgress color="success" size="0.9em" />
-              ) : (
-                <RefreshIcon fontSize="large" />
-              )}
-            </Box>
-          </IconButton>
-        ) : null}
+        {action}
       </Typography>
       {matches.length ? (
         <Box pt={2}>

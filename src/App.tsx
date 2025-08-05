@@ -5,7 +5,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { Lobby } from "./pages/Lobby";
 import { TrucoshiProvider } from "./trucoshi/context";
 import { Match } from "./pages/Match";
-import { Matches } from "./pages/Matches";
+import { SearchMatches } from "./pages/SearchMatches";
 import { Home } from "./pages/Home";
 import { Help } from "./pages/Help";
 import { SoundProvider } from "./sound/context";
@@ -63,7 +63,7 @@ const AppRouter = createBrowserRouter([
           },
           {
             path: "matches",
-            element: <Matches />,
+            element: <SearchMatches />,
           },
           {
             path: "help",

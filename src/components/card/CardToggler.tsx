@@ -6,14 +6,18 @@ import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useSound } from "../../sound/hooks/useSound";
-import { IDeck } from "trucoshi";
 import { Deck } from "trucoshi/dist/lib";
 
+const deck = Deck();
+deck.random.secret = Math.random().toString();
+deck.random.bitcoinHash = Math.random().toString();
+deck.random.clients = [Math.random().toString()];
+deck.shuffle(0);
+
 export const CardToggler = (props: BoxProps) => {
-  const deck = useRef<IDeck>(Deck().shuffle(0));
   const { queue } = useSound();
   const [{ cardTheme }] = useTrucoshi();
-  const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.current.takeThree());
+  const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.takeThree());
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
@@ -78,8 +82,10 @@ export const CardToggler = (props: BoxProps) => {
 
             const rndSound = Math.ceil(Math.random() * 2);
             queue("play" + rndSound);
-            deck.current.shuffle(0);
-            setRandomCards(deck.current.takeThree());
+            deck.random.clients = [Math.random().toString()];
+            deck.random.nonce = 0;
+            deck.shuffle(0);
+            setRandomCards(deck.takeThree());
           }}
           size="large"
           color="primary"

@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CreateMatchButton } from "./CreateMatchButton";
 import { ITrucoshiStats } from "trucoshi";
-import { SyntheticEvent } from "react";
+import { ReactNode, SyntheticEvent } from "react";
 
-export const OnlinePlayers = ({ stats }: { stats: ITrucoshiStats }) => {
+export const OnlinePlayers = ({ stats, label }: { stats: ITrucoshiStats; label?: ReactNode }) => {
   if (!stats.onlinePlayers.length) {
     return null;
   }
@@ -13,7 +13,7 @@ export const OnlinePlayers = ({ stats }: { stats: ITrucoshiStats }) => {
   return (
     <Box textTransform="uppercase">
       <Typography color="text.disabled" pr={1} component="span" variant="inherit">
-        Online
+        {label || "Online"}
       </Typography>
       <Typography color="success" component="span" fontSize="inherit" variant="inherit">
         {stats.onlinePlayers.length}
