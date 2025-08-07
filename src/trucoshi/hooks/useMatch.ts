@@ -17,6 +17,7 @@ import { TrucoshiContext } from "../context";
 import { ICallbackMatchUpdate, ITrucoshiMatchActions, ITrucoshiMatchState } from "../types";
 import { usePayRequest } from "../../api/hooks/usePayRequest";
 import { useToast } from "../../hooks/useToast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface UseMatchOptions {
   onMyTurn?: () => void;
@@ -29,6 +30,7 @@ export const useMatch = (
 ): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
   const toast = useToast();
+  const queryClient = useQueryClient();
   const [match, _setMatch] = useState<IPublicMatch | null>(null);
   const [stats, setStats] = useState<IPublicMatchStats | null>(null);
   const [turnPlayer, setTurnPlayer] = useState<IPublicPlayer | null>(null);
@@ -159,10 +161,12 @@ export const useMatch = (
             toast.error("Hubo un error al pagar la entrada de la partida, intenta nuevamente");
           },
         });
+      } else {
+        queryClient.refetchQueries({ queryKey: ["me"] });
       }
       emitReady(matchSessionId, ready, cb);
     },
-    [context.dispatch, emitReady, me?.payRequestId, pay, toast]
+    [context.dispatch, emitReady, me?.payRequestId, pay, queryClient, toast]
   );
 
   const addBot = useCallback(
