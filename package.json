@@ -1,6 +1,6 @@
 {
   "name": "trucoshi-client",
-  "version": "9.3.2",
+  "version": "9.4.0",
   "private": false,
   "author": "Fran <jfrader.com>",
   "license": "GPL-3.0",
@@ -40,6 +40,9 @@
     "axios": "^1.6.3",
     "browser-crypto": "^2.1.0",
     "dayjs": "^1.11.10",
+    "emoji-datasource": "^15.1.2",
+    "emoji-js": "^3.8.1",
+    "emoji-picker-react": "^4.13.2",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -83,6 +86,7 @@
     ]
   },
   "devDependencies": {
+    "@types/emoji-js": "^3.5.2",
     "@types/lodash.groupby": "^4.6.9"
   }
 }

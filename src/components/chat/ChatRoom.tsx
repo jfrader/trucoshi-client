@@ -14,8 +14,19 @@ import {
   FadeProps,
   ListItemAvatar,
   ButtonProps,
+  ButtonGroup,
+  TextField,
 } from "@mui/material";
-import { useState, createRef, useLayoutEffect, FC, PropsWithChildren, useRef } from "react";
+import {
+  useState,
+  createRef,
+  useLayoutEffect,
+  FC,
+  PropsWithChildren,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
   CARDS_HUMAN_READABLE,
@@ -30,7 +41,9 @@ import { bounce } from "../../assets/animations/bounce";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { ChatField } from "./ChatField";
+import EmojiConvertor from "emoji-js";
+
+const ChatField = lazy(() => import("./ChatField"));
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -157,12 +170,20 @@ export const ChatRoom = ({
             );
           })}
         </List>
-        <ChatField
-          alwaysVisible={alwaysVisible}
-          active={active}
-          isLoading={isLoading}
-          chat={chat}
-        />
+        <Suspense
+          fallback={
+            <ButtonGroup size="small" fullWidth>
+              <TextField size="small" fullWidth placeholder="Cargando..." disabled />
+            </ButtonGroup>
+          }
+        >
+          <ChatField
+            alwaysVisible={alwaysVisible}
+            active={active}
+            isLoading={isLoading}
+            chat={chat}
+          />
+        </Suspense>
       </ChatBox>
     </ClickAwayListener>
   );
@@ -318,9 +339,14 @@ export const ChatButton = ({
   );
 };
 
+const emoji = new EmojiConvertor();
+emoji.replace_mode = "unified";
+
 export const MessageContent = ({ children }: { children: IChatMessage }) => {
   if (!children.card && !children.command) {
-    return children.content;
+    const renderedMessage = emoji.replace_colons(children.content);
+
+    return <span dangerouslySetInnerHTML={{ __html: renderedMessage }} />;
   }
   return <ChatButton message={children}>{getMessageContent(children)}</ChatButton>;
 };
