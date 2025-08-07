@@ -40,8 +40,9 @@ import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import EmojiConvertor from "emoji-js";
+import ChatField from "./ChatField";
 
-const ChatField = lazy(() => import("./ChatField"));
+const ChatFieldWithEmojis = lazy(() => import("./ChatFieldWithEmojis"));
 
 const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
   {
@@ -171,17 +172,15 @@ export const ChatRoom = ({
         <Suspense
           fallback={
             <ChatField
-              key={String(isLoading)}
               alwaysVisible={alwaysVisible}
               active={active}
               isLoading={isLoading}
-              disableEmojis
               chat={chat}
+              disableEmojis
             />
           }
         >
-          <ChatField
-            key={String(isLoading)}
+          <ChatFieldWithEmojis
             alwaysVisible={alwaysVisible}
             active={active}
             isLoading={isLoading}
