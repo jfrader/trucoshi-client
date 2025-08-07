@@ -14,8 +14,6 @@ import {
   FadeProps,
   ListItemAvatar,
   ButtonProps,
-  ButtonGroup,
-  TextField,
 } from "@mui/material";
 import {
   useState,
@@ -172,12 +170,18 @@ export const ChatRoom = ({
         </List>
         <Suspense
           fallback={
-            <ButtonGroup size="small" fullWidth>
-              <TextField size="small" fullWidth placeholder="Cargando..." disabled />
-            </ButtonGroup>
+            <ChatField
+              key={String(isLoading)}
+              alwaysVisible={alwaysVisible}
+              active={active}
+              isLoading={isLoading}
+              disableEmojis
+              chat={chat}
+            />
           }
         >
           <ChatField
+            key={String(isLoading)}
             alwaysVisible={alwaysVisible}
             active={active}
             isLoading={isLoading}

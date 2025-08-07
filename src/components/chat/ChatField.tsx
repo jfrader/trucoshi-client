@@ -27,6 +27,7 @@ import Picker, { Theme as EmojiTheme } from "emoji-picker-react";
 
 interface Props {
   alwaysVisible?: boolean;
+  disableEmojis?: boolean;
   active?: boolean;
   chat: (message: string) => void;
   isLoading: boolean;
@@ -49,7 +50,7 @@ const emojiList = emojiData.map((emoji) => ({
     .reduce((acc, code) => acc + String.fromCodePoint(parseInt(code, 16)), ""),
 }));
 
-const ChatField = memo(({ alwaysVisible, active, chat, isLoading }: Props) => {
+const ChatField = memo(({ alwaysVisible, disableEmojis, active, chat, isLoading }: Props) => {
   const theme = useTheme();
   const isLg = useMediaQuery(theme.breakpoints.up("lg"));
   const [message, setMessage] = useState<string>("");
@@ -187,14 +188,16 @@ const ChatField = memo(({ alwaysVisible, active, chat, isLoading }: Props) => {
             },
           }}
         />
-        <IconButton
-          onClick={handleOpenPicker}
-          sx={(theme) => ({ width: theme.spacing(4) })}
-          disabled={isLoading}
-          aria-label="Open emoji picker"
-        >
-          <InsertEmoticon />
-        </IconButton>
+        {disableEmojis ? null : (
+          <IconButton
+            onClick={handleOpenPicker}
+            sx={(theme) => ({ width: theme.spacing(4) })}
+            disabled={isLoading}
+            aria-label="Emojis"
+          >
+            <InsertEmoticon />
+          </IconButton>
+        )}
         <Button
           sx={(theme) => ({ width: theme.spacing(4) })}
           disabled={isLoading || !message.trim()}
