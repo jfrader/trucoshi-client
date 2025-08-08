@@ -14,8 +14,6 @@ const is401 = (error: AxiosError | null) => error?.response?.status === 401;
 apiClient.instance.interceptors.response.use(
   (res) => res,
   (error) => {
-    const parsedError =
-      error && "response" in error && error.response?.data ? error.response.data : error;
     const originalReq = error.config;
     if (
       !originalReq._retry &&
@@ -27,11 +25,11 @@ apiClient.instance.interceptors.response.use(
         .refreshAuthTokens()
         .then(() => apiClient.instance(originalReq))
         .catch(() => {
-          throw parsedError;
+          throw error;
         });
     }
 
-    return Promise.reject(parsedError);
+    return Promise.reject(error);
   }
 );
 

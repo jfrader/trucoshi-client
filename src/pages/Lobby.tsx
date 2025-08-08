@@ -32,6 +32,7 @@ import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/context";
 import { CardsDeck } from "../components/card/CardsDeck";
 import { Link } from "../shared/Link";
+import { Sats } from "../shared/Sats";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -57,10 +58,8 @@ export const Lobby = () => {
 
   const navigate = useNavigate();
 
-  const [
-    { match, me, error },
-    { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer },
-  ] = useMatch(sessionId);
+  const [{ match, error }, { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer }] =
+    useMatch(sessionId);
 
   const chatRoom = useChatRoom(match);
 
@@ -187,7 +186,6 @@ export const Lobby = () => {
               !match.options.satsPerPlayer ||
               (context.state.account?.wallet?.balanceInSats || 0) >= match.options.satsPerPlayer;
 
-            // Only show the button for non-joined users and ensure it reflects the slot's intended team
             return canJoin && canJoinBet ? (
               <Stack pt={2} alignItems="center">
                 {newTeamIdx !== match?.me?.teamIdx ? (
@@ -250,17 +248,28 @@ export const Lobby = () => {
                     )}
                     {player.isMe ? (
                       <>
-                        {me?.ready ? (
+                        {player.ready ? (
                           <Button
+                            title="Click para dejar de estar listo"
                             disabled={isReadyLoading}
                             size="small"
                             color="success"
                             onClick={onSetUnReady}
+                            endIcon={
+                              <>
+                                {player.ready &&
+                                match.options.satsPerPlayer > 0 &&
+                                context.state.account ? (
+                                  <Sats variant="body2">{match.options.satsPerPlayer}</Sats>
+                                ) : null}
+                              </>
+                            }
                           >
                             Listo
                           </Button>
                         ) : (
                           <AnimatedButton
+                            title="Pone listo para empezar"
                             variant="contained"
                             disabled={isReadyLoading}
                             size="small"

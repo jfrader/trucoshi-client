@@ -1,4 +1,12 @@
-import { AlternateEmail, Close, EmojiEvents, VideogameAsset, VpnKey, X } from "@mui/icons-material";
+import {
+  AlternateEmail,
+  Close,
+  EmojiEvents,
+  SmartToy,
+  VideogameAsset,
+  VpnKey,
+  X,
+} from "@mui/icons-material";
 import { PageContainer } from "../shared/PageContainer";
 import {
   Card,
@@ -76,7 +84,6 @@ export const Profile = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
 
-  // Add confirmation modal
   const modal = useConfirmationModal();
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
@@ -608,16 +615,28 @@ export const Profile = () => {
                         onClick={() => navigate(`/history/${match.id}`)}
                       >
                         <ListItemText
-                          secondary={dayjs(match.createdAt).format("DD/MM/YYYY")}
+                          secondary={`${dayjs(match.createdAt).format("DD/MM/YYYY")}`}
                           primary={match.sessionId}
                         />
                         <ListItemSecondaryAction>
                           {(match.bet?.satsPerPlayer || 0) > 0 &&
                           (isMyProfile || match.players.find((p) => p.accountId === me?.id)) ? (
-                            <SatoshiIcon color={isWinner ? "success" : "error"} sx={{ mr: 2 }} />
+                            <span title="Partida con Sats">
+                              <SatoshiIcon color={isWinner ? "success" : "error"} sx={{ mr: 2 }} />
+                            </span>
                           ) : null}
-                          {isWinner ? <EmojiEvents color="warning" sx={{ mr: 2 }} /> : null}
-                          <VideogameAsset />
+                          {match.players.find((p) => p.bot) ? (
+                            <span title="Partida con Bots">
+                              <SmartToy color="info" sx={{ mr: 2 }} />
+                            </span>
+                          ) : null}
+                          {isWinner ? (
+                            <span title="Jugador gano esta partida">
+                              <EmojiEvents color="warning" />
+                            </span>
+                          ) : (
+                            <VideogameAsset />
+                          )}
                         </ListItemSecondaryAction>
                       </ListItemButton>
                     );

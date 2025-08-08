@@ -155,7 +155,7 @@ export const useMatch = (
             emitReady(matchSessionId, ready, cb);
           },
           onError(e) {
-            if (Number(e.code) === 302) {
+            if (e.status === 409) {
               return;
             }
             toast.error("Hubo un error al pagar la entrada de la partida, intenta nuevamente");

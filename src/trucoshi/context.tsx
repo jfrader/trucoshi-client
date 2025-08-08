@@ -210,6 +210,14 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         }
         setLogged(logged);
       } else {
+        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+
+        if (cachedMe?.id) {
+          setShouldConnect(true);
+          socket.disconnect();
+          return;
+        }
+
         setSession(session);
         setLogged(true);
       }
@@ -266,7 +274,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.UPDATE_STATS);
       timer.current && clearInterval(timer.current);
     };
-  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me]);
+  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me, queryClient]);
 
   const sendUserId = useCallback(
     (newName: string, callback?: (name: string) => void) => {
