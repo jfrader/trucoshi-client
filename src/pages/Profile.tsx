@@ -627,7 +627,7 @@ export const Profile = () => {
                           ) : null}
                           {match.players.find((p) => p.bot) ? (
                             <span title="Partida con Bots">
-                              <SmartToy color="info" sx={{ mr: 2 }} />
+                              <SmartToy color="info" fontSize="small" sx={{ mr: 2 }} />
                             </span>
                           ) : null}
                           {isWinner ? (
