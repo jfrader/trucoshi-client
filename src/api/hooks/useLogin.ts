@@ -6,8 +6,7 @@ export const useLogin = () => {
   const { mutate, error, isPending } = useMutation({
     onSuccess(data) {
       queryClient.setQueryData(["me"], data);
-      queryClient.invalidateQueries({ queryKey: ["me"] })
-      queryClient.resetQueries({ queryKey: ["me"] })
+      queryClient.refetchQueries({ queryKey: ["me"] })
     },
     mutationKey: ["login"],
     mutationFn: apiClient.auth.loginUser,
