@@ -29,7 +29,7 @@ import { trucoshi } from "../theme";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
-import { TrucoshiContext } from "../trucoshi/context";
+import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { CardsDeck } from "../components/card/CardsDeck";
 import { Link } from "../shared/Link";
 import { Sats } from "../shared/Sats";

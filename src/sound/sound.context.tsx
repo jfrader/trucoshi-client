@@ -129,7 +129,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     setMuted(!vol);
     _setVolume((curr) => {
       const newVol = typeof vol === "number" ? vol : vol(curr);
-      localStorage.setItem("trucoshi:volume", newVol.toString());
+      localStorage.setItem("trucoshi:volume", newVol.toFixed(2).toString());
       for (const key in soundsRef.current) {
         if (soundsRef.current[key]) {
           soundsRef.current[key].volume(newVol);

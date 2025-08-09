@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { TrucoshiContext } from "../context";
+import { TrucoshiContext } from "../trucoshi.context";
 import { ITrucoshiActions, ITrucoshiState } from "../types";
 import { Socket } from "socket.io-client";
 import { ClientToServerEvents, ServerToClientEvents } from "trucoshi";

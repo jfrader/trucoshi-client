@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { TrucoshiContext } from "../trucoshi/context";
+import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import {
   Box,
   Card,

@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import { SyntheticEvent, useContext, useEffect, useState } from "react";
-import { TrucoshiContext } from "../trucoshi/context";
+import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import {
   EClientEvent,
   ECommand,

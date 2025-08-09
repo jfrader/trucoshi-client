@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { EClientEvent, EServerEvent, IChatMessage, IPublicChatRoom } from "trucoshi";
-import { TrucoshiContext } from "../context";
+import { TrucoshiContext } from "../trucoshi.context";
 import { useSound } from "../../sound/hooks/useSound";
 
 function checkRoom(matchId: string, roomId: string) {

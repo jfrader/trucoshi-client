@@ -7,6 +7,40 @@ import { PropsWithPlayer } from "../../trucoshi/types";
 import { HandCardContainer } from "../card/HandCardContainer";
 import { getTeamColor } from "../../utils/team";
 import { AnimatedBox } from "./PlayerTag";
+import { memo } from "react";
+
+const containerSx = {
+  width: "100%",
+  height: "100%",
+  pt: "29%",
+  position: "relative",
+  right: "1.4em",
+};
+
+const florButtonContainerSx = (hasCards: boolean) => ({
+  top: "50%",
+  left: "50%",
+  position: "absolute",
+  zIndex: (theme: any) => theme.zIndex.snackbar,
+  pointerEvents: "none",
+  opacity: hasCards ? 0.85 : 1,
+});
+
+const florButtonInnerSx = {
+  fontSize: "1rem",
+};
+
+const handContainerSx = {
+  margin: "1px auto",
+  px: 4,
+  position: "relative",
+};
+
+const WIDTH_MAP: Record<number, string> = {
+  2: "5.8em",
+  4: "5em",
+  6: "4.4em",
+};
 
 type Props = PropsWithPlayer<
   {
@@ -22,48 +56,39 @@ const concatCards = (
   const set = new Set([...playerCards.map((pc) => pc.card), ...cards]);
   return Array.from(set).map((card) => ({
     card,
-    key: card + player.idx,
+    key: `${card}-${player.idx}`,
     player,
   }));
 };
 
-export const HandContainer = ({
-  onHandOpen,
-  ...props
-}: BoxProps & { onHandOpen: Dispatch<SetStateAction<boolean>> }) => {
-  return (
+export const HandContainer = memo(
+  ({ onHandOpen, ...props }: BoxProps & { onHandOpen: Dispatch<SetStateAction<boolean>> }) => (
     <Box
-      onMouseEnter={() => {
-        onHandOpen(true);
-      }}
-      onMouseLeave={() => {
-        onHandOpen(false);
-      }}
-      onClick={() => {
-        onHandOpen((current) => !current);
-      }}
+      sx={handContainerSx}
+      onMouseEnter={() => onHandOpen(true)}
+      onMouseLeave={() => onHandOpen(false)}
+      onClick={() => onHandOpen((current) => !current)}
       {...props}
     />
-  );
-};
+  )
+);
+HandContainer.displayName = "HandContainer";
 
-export const Rounds = ({ match, player, ...boxProps }: Props) => {
+export const Rounds = memo(({ match, player, ...boxProps }: Props) => {
   const [openHand, setOpenHand] = useState<boolean>(false);
   const [rounds] = useRounds(match);
-
   const previousHand = match.previousHand;
 
-  const playerCards = useMemo(
-    () => rounds.flatMap((round) => round.filter((pc) => pc.player.idx === player.idx)),
-    [player, rounds]
-  );
+  const playerCards = useMemo(() => {
+    const baseCards = rounds
+      .flatMap((round) => round.filter((pc) => pc.player.idx === player.idx))
+      .map((pc) => ({ ...pc, key: `${pc.card}-${player.idx}` }));
 
-  const florBattle = match.florBattle;
-  const florBattlePlayer = florBattle?.playersWithFlor.find((p) => p.idx === player.idx);
+    const florBattle = match.florBattle;
+    const florBattlePlayer = florBattle?.playersWithFlor.find((p) => p.idx === player.idx);
 
-  const overridePlayerCards = useMemo(() => {
-    if (florBattlePlayer && florBattlePlayer.cards) {
-      return concatCards(playerCards, florBattlePlayer.cards, player);
+    if (florBattlePlayer?.cards) {
+      return concatCards(baseCards, florBattlePlayer.cards, player);
     }
 
     const findPreviousFlor =
@@ -72,91 +97,73 @@ export const Rounds = ({ match, player, ...boxProps }: Props) => {
       previousHand.flor.data.find(({ idx }) => idx === player.idx);
 
     if (findPreviousFlor) {
-      return concatCards(playerCards, findPreviousFlor.cards, player);
+      return concatCards(baseCards, findPreviousFlor.cards, player);
     }
 
     if (previousHand?.envido?.data?.cards && previousHand.envido.winner.key === player.key) {
-      return concatCards(playerCards, previousHand.envido.data.cards, player);
+      return concatCards(baseCards, previousHand.envido.data.cards, player);
     }
 
-    return playerCards;
-  }, [florBattlePlayer, player, playerCards, previousHand]);
+    return baseCards;
+  }, [rounds, match.florBattle, player, previousHand]);
 
-  // const checkDisabledCards = useMemo(() => {
-  //   if (player.disabled) {
-  //     const array = new Array(3);
-  //     array.fill(3);
-  //     return array.map(
-  //       (_a, i) => overridePlayerCards[i] || { card: "xx", key: "xx" + player.idx + i, player }
-  //     );
-  //   }
+  const autoOpenHand = useMemo(
+    () =>
+      Boolean(
+        match.florBattle?.playersWithFlor.find((p) => p.idx === player.idx)?.cards ||
+          previousHand?.flor?.data.find((p) => p.idx === player.idx) ||
+          (previousHand?.envido?.data?.cards && previousHand.envido.winner.idx === player.idx)
+      ),
+    [match.florBattle, previousHand?.flor, previousHand?.envido, player.idx]
+  );
 
-  //   return overridePlayerCards;
-  // }, [overridePlayerCards, player]);
+  const cardWidth = WIDTH_MAP[match.players.length] || WIDTH_MAP[4];
 
-  const autoOpenHand =
-    (florBattlePlayer && florBattlePlayer.cards) ||
-    previousHand?.flor?.data.find((p) => p.idx === player.idx) ||
-    (previousHand?.envido?.data?.cards && previousHand?.envido?.winner.idx === player.idx);
+  const hasFlorBattleCards = !!match.florBattle?.playersWithFlor.find((p) => p.idx === player.idx)
+    ?.cards;
 
   return (
-    <Box width="100%" height="100%" pt="29%" position="relative" right="1.4em" {...boxProps}>
-      {florBattlePlayer && match.handState !== EHandState.WAITING_PLAY ? (
+    <Box sx={containerSx} {...boxProps}>
+      {match.florBattle && match.handState !== EHandState.WAITING_PLAY && (
         <AnimatedBox
           infinite={1}
-          isturn={Number(florBattle?.winner?.idx === player.idx)}
-          sx={(theme: any) => ({
-            top: "50%",
-            left: "50%",
-            position: "absolute",
-            opacity: florBattlePlayer.cards ? 0.85 : 1,
-            zIndex: theme.zIndex.snackbar,
-            pointerEvents: "none",
-          })}
+          isturn={Number(match.florBattle.winner?.idx === player.idx)}
+          sx={florButtonContainerSx(hasFlorBattleCards)}
         >
           <Button
-            sx={{
-              fontSize: "1rem",
-            }}
+            sx={florButtonInnerSx}
             disableElevation
             disableRipple
             variant="contained"
             color={getTeamColor(player.teamIdx)}
           >
-            {florBattlePlayer.points}
+            {match.florBattle.playersWithFlor.find((p) => p.idx === player.idx)?.points}
           </Button>
         </AnimatedBox>
-      ) : null}
-      <HandContainer margin="1px auto" px={4} position="relative" onHandOpen={setOpenHand}>
-        {overridePlayerCards.map((pc, i) => {
-          return (
-            <HandCardContainer
-              key={pc.key}
-              i={i}
-              margin={1.2}
-              cards={overridePlayerCards.length}
-              open={Boolean(openHand || autoOpenHand)}
-            >
-              <GameCard
-                shadow
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                zoom={Boolean(openHand)}
-                width={WIDTH_MAP[match.players.length || 4]}
-                {...pc}
-              />
-            </HandCardContainer>
-          );
-        })}
+      )}
+      <HandContainer onHandOpen={setOpenHand}>
+        {playerCards.map((pc, i) => (
+          <HandCardContainer
+            key={pc.key}
+            i={i}
+            margin={1.2}
+            cards={playerCards.length}
+            open={openHand || autoOpenHand}
+          >
+            <GameCard
+              shadow
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              zoom={openHand}
+              width={cardWidth}
+              {...pc}
+            />
+          </HandCardContainer>
+        ))}
       </HandContainer>
     </Box>
   );
-};
-
-const WIDTH_MAP: Record<number, string> = {
-  2: "5.8em",
-  4: "5em",
-  6: "4.4em",
-};
+});
+Rounds.displayName = "Rounds";

@@ -1,10 +1,66 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
-import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard } from "trucoshi";
+import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard, SUITS_HUMAN_READABLE } from "trucoshi";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { ICardTheme } from "../../trucoshi/types";
-import { ElementType, MouseEventHandler, useCallback } from "react";
 import { useCards } from "../../trucoshi/hooks/useCards";
-import { SUITS_HUMAN_READABLE } from "trucoshi";
+import { ICardTheme } from "../../trucoshi/types";
+import { ElementType, memo, MouseEventHandler, useCallback } from "react";
+
+const cardContainerSx = {
+  position: "relative",
+  lineHeight: 1,
+  perspective: "28em",
+};
+
+const flipWrapperSx = {
+  lineHeight: 1,
+  letterSpacing: 0,
+  pr: "2px",
+  transition: "transform 0.3s",
+  transformStyle: "preserve-3d",
+  backfaceVisibility: "hidden",
+};
+
+const flipWrapperFlippedSx = {
+  ...flipWrapperSx,
+  transform: "rotateY(180deg)",
+};
+
+const frontCardSx = {
+  lineHeight: 1,
+  position: "absolute",
+  backfaceVisibility: "hidden",
+};
+
+const backCardSx = {
+  lineHeight: 1,
+  width: "100%",
+  height: "100%",
+  position: "absolute",
+  backfaceVisibility: "hidden",
+  transform: "rotateY(180deg)",
+};
+
+const emojiCardContentSx = (width: string) => ({
+  letterSpacing: 0,
+  px: "2px",
+  width: "100%",
+  fontSize: `calc(${width} * 0.3)`,
+  textAlign: "center",
+});
+
+const suitTopSx = {
+  position: "absolute",
+  top: "3%",
+  right: 0,
+  opacity: 0.15,
+};
+
+const suitBottomSx = {
+  position: "absolute",
+  bottom: "3%",
+  left: 0,
+  opacity: 0.15,
+};
 
 export type GameCardProps = {
   card: ICard;
@@ -20,29 +76,28 @@ export type GameCardProps = {
   as?: ElementType;
 } & ButtonProps;
 
-export const GameCard = ({
+const _GameCard = ({
   card,
-  disableDoubleClick,
-  enableHover,
-  burn,
-  request,
-  zoom,
-  scale,
-  shadow,
+  disableDoubleClick = false,
+  enableHover = false,
+  burn = false,
+  request = false,
+  zoom = false,
+  scale = 1.75,
+  shadow = false,
   width = "4.4em",
   theme = "",
   ...buttonProps
 }: GameCardProps) => {
   const [{ cardTheme, cards, cardsReady }, { inspectCard }] = useTrucoshi();
-
-  const usedTheme = theme !== "" ? theme : cardTheme;
-
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
+
+  const usedTheme = theme || cardTheme;
 
   const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     (e) => {
       e.preventDefault();
-      if (e.type !== "click" || e.nativeEvent.button === 2) {
+      if (e.type !== "click" || e.button === 2) {
         inspectCard(card || BURNT_CARD);
       }
     },
@@ -50,8 +105,9 @@ export const GameCard = ({
   );
 
   const onDoubleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
-    if (disableDoubleClick) return;
-    inspectCard(card || BURNT_CARD);
+    if (!disableDoubleClick) {
+      inspectCard(card || BURNT_CARD);
+    }
   }, [card, disableDoubleClick, inspectCard]);
 
   if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
@@ -64,11 +120,11 @@ export const GameCard = ({
     return (
       <GameCardButton
         variant="card"
-        name={name || BURNT_CARD}
-        zoom={zoom ? 1 : 0}
+        name={name}
+        zoom={zoom}
         scale={scale}
-        shadow={shadow ? 1 : 0}
-        enablehover={enableHover ? 1 : 0}
+        shadow={shadow}
+        enablehover={enableHover}
         onClick={onClick}
         onContextMenu={onClick}
         onDoubleClick={onDoubleClick}
@@ -76,10 +132,7 @@ export const GameCard = ({
       >
         <img
           alt={CARDS_HUMAN_READABLE[name] || "Carta quemada"}
-          style={{
-            objectFit: "cover",
-            width,
-          }}
+          style={{ objectFit: "cover", width }}
           src={request ? reqCards[name] : cards[name]}
         />
       </GameCardButton>
@@ -92,35 +145,27 @@ export const GameCard = ({
   return (
     <GameCardButton
       variant="emojicard"
-      name={card || BURNT_CARD}
-      emojicard={1}
-      zoom={zoom ? 1 : 0}
-      shadow={shadow ? 1 : 0}
+      name={name}
+      emojicard
+      zoom={zoom}
+      shadow={shadow}
       scale={scale}
       onClick={onClick}
       onContextMenu={onClick}
       onDoubleClick={onDoubleClick}
-      enablehover={enableHover ? 1 : 0}
-      {...buttonProps}
+      enablehover={enableHover}
       sx={{
         width,
         height: `calc(${width} * 1.48)`,
         borderRadius: `calc(${width} / 13)`,
         ...buttonProps.sx,
       }}
+      {...buttonProps}
     >
-      <Box
-        sx={{
-          letterSpacing: 0,
-          px: "2px",
-          width: "100%",
-          fontSize: `calc(${width} * 0.3)`,
-          textAlign: "center",
-        }}
-      >
-        <Box sx={{ position: "absolute", top: "3%", right: 0, opacity: 0.15 }}>{suit}</Box>
+      <Box sx={emojiCardContentSx(width)}>
+        <Box sx={suitTopSx}>{suit}</Box>
         <Box>{humanCard || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
-        <Box sx={{ position: "absolute", bottom: "3%", left: 0, opacity: 0.15 }}>{suit}</Box>
+        <Box sx={suitBottomSx}>{suit}</Box>
       </Box>
     </GameCardButton>
   );
@@ -128,83 +173,37 @@ export const GameCard = ({
 
 export type FlipGameCardProps = { flip?: boolean } & GameCardProps;
 
-export const FlipGameCard = ({ flip, ...props }: FlipGameCardProps) => {
-  return (
-    <Box
-      sx={{
-        position: "relative",
-        lineHeight: 1,
-        perspective: "28em",
-      }}
-    >
-      <Box
-        sx={[
-          {
-            lineHeight: 1,
-            letterSpacing: 0,
-            pr: "2px",
-            transition: "transform 0.3s",
-            transformStyle: "preserve-3d",
-            backfaceVisibility: "hidden",
-          },
-          flip
-            ? {
-                transform: "rotateY(180deg)",
-              }
-            : {},
-        ]}
-      >
-        <Box
-          sx={{
-            lineHeight: 1,
-            position: "absolute",
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <GameCard {...props} />
-        </Box>
-        <Box
-          sx={{
-            lineHeight: 1,
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
-          }}
-        >
-          <GameCard {...props} card={BURNT_CARD} />
-        </Box>
+const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
+  <Box sx={cardContainerSx}>
+    <Box sx={flip ? flipWrapperFlippedSx : flipWrapperSx}>
+      <Box sx={frontCardSx}>
+        <GameCard {...props} />
+      </Box>
+      <Box sx={backCardSx}>
+        <GameCard {...props} card={BURNT_CARD} />
       </Box>
     </Box>
-  );
-};
+  </Box>
+);
 
-const GameCardButton = styled(Button)<{
-  enablehover?: boolean | number;
-  emojicard?: boolean | number;
-  zoom?: boolean | number;
-  shadow?: boolean | number;
+const GameCardButton = styled(Button, {
+  shouldForwardProp: (prop) =>
+    !["enablehover", "emojicard", "zoom", "shadow", "scale"].includes(prop as string),
+})<{
+  enablehover?: boolean;
+  emojicard?: boolean;
+  zoom?: boolean;
+  shadow?: boolean;
   scale?: number;
-}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75 }) => [
-  {
-    lineHeight: 1,
-    position: "relative",
-    transition: theme.transitions.create(["transform", "box-shadow"], {
-      duration: theme.transitions.duration.standard,
-    }),
-  },
-  shadow
-    ? {
-        boxShadow: theme.shadows[4],
-      }
-    : {},
-  zoom
-    ? {
-        transform: `scale(${scale})`,
-      }
-    : {},
-  emojicard
+}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75 }) => ({
+  lineHeight: 1,
+  position: "relative",
+  transition: theme.transitions.create(["transform", "box-shadow"], {
+    duration: theme.transitions.duration.standard,
+  }),
+  ...(shadow && { boxShadow: theme.shadows[4] }),
+  ...(zoom && { transform: `scale(${scale})` }),
+  ...(emojicard
     ? {
         fontWeight: 700,
         textAlign: "center",
@@ -216,17 +215,19 @@ const GameCardButton = styled(Button)<{
         background: "transparent",
         border: "none",
         outline: "none",
+      }),
+  ...(enablehover && {
+    "&:hover": {
+      boxShadow: theme.shadows[4],
+      zIndex: theme.zIndex.appBar,
+      transform: "scale(1.5)",
+      "& *": {
+        zIndex: theme.zIndex.appBar,
       },
-  enablehover
-    ? {
-        "&:hover": {
-          boxShadow: theme.shadows[4],
-          zIndex: theme.zIndex.appBar,
-          transform: "scale(1.5)",
-          "& *": {
-            zIndex: theme.zIndex.appBar,
-          },
-        },
-      }
-    : {},
-]);
+    },
+  }),
+}));
+
+// Export with original names
+export const GameCard = memo(_GameCard);
+export const FlipGameCard = memo(_FlipGameCard);

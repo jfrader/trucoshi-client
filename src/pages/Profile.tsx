@@ -27,7 +27,7 @@ import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { useMe } from "../api/hooks/useMe";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { EClientEvent, IAccountDetails } from "trucoshi";
-import { TrucoshiContext } from "../trucoshi/context";
+import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { useToast } from "../hooks/useToast";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import dayjs from "dayjs";

@@ -12,7 +12,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { GameTable } from "../components/game/GameTable";
@@ -32,7 +32,6 @@ import { MatchPoints } from "../components/game/MatchPoints";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../shared/FloatingProgress";
-import { PropsWithPlayer } from "../trucoshi/types";
 import { Backdrop } from "../shared/Backdrop";
 import { MatchFinishedScreen } from "../components/game/MatchFinishedScreen";
 import { CommandBar } from "../components/game/CommandBar";
@@ -42,40 +41,102 @@ import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { Visibility } from "@mui/icons-material";
 
-const Match = () => {
+const spectatorTooltipSx = (theme: any) => ({
+  position: "fixed",
+  right: "1em",
+  bottom: "1.3em",
+  borderRadius: theme.spacing(1),
+  padding: theme.spacing(1),
+  bgcolor: alpha(theme.palette.background.paper, 0.5),
+});
+
+const matchPointsContainerSx = {
+  position: "fixed",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  right: 0,
+  top: "52px",
+  maxWidth: "24em",
+};
+
+const AbandonDialog = ({
+  open,
+  onClose,
+  onAbandon,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAbandon: () => void;
+}) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Atención</DialogTitle>
+    <DialogContent>
+      <Typography>Estás a punto de abandonar la partida</Typography>
+    </DialogContent>
+    <DialogContent>
+      <Stack direction="row" width="100%" justifyContent="center" gap={2}>
+        <Button color="success" onClick={onClose}>
+          Continuar Partida
+        </Button>
+        <Button color="error" onClick={onAbandon}>
+          Rendirse
+        </Button>
+      </Stack>
+    </DialogContent>
+  </Dialog>
+);
+const RulesDialog = ({
+  open,
+  onClose,
+  options,
+}: {
+  open: boolean;
+  onClose: () => void;
+  options?: any;
+}) => (
+  <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
+    <DialogTitle>Reglas de la Partida</DialogTitle>
+    <DialogContent>{options && <GameOptionsList options={options} />}</DialogContent>
+    <DialogActions>
+      <Stack direction="row" width="100%" justifyContent="center" gap={2}>
+        <Button fullWidth color="success" onClick={onClose}>
+          Continuar Partida
+        </Button>
+      </Stack>
+    </DialogActions>
+  </Dialog>
+);
+
+const _Match = () => {
   const [, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
-
+  const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
-
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
-
+  const navigate = useNavigate();
   const [{ match, stats, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] =
     useMatch(sessionId, {
       onMyTurn: () => queue("turn"),
-      onFreshHand: () => {
-        queue("round");
-      },
+      onFreshHand: () => queue("round"),
     });
-
   const chatProps = useChatRoom(match);
-
   const [, , , say] = chatProps.useChatState;
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    if (match && (match.state === EMatchState.UNREADY || match.state === EMatchState.READY)) {
+    if (
+      match?.state &&
+      (match.state === EMatchState.UNREADY || match.state === EMatchState.READY)
+    ) {
       navigate(`/lobby/${sessionId}`);
     }
-  }, [match, navigate, sessionId]);
-
-  const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
+  }, [match?.state, navigate, sessionId]);
 
   const Slot = useCallback(
-    ({ player }: PropsWithPlayer) => (
+    ({ player }: { player: IPublicPlayer }) => (
       <MatchPlayer
         key={player.idx}
         say={say}
@@ -89,7 +150,7 @@ const Match = () => {
   );
 
   const InnerSlot = useCallback(
-    ({ player }: PropsWithPlayer) =>
+    ({ player }: { player: IPublicPlayer }) =>
       match ? (
         <Rounds
           key={player.idx}
@@ -104,7 +165,7 @@ const Match = () => {
 
   const MiddleSlot = useCallback(
     () =>
-      match && !match.florBattle && chatProps.latestMessage && chatProps.latestMessage.command ? (
+      match && !match.florBattle && chatProps.latestMessage?.command ? (
         <Box
           width="100%"
           height="100%"
@@ -137,15 +198,21 @@ const Match = () => {
     );
   }
 
-  if (match && match.winner) {
+  if (!sessionId) {
+    return (
+      <Container maxWidth="sm">
+        <Backdrop open message="Partida no encontrada" />
+      </Container>
+    );
+  }
+
+  if (match?.winner) {
     return <MatchFinishedScreen match={match} chatProps={chatProps} error={error} />;
   }
 
   return (
     <Box flexGrow={1} maxWidth="100%" position="relative">
-      {match?.me ? (
-        <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />
-      ) : null}
+      {match?.me && <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />}
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
       {match ? (
@@ -161,25 +228,16 @@ const Match = () => {
             MiddleSlot={MiddleSlot}
             middlePointerEventsDisabled
           />
-          <Box
-            position="fixed"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            right={0}
-            top="52px"
-            maxWidth="24em"
-          >
+          <Box sx={matchPointsContainerSx}>
             <Stack direction="row">
               <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
               </Button>
-              {me && !me.abandoned ? (
+              {me && !me.abandoned && (
                 <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
                   Rendirse
                 </Button>
-              ) : null}
+              )}
             </Stack>
             <Box>
               <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
@@ -189,80 +247,41 @@ const Match = () => {
               </Box>
             </Box>
           </Box>
+          <RulesDialog
+            open={isRulesOpen}
+            onClose={() => setRulesOpen(false)}
+            options={match.options}
+          />
+          <AbandonDialog
+            open={isAbandonOpen}
+            onClose={() => setAbandonOpen(false)}
+            onAbandon={() => {
+              leaveMatch();
+              setAbandonOpen(false);
+            }}
+          />
         </>
       ) : (
         <FloatingProgress />
       )}
-
       <FixedChatContainer>
         <ChatRoom {...chatProps} />
       </FixedChatContainer>
-
-      {stats && stats.spectators ? (
+      {stats?.spectators && (
         <Tooltip
           placement="top"
           title={`${stats.spectators} Espectador${stats.spectators > 1 ? "es" : ""}`}
         >
-          <Box
-            sx={(theme) => ({
-              position: "fixed",
-              right: "1em",
-              bottom: "1.3em",
-              borderRadius: theme.spacing(1),
-              padding: theme.spacing(1),
-              bgcolor: alpha(theme.palette.background.paper, 0.5),
-            })}
-            textTransform="uppercase"
-          >
+          <Box sx={spectatorTooltipSx}>
             <Typography color="text.secondary" display="flex" gap={1.5} alignItems="center">
               <Visibility fontSize="small" /> {stats.spectators}
             </Typography>
           </Box>
         </Tooltip>
-      ) : null}
-
-      <Dialog open={isAbandonOpen} onClose={() => setAbandonOpen(false)}>
-        <DialogTitle>Atencion</DialogTitle>
-        <DialogContent>
-          <Typography>Estas a punto de abandonar la partida</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Stack direction="row" width="100%" justifyContent="center" gap={2}>
-            <Button color="success" onClick={() => setAbandonOpen(false)}>
-              Continuar Partida
-            </Button>
-            <Button
-              color="error"
-              onClick={() => {
-                leaveMatch();
-                setAbandonOpen(false);
-              }}
-            >
-              Rendirse
-            </Button>
-          </Stack>
-        </DialogActions>
-      </Dialog>
-
-      {match && (
-        <Dialog fullWidth maxWidth="xs" open={isRulesOpen} onClose={() => setRulesOpen(false)}>
-          <DialogTitle>Reglas de la Partida</DialogTitle>
-          <DialogContent>
-            <GameOptionsList options={match.options} />
-          </DialogContent>
-          <DialogActions>
-            <Stack direction="row" width="100%" justifyContent="center" gap={2}>
-              <Button fullWidth color="success" onClick={() => setRulesOpen(false)}>
-                Continuar Partida
-              </Button>
-            </Stack>
-          </DialogActions>
-        </Dialog>
       )}
-
       <Toasty animate={chatProps.latestMessage?.sound === "toasty"} />
     </Box>
   );
 };
 
-export { Match };
+export const Match = memo(_Match);
