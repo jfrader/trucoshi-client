@@ -86,7 +86,7 @@ export function getPlayerTimer({
     };
   }
 
-  const extensionDifference = player.turnExtensionExpiresAt - now;
+  const extensionDifference = player.turnExtensionExpiresAt - now - player.abandonedTime;
   const progress = (extensionDifference * 100) / options.abandonTime;
   return {
     isExtension: true,

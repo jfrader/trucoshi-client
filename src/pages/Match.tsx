@@ -145,8 +145,10 @@ const _Match = () => {
   useEffect(() => {
     if (acceptPauseCallback && declinePauseCallback) {
       toast.info("Aceptar pausa?", {
+        autoHideDuration: 4800,
+        anchorOrigin: { horizontal: "left", vertical: "top" },
         action: (
-          <ButtonGroup>
+          <ButtonGroup size="small" variant="contained" color="info">
             <Button
               onClick={() => {
                 acceptPauseCallback();
@@ -154,7 +156,9 @@ const _Match = () => {
             >
               Aceptar
             </Button>
-            <Button onClick={declinePauseCallback}>Rechazar</Button>
+            <Button color="error" onClick={declinePauseCallback}>
+              Rechazar
+            </Button>
           </ButtonGroup>
         ),
       });

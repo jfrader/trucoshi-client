@@ -21,6 +21,7 @@ import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
 import { PlayerRanking } from "./pages/PlayerRanking";
+import CustomSnackbar from "./shared/CustomSnackbar";
 
 const AppRouter = createBrowserRouter([
   {
@@ -105,10 +106,21 @@ const AppRouter = createBrowserRouter([
 
 const queryClient = new QueryClient({});
 
+const Components = {
+  default: CustomSnackbar,
+  success: CustomSnackbar,
+  error: CustomSnackbar,
+  info: CustomSnackbar,
+  warning: CustomSnackbar,
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SnackbarProvider>
+      <SnackbarProvider
+        Components={Components}
+        style={{ maxWidth: "100%" }}
+      >
         <TrucoshiProvider>
           <SoundProvider>
             <RouterProvider router={AppRouter} />
