@@ -40,11 +40,10 @@ export const MatchFinishedScreen = ({
     }
   }, [match.options.satsPerPlayer, refetchMe]);
 
-  useEffect(() => {
-    return () => {
-      socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
-    };
-  });
+  const onExit = (fn: () => void) => () => {
+    socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
+    fn();
+  };
 
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;
@@ -98,7 +97,7 @@ export const MatchFinishedScreen = ({
           <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
         </Box>
         <Button
-          onClick={() => (location.key === "default" ? navigate("/") : navigate(-1))}
+          onClick={onExit(() => (location.key === "default" ? navigate("/") : navigate(-1)))}
           variant="text"
         >
           Volver al inicio
