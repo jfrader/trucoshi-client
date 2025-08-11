@@ -55,8 +55,6 @@ export interface ITrucoshiMatchState {
   acceptPauseCallback: (() => void) | null;
   declinePauseCallback: (() => void) | null;
   error: Error | null;
-  canPlay: boolean;
-  canSay: boolean;
 }
 
 export interface ITrucoshiActions {

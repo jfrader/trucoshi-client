@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState, useMemo } from "react";
 import {
   IPublicMatch,
   ICard,
@@ -24,7 +24,7 @@ export interface UseMatchOptions {
 export const useMatch = (
   matchId?: string | null,
   options: UseMatchOptions = {}
-): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
+): [ITrucoshiMatchState & { canPlay: boolean; canSay: boolean }, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
   const toast = useToast();
   const { pay } = usePayRequest();
@@ -50,9 +50,29 @@ export const useMatch = (
     acceptPauseCallback: null,
     declinePauseCallback: null,
     error: null,
-    canPlay: false,
-    canSay: false,
   });
+
+  const canPlay = useMemo(
+    () =>
+      Boolean(
+        matchState.match &&
+          matchState.turnCallback &&
+          matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
+          matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
+      ),
+    [matchState.match, matchState.turnCallback]
+  );
+
+  const canSay = useMemo(
+    () =>
+      Boolean(
+        matchState.match &&
+          matchState.sayCallback &&
+          matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
+          matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
+      ),
+    [matchState.match, matchState.sayCallback]
+  );
 
   const fetchMatch = useCallback(() => {
     if (!isConnected || !matchId) {
@@ -283,7 +303,7 @@ export const useMatch = (
     (cardIdx: number, card: ICard) => {
       if (matchState.match && matchState.turnCallback) {
         matchState.turnCallback({ cardIdx, card });
-        setMatchState((prev) => ({ ...prev, turnCallback: null, canPlay: false }));
+        setMatchState((prev) => ({ ...prev, turnCallback: null }));
       }
     },
     [matchState]
@@ -293,7 +313,7 @@ export const useMatch = (
     (command: ESayCommand) => {
       if (matchState.match && matchState.sayCallback) {
         matchState.sayCallback({ command });
-        setMatchState((prev) => ({ ...prev, sayCallback: null, canSay: false }));
+        setMatchState((prev) => ({ ...prev, sayCallback: null }));
       }
     },
     [matchState]
@@ -319,8 +339,6 @@ export const useMatch = (
         me: null,
         turnPlayer: null,
         error: null,
-        canPlay: false,
-        canSay: false,
         acceptPauseCallback: null,
         declinePauseCallback: null,
         turnCallback: null,
@@ -353,7 +371,6 @@ export const useMatch = (
           me: value.players.find((player) => player.isMe) || null,
           turnPlayer: value.players.find((player) => player.isTurn) || null,
           turnCallback: callback,
-          canPlay: Boolean(value && callback),
           error: null,
         }));
       }
@@ -374,11 +391,6 @@ export const useMatch = (
           me: match.players.find((player) => player.isMe) || null,
           turnPlayer: match.players.find((player) => player.isTurn) || null,
           sayCallback: callback,
-          canSay: Boolean(
-            match &&
-              match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
-              match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
-          ),
           error: null,
         }));
       }
@@ -435,7 +447,7 @@ export const useMatch = (
   }, [socket, matchId, onMyTurn, onFreshHand]);
 
   return [
-    matchState,
+    { ...matchState, canPlay, canSay },
     {
       playCard,
       sayCommand,
