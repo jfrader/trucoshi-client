@@ -1,5 +1,5 @@
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
-import { IPublicMatch } from "trucoshi";
+import { EClientEvent, IPublicMatch } from "trucoshi";
 import { getTeamColor, getTeamName } from "../../utils/team";
 import { MatchBackdrop } from "./MatchBackdrop";
 import { SocketBackdrop } from "../../shared/SocketBackdrop";
@@ -12,6 +12,7 @@ import { EmojiRain } from "../../shared/EmojiRain";
 import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMe } from "../../api/hooks/useMe";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
 export const MatchFinishedScreen = ({
   match,
@@ -24,6 +25,7 @@ export const MatchFinishedScreen = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [, , socket] = useTrucoshi();
 
   const { refetch: refetchMe } = useMe();
 
@@ -37,6 +39,12 @@ export const MatchFinishedScreen = ({
       refetchMe();
     }
   }, [match.options.satsPerPlayer, refetchMe]);
+
+  useEffect(() => {
+    return () => {
+      socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
+    };
+  });
 
   if (error || !match || !match.winner) {
     return <MatchBackdrop error={error} />;
