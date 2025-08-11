@@ -2,6 +2,7 @@ import {
   alpha,
   Box,
   Button,
+  ButtonGroup,
   Container,
   Dialog,
   DialogActions,
@@ -39,7 +40,8 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
-import { Visibility } from "@mui/icons-material";
+import { Pause, Visibility } from "@mui/icons-material";
+import { useToast } from "../hooks/useToast";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -118,11 +120,16 @@ const _Match = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
   const navigate = useNavigate();
-  const [{ match, stats, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] =
-    useMatch(sessionId, {
-      onMyTurn: () => queue("turn"),
-      onFreshHand: () => queue("round"),
-    });
+  const toast = useToast();
+
+  const [
+    { match, stats, error, canSay, canPlay, me, acceptPauseCallback, declinePauseCallback },
+    { playCard, sayCommand, leaveMatch, pauseMatch },
+  ] = useMatch(sessionId, {
+    onMyTurn: () => queue("turn"),
+    onFreshHand: () => queue("round"),
+  });
+
   const chatProps = useChatRoom(match);
   const [, , , say] = chatProps.useChatState;
 
@@ -134,6 +141,25 @@ const _Match = () => {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match?.state, navigate, sessionId]);
+
+  useEffect(() => {
+    if (acceptPauseCallback && declinePauseCallback) {
+      toast.info("Aceptar pausa?", {
+        action: (
+          <ButtonGroup>
+            <Button
+              onClick={() => {
+                acceptPauseCallback();
+              }}
+            >
+              Aceptar
+            </Button>
+            <Button onClick={declinePauseCallback}>Rechazar</Button>
+          </ButtonGroup>
+        ),
+      });
+    }
+  }, [acceptPauseCallback, declinePauseCallback, toast]);
 
   const Slot = useCallback(
     ({ player }: { player: IPublicPlayer }) => (
@@ -215,6 +241,14 @@ const _Match = () => {
       {match?.me && <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />}
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
+      <Backdrop hideLogo message="Pausa" opacity={0.66} open={match?.state === EMatchState.PAUSED}>
+        <Stack gap={6} alignItems="center">
+          <Pause color="success" fontSize="large" />
+          <Button variant="contained" onClick={() => pauseMatch(false)} color="success">
+            Reanudar
+          </Button>
+        </Stack>
+      </Backdrop>
       {match ? (
         <>
           <GameTable
@@ -230,6 +264,9 @@ const _Match = () => {
           />
           <Box sx={matchPointsContainerSx}>
             <Stack direction="row">
+              <Button onClick={() => pauseMatch(true)} color="info">
+                Pausa
+              </Button>
               <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
               </Button>

@@ -19,7 +19,8 @@ const MATCH_STATE_MAP: { [key in EMatchState]: [string, BadgeProps["color"]] } =
   [EMatchState.FINISHED]: ["Terminada", "error"],
   [EMatchState.STARTED]: ["Jugando", "warning"],
   [EMatchState.UNREADY]: ["En lobby", "success"],
-  [EMatchState.READY]: ["En lobby", "success"],
+  [EMatchState.READY]: ["En lobby", "info"],
+  [EMatchState.PAUSED]: ["En pausa", "warning"],
 };
 
 export const MatchList = ({

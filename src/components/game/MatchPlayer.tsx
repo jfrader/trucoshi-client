@@ -7,6 +7,8 @@ import { PlayerTag } from "./PlayerTag";
 import { TurnProgress } from "./TurnProgress";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import { useTurnTimer } from "../../trucoshi/hooks/useTurnTimer";
+import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
 type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "match"> &
   PropsWithPlayer<{
@@ -15,13 +17,22 @@ type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "match"> &
   }>;
 
 const MatchPlayer = ({ match, player, say, canPlay, onPlayCard }: PlayerProps) => {
+  const [{ serverAheadTime }] = useTrucoshi();
   const [, isPrevious] = useRounds(match);
 
+  const turnTimer = useTurnTimer(player, serverAheadTime, match);
   const modal = useConfirmationModal();
 
   return (
     <Box flexGrow={1} display="flex" flexDirection="column">
-      <TurnProgress match={match} player={player} previousHand={match?.previousHand} />
+      <TurnProgress
+        turnTimer={turnTimer}
+        visible={
+          player.bot
+            ? Boolean(player.isTurn && !match?.previousHand)
+            : Boolean(player.isTurn && !match?.previousHand && turnTimer.progress)
+        }
+      />
       <Box maxWidth="100%" pt={1} display="flex" flexDirection="column" flexGrow={1} height="100%">
         <PlayerTag
           player={player}

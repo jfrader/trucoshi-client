@@ -12,8 +12,12 @@ export const Backdrop = ({
   message,
   loading,
   children,
+  hideLogo,
+  opacity = 0.9,
   ...props
-}: PropsWithChildren<BackdropProps & { message?: string; loading?: boolean }>) => {
+}: PropsWithChildren<
+  BackdropProps & { message?: string; loading?: boolean; opacity?: number; hideLogo?: boolean }
+>) => {
   return (
     <MuiBackdrop
       {...props}
@@ -21,7 +25,7 @@ export const Backdrop = ({
         zIndex: (theme) => theme.zIndex.drawer + 1,
         color: "text.primary",
         maxHeight: "100vh",
-        backgroundColor: "rgb(0, 0, 0, 0.9)",
+        backgroundColor: `rgb(0, 0, 0, ${opacity})`,
         overflow: "hidden",
       }}
     >
@@ -32,7 +36,7 @@ export const Backdrop = ({
         justifyContent="space-between"
         alignItems="center"
       >
-        <TrucoshiText height="26px" />
+        {hideLogo ? null : <TrucoshiText height="26px" />}
         {message ? <Typography variant="h4">{message}</Typography> : null}
         {loading ? (
           <Box mt={1}>
