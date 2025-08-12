@@ -14,6 +14,11 @@ export interface ISoundContext {
   isPlayingQueueSoundRef: MutableRefObject<string | boolean>;
 }
 
-export type ISoundQueue = Array<{ key: string; promise: () => Promise<unknown> }>;
+export type ISoundQueue = Array<{
+  key: string;
+  promise: () => Promise<unknown>;
+  callback?: (e: Error | null, status?: "playing" | "finished") => void;
+  queuedAt: number;
+}>;
 
 export type IGameSounds = Record<string, Omit<HowlOptions, "src"> & { src: string | string[] }>;

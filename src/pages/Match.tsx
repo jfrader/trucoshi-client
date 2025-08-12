@@ -152,7 +152,7 @@ const _Match = () => {
             >
               Pausar
             </Button>
-            <Button variant="text" color="error" onClick={() => answer(false)}>
+            <Button color="error" onClick={() => answer(false)}>
               Rechazar
             </Button>
           </ButtonGroup>

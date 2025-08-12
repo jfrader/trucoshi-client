@@ -86,6 +86,7 @@ export interface ITrucoshiState {
   activeMatches: Array<IPublicMatchInfo>;
   cardTheme: ICardTheme;
   cardsReady: boolean;
+  cardsLoading: boolean;
   inspectedCard: ICard | null;
   cards: CardSources;
   isSidebarOpen: boolean;

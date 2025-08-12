@@ -16,6 +16,7 @@ import { gameSounds } from "./sounds";
 const INITIAL_QUEUE: ISoundQueue = [];
 const MAX_QUEUE_LENGTH = 4;
 const QUEUE_TIMEOUT = 5000;
+const SOUND_EXPIRY_TIMEOUT = 5000;
 
 export const SoundContext = createContext<ISoundContext | null>(null);
 
@@ -90,6 +91,14 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const [next] = soundQueueRef.current;
     if (next && !isPlayingQueueSoundRef.current) {
+      const now = Date.now();
+      if (now - next.queuedAt > SOUND_EXPIRY_TIMEOUT) {
+        soundQueueRef.current = soundQueueRef.current.slice(1);
+        setQueueTrigger((prev) => prev + 1);
+        next.callback?.(new Error("Sound expired"));
+        return;
+      }
+
       const promise = next.promise();
       soundQueueRef.current = soundQueueRef.current.slice(1);
       isPlayingQueueSoundRef.current = next.key;
@@ -181,7 +190,10 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
           sound.play();
         });
 
-      soundQueueRef.current = [...soundQueueRef.current, { key, promise }];
+      soundQueueRef.current = [
+        ...soundQueueRef.current,
+        { key, promise, callback, queuedAt: Date.now() },
+      ];
       setQueueTrigger((prev) => prev + 1);
     },
     [isMuted]

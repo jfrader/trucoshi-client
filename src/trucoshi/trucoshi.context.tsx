@@ -51,7 +51,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [lastPong, setLastPong] = useState<number | null>(null);
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "default");
-  const [cards, cardsReady] = useCards({ theme: cardTheme });
+  const [cards, cardsReady, cardsLoading] = useCards({ theme: cardTheme });
   const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [version, setVersion] = useState("");
@@ -347,6 +347,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           serverAheadTime,
           cardTheme,
           cardsReady,
+          cardsLoading,
           isSidebarOpen,
           inspectedCard,
           isLoggingIn: isLoadingAccount || isPendingLogin,

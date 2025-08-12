@@ -108,6 +108,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
       </main>
 
       <CardBackdrop
+        key={inspectedCard}
         card={inspectedCard}
         cardsReady={cardsReady}
         inspectCard={inspectCard}

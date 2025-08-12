@@ -31,6 +31,7 @@ export const getRandomCards = (len: number = 3) => {
 
 export const useCards = ({ disabled, theme: themeProp = "default", cards }: Options) => {
   const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sources, setSources] = useState<CardSources>({} as CardSources);
 
   const theme = CardThemes.includes(themeProp) ? themeProp : "default";
@@ -39,6 +40,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
 
   useEffect(() => {
     if (!theme) {
+      setLoading(false);
       return setReady(true);
     }
 
@@ -47,9 +49,10 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
     }
 
     if (ready && loadedTheme === theme) {
-      return;
+      return setLoading(false);
     }
 
+    setLoading(true);
     if (!loadedTheme) {
       setReady(false);
     }
@@ -103,5 +106,5 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, loadedTheme, ready, theme]);
 
-  return [sources, ready] satisfies [CardSources, boolean];
+  return [sources, ready, loading] satisfies [CardSources, boolean, boolean];
 };

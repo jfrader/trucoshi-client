@@ -29,7 +29,7 @@ export const Backdrop = ({
     <MuiBackdrop
       {...props}
       sx={{
-        zIndex: (theme) => (showChat ? theme.zIndex.appBar - 1 : theme.zIndex.drawer),
+        zIndex: (theme) => (showChat ? theme.zIndex.appBar - 1 : theme.zIndex.drawer + 1),
         color: "text.primary",
         maxHeight: "100vh",
         backgroundColor: `rgb(0, 0, 0, ${opacity})`,
