@@ -64,10 +64,12 @@ export const useMatch = (
       Boolean(
         matchState.match &&
           matchState.turnCallback &&
+          matchState.me &&
+          !matchState.me.abandoned &&
           matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
           matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
       ),
-    [matchState.match, matchState.turnCallback]
+    [matchState.match, matchState.me, matchState.turnCallback]
   );
 
   const canSay = useMemo(
@@ -75,10 +77,12 @@ export const useMatch = (
       Boolean(
         matchState.match &&
           matchState.sayCallback &&
+          matchState.me &&
+          !matchState.me.abandoned &&
           matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
           matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
       ),
-    [matchState.match, matchState.sayCallback]
+    [matchState.match, matchState.me, matchState.sayCallback]
   );
 
   const fetchMatch = useCallback(() => {
