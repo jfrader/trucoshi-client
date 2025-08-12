@@ -14,19 +14,27 @@ export const Backdrop = ({
   children,
   hideLogo,
   opacity = 0.9,
+  showChat,
   ...props
 }: PropsWithChildren<
-  BackdropProps & { message?: string; loading?: boolean; opacity?: number; hideLogo?: boolean }
+  BackdropProps & {
+    message?: string;
+    loading?: boolean;
+    opacity?: number;
+    hideLogo?: boolean;
+    showChat?: boolean;
+  }
 >) => {
   return (
     <MuiBackdrop
       {...props}
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: (theme) => (showChat ? theme.zIndex.appBar - 1 : theme.zIndex.drawer),
         color: "text.primary",
         maxHeight: "100vh",
         backgroundColor: `rgb(0, 0, 0, ${opacity})`,
         overflow: "hidden",
+        ...props.sx,
       }}
     >
       <Box

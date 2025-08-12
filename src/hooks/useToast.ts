@@ -1,7 +1,12 @@
-import { OptionsWithExtraProps, VariantType, useSnackbar } from "notistack";
+import { CustomContentProps, OptionsWithExtraProps, VariantType, useSnackbar } from "notistack";
 import { useCallback, useMemo } from "react";
 
-type ToastFnOptions<V extends VariantType> = Omit<OptionsWithExtraProps<V>, "variant" | "message">;
+type ToastFnOptions<V extends VariantType> = Omit<
+  OptionsWithExtraProps<V>,
+  "variant" | "message"
+> & {
+  iconVariant?: CustomContentProps["iconVariant"];
+};
 
 export const useToast = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -9,35 +14,35 @@ export const useToast = () => {
   const toast = useCallback(
     (message: string, options?: ToastFnOptions<"default">) =>
       enqueueSnackbar(message, { variant: "default", ...options }),
-    [enqueueSnackbar],
+    [enqueueSnackbar]
   );
 
   const success = useCallback(
     (message: string, options?: ToastFnOptions<"success">) =>
       enqueueSnackbar(message, { variant: "success", ...options }),
-    [enqueueSnackbar],
+    [enqueueSnackbar]
   );
 
   const warning = useCallback(
     (message: string, options?: ToastFnOptions<"warning">) =>
       enqueueSnackbar(message, { variant: "warning", ...options }),
-    [enqueueSnackbar],
+    [enqueueSnackbar]
   );
 
   const error = useCallback(
     (message: string, options?: ToastFnOptions<"error">) =>
       enqueueSnackbar(message, { variant: "error", ...options }),
-    [enqueueSnackbar],
+    [enqueueSnackbar]
   );
 
   const info = useCallback(
     (message: string, options?: ToastFnOptions<"info">) =>
       enqueueSnackbar(message, { variant: "info", ...options }),
-    [enqueueSnackbar],
+    [enqueueSnackbar]
   );
 
   return useMemo(
     () => ({ toast, success, warning, error, info, closeSnackbar }),
-    [closeSnackbar, error, info, success, toast, warning],
+    [closeSnackbar, error, info, success, toast, warning]
   );
 };

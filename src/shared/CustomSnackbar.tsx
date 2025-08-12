@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Snackbar, LinearProgress, Box, Alert } from "@mui/material";
+import { LinearProgress, Box, Alert, AlertTitle } from "@mui/material";
 import { CustomContentProps, SnackbarContent, useSnackbar } from "notistack";
 
 const CustomSnackbar = React.forwardRef<HTMLDivElement, CustomContentProps>((props, ref) => {
-  const { id, message, variant, autoHideDuration, action, anchorOrigin } = props;
+  const { id, message, variant, autoHideDuration, action, iconVariant } = props;
 
   const [progress, setProgress] = useState(0);
   const { closeSnackbar } = useSnackbar();
@@ -30,15 +30,11 @@ const CustomSnackbar = React.forwardRef<HTMLDivElement, CustomContentProps>((pro
 
   return (
     <SnackbarContent ref={ref}>
-      <Snackbar
-        open
-        autoHideDuration={autoHideDuration}
-        anchorOrigin={anchorOrigin}
-        onClose={() => closeSnackbar(id)}
-      >
-        <Box position="relative">
-          <Alert
-            action={
+      <Box position="relative">
+        <Alert
+          iconMapping={iconVariant}
+          action={
+            action ? (
               <div
                 onClick={() => {
                   closeSnackbar(id);
@@ -46,27 +42,29 @@ const CustomSnackbar = React.forwardRef<HTMLDivElement, CustomContentProps>((pro
               >
                 {typeof action === "function" ? action(id) : action}
               </div>
-            }
-            sx={{ whiteSpace: "nowrap", pb: 2 }}
-            onClose={() => closeSnackbar(id)}
-            severity={variant === "default" ? undefined : variant}
-          >
-            {message}
-          </Alert>
-          {action ? (
-            <LinearProgress
-              sx={{
-                position: "relative",
-                bottom: "4px",
-                borderBottomLeftRadius: "0.5em",
-                borderBottomRightRadius: "0.5em",
-              }}
-              variant="determinate"
-              value={progress}
-            />
-          ) : null}
-        </Box>
-      </Snackbar>
+            ) : null
+          }
+          sx={{ whiteSpace: "nowrap", pb: autoHideDuration ? 1 : 0 }}
+          severity={variant === "default" ? undefined : variant}
+        >
+          <AlertTitle>{message}</AlertTitle>
+        </Alert>
+        {autoHideDuration ? (
+          <LinearProgress
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              borderBottomLeftRadius: "0.5em",
+              borderBottomRightRadius: "0.5em",
+            }}
+            color={variant === "default" ? undefined : variant}
+            variant="determinate"
+            value={progress}
+          />
+        ) : null}
+      </Box>
     </SnackbarContent>
   );
 });

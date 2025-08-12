@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import { EFlorCommand, ICard, IChatMessage } from "trucoshi";
+import { EFlorCommand, ICard, IChatMessage, IPublicMatch } from "trucoshi";
 import { useRounds } from "../../trucoshi/hooks/useRounds";
-import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
+import { ITrucoshiMatchActions, PropsWithPlayer } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
 import { PlayerTag } from "./PlayerTag";
 import { TurnProgress } from "./TurnProgress";
@@ -10,11 +10,12 @@ import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { useTurnTimer } from "../../trucoshi/hooks/useTurnTimer";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
-type PlayerProps = Pick<ITrucoshiMatchState, "canPlay" | "match"> &
-  PropsWithPlayer<{
-    onPlayCard: ITrucoshiMatchActions["playCard"];
-    say: IChatMessage | null;
-  }>;
+type PlayerProps = PropsWithPlayer<{
+  onPlayCard: ITrucoshiMatchActions["playCard"];
+  say: IChatMessage | null;
+  match: IPublicMatch | null;
+  canPlay: boolean;
+}>;
 
 const MatchPlayer = ({ match, player, say, canPlay, onPlayCard }: PlayerProps) => {
   const [{ serverAheadTime }] = useTrucoshi();

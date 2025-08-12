@@ -52,8 +52,6 @@ export interface ITrucoshiMatchState {
   me: IPublicPlayer | null;
   turnCallback: IWaitingPlayCallback | null;
   sayCallback: IWaitingSayCallback | null;
-  acceptPauseCallback: (() => void) | null;
-  declinePauseCallback: (() => void) | null;
   error: Error | null;
 }
 

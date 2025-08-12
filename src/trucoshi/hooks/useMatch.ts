@@ -19,6 +19,9 @@ import { usePayRequest } from "../../api/hooks/usePayRequest";
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
+  onPauseRequest?: (expiresAt: number, answer: (answer: boolean) => void) => void;
+  onUnpause?: (unpausesAt: number) => void;
+  onPause?: () => void;
 }
 
 export const useMatch = (
@@ -28,7 +31,7 @@ export const useMatch = (
   const context = useContext(TrucoshiContext);
   const toast = useToast();
   const { pay } = usePayRequest();
-  const { onMyTurn, onFreshHand } = options;
+  const { onMyTurn, onFreshHand, onPauseRequest, onUnpause } = options;
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -47,8 +50,6 @@ export const useMatch = (
     me: null,
     turnCallback: null,
     sayCallback: null,
-    acceptPauseCallback: null,
-    declinePauseCallback: null,
     error: null,
   });
 
@@ -118,14 +119,10 @@ export const useMatch = (
   const pauseMatch = useCallback(
     (pause: boolean) => {
       if (matchId && isConnected) {
-        socket.emit(EClientEvent.PAUSE_MATCH, matchId, pause, ({ error }) => {
-          if (error) {
-            toast.error(error.message);
-          }
-        });
+        socket.emit(EClientEvent.PAUSE_MATCH, matchId, pause, () => {});
       }
     },
-    [isConnected, matchId, socket, toast]
+    [isConnected, matchId, socket]
   );
 
   const createMatch = useCallback(
@@ -339,8 +336,6 @@ export const useMatch = (
         me: null,
         turnPlayer: null,
         error: null,
-        acceptPauseCallback: null,
-        declinePauseCallback: null,
         turnCallback: null,
         sayCallback: null,
       });
@@ -350,7 +345,6 @@ export const useMatch = (
   useEffect(() => {
     const handleUpdateMatch = (value: IPublicMatch, stats?: IPublicMatchStats) => {
       if (matchId && value.matchSessionId === matchId) {
-        console.log(value.players.find((p) => p.isMe)?.turnExtensionExpiresAt);
         setMatchState((prev) => ({
           ...prev,
           match: value,
@@ -405,29 +399,19 @@ export const useMatch = (
       }
     };
 
-    const handlePauseRequest = (matchSessionId: string, answer: (answer: boolean) => void) => {
+    const handlePauseRequest = (
+      matchSessionId: string,
+      expiresAt: number,
+      answer: (answer: boolean) => void
+    ) => {
       if (matchId === matchSessionId) {
-        const acceptCallback = () => {
-          answer(true);
-          setMatchState((prev) => ({
-            ...prev,
-            acceptPauseCallback: null,
-            declinePauseCallback: null,
-          }));
-        };
-        const declineCallback = () => {
-          answer(false);
-          setMatchState((prev) => ({
-            ...prev,
-            acceptPauseCallback: null,
-            declinePauseCallback: null,
-          }));
-        };
-        setMatchState((prev) => ({
-          ...prev,
-          acceptPauseCallback: acceptCallback,
-          declinePauseCallback: declineCallback,
-        }));
+        onPauseRequest?.(expiresAt, answer);
+      }
+    };
+
+    const handleUnpause = (matchSessionId: string, unpausesAt: number) => {
+      if (matchId === matchSessionId) {
+        onUnpause?.(unpausesAt);
       }
     };
 
@@ -436,6 +420,7 @@ export const useMatch = (
     socket.on(EServerEvent.WAITING_POSSIBLE_SAY, handleWaitingSay);
     socket.on(EServerEvent.MATCH_DELETED, handleMatchDeleted);
     socket.on(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
+    socket.on(EServerEvent.UNPAUSE_STARTED, handleUnpause);
 
     return () => {
       socket.off(EServerEvent.UPDATE_MATCH, handleUpdateMatch);
@@ -443,8 +428,9 @@ export const useMatch = (
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY, handleWaitingSay);
       socket.off(EServerEvent.MATCH_DELETED, handleMatchDeleted);
       socket.off(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
+      socket.off(EServerEvent.UNPAUSE_STARTED, handleUnpause);
     };
-  }, [socket, matchId, onMyTurn, onFreshHand]);
+  }, [socket, matchId, onMyTurn, onFreshHand, onPauseRequest, onUnpause]);
 
   return [
     { ...matchState, canPlay, canSay },

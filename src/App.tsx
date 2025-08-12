@@ -118,6 +118,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SnackbarProvider
+        autoHideDuration={4800}
         Components={Components}
         style={{ maxWidth: "100%" }}
       >

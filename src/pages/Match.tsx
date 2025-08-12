@@ -42,6 +42,7 @@ import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { Pause, Visibility } from "@mui/icons-material";
 import { useToast } from "../hooks/useToast";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -112,10 +113,13 @@ const RulesDialog = ({
 );
 
 const _Match = () => {
-  const [, , , hydrated] = useTrucoshi();
+  const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
   const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
+  const [unpauseAt, setUnpauseAt] = useState<number | null>(null);
+  const [progress, setProgress] = useState(100);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
@@ -123,12 +127,93 @@ const _Match = () => {
   const toast = useToast();
 
   const [
-    { match, stats, error, canSay, canPlay, me, acceptPauseCallback, declinePauseCallback },
+    { match, stats, error, canSay, canPlay, me },
     { playCard, sayCommand, leaveMatch, pauseMatch },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
+    onPauseRequest(expiresAt, answer) {
+      toast.success("El oponente quiere una pausa", {
+        preventDuplicate: true,
+        autoHideDuration: expiresAt ? expiresAt - (Date.now() + serverAheadTime) : 5000,
+        anchorOrigin: { horizontal: "left", vertical: "top" },
+        iconVariant: { success: <Pause /> },
+        onClose(_event, reason) {
+          if (reason !== "instructed") {
+            answer(false);
+          }
+        },
+        action: (
+          <ButtonGroup size="small" variant="contained" color="success">
+            <Button
+              onClick={() => {
+                answer(true);
+              }}
+            >
+              Pausar
+            </Button>
+            <Button variant="text" color="error" onClick={() => answer(false)}>
+              Rechazar
+            </Button>
+          </ButtonGroup>
+        ),
+      });
+    },
+    onUnpause(unpausesAt) {
+      queue("menu1");
+      const now = Date.now() + serverAheadTime;
+      const total = unpausesAt - now;
+      if (total > 0) {
+        setUnpauseAt(unpausesAt);
+        setProgress(100);
+        setSecondsLeft(Math.ceil(total / 1000));
+      } else {
+        setUnpauseAt(null);
+        setProgress(100);
+        setSecondsLeft(0);
+      }
+    },
   });
+
+  useEffect(() => {
+    if (unpauseAt) {
+      const startTime = Date.now() + serverAheadTime;
+      const totalDuration = unpauseAt - startTime;
+
+      if (totalDuration <= 0) {
+        setUnpauseAt(null);
+        setProgress(100);
+        setSecondsLeft(0);
+        return;
+      }
+
+      let prevSeconds = Math.ceil(totalDuration / 1000);
+
+      const interval = setInterval(() => {
+        const currentNow = Date.now() + serverAheadTime;
+        const elapsed = currentNow - startTime;
+        const newProgress = Math.max(0, (1 - elapsed / totalDuration) * 100);
+        const newSecondsLeft = Math.ceil((unpauseAt - currentNow) / 1000);
+
+        if (newSecondsLeft !== prevSeconds && newSecondsLeft > 0) {
+          queue("back");
+          prevSeconds = newSecondsLeft;
+        }
+
+        if (currentNow >= unpauseAt) {
+          clearInterval(interval);
+          setUnpauseAt(null);
+          setProgress(100);
+          setSecondsLeft(0);
+        } else {
+          setProgress(newProgress);
+          setSecondsLeft(newSecondsLeft);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [unpauseAt, serverAheadTime, queue]);
 
   const chatProps = useChatRoom(match);
   const [, , , say] = chatProps.useChatState;
@@ -141,29 +226,6 @@ const _Match = () => {
       navigate(`/lobby/${sessionId}`);
     }
   }, [match?.state, navigate, sessionId]);
-
-  useEffect(() => {
-    if (acceptPauseCallback && declinePauseCallback) {
-      toast.info("Aceptar pausa?", {
-        autoHideDuration: 4800,
-        anchorOrigin: { horizontal: "left", vertical: "top" },
-        action: (
-          <ButtonGroup size="small" variant="contained" color="info">
-            <Button
-              onClick={() => {
-                acceptPauseCallback();
-              }}
-            >
-              Aceptar
-            </Button>
-            <Button color="error" onClick={declinePauseCallback}>
-              Rechazar
-            </Button>
-          </ButtonGroup>
-        ),
-      });
-    }
-  }, [acceptPauseCallback, declinePauseCallback, toast]);
 
   const Slot = useCallback(
     ({ player }: { player: IPublicPlayer }) => (
@@ -240,16 +302,55 @@ const _Match = () => {
     return <MatchFinishedScreen match={match} chatProps={chatProps} error={error} />;
   }
 
+  const PauseWithProgress = (
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
+      <CircularProgress
+        variant="determinate"
+        value={progress}
+        size={60}
+        thickness={4}
+        color="success"
+      />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Pause color="success" fontSize="large" />
+      </Box>
+    </Box>
+  );
+
+  const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
+
   return (
     <Box flexGrow={1} maxWidth="100%" position="relative">
       {match?.me && <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />}
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
-      <Backdrop hideLogo message="Pausa" opacity={0.66} open={match?.state === EMatchState.PAUSED}>
+      <Backdrop
+        hideLogo
+        message="Pausa"
+        opacity={0.66}
+        showChat
+        open={match?.state === EMatchState.PAUSED}
+      >
         <Stack gap={6} alignItems="center">
-          <Pause color="success" fontSize="large" />
-          <Button variant="contained" onClick={() => pauseMatch(false)} color="success">
-            Reanudar
+          {unpauseAt ? PauseWithProgress : <Pause color="success" fontSize="large" />}
+          <Button
+            variant="contained"
+            onClick={() => pauseMatch(false)}
+            color="success"
+            disabled={!!unpauseAt}
+          >
+            {buttonText}
           </Button>
         </Stack>
       </Backdrop>
@@ -268,11 +369,11 @@ const _Match = () => {
           />
           <Box sx={matchPointsContainerSx}>
             <Stack direction="row">
-              <Button onClick={() => pauseMatch(true)} color="info">
-                Pausa
-              </Button>
               <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
+              </Button>
+              <Button disabled={!canSay} onClick={() => pauseMatch(true)} color="info">
+                Pausa
               </Button>
               {me && !me.abandoned && (
                 <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
