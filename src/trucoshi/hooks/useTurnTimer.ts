@@ -44,12 +44,10 @@ export const useTurnTimer = (
           queue("deal");
           queue("mate");
           newTimer.alert = true;
-        }
-        if (!prev.isExtension && newTimer.isExtension) {
+        } else if (!prev.isExtension && newTimer.isExtension) {
           queue("ceba_toma_mate");
           newTimer.alert = true;
-        }
-        if (prev.progress > 25 && newTimer.progress < 25) {
+        } else if (prev.progress > 25 && newTimer.progress < 25) {
           queue("deal");
           newTimer.alert = true;
         }

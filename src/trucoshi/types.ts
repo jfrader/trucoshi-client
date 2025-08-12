@@ -43,6 +43,7 @@ export interface ITrucoshiMatchActions {
   sayCommand(command: ECommand | number): void;
   kickPlayer(key: string): void;
   pauseMatch(pause: boolean): void;
+  playAgain(callback: (newMatchSessionId?: string) => void): void;
 }
 
 export interface ITrucoshiMatchState {

@@ -8,6 +8,17 @@ import {
 import { PropsWithChildren } from "react";
 import { TrucoshiText } from "./TrucoshiText";
 
+export type TrucoshiBackdropProps<T extends Record<string, any> = Record<string, any>> =
+  PropsWithChildren<
+    BackdropProps & {
+      message?: string;
+      loading?: boolean;
+      opacity?: number;
+      hideLogo?: boolean;
+      showChat?: boolean;
+    } & T
+  >;
+
 export const Backdrop = ({
   message,
   loading,
@@ -16,15 +27,7 @@ export const Backdrop = ({
   opacity = 0.9,
   showChat,
   ...props
-}: PropsWithChildren<
-  BackdropProps & {
-    message?: string;
-    loading?: boolean;
-    opacity?: number;
-    hideLogo?: boolean;
-    showChat?: boolean;
-  }
->) => {
+}: TrucoshiBackdropProps) => {
   return (
     <MuiBackdrop
       {...props}

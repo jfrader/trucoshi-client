@@ -19,9 +19,14 @@ import { usePayRequest } from "../../api/hooks/usePayRequest";
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
-  onPauseRequest?: (expiresAt: number, answer: (answer: boolean) => void) => void;
   onUnpause?: (unpausesAt: number) => void;
-  onPause?: () => void;
+  onPauseRequest?: (
+    fromOpponent: boolean,
+    expiresAt: number,
+    answer: (answer: boolean) => void
+  ) => void;
+  onPlayAgainRequest?: (expiresAt: number) => void;
+  onPlayAgain?: (newMatchSessionId: string) => void;
 }
 
 export const useMatch = (
@@ -31,7 +36,8 @@ export const useMatch = (
   const context = useContext(TrucoshiContext);
   const toast = useToast();
   const { pay } = usePayRequest();
-  const { onMyTurn, onFreshHand, onPauseRequest, onUnpause } = options;
+  const { onMyTurn, onFreshHand, onPauseRequest, onUnpause, onPlayAgainRequest, onPlayAgain } =
+    options;
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -322,6 +328,17 @@ export const useMatch = (
     }
   }, [matchId, matchState.match, socket]);
 
+  const playAgain = useCallback(
+    (callback: (newMatchSessionId?: string) => void) => {
+      if (matchId && matchState.match) {
+        socket.emit(EClientEvent.PLAY_AGAIN, matchId, ({ newMatchSessionId }) => {
+          callback(newMatchSessionId);
+        });
+      }
+    },
+    [matchId, matchState.match, socket]
+  );
+
   useEffect(() => {
     if (isConnected && !matchState.match && !matchState.error && !isLoggingIn && matchId) {
       fetchMatch();
@@ -394,18 +411,19 @@ export const useMatch = (
       if (deletedMatchSessionId === matchId) {
         setMatchState((prev) => ({
           ...prev,
-          error: new Error("Esta partida ya no existe"),
+          error: new Error("Esta partida terminó"),
         }));
       }
     };
 
     const handlePauseRequest = (
       matchSessionId: string,
+      fromOpponent: boolean,
       expiresAt: number,
       answer: (answer: boolean) => void
     ) => {
       if (matchId === matchSessionId) {
-        onPauseRequest?.(expiresAt, answer);
+        onPauseRequest?.(fromOpponent, expiresAt, answer);
       }
     };
 
@@ -415,12 +433,19 @@ export const useMatch = (
       }
     };
 
+    const handlePlayAgainRequest = (matchSessionId: string, expiresAt: number) => {
+      if (matchId === matchSessionId) {
+        onPlayAgainRequest?.(expiresAt);
+      }
+    };
+
     socket.on(EServerEvent.UPDATE_MATCH, handleUpdateMatch);
     socket.on(EServerEvent.WAITING_PLAY, handleWaitingPlay);
     socket.on(EServerEvent.WAITING_POSSIBLE_SAY, handleWaitingSay);
     socket.on(EServerEvent.MATCH_DELETED, handleMatchDeleted);
     socket.on(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
     socket.on(EServerEvent.UNPAUSE_STARTED, handleUnpause);
+    socket.on(EServerEvent.PLAY_AGAIN_REQUEST, handlePlayAgainRequest);
 
     return () => {
       socket.off(EServerEvent.UPDATE_MATCH, handleUpdateMatch);
@@ -429,8 +454,18 @@ export const useMatch = (
       socket.off(EServerEvent.MATCH_DELETED, handleMatchDeleted);
       socket.off(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
       socket.off(EServerEvent.UNPAUSE_STARTED, handleUnpause);
+      socket.off(EServerEvent.PLAY_AGAIN_REQUEST, handlePlayAgainRequest);
     };
-  }, [socket, matchId, onMyTurn, onFreshHand, onPauseRequest, onUnpause]);
+  }, [
+    socket,
+    matchId,
+    onMyTurn,
+    onFreshHand,
+    onPauseRequest,
+    onUnpause,
+    onPlayAgainRequest,
+    onPlayAgain,
+  ]);
 
   return [
     { ...matchState, canPlay, canSay },
@@ -446,6 +481,7 @@ export const useMatch = (
       kickPlayer,
       pauseMatch,
       addBot,
+      playAgain,
     },
   ];
 };

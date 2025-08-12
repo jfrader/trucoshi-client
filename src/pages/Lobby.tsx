@@ -67,7 +67,11 @@ export const Lobby = () => {
 
   useEffect(() => {
     if (match) {
-      if (match.state === EMatchState.STARTED || match.state === EMatchState.FINISHED) {
+      if (
+        match.state === EMatchState.STARTED ||
+        match.state === EMatchState.FINISHED ||
+        match.state === EMatchState.PAUSED
+      ) {
         match.state === EMatchState.STARTED ? setShuffle((c) => c + 1) : null;
         const timer = setTimeout(
           () => navigate(`/match/${sessionId}`, { replace: true }),

@@ -192,6 +192,6 @@ export const gameSounds = {
   flawless: {
     src: "/sounds/flawless.mp3",
     volume: DEFAULT_VOLUME,
-    preload: false,
+    preload: DEFAULT_PRELOAD,
   },
 } as const satisfies IGameSounds;

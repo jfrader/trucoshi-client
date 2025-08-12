@@ -1,4 +1,4 @@
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, StackProps, Typography } from "@mui/material";
 import { EClientEvent, IPublicMatch } from "trucoshi";
 import { getTeamColor, getTeamName } from "../../utils/team";
 import { MatchBackdrop } from "./MatchBackdrop";
@@ -18,10 +18,12 @@ export const MatchFinishedScreen = ({
   match,
   error,
   chatProps,
+  onPlayAgain,
 }: {
   match: IPublicMatch;
   error: Error | null;
   chatProps: ReturnType<typeof useChatRoom>;
+  onPlayAgain: () => void;
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -45,9 +47,27 @@ export const MatchFinishedScreen = ({
     fn();
   };
 
+  const Actions = ({ children, ...props }: StackProps) => (
+    <Stack {...props} onClick={(e) => e.stopPropagation()}>
+      {children}
+      <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
+        Ver resumen
+      </Button>
+      <Button
+        onClick={onExit(() => (location.key === "default" ? navigate("/") : navigate(-1)))}
+        variant="text"
+      >
+        Volver al inicio
+      </Button>
+    </Stack>
+  );
+
   if (error || !match || !match.winner) {
-    return <MatchBackdrop error={error} />;
+    return (
+      <MatchBackdrop error={error}>{error && match ? <Actions spacing={1} /> : null}</MatchBackdrop>
+    );
   }
+
   return (
     <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       {iAmWinner ? <EmojiRain /> : null}
@@ -96,15 +116,11 @@ export const MatchFinishedScreen = ({
           </Stack>
           <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
         </Box>
-        <Button
-          onClick={onExit(() => (location.key === "default" ? navigate("/") : navigate(-1)))}
-          variant="text"
-        >
-          Volver al inicio
-        </Button>
-        <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
-          Ver resumen
-        </Button>
+        <Actions>
+          <Button color="success" onClick={onPlayAgain} variant="text">
+            Jugar de nuevo!
+          </Button>
+        </Actions>
         <ChatRoom
           alwaysVisible
           mb={4}

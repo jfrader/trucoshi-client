@@ -40,7 +40,7 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
-import { Pause, Visibility } from "@mui/icons-material";
+import { Pause, VideogameAsset, Visibility } from "@mui/icons-material";
 import { useToast } from "../hooks/useToast";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -120,46 +120,97 @@ const _Match = () => {
   const [unpauseAt, setUnpauseAt] = useState<number | null>(null);
   const [progress, setProgress] = useState(100);
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [pauseRequested, setPauseRequested] = useState(false);
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
   const navigate = useNavigate();
   const toast = useToast();
 
+  const onPlayAgain = () => {
+    playAgain((newMatchSessionId) => {
+      toast.closeSnackbar("playagain");
+      if (newMatchSessionId) {
+        navigate(`/lobby/${newMatchSessionId}`);
+      }
+    });
+  };
+
   const [
     { match, stats, error, canSay, canPlay, me },
-    { playCard, sayCommand, leaveMatch, pauseMatch },
+    { playCard, sayCommand, leaveMatch, pauseMatch, playAgain },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
-    onPauseRequest(expiresAt, answer) {
-      toast.success("El oponente quiere una pausa", {
+    onPlayAgainRequest(expiresAt) {
+      toast.success("Jugar otra partida?", {
+        key: "playagain",
         preventDuplicate: true,
-        autoHideDuration: expiresAt ? expiresAt - (Date.now() + serverAheadTime) : 5000,
+        autoHideDuration: Math.max((expiresAt || 0) - (Date.now() + serverAheadTime), 5000),
         anchorOrigin: { horizontal: "left", vertical: "top" },
-        iconVariant: { success: <Pause /> },
+        iconVariant: { success: <VideogameAsset /> },
         onClose(_event, reason) {
           if (reason !== "instructed") {
-            answer(false);
+            toast.closeSnackbar("playagain");
           }
         },
         action: (
           <ButtonGroup size="small" variant="contained" color="success">
             <Button
               onClick={() => {
-                answer(true);
+                onPlayAgain();
               }}
             >
-              Pausar
+              Aceptar
             </Button>
-            <Button color="error" onClick={() => answer(false)}>
-              Rechazar
+            <Button
+              color="error"
+              onClick={() => {
+                toast.closeSnackbar("playagain");
+              }}
+            >
+              Cerrar
             </Button>
           </ButtonGroup>
         ),
       });
     },
+    onPauseRequest(fromOpponent, expiresAt, answer) {
+      if (fromOpponent) {
+        toast.success("El oponente quiere una pausa", {
+          preventDuplicate: true,
+          autoHideDuration: Math.max((expiresAt || 0) - (Date.now() + serverAheadTime), 5000),
+          anchorOrigin: { horizontal: "left", vertical: "top" },
+          iconVariant: { success: <Pause /> },
+          onClose(_event, reason) {
+            if (reason !== "instructed") {
+              answer(false);
+            }
+          },
+          action: (
+            <ButtonGroup size="small" variant="contained" color="success">
+              <Button
+                onClick={() => {
+                  answer(true);
+                }}
+              >
+                Pausar
+              </Button>
+              <Button color="error" onClick={() => answer(false)}>
+                Rechazar
+              </Button>
+            </ButtonGroup>
+          ),
+        });
+      } else {
+        setPauseRequested(true);
+      }
+    },
     onUnpause(unpausesAt) {
+      if (unpausesAt === 0) {
+        setPauseRequested(false);
+        return;
+      }
       queue("menu1");
       const now = Date.now() + serverAheadTime;
       const total = unpausesAt - now;
@@ -299,7 +350,14 @@ const _Match = () => {
   }
 
   if (match?.winner) {
-    return <MatchFinishedScreen match={match} chatProps={chatProps} error={error} />;
+    return (
+      <MatchFinishedScreen
+        onPlayAgain={onPlayAgain}
+        match={match}
+        chatProps={chatProps}
+        error={error}
+      />
+    );
   }
 
   const PauseWithProgress = (
@@ -372,9 +430,18 @@ const _Match = () => {
               <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
               </Button>
-              <Button disabled={!canSay} onClick={() => pauseMatch(true)} color="info">
-                Pausa
-              </Button>
+              <Tooltip
+                title={pauseRequested ? "Esperando que el oponente acepte la pausa" : ""}
+                hidden={!pauseRequested}
+              >
+                <Button
+                  disabled={!canSay}
+                  onClick={() => !pauseRequested && pauseMatch(true)}
+                  color={pauseRequested ? "warning" : "info"}
+                >
+                  Pausa
+                </Button>
+              </Tooltip>
               {me && !me.abandoned && (
                 <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
                   Rendirse
