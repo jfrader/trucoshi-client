@@ -24,12 +24,16 @@ export const useChat = (
   const { socket } = context;
 
   useEffect(() => {
-    if (!matchId) {
+    if (!matchId || room) {
       return;
     }
 
-    if (!room) {
-      socket.emit(EClientEvent.FETCH_CHAT_ROOM, matchId);
+    socket.emit(EClientEvent.FETCH_CHAT_ROOM, matchId);
+  }, [matchId, room, socket]);
+
+  useEffect(() => {
+    if (!matchId) {
+      return;
     }
 
     let timeout: NodeJS.Timeout | null = null;
