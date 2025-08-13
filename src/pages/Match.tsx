@@ -2,6 +2,7 @@ import {
   alpha,
   Box,
   Button,
+  ButtonGroup,
   Container,
   Dialog,
   DialogActions,
@@ -39,7 +40,9 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
-import { Visibility } from "@mui/icons-material";
+import { Pause, VideogameAsset, Visibility } from "@mui/icons-material";
+import { useToast } from "../hooks/useToast";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -110,19 +113,159 @@ const RulesDialog = ({
 );
 
 const _Match = () => {
-  const [, , , hydrated] = useTrucoshi();
+  const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
   const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
+  const [unpauseAt, setUnpauseAt] = useState<number | null>(null);
+  const [progress, setProgress] = useState(100);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [pauseRequested, setPauseRequested] = useState(false);
   const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
   const navigate = useNavigate();
-  const [{ match, stats, error, canSay, canPlay, me }, { playCard, sayCommand, leaveMatch }] =
-    useMatch(sessionId, {
-      onMyTurn: () => queue("turn"),
-      onFreshHand: () => queue("round"),
+  const toast = useToast();
+
+  const onPlayAgain = () => {
+    playAgain((newMatchSessionId) => {
+      toast.closeSnackbar("playagain");
+      if (newMatchSessionId) {
+        navigate(`/lobby/${newMatchSessionId}`);
+      }
     });
+  };
+
+  const [
+    { match, stats, error, canSay, canPlay, me },
+    { playCard, sayCommand, leaveMatch, pauseMatch, playAgain },
+  ] = useMatch(sessionId, {
+    onMyTurn: () => queue("turn"),
+    onFreshHand: () => queue("round"),
+    onPlayAgainRequest(expiresAt) {
+      toast.success("Jugar otra partida?", {
+        key: "playagain",
+        preventDuplicate: true,
+        autoHideDuration: Math.max((expiresAt || 0) - (Date.now() + serverAheadTime), 5000),
+        anchorOrigin: { horizontal: "left", vertical: "top" },
+        iconVariant: { success: <VideogameAsset /> },
+        onClose(_event, reason) {
+          if (reason !== "instructed") {
+            toast.closeSnackbar("playagain");
+          }
+        },
+        action: (
+          <ButtonGroup size="small" variant="contained" color="success">
+            <Button
+              onClick={() => {
+                onPlayAgain();
+              }}
+            >
+              Aceptar
+            </Button>
+            <Button
+              color="error"
+              onClick={() => {
+                toast.closeSnackbar("playagain");
+              }}
+            >
+              Cerrar
+            </Button>
+          </ButtonGroup>
+        ),
+      });
+    },
+    onPauseRequest(fromOpponent, expiresAt, answer) {
+      if (fromOpponent) {
+        toast.success("El oponente quiere una pausa", {
+          preventDuplicate: true,
+          autoHideDuration: Math.max((expiresAt || 0) - (Date.now() + serverAheadTime), 5000),
+          anchorOrigin: { horizontal: "left", vertical: "top" },
+          iconVariant: { success: <Pause /> },
+          onClose(_event, reason) {
+            if (reason !== "instructed") {
+              answer(false);
+            }
+          },
+          action: (
+            <ButtonGroup size="small" variant="contained" color="success">
+              <Button
+                onClick={() => {
+                  answer(true);
+                }}
+              >
+                Pausar
+              </Button>
+              <Button color="error" onClick={() => answer(false)}>
+                Rechazar
+              </Button>
+            </ButtonGroup>
+          ),
+        });
+      } else {
+        setPauseRequested(true);
+      }
+    },
+    onUnpause(unpausesAt) {
+      if (unpausesAt === 0) {
+        setPauseRequested(false);
+        return;
+      }
+      queue("menu1");
+      const now = Date.now() + serverAheadTime;
+      const total = unpausesAt - now;
+      if (total > 0) {
+        setUnpauseAt(unpausesAt);
+        setProgress(100);
+        setSecondsLeft(Math.ceil(total / 1000));
+      } else {
+        setUnpauseAt(null);
+        setProgress(100);
+        setSecondsLeft(0);
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (unpauseAt) {
+      const startTime = Date.now() + serverAheadTime;
+      const totalDuration = unpauseAt - startTime;
+
+      if (totalDuration <= 0) {
+        setUnpauseAt(null);
+        setProgress(100);
+        setSecondsLeft(0);
+        return;
+      }
+
+      let prevSeconds = Math.ceil(totalDuration / 1000);
+
+      const interval = setInterval(() => {
+        const currentNow = Date.now() + serverAheadTime;
+        const elapsed = currentNow - startTime;
+        const newProgress = Math.max(0, (1 - elapsed / totalDuration) * 100);
+        const newSecondsLeft = Math.ceil((unpauseAt - currentNow) / 1000);
+
+        if (newSecondsLeft !== prevSeconds && newSecondsLeft > 0) {
+          queue("back");
+          prevSeconds = newSecondsLeft;
+        }
+
+        if (currentNow >= unpauseAt) {
+          clearInterval(interval);
+          setUnpauseAt(null);
+          setProgress(100);
+          setSecondsLeft(0);
+        } else {
+          setProgress(newProgress);
+          setSecondsLeft(newSecondsLeft);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [unpauseAt, serverAheadTime, queue]);
+
   const chatProps = useChatRoom(match);
   const [, , , say] = chatProps.useChatState;
 
@@ -207,14 +350,68 @@ const _Match = () => {
   }
 
   if (match?.winner) {
-    return <MatchFinishedScreen match={match} chatProps={chatProps} error={error} />;
+    return (
+      <MatchFinishedScreen
+        onPlayAgain={onPlayAgain}
+        match={match}
+        chatProps={chatProps}
+        error={error}
+      />
+    );
   }
+
+  const PauseWithProgress = (
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
+      <CircularProgress
+        variant="determinate"
+        value={progress}
+        size={60}
+        thickness={4}
+        color="success"
+      />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Pause color="success" fontSize="large" />
+      </Box>
+    </Box>
+  );
+
+  const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
 
   return (
     <Box flexGrow={1} maxWidth="100%" position="relative">
       {match?.me && <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />}
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
+      <Backdrop
+        hideLogo
+        message="Pausa"
+        opacity={0.66}
+        showChat
+        open={match?.state === EMatchState.PAUSED}
+      >
+        <Stack gap={6} alignItems="center">
+          {unpauseAt ? PauseWithProgress : <Pause color="success" fontSize="large" />}
+          <Button
+            variant="contained"
+            onClick={() => pauseMatch(false)}
+            color="success"
+            disabled={!!unpauseAt}
+          >
+            {buttonText}
+          </Button>
+        </Stack>
+      </Backdrop>
       {match ? (
         <>
           <GameTable
@@ -233,6 +430,18 @@ const _Match = () => {
               <Button onClick={() => setRulesOpen(true)} color="warning">
                 Reglas
               </Button>
+              <Tooltip
+                title={pauseRequested ? "Esperando que el oponente acepte la pausa" : ""}
+                hidden={!pauseRequested}
+              >
+                <Button
+                  disabled={!canSay}
+                  onClick={() => !pauseRequested && pauseMatch(true)}
+                  color={pauseRequested ? "warning" : "info"}
+                >
+                  Pausa
+                </Button>
+              </Tooltip>
               {me && !me.abandoned && (
                 <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
                   Rendirse

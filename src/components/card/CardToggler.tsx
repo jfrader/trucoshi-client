@@ -1,4 +1,4 @@
-import { Box, BoxProps, IconButton, Stack } from "@mui/material";
+import { Box, BoxProps, CircularProgress, IconButton, Stack } from "@mui/material";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
@@ -16,7 +16,7 @@ deck.shuffle(0);
 
 export const CardToggler = (props: BoxProps) => {
   const { queue } = useSound();
-  const [{ cardTheme }] = useTrucoshi();
+  const [{ cardsLoading }] = useTrucoshi();
   const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.takeThree());
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
@@ -30,19 +30,23 @@ export const CardToggler = (props: BoxProps) => {
       setDisabled(false);
     }, 350);
 
-    queue("play0");
     _setFlip(v);
   };
 
   useEffect(() => {
+    queue("play0");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flip]);
+
+  useEffect(() => {
     setFlip(true);
-    const timeout = setTimeout(() => setFlip(false), 750);
+    const timeout = setTimeout(() => setFlip(cardsLoading), 750);
     return () => {
       clearTimeout(timeout);
       timer.current && clearTimeout(timer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardTheme]);
+  }, [cardsLoading]);
 
   return (
     <Box
@@ -70,7 +74,7 @@ export const CardToggler = (props: BoxProps) => {
 
       <Stack justifyContent="end" alignItems="end" position="absolute" right="0" top="0">
         <IconButton
-          disabled={disabled}
+          disabled={cardsLoading || disabled}
           onClick={(e) => {
             e.stopPropagation();
 
@@ -93,7 +97,7 @@ export const CardToggler = (props: BoxProps) => {
           <Refresh />
         </IconButton>
         <IconButton
-          disabled={disabled}
+          disabled={cardsLoading || disabled}
           onClick={(e) => {
             e.stopPropagation();
             setFlip((c) => !c);
@@ -104,6 +108,16 @@ export const CardToggler = (props: BoxProps) => {
           {flip ? <Visibility /> : <VisibilityOff />}
         </IconButton>
       </Stack>
+
+      <CircularProgress
+        sx={(theme) => ({
+          display: cardsLoading ? "block" : "none",
+          position: "absolute",
+          top: "35%",
+          right: "45%",
+          zIndex: theme.zIndex.appBar + 10,
+        })}
+      />
     </Box>
   );
 };

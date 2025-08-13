@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { ITrucoshiMatchActions, ITrucoshiMatchState, PropsWithPlayer } from "../../trucoshi/types";
+import { ITrucoshiMatchActions, PropsWithPlayer } from "../../trucoshi/types";
 import {
   COMMANDS_HUMAN_READABLE,
   DANGEROUS_COMMANDS,
@@ -15,7 +15,8 @@ export const CommandBar = ({
   onSayCommand,
 }: PropsWithChildren<
   PropsWithPlayer<
-    Pick<ITrucoshiMatchState, "canSay"> & {
+    {
+      canSay: boolean;
       onSayCommand: ITrucoshiMatchActions["sayCommand"];
     }
   >
@@ -32,7 +33,11 @@ export const CommandBar = ({
       bottom="1.2rem"
       left="50%"
       width="90vw"
-      sx={(theme) => ({ zIndex: theme.zIndex.fab, transform: "translate(-50%, 0)", pointerEvents: "none" })}
+      sx={(theme) => ({
+        zIndex: theme.zIndex.fab,
+        transform: "translate(-50%, 0)",
+        pointerEvents: "none",
+      })}
     >
       <Box
         display="flex"

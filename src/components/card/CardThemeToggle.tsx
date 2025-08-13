@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Menu, MenuItem } from "@mui/material";
+import { Button, CircularProgress, Menu, MenuItem } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useState } from "react";
 import { TrucoshiLogo } from "../../shared/TrucoshiLogo";
@@ -44,7 +44,7 @@ export const CardThemeToggle = () => {
           !cardsReady ? (
             <CircularProgress size="1.1em" />
           ) : (
-            <GameCard as={Box} width="1.1em" card={BURNT_CARD} />
+            <GameCard disableButton width="1.1em" card={BURNT_CARD} />
           )
         ) : (
           <TrucoshiLogo style={{ marginBottom: "0.4em" }} />
@@ -64,7 +64,7 @@ export const CardThemeToggle = () => {
         <MenuItem title="Default" onClick={() => setCardTheme("default")}>
           <GameCard
             request
-            as={Box}
+            disableButton
             sx={{ margin: "0 auto" }}
             theme="default"
             width="1.1em"
@@ -74,7 +74,8 @@ export const CardThemeToggle = () => {
         {/* <MenuItem title="Argento" onClick={() => setCardTheme("argento")}>
           <GameCard
             request
-            as={Box}
+            
+            disableButton
             sx={{ margin: "0 auto" }}
             theme="argento"
             width="1.1em"
@@ -84,7 +85,7 @@ export const CardThemeToggle = () => {
         <MenuItem title="GNU" onClick={() => setCardTheme("gnu")}>
           <GameCard
             request
-            as={Box}
+            disableButton
             sx={{ margin: "0 auto" }}
             theme="gnu"
             width="1.1em"
@@ -94,7 +95,7 @@ export const CardThemeToggle = () => {
         <MenuItem title="Criollo" onClick={() => setCardTheme("criollo")}>
           <GameCard
             request
-            as={Box}
+            disableButton
             sx={{ margin: "0 auto" }}
             theme="criollo"
             width="1.1em"
@@ -104,7 +105,8 @@ export const CardThemeToggle = () => {
         {/* <MenuItem title="Trucoshi (BETA)" onClick={() => setCardTheme("trucoshi")}>
           <GameCard
             request
-            as={Box}
+            
+            disableButton
             sx={{ margin: "0 auto" }}
             theme="default"
             width="1.1em"

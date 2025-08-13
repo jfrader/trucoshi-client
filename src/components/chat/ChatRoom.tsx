@@ -24,6 +24,7 @@ import {
   useRef,
   lazy,
   Suspense,
+  useMemo,
 } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
@@ -53,6 +54,8 @@ const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
 type Props = BoxProps & {
   alwaysVisible?: boolean;
 } & ReturnType<typeof useChatRoom>;
+
+const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
 
 export const useChatRoom = (match?: IPublicMatch | null) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,6 +133,26 @@ export const ChatRoom = ({
     setActive(true);
   };
 
+  const messagesWithAuthorVisibility = useMemo(
+    () =>
+      room?.messages.map((message, index) => {
+        const prevMessage = index > 0 ? room.messages[index - 1] : null;
+        const isConsecutive = Boolean(
+          prevMessage &&
+            prevMessage.user.key === message.user.key &&
+            !message.system &&
+            !message.card &&
+            !message.command &&
+            !prevMessage.card &&
+            !prevMessage.command &&
+            message.date * 1000 - prevMessage.date * 1000 <= MESSAGE_GROUPING_THRESHOLD
+        );
+
+        return { message, hideAuthor: isConsecutive };
+      }),
+    [room?.messages]
+  );
+
   return (
     <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
       <ChatBox
@@ -158,16 +181,15 @@ export const ChatRoom = ({
             height: "15rem",
           })}
         >
-          {room?.messages.map((message) => {
-            return (
-              <ChatMessage
-                animate={message.id === latestMessage?.id}
-                key={message.id}
-                message={message}
-                players={players}
-              />
-            );
-          })}
+          {messagesWithAuthorVisibility?.map(({ message, hideAuthor }) => (
+            <ChatMessage
+              animate={message.id === latestMessage?.id}
+              key={message.id}
+              message={message}
+              players={players}
+              hideAuthor={hideAuthor}
+            />
+          ))}
         </List>
         <Suspense
           fallback={
@@ -268,7 +290,7 @@ export const ChatMessage = ({
     message: IChatMessage;
     players?: Array<IPublicPlayer>;
     animate?: boolean;
-    hideAuthor?: boolean;
+    hideAuthor?: boolean | null;
     Component?: FC<SlideProps | FadeProps>;
   } & Partial<SlideProps | FadeProps>
 >) => {
@@ -278,10 +300,10 @@ export const ChatMessage = ({
         sx={{
           textAlign: "inherit",
           animation: animate ? `0.6s ${bounce} ${message.command ? 4 : 1}` : "",
-          py: "0.05em",
+          py: hideAuthor ? 0 : "0.05em",
         }}
       >
-        {getAvatar(message, players)}
+        {!hideAuthor && getAvatar(message, players)}
         <ListItemText sx={{ textAlign: "inherit" }}>
           {hideAuthor || message.system ? null : (
             <MessageAuthor message={message} players={players} />
@@ -290,7 +312,7 @@ export const ChatMessage = ({
             color={messageColor(message, players)}
             display="inline"
             variant="inherit"
-            sx={{ wordWrap: "break-word" }}
+            sx={{ wordWrap: "break-word", pl: hideAuthor ? 3 : undefined }}
           >
             {children ? children : <MessageContent>{message}</MessageContent>}
           </Typography>

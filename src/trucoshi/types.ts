@@ -9,7 +9,9 @@ import {
   IPublicMatchStats,
   IPublicPlayer,
   ITrucoshiStats,
+  IWaitingPlayCallback,
   IWaitingPlayData,
+  IWaitingSayCallback,
   ServerToClientEvents,
 } from "trucoshi";
 import { IPublicMatchInfo } from "trucoshi";
@@ -40,16 +42,18 @@ export interface ITrucoshiMatchActions {
   playCard(cardIdx: number, card: ICard): void;
   sayCommand(command: ECommand | number): void;
   kickPlayer(key: string): void;
+  pauseMatch(pause: boolean): void;
+  playAgain(callback: (newMatchSessionId?: string) => void): void;
 }
 
 export interface ITrucoshiMatchState {
-  turnPlayer: IPublicPlayer | null;
   match: IPublicMatch | null;
   stats: IPublicMatchStats | null;
+  turnPlayer: IPublicPlayer | null;
   me: IPublicPlayer | null;
+  turnCallback: IWaitingPlayCallback | null;
+  sayCallback: IWaitingSayCallback | null;
   error: Error | null;
-  canPlay: boolean;
-  canSay: boolean;
 }
 
 export interface ITrucoshiActions {
@@ -83,6 +87,7 @@ export interface ITrucoshiState {
   activeMatches: Array<IPublicMatchInfo>;
   cardTheme: ICardTheme;
   cardsReady: boolean;
+  cardsLoading: boolean;
   inspectedCard: ICard | null;
   cards: CardSources;
   isSidebarOpen: boolean;

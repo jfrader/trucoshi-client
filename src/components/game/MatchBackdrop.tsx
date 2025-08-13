@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { Backdrop } from "../../shared/Backdrop";
+import { Backdrop, TrucoshiBackdropProps } from "../../shared/Backdrop";
 
-export const MatchBackdrop = ({ error }: { error: Error | null }) => {
+export const MatchBackdrop = ({
+  error,
+  ...props
+}: Omit<TrucoshiBackdropProps<{ error: Error | null }>, "open">) => {
   const navigate = useNavigate();
 
   return (
@@ -11,6 +14,7 @@ export const MatchBackdrop = ({ error }: { error: Error | null }) => {
       open={Boolean(error)}
       onClick={() => navigate("/")}
       message={error && error.message ? error.message : "No se pudo encontrar la partida"}
+      {...props}
     />
   );
 };

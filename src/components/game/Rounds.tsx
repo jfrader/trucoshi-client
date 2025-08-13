@@ -142,9 +142,9 @@ export const Rounds = memo(({ match, player, ...boxProps }: Props) => {
         </AnimatedBox>
       )}
       <HandContainer onHandOpen={setOpenHand}>
-        {playerCards.map((pc, i) => (
+        {playerCards.map(({ key, ...pc }, i) => (
           <HandCardContainer
-            key={pc.key}
+            key={key}
             i={i}
             margin={1.2}
             cards={playerCards.length}
@@ -166,4 +166,5 @@ export const Rounds = memo(({ match, player, ...boxProps }: Props) => {
     </Box>
   );
 });
+
 Rounds.displayName = "Rounds";

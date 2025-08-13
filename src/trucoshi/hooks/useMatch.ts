@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useState, useMemo } from "react";
 import {
   IPublicMatch,
   ICard,
@@ -6,7 +6,6 @@ import {
   EServerEvent,
   IWaitingPlayCallback,
   IWaitingSayCallback,
-  IPublicPlayer,
   ESayCommand,
   ILobbyOptions,
   EHandState,
@@ -20,16 +19,25 @@ import { usePayRequest } from "../../api/hooks/usePayRequest";
 export interface UseMatchOptions {
   onMyTurn?: () => void;
   onFreshHand?: () => void;
+  onUnpause?: (unpausesAt: number) => void;
+  onPauseRequest?: (
+    fromOpponent: boolean,
+    expiresAt: number,
+    answer: (answer: boolean) => void
+  ) => void;
+  onPlayAgainRequest?: (expiresAt: number) => void;
+  onPlayAgain?: (newMatchSessionId: string) => void;
 }
 
 export const useMatch = (
   matchId?: string | null,
   options: UseMatchOptions = {}
-): [ITrucoshiMatchState, ITrucoshiMatchActions] => {
+): [ITrucoshiMatchState & { canPlay: boolean; canSay: boolean }, ITrucoshiMatchActions] => {
   const context = useContext(TrucoshiContext);
   const toast = useToast();
   const { pay } = usePayRequest();
-  const { onMyTurn, onFreshHand } = options;
+  const { onMyTurn, onFreshHand, onPauseRequest, onUnpause, onPlayAgainRequest, onPlayAgain } =
+    options;
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -41,15 +49,7 @@ export const useMatch = (
     dispatch,
   } = context;
 
-  const [matchState, setMatchState] = useState<{
-    match: IPublicMatch | null;
-    stats: IPublicMatchStats | null;
-    turnPlayer: IPublicPlayer | null;
-    me: IPublicPlayer | null;
-    turnCallback: IWaitingPlayCallback | null;
-    sayCallback: IWaitingSayCallback | null;
-    error: Error | null;
-  }>({
+  const [matchState, setMatchState] = useState<ITrucoshiMatchState>({
     match: null,
     stats: null,
     turnPlayer: null,
@@ -59,15 +59,47 @@ export const useMatch = (
     error: null,
   });
 
+  const canPlay = useMemo(
+    () =>
+      Boolean(
+        matchState.match &&
+          matchState.turnCallback &&
+          matchState.me &&
+          !matchState.me.abandoned &&
+          matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
+          matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
+      ),
+    [matchState.match, matchState.me, matchState.turnCallback]
+  );
+
+  const canSay = useMemo(
+    () =>
+      Boolean(
+        matchState.match &&
+          matchState.sayCallback &&
+          matchState.me &&
+          !matchState.me.abandoned &&
+          matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
+          matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
+      ),
+    [matchState.match, matchState.me, matchState.sayCallback]
+  );
+
   const fetchMatch = useCallback(() => {
     if (!isConnected || !matchId) {
-      setMatchState((prev) => ({ ...prev, error: new Error("No se pudo encontrar la partida") }));
+      setMatchState((prev) => ({
+        ...prev,
+        error: new Error("No se pudo encontrar la partida"),
+      }));
       dispatch.setActiveMatches(activeMatches.filter((m) => m.matchSessionId !== matchId));
       return;
     }
     socket.emit(EClientEvent.FETCH_MATCH, matchId, ({ success, match }) => {
       if (!success || !match) {
-        setMatchState((prev) => ({ ...prev, error: new Error("No se pudo encontrar la partida") }));
+        setMatchState((prev) => ({
+          ...prev,
+          error: new Error("No se pudo encontrar la partida"),
+        }));
         dispatch.setActiveMatches(activeMatches.filter((m) => m.matchSessionId !== matchId));
         return;
       }
@@ -80,22 +112,6 @@ export const useMatch = (
       }));
     });
   }, [isConnected, matchId, socket, dispatch, activeMatches]);
-
-  const setMatch = useCallback(
-    (match: IPublicMatch, stats?: IPublicMatchStats) => {
-      if (matchId && match.matchSessionId === matchId) {
-        setMatchState((prev) => ({
-          ...prev,
-          match,
-          stats: stats || prev.stats,
-          me: match.players.find((player) => player.isMe) || null,
-          turnPlayer: match.players.find((player) => player.isTurn) || null,
-          error: null,
-        }));
-      }
-    },
-    [matchId]
-  );
 
   const kickPlayer = useCallback(
     (key: string) => {
@@ -110,6 +126,15 @@ export const useMatch = (
     [isConnected, matchId, socket, toast]
   );
 
+  const pauseMatch = useCallback(
+    (pause: boolean) => {
+      if (matchId && isConnected) {
+        socket.emit(EClientEvent.PAUSE_MATCH, matchId, pause, () => {});
+      }
+    },
+    [isConnected, matchId, socket]
+  );
+
   const createMatch = useCallback(
     (callback: ICallbackMatchUpdate) => {
       socket.emit(EClientEvent.CREATE_MATCH, ({ match, activeMatches, error }) => {
@@ -120,13 +145,19 @@ export const useMatch = (
           toast.error(error.message);
         }
         if (match) {
-          setMatch(match);
+          setMatchState((prev) => ({
+            ...prev,
+            match,
+            me: match.players.find((player) => player.isMe) || null,
+            turnPlayer: match.players.find((player) => player.isTurn) || null,
+            error: null,
+          }));
           return callback(null, match);
         }
         callback(error || new Error("No se pudo crear la partida"));
       });
     },
-    [socket, dispatch, setMatch, toast]
+    [socket, dispatch, toast]
   );
 
   const emitReady = useCallback(
@@ -141,12 +172,18 @@ export const useMatch = (
             toast.error(error.message);
           }
           if (success && match) {
-            setMatch(match);
+            setMatchState((prev) => ({
+              ...prev,
+              match,
+              me: match.players.find((player) => player.isMe) || null,
+              turnPlayer: match.players.find((player) => player.isTurn) || null,
+              error: null,
+            }));
           }
         }
       );
     },
-    [socket, setMatch, toast]
+    [socket, toast]
   );
 
   const setReady = useCallback(
@@ -178,11 +215,17 @@ export const useMatch = (
           toast.error(error.message);
         }
         if (success && match) {
-          setMatch(match);
+          setMatchState((prev) => ({
+            ...prev,
+            match,
+            me: match.players.find((player) => player.isMe) || null,
+            turnPlayer: match.players.find((player) => player.isTurn) || null,
+            error: null,
+          }));
         }
       });
     },
-    [socket, setMatch, toast]
+    [socket, toast]
   );
 
   const joinMatch = useCallback(
@@ -200,12 +243,18 @@ export const useMatch = (
             toast.error(error.message);
           }
           if (success && match) {
-            setMatch(match);
+            setMatchState((prev) => ({
+              ...prev,
+              match,
+              me: match.players.find((player) => player.isMe) || null,
+              turnPlayer: match.players.find((player) => player.isTurn) || null,
+              error: null,
+            }));
           }
         }
       );
     },
-    [socket, dispatch, setMatch, toast]
+    [socket, dispatch, toast]
   );
 
   const setOptions = useCallback(
@@ -227,12 +276,18 @@ export const useMatch = (
             dispatch.setActiveMatches(activeMatches);
           }
           if (match) {
-            setMatch(match);
+            setMatchState((prev) => ({
+              ...prev,
+              match,
+              me: match.players.find((player) => player.isMe) || null,
+              turnPlayer: match.players.find((player) => player.isTurn) || null,
+              error: null,
+            }));
           }
         }
       );
     },
-    [matchId, matchState.match, socket, dispatch, setMatch, toast]
+    [matchId, matchState.match, socket, dispatch, toast]
   );
 
   const startMatch = useCallback(
@@ -274,16 +329,19 @@ export const useMatch = (
   const leaveMatch = useCallback(() => {
     if (matchId && matchState.match) {
       socket.emit(EClientEvent.LEAVE_MATCH, matchId);
-      setMatchState((prev) => ({
-        ...prev,
-        match: null,
-        stats: null,
-        me: null,
-        turnPlayer: null,
-        error: null,
-      }));
     }
   }, [matchId, matchState.match, socket]);
+
+  const playAgain = useCallback(
+    (callback: (newMatchSessionId?: string) => void) => {
+      if (matchId && matchState.match) {
+        socket.emit(EClientEvent.PLAY_AGAIN, matchId, ({ newMatchSessionId }) => {
+          callback(newMatchSessionId);
+        });
+      }
+    },
+    [matchId, matchState.match, socket]
+  );
 
   useEffect(() => {
     if (isConnected && !matchState.match && !matchState.error && !isLoggingIn && matchId) {
@@ -293,47 +351,95 @@ export const useMatch = (
 
   useEffect(() => {
     if (!isConnected && matchState.match) {
-      setMatchState((prev) => ({
-        ...prev,
+      setMatchState({
         match: null,
         stats: null,
         me: null,
         turnPlayer: null,
         error: null,
-      }));
+        turnCallback: null,
+        sayCallback: null,
+      });
     }
   }, [isConnected, matchState.match]);
 
   useEffect(() => {
     const handleUpdateMatch = (value: IPublicMatch, stats?: IPublicMatchStats) => {
       if (matchId && value.matchSessionId === matchId) {
-        setMatch(value, stats);
+        setMatchState((prev) => ({
+          ...prev,
+          match: value,
+          stats: stats || prev.stats,
+          me: value.players.find((player) => player.isMe) || null,
+          turnPlayer: value.players.find((player) => player.isTurn) || null,
+          error: null,
+        }));
       }
     };
 
     const handleWaitingPlay = (value: IPublicMatch, callback: IWaitingPlayCallback) => {
       if (matchId && value.matchSessionId === matchId) {
-        setMatch(value);
-        setMatchState((prev) => ({ ...prev, turnCallback: callback }));
+        console.log(value.players.find((p) => p.isMe)?.turnExtensionExpiresAt);
+        setMatchState((prev) => ({
+          ...prev,
+          match: value,
+          me: value.players.find((player) => player.isMe) || null,
+          turnPlayer: value.players.find((player) => player.isTurn) || null,
+          turnCallback: callback,
+          error: null,
+        }));
       }
     };
 
-    const handleWaitingSay = (value: IPublicMatch, callback: IWaitingSayCallback) => {
-      if (matchId && value.matchSessionId === matchId) {
-        if (onFreshHand && value.freshHand) {
+    const handleWaitingSay = (match: IPublicMatch, callback: IWaitingSayCallback) => {
+      if (matchId && match.matchSessionId === matchId) {
+        console.log(match.players.find((p) => p.isMe)?.turnExtensionExpiresAt);
+        if (onFreshHand && match.freshHand) {
           onFreshHand();
         }
-        if (onMyTurn && value.me?.isTurn) {
+        if (onMyTurn && match.me?.isTurn) {
           setTimeout(onMyTurn, 0);
         }
-        setMatch(value);
-        setMatchState((prev) => ({ ...prev, sayCallback: callback }));
+        setMatchState((prev) => ({
+          ...prev,
+          match,
+          me: match.players.find((player) => player.isMe) || null,
+          turnPlayer: match.players.find((player) => player.isTurn) || null,
+          sayCallback: callback,
+          error: null,
+        }));
       }
     };
 
     const handleMatchDeleted = (deletedMatchSessionId: string) => {
       if (deletedMatchSessionId === matchId) {
-        setMatchState((prev) => ({ ...prev, error: new Error("Esta partida ya no existe") }));
+        setMatchState((prev) => ({
+          ...prev,
+          error: new Error("Esta partida terminó"),
+        }));
+      }
+    };
+
+    const handlePauseRequest = (
+      matchSessionId: string,
+      fromOpponent: boolean,
+      expiresAt: number,
+      answer: (answer: boolean) => void
+    ) => {
+      if (matchId === matchSessionId) {
+        onPauseRequest?.(fromOpponent, expiresAt, answer);
+      }
+    };
+
+    const handleUnpause = (matchSessionId: string, unpausesAt: number) => {
+      if (matchId === matchSessionId) {
+        onUnpause?.(unpausesAt);
+      }
+    };
+
+    const handlePlayAgainRequest = (matchSessionId: string, expiresAt: number) => {
+      if (matchId === matchSessionId) {
+        onPlayAgainRequest?.(expiresAt);
       }
     };
 
@@ -341,35 +447,32 @@ export const useMatch = (
     socket.on(EServerEvent.WAITING_PLAY, handleWaitingPlay);
     socket.on(EServerEvent.WAITING_POSSIBLE_SAY, handleWaitingSay);
     socket.on(EServerEvent.MATCH_DELETED, handleMatchDeleted);
+    socket.on(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
+    socket.on(EServerEvent.UNPAUSE_STARTED, handleUnpause);
+    socket.on(EServerEvent.PLAY_AGAIN_REQUEST, handlePlayAgainRequest);
 
     return () => {
       socket.off(EServerEvent.UPDATE_MATCH, handleUpdateMatch);
       socket.off(EServerEvent.WAITING_PLAY, handleWaitingPlay);
       socket.off(EServerEvent.WAITING_POSSIBLE_SAY, handleWaitingSay);
       socket.off(EServerEvent.MATCH_DELETED, handleMatchDeleted);
+      socket.off(EServerEvent.PAUSE_MATCH_REQUEST, handlePauseRequest);
+      socket.off(EServerEvent.UNPAUSE_STARTED, handleUnpause);
+      socket.off(EServerEvent.PLAY_AGAIN_REQUEST, handlePlayAgainRequest);
     };
-  }, [socket, matchId, onMyTurn, onFreshHand, setMatch]);
-
-  const canPlay = useMemo(
-    () => Boolean(matchState.match && matchState.turnCallback),
-    [matchState.match, matchState.turnCallback]
-  );
-
-  const canSay = useMemo(
-    () =>
-      Boolean(
-        matchState.match &&
-          matchState.sayCallback &&
-          matchState.match.handState !== EHandState.DISPLAY_FLOR_BATTLE &&
-          matchState.match.handState !== EHandState.DISPLAY_PREVIOUS_HAND
-      ),
-    [matchState.match, matchState.sayCallback]
-  );
-
-  const state = useMemo(() => ({ ...matchState, canSay, canPlay }), [canPlay, canSay, matchState]);
+  }, [
+    socket,
+    matchId,
+    onMyTurn,
+    onFreshHand,
+    onPauseRequest,
+    onUnpause,
+    onPlayAgainRequest,
+    onPlayAgain,
+  ]);
 
   return [
-    state,
+    { ...matchState, canPlay, canSay },
     {
       playCard,
       sayCommand,
@@ -380,7 +483,9 @@ export const useMatch = (
       createMatch,
       leaveMatch,
       kickPlayer,
+      pauseMatch,
       addBot,
+      playAgain,
     },
   ];
 };

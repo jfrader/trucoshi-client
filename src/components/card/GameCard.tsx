@@ -64,6 +64,7 @@ const suitBottomSx = {
 
 export type GameCardProps = {
   card: ICard;
+  disableButton?: boolean;
   disableDoubleClick?: boolean;
   enableHover?: boolean;
   burn?: boolean;
@@ -86,6 +87,7 @@ const _GameCard = ({
   scale = 1.75,
   shadow = false,
   width = "4.4em",
+  disableButton,
   theme = "",
   ...buttonProps
 }: GameCardProps) => {
@@ -116,6 +118,14 @@ const _GameCard = ({
 
   const name = burn ? BURNT_CARD : card;
 
+  const events: ButtonProps = disableButton
+    ? { component: "div" }
+    : {
+        onClick: onClick,
+        onContextMenu: onClick,
+        onDoubleClick: onDoubleClick,
+      };
+
   if (usedTheme) {
     return (
       <GameCardButton
@@ -125,9 +135,8 @@ const _GameCard = ({
         scale={scale}
         shadow={shadow}
         enablehover={enableHover}
-        onClick={onClick}
-        onContextMenu={onClick}
-        onDoubleClick={onDoubleClick}
+        disableEvents={disableButton}
+        {...events}
         {...buttonProps}
       >
         <img
@@ -154,6 +163,7 @@ const _GameCard = ({
       onContextMenu={onClick}
       onDoubleClick={onDoubleClick}
       enablehover={enableHover}
+      disableEvents={disableButton}
       sx={{
         width,
         height: `calc(${width} * 1.48)`,
@@ -188,19 +198,23 @@ const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
 
 const GameCardButton = styled(Button, {
   shouldForwardProp: (prop) =>
-    !["enablehover", "emojicard", "zoom", "shadow", "scale"].includes(prop as string),
+    !["enablehover", "emojicard", "zoom", "shadow", "scale", "disableEvents"].includes(
+      prop as string
+    ),
 })<{
   enablehover?: boolean;
   emojicard?: boolean;
   zoom?: boolean;
   shadow?: boolean;
   scale?: number;
-}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75 }) => ({
+  disableEvents?: boolean;
+}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75, disableEvents = false }) => ({
   lineHeight: 1,
   position: "relative",
   transition: theme.transitions.create(["transform", "box-shadow"], {
     duration: theme.transitions.duration.standard,
   }),
+  ...(disableEvents && { pointerEvents: "none" }),
   ...(shadow && { boxShadow: theme.shadows[4] }),
   ...(zoom && { transform: `scale(${scale})` }),
   ...(emojicard

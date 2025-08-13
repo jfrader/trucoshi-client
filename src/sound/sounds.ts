@@ -94,6 +94,16 @@ export const gameSounds = {
     volume: DEFAULT_VOLUME,
     preload: DEFAULT_PRELOAD,
   },
+  menu0: {
+    src: "/sounds/menu1.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
+  menu1: {
+    src: "/sounds/menu2.mp3",
+    volume: DEFAULT_VOLUME,
+    preload: DEFAULT_PRELOAD,
+  },
   bot0: {
     src: "/sounds/bot1.mp3",
     volume: DEFAULT_VOLUME,
@@ -182,6 +192,6 @@ export const gameSounds = {
   flawless: {
     src: "/sounds/flawless.mp3",
     volume: DEFAULT_VOLUME,
-    preload: false,
+    preload: DEFAULT_PRELOAD,
   },
 } as const satisfies IGameSounds;

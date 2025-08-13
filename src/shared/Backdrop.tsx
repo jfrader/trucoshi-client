@@ -8,21 +8,36 @@ import {
 import { PropsWithChildren } from "react";
 import { TrucoshiText } from "./TrucoshiText";
 
+export type TrucoshiBackdropProps<T extends Record<string, any> = Record<string, any>> =
+  PropsWithChildren<
+    BackdropProps & {
+      message?: string;
+      loading?: boolean;
+      opacity?: number;
+      hideLogo?: boolean;
+      showChat?: boolean;
+    } & T
+  >;
+
 export const Backdrop = ({
   message,
   loading,
   children,
+  hideLogo,
+  opacity = 0.9,
+  showChat,
   ...props
-}: PropsWithChildren<BackdropProps & { message?: string; loading?: boolean }>) => {
+}: TrucoshiBackdropProps) => {
   return (
     <MuiBackdrop
       {...props}
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: (theme) => (showChat ? theme.zIndex.appBar - 1 : theme.zIndex.drawer + 1),
         color: "text.primary",
         maxHeight: "100vh",
-        backgroundColor: "rgb(0, 0, 0, 0.9)",
+        backgroundColor: `rgb(0, 0, 0, ${opacity})`,
         overflow: "hidden",
+        ...props.sx,
       }}
     >
       <Box
@@ -32,7 +47,7 @@ export const Backdrop = ({
         justifyContent="space-between"
         alignItems="center"
       >
-        <TrucoshiText height="26px" />
+        {hideLogo ? null : <TrucoshiText height="26px" />}
         {message ? <Typography variant="h4">{message}</Typography> : null}
         {loading ? (
           <Box mt={1}>
