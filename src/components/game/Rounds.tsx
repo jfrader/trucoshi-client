@@ -17,13 +17,14 @@ const containerSx = {
   right: "1.4em",
 };
 
-const florButtonContainerSx = (hasCards: boolean) => ({
+const florButtonContainerSx = (hasFlor: boolean, hasCards: boolean) => ({
   top: "50%",
   left: "50%",
   position: "absolute",
   zIndex: (theme: any) => theme.zIndex.snackbar,
   pointerEvents: "none",
   opacity: hasCards ? 0.85 : 1,
+  display: hasFlor ? "block" : "none",
 });
 
 const florButtonInnerSx = {
@@ -119,8 +120,8 @@ export const Rounds = memo(({ match, player, ...boxProps }: Props) => {
 
   const cardWidth = WIDTH_MAP[match.players.length] || WIDTH_MAP[4];
 
-  const hasFlorBattleCards = !!match.florBattle?.playersWithFlor.find((p) => p.idx === player.idx)
-    ?.cards;
+  const hasFlor = match.florBattle?.playersWithFlor.find((p) => p.idx === player.idx);
+  const hasFlorBattleCards = !!hasFlor?.cards;
 
   return (
     <Box sx={containerSx} {...boxProps}>
@@ -128,7 +129,7 @@ export const Rounds = memo(({ match, player, ...boxProps }: Props) => {
         <AnimatedBox
           infinite={1}
           isturn={Number(match.florBattle.winner?.idx === player.idx)}
-          sx={florButtonContainerSx(hasFlorBattleCards)}
+          sx={florButtonContainerSx(!!hasFlor, hasFlorBattleCards)}
         >
           <Button
             sx={florButtonInnerSx}

@@ -115,7 +115,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         cardTheme={cardTheme}
       />
 
-      <ConfirmationModal {...modal} />
+      <ConfirmationModal preventCloseOnBackdropClick {...modal} />
     </ThemeProvider>
   );
 };
