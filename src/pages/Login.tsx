@@ -175,16 +175,14 @@ export const Login = () => {
                   name="seedPhrase"
                   color="warning"
                   label="Frase de Semilla"
-                  autoComplete="password"
+                  autoComplete="current-password"
                   onChange={onChangeSeedPhrase}
                   value={seedPhrase}
                   variant="outlined"
                   error={!!seedPhrase && !!validateSeed()}
                   helperText={
-                    seedPhrase
-                      ? validateSeed()?.message ||
-                        "Ingresa 5 palabras separadas por espacios, ej. 'palabra1 palabra2 palabra3 palabra4 palabra5'"
-                      : "Ingresa 5 palabras separadas por espacios, ej. 'palabra1 palabra2 palabra3 palabra4 palabra5'"
+                    (seedPhrase && validateSeed()?.message) ||
+                    "Inicia sesion con tu frase semilla: ej. 'bici auto casa rancho palacio'"
                   }
                 />
               )}
