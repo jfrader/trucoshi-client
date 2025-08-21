@@ -101,7 +101,7 @@ const Container = styled(Box)(
   height: var(--s);
   transform: rotate(90deg);
   padding: 16px;
-  --r: calc(0.41 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
+  --r: calc(0.43 * (1 + var(--rel)) * var(--d) / var(--tan)); /* circle radius */
   --s: calc(2 * var(--r) + var(--d)); /* container size */
   --d: 12.6rem; /* image size */
   --rel: 0.45; /* how much extra space we want between images, 1 = one image size */
