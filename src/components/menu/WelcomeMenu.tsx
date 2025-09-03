@@ -34,7 +34,9 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
         >
           Bienvenido
         </Typography>
-        {account && import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ? (
+        {account &&
+        (import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ||
+          (account.wallet?.balanceInSats || 0) > 0) ? (
           <Box
             role="button"
             sx={{ cursor: "pointer" }}
