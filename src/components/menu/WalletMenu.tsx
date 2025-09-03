@@ -35,7 +35,10 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (!account?.wallet || import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS !== "1") {
+  if (
+    !account?.wallet ||
+    (account.wallet.balanceInSats <= 0 && import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS !== "1")
+  ) {
     return null;
   }
 
@@ -56,17 +59,19 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
       <FormGroup>
         <Collapse in={withdrawInvoice === null && isDeposit === null}>
           <FormGroup>
-            <Button
-              color="warning"
-              size="large"
-              onClick={() => {
-                setDeposit("");
-                setWithdrawInvoice(null);
-                setTimeout(() => inputRef.current?.focus());
-              }}
-            >
-              Depositar
-            </Button>
+            {import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ? (
+              <Button
+                color="warning"
+                size="large"
+                onClick={() => {
+                  setDeposit("");
+                  setWithdrawInvoice(null);
+                  setTimeout(() => inputRef.current?.focus());
+                }}
+              >
+                Depositar
+              </Button>
+            ) : null}
           </FormGroup>
         </Collapse>
         <Collapse in={withdrawInvoice === null && isDeposit !== null} mountOnEnter unmountOnExit>
