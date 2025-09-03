@@ -35,7 +35,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (!account?.wallet) {
+  if (!account?.wallet || import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS !== "1") {
     return null;
   }
 

@@ -38,37 +38,39 @@ export const GameOptions = ({
       }}
     >
       <Stack gap={4} px={2} pt={2}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <TextField
-            size="small"
-            variant="outlined"
-            label="Sats por Jugador"
-            name="satsPerPlayer"
-            autoComplete="off"
-            color="warning"
-            disabled={!account}
-            placeholder="Sats"
-            onChange={(e) => {
-              if (!e.target.value.match(/^[0-9]*\.?[0-9]*$/)) {
-                return e.preventDefault();
-              }
-              setOptions((current) => ({ ...current, satsPerPlayer: Number(e.target.value) }));
-            }}
-            value={options.satsPerPlayer}
-            InputProps={{
-              endAdornment: <SatoshiIcon color="warning" />,
-            }}
-          />
-          <IconButton
-            title="Cancelar"
-            disabled={!options.satsPerPlayer}
-            onClick={() => setOptions((current) => ({ ...current, satsPerPlayer: 0 }))}
-            color="warning"
-            size="small"
-          >
-            <Close fontSize="small" />
-          </IconButton>
-        </Stack>
+        {import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ? (
+          <Stack direction="row" alignItems="center" gap={1}>
+            <TextField
+              size="small"
+              variant="outlined"
+              label="Sats por Jugador"
+              name="satsPerPlayer"
+              autoComplete="off"
+              color="warning"
+              disabled={!account}
+              placeholder="Sats"
+              onChange={(e) => {
+                if (!e.target.value.match(/^[0-9]*\.?[0-9]*$/)) {
+                  return e.preventDefault();
+                }
+                setOptions((current) => ({ ...current, satsPerPlayer: Number(e.target.value) }));
+              }}
+              value={options.satsPerPlayer}
+              InputProps={{
+                endAdornment: <SatoshiIcon color="warning" />,
+              }}
+            />
+            <IconButton
+              title="Cancelar"
+              disabled={!options.satsPerPlayer}
+              onClick={() => setOptions((current) => ({ ...current, satsPerPlayer: 0 }))}
+              color="warning"
+              size="small"
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          </Stack>
+        ) : null}
 
         <FormControl>
           <InputLabel id="maxPlayers-label">Max. Jugadores</InputLabel>
