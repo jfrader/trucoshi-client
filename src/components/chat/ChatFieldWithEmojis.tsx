@@ -145,7 +145,7 @@ const ChatFieldWithEmojis = memo(
                 {...params}
                 {...textFieldProps}
                 value={message}
-                autoFocus
+                autoFocus={isLg}
                 onChange={onChange}
                 inputRef={inputRef}
                 inputProps={{
