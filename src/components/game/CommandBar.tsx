@@ -13,11 +13,13 @@ export const CommandBar = ({
   player,
   canSay,
   onSayCommand,
+  compact = false,
 }: PropsWithChildren<
   PropsWithPlayer<
     {
       canSay: boolean;
       onSayCommand: ITrucoshiMatchActions["sayCommand"];
+      compact?: boolean;
     }
   >
 >) => {
@@ -29,37 +31,41 @@ export const CommandBar = ({
 
   return (
     <Box
-      position="absolute"
-      bottom="1.2rem"
-      left="50%"
-      width="90vw"
       sx={(theme) => ({
         zIndex: theme.zIndex.fab,
-        transform: "translate(-50%, 0)",
-        pointerEvents: "none",
+        background: "linear-gradient(160deg, rgba(39, 24, 16, 0.95), rgba(20, 14, 10, 0.96))",
+        borderRadius: "1rem",
+        border: "1px solid rgba(255,255,255,0.14)",
+        p: 1,
+        boxShadow: "0 10px 24px rgba(0,0,0,0.38)",
       })}
     >
       <Box
         display="flex"
-        gap={1}
-        margin="0 auto"
+        gap={0.55}
         flexWrap="wrap"
         justifyContent="center"
-        width="fit-content"
-        sx={(theme) => ({ zIndex: theme.zIndex.fab, pointerEvents: "initial" })}
+        alignContent="flex-start"
+        minHeight={compact ? "4.5rem" : "5.7rem"}
       >
         {player.isEnvidoTurn &&
           player.envido
             ?.sort((a, b) => a.value - b.value)
             .map((points) => (
-              <Button
-                key={points.value}
-                onClick={() => onSayCommand(points.value)}
-                variant="contained"
-                color={bestEnvido === points.value ? "success" : "error"}
-              >
-                {points.value}
-              </Button>
+                <Button
+                  key={points.value}
+                  onClick={() => onSayCommand(points.value)}
+                  variant="contained"
+                  color={bestEnvido === points.value ? "success" : "error"}
+                  sx={{
+                    whiteSpace: "nowrap",
+                    fontSize: compact ? "0.8rem" : "0.88rem",
+                    px: compact ? 1 : 1.25,
+                    py: compact ? 0.5 : 0.65,
+                  }}
+                >
+                  {points.value}
+                </Button>
             ))}
         {player.commands
           ? [...player.commands]
@@ -89,6 +95,12 @@ export const CommandBar = ({
                       ? "warning"
                       : "success"
                   }
+                  sx={{
+                    whiteSpace: "nowrap",
+                    fontSize: compact ? "0.8rem" : "0.88rem",
+                    px: compact ? 1 : 1.25,
+                    py: compact ? 0.5 : 0.65,
+                  }}
                 >
                   {COMMANDS_HUMAN_READABLE[command] || command}
                 </Button>

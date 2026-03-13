@@ -69,9 +69,8 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
         return;
       }
 
-      if (incomingMessage.command) {
+      if (incomingMessage.command || incomingMessage.system) {
         setLatestMessage(incomingMessage);
-        setActive(true);
 
         if (timerRef.current) {
           clearTimeout(timerRef.current);

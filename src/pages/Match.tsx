@@ -8,28 +8,24 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
   Stack,
   Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { useCallback, useEffect, useState, memo } from "react";
+import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
-import { GameTable } from "../components/game/GameTable";
-import { Rounds } from "../components/game/Rounds";
-import { IPublicPlayer, EMatchState } from "trucoshi";
+import { useRounds } from "../trucoshi/hooks/useRounds";
+import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
+import { EFlorCommand, EMatchState, ICard, IPlayedCard, IPublicPlayer } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
-import {
-  FixedChatContainer,
-  ChatRoom,
-  useChatRoom,
-  ChatButton,
-  getMessageContent,
-} from "../components/chat/ChatRoom";
-import { MatchPlayer } from "../components/game/MatchPlayer";
-import { MatchPoints } from "../components/game/MatchPoints";
+import { useChatRoom } from "../components/chat/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { FloatingProgress } from "../shared/FloatingProgress";
@@ -40,9 +36,21 @@ import { getTeamColor } from "../utils/team";
 import { debugComponent } from "../utils/debugComponent";
 import Toasty from "../components/game/Toasty";
 import { GameOptionsList } from "../components/game/GameOptionsList";
-import { Pause, VideogameAsset, Visibility } from "@mui/icons-material";
+import {
+  MoreHoriz,
+  Pause,
+  VideogameAsset,
+  Visibility,
+} from "@mui/icons-material";
 import { useToast } from "../hooks/useToast";
 import CircularProgress from "@mui/material/CircularProgress";
+import { GameCard } from "../components/card/GameCard";
+import { useConfirmationModal } from "../hooks/useConfirmationModal";
+import { ConfirmationModal } from "../shared/ConfirmationModal";
+import { UserAvatar } from "../shared/UserAvatar";
+import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
+import { BURNT_CARD } from "trucoshi";
+import { CommDrawer } from "../components/chat/CommDrawer";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -53,15 +61,30 @@ const spectatorTooltipSx = (theme: any) => ({
   bgcolor: alpha(theme.palette.background.paper, 0.5),
 });
 
-const matchPointsContainerSx = {
-  position: "fixed",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  right: 0,
-  top: "52px",
-  maxWidth: "24em",
+const scoreCardSx = {
+  px: 1.3,
+  py: 0.9,
+  minWidth: "5.2rem",
+  borderRadius: "1rem",
+  background: "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
+  border: "1px solid rgba(255,255,255,0.14)",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+};
+
+const topBadgeSx = {
+  px: 1.6,
+  py: 0.8,
+  borderRadius: "0.9rem",
+  bgcolor: "rgba(12, 24, 19, 0.85)",
+  border: "1px solid rgba(255,255,255,0.14)",
+};
+
+const emptySeatSx = {
+  borderRadius: "0.95rem",
+  border: "1px dashed rgba(255,255,255,0.35)",
+  bgcolor: "rgba(0,0,0,0.2)",
+  p: 1,
+  textAlign: "center",
 };
 
 const AbandonDialog = ({
@@ -74,9 +97,9 @@ const AbandonDialog = ({
   onAbandon: () => void;
 }) => (
   <Dialog open={open} onClose={onClose}>
-    <DialogTitle>Atención</DialogTitle>
+    <DialogTitle>Atencion</DialogTitle>
     <DialogContent>
-      <Typography>Estás a punto de abandonar la partida</Typography>
+      <Typography>Estas a punto de abandonar la partida</Typography>
     </DialogContent>
     <DialogContent>
       <Stack direction="row" width="100%" justifyContent="center" gap={2}>
@@ -90,6 +113,7 @@ const AbandonDialog = ({
     </DialogContent>
   </Dialog>
 );
+
 const RulesDialog = ({
   open,
   onClose,
@@ -112,20 +136,226 @@ const RulesDialog = ({
   </Dialog>
 );
 
+const pointsLabel = (points: { buenas: number; malas: number }) => points.buenas || points.malas;
+
+const SeatCard = ({
+  player,
+  isTurn,
+  match,
+  serverAheadTime,
+}: {
+  player: IPublicPlayer;
+  isTurn: boolean;
+  match: ReturnType<typeof useMatch>[0]["match"];
+  serverAheadTime: number;
+}) => {
+  const turnTimer = useTurnTimer(player, serverAheadTime, match);
+  const hiddenCards = Math.min(player.hand.length, 3);
+  const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
+
+  const ringColor = turnTimer.alert
+    ? "warning.main"
+    : turnTimer.isExtension
+    ? "error.main"
+    : "success.main";
+
+  const ringAngle = timerVisible ? Math.max(0, Math.min(100, turnTimer.progress)) * 3.6 : 0;
+
+  return (
+    <Box
+      sx={(theme) => ({
+        p: timerVisible ? "2px" : 0,
+        borderRadius: "1rem",
+        transition: theme.transitions.create(["background", "padding"], {
+          duration: theme.transitions.duration.shortest,
+        }),
+        background: timerVisible
+          ? `conic-gradient(from -90deg, ${theme.palette[ringColor.split(".")[0] as "success" | "warning" | "error"][ringColor.split(".")[1] as "main"]} ${ringAngle}deg, ${alpha(
+              theme.palette.common.white,
+              0.08
+            )} ${ringAngle}deg 360deg)`
+          : "transparent",
+      })}
+    >
+      <Paper
+        sx={{
+          borderRadius: "0.95rem",
+          p: 0.8,
+          background: "rgba(17, 28, 24, 0.87)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
+        }}
+      >
+        <Stack direction="row" alignItems="center" gap={0.8}>
+          <UserAvatar account={player} size="small" bgcolor={`${getTeamColor(player.teamIdx)}.main`} />
+          <Box minWidth={0}>
+            <Typography
+              color="common.white"
+              fontWeight={700}
+              fontSize="0.98rem"
+              noWrap
+              title={player.name}
+            >
+              {player.name}
+            </Typography>
+            <Typography
+              fontSize="0.82rem"
+              color={player.abandoned ? "error.light" : player.disabled ? "warning.light" : "grey.300"}
+            >
+              {player.abandoned
+                ? "Retirado"
+                : player.disabled
+                ? "Al mazo"
+                : isTurn
+                ? "Turno"
+                : player.isMe
+                ? "Vos"
+                : "Esperando"}
+            </Typography>
+          </Box>
+        </Stack>
+        {!player.isMe && !player.abandoned ? (
+          <Stack direction="row" justifyContent="center" mt={0.7}>
+            {Array.from({ length: hiddenCards }).map((_, idx) => (
+              <Box key={`${player.key}-${idx}`} ml={idx ? -1.2 : 0}>
+                <GameCard disableButton card={BURNT_CARD} width="clamp(2.15rem, 7vw, 2.35rem)" shadow />
+              </Box>
+            ))}
+          </Stack>
+        ) : null}
+      </Paper>
+    </Box>
+  );
+};
+
+const TrickCenter = ({
+  rounds,
+  slots,
+  facePlayerRotation = false,
+  spreadBoost = 0,
+}: {
+  rounds: IPlayedCard[][];
+  slots: ReturnType<typeof buildAlternatingSlots<IPublicPlayer>>;
+  facePlayerRotation?: boolean;
+  spreadBoost?: number;
+}) => {
+  const CENTER_SHIFT_X = 3;
+  const CENTER_SHIFT_Y = 5;
+  const PLAYER_SPREAD_X = 42 + spreadBoost;
+  const PLAYER_SPREAD_Y = 39 + spreadBoost;
+  const getStableRotation = (seed: string) => {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+    }
+    const normalized = (((hash % 1000) + 1000) % 1000) / 1000;
+    return normalized * 12 - 6;
+  };
+  const getStableJitter = (seed: string) => {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash * 33 + seed.charCodeAt(i)) | 0;
+    }
+    const xNorm = (((hash % 1000) + 1000) % 1000) / 1000;
+    const yNorm = ((((hash / 1000) | 0) % 1000) + 1000) % 1000 / 1000;
+    return {
+      x: xNorm * 8 - 4,
+      y: yNorm * 8 - 4,
+    };
+  };
+
+  const slotByPlayer = useMemo(
+    () =>
+      slots.reduce<Record<string, number>>((acc, slot, i) => {
+        if (slot.player) {
+          acc[slot.player.key] = i;
+        }
+        return acc;
+      }, {}),
+    [slots]
+  );
+
+  const playOrder = useMemo(() => {
+    const orderByCard: Record<string, number> = {};
+    let order = 1;
+
+    rounds.forEach((round, roundIdx) => {
+      round.forEach((played) => {
+        orderByCard[`${roundIdx}-${played.player.key}-${played.card}`] = order;
+        order += 1;
+      });
+    });
+
+    return orderByCard;
+  }, [rounds]);
+
+  return (
+    <Box width="100%" height="100%" position="relative">
+      {slots.flatMap((slot) => {
+        if (!slot.player) {
+          return [];
+        }
+
+        const slotIndex = slotByPlayer[slot.player.key] ?? 0;
+        const angleDeg = 90 + (slotIndex * 360) / Math.max(slots.length, 2);
+        const angle = (angleDeg * Math.PI) / 180;
+        const x = 50 + CENTER_SHIFT_X + Math.cos(angle) * PLAYER_SPREAD_X;
+        const y = 50 + CENTER_SHIFT_Y + Math.sin(angle) * PLAYER_SPREAD_Y;
+
+        const playerRoundCards = rounds
+          .map((round, roundIdx) => ({
+            roundIdx,
+            played: round.find((entry) => entry.player.key === slot.player?.key),
+          }))
+          .filter((entry): entry is { roundIdx: number; played: IPlayedCard } => Boolean(entry.played))
+          .slice(0, 3);
+
+        return playerRoundCards.map(({ played, roundIdx }) => {
+          const orderKey = `${roundIdx}-${played.player.key}-${played.card}`;
+          const zOrder = playOrder[orderKey] || 0;
+          const baseRotation = facePlayerRotation ? angleDeg - 90 : 0;
+          const rotation = baseRotation + getStableRotation(orderKey);
+          const jitter = getStableJitter(orderKey);
+
+          return (
+            <Box
+              key={`${played.player.key}-${played.card}-${roundIdx}`}
+              sx={{
+                position: "absolute",
+                left: `${x}%`,
+                top: `${y}%`,
+                transform: `translate(calc(-50% + ${jitter.x}px), calc(-50% + ${jitter.y}px)) rotate(${rotation}deg)`,
+                zIndex: 20 + zOrder,
+              }}
+            >
+              <GameCard
+                card={played.card}
+                width="clamp(4.0rem, 12vw, 4.6rem)"
+                shadow
+                disableButton
+              />
+            </Box>
+          );
+        });
+      })}
+    </Box>
+  );
+};
+
 const _Match = () => {
   const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
-  const [inspecting, inspect] = useState<IPublicPlayer | null>(null);
   const [unpauseAt, setUnpauseAt] = useState<number | null>(null);
   const [progress, setProgress] = useState(100);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [pauseRequested, setPauseRequested] = useState(false);
-  const isUpXs = useMediaQuery((theme: any) => theme.breakpoints.up("sm"));
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
   const navigate = useNavigate();
   const toast = useToast();
+  const confirmation = useConfirmationModal();
 
   const onPlayAgain = () => {
     playAgain((newMatchSessionId) => {
@@ -156,19 +386,8 @@ const _Match = () => {
         },
         action: (
           <ButtonGroup size="small" variant="contained" color="success">
-            <Button
-              onClick={() => {
-                onPlayAgain();
-              }}
-            >
-              Aceptar
-            </Button>
-            <Button
-              color="error"
-              onClick={() => {
-                toast.closeSnackbar("playagain");
-              }}
-            >
+            <Button onClick={onPlayAgain}>Aceptar</Button>
+            <Button color="error" onClick={() => toast.closeSnackbar("playagain")}>
               Cerrar
             </Button>
           </ButtonGroup>
@@ -189,13 +408,7 @@ const _Match = () => {
           },
           action: (
             <ButtonGroup size="small" variant="contained" color="success">
-              <Button
-                onClick={() => {
-                  answer(true);
-                }}
-              >
-                Pausar
-              </Button>
+              <Button onClick={() => answer(true)}>Pausar</Button>
               <Button color="error" onClick={() => answer(false)}>
                 Rechazar
               </Button>
@@ -267,7 +480,16 @@ const _Match = () => {
   }, [unpauseAt, serverAheadTime, queue]);
 
   const chatProps = useChatRoom(match);
-  const [, , , say] = chatProps.useChatState;
+
+  const [rounds] = useRounds(match);
+  const slots = useMemo(() => (match ? buildAlternatingSlots(match.players) : []), [match]);
+  const myTeamIdx = me?.teamIdx ?? 0;
+  const isDesktop = useMediaQuery((theme: any) => theme.breakpoints.up("md"));
+  const isMidViewport = useMediaQuery("(min-width:450px) and (max-width:899px)");
+  const canInteractWithHand = Boolean(canPlay && me?.isTurn && !me?.disabled && !me?.abandoned);
+  const handCardWidth = isDesktop
+    ? "clamp(3.05rem, 3.2vw, 3.75rem)"
+    : "clamp(4.8rem, 14dvh, 6.6rem)";
 
   useEffect(() => {
     if (
@@ -278,59 +500,25 @@ const _Match = () => {
     }
   }, [match?.state, navigate, sessionId]);
 
-  const Slot = useCallback(
-    ({ player }: { player: IPublicPlayer }) => (
-      <MatchPlayer
-        key={player.idx}
-        say={say}
-        canPlay={canPlay}
-        player={player}
-        onPlayCard={playCard}
-        match={match}
-      />
-    ),
-    [canPlay, match, playCard, say]
-  );
+  const onPlayCard = useCallback(
+    (card: ICard, cardIdx: number) => {
+      if (!me) {
+        return;
+      }
 
-  const InnerSlot = useCallback(
-    ({ player }: { player: IPublicPlayer }) =>
-      match ? (
-        <Rounds
-          key={player.idx}
-          onMouseEnter={() => inspect(player)}
-          onMouseLeave={() => inspect(null)}
-          player={player}
-          match={match}
-        />
-      ) : null,
-    [match]
-  );
+      if ((me.commands || []).includes(EFlorCommand.FLOR)) {
+        confirmation.onOpen({
+          title: "Atencion",
+          body: "Si jugas esta carta vas a perder tu flor!",
+          acceptLabel: "Jugar de todas formas",
+          onConfirm: () => playCard(cardIdx, card),
+        });
+        return;
+      }
 
-  const MiddleSlot = useCallback(
-    () =>
-      match && !match.florBattle && chatProps.latestMessage?.command ? (
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          textAlign="center"
-          alignItems="center"
-          justifyContent="center"
-          position="relative"
-        >
-          <ChatButton
-            color={getTeamColor(Number(chatProps.latestMessage.user.name))}
-            variant="contained"
-            sx={{ fontSize: "1rem" }}
-            message={chatProps.latestMessage}
-          >
-            <Stack whiteSpace="nowrap" direction="row" flexWrap="nowrap" gap={1}>
-              <span>{getMessageContent(chatProps.latestMessage)}</span>
-            </Stack>
-          </ChatButton>
-        </Box>
-      ) : null,
-    [chatProps.latestMessage, match]
+      playCard(cardIdx, card);
+    },
+    [confirmation, me, playCard]
   );
 
   if (!hydrated) {
@@ -389,8 +577,16 @@ const _Match = () => {
   const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
 
   return (
-    <Box flexGrow={1} maxWidth="100%" position="relative">
-      {match?.me && <CommandBar canSay={canSay} onSayCommand={sayCommand} player={match.me} />}
+    <Box
+      flexGrow={1}
+      maxWidth="100%"
+      position="relative"
+      sx={{
+        height: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
+        maxHeight: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
+        overflow: "hidden",
+      }}
+    >
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
       <Backdrop
@@ -412,50 +608,154 @@ const _Match = () => {
           </Button>
         </Stack>
       </Backdrop>
+
       {match ? (
         <>
-          <GameTable
-            zoomOnIndex={me ? 1 : -1}
-            zoomOnMiddle
-            zoomFactor={isUpXs ? (match.players.length > 4 ? 1.1 : 1.15) : 1.25}
-            match={match}
-            inspecting={inspecting}
-            Slot={Slot}
-            InnerSlot={InnerSlot}
-            MiddleSlot={MiddleSlot}
-            middlePointerEventsDisabled
-          />
-          <Box sx={matchPointsContainerSx}>
-            <Stack direction="row">
-              <Button onClick={() => setRulesOpen(true)} color="warning">
-                Reglas
-              </Button>
-              <Tooltip
-                title={pauseRequested ? "Esperando que el oponente acepte la pausa" : ""}
-                hidden={!pauseRequested}
-              >
-                <Button
-                  disabled={!canSay}
-                  onClick={() => !pauseRequested && pauseMatch(true)}
-                  color={pauseRequested ? "warning" : "info"}
+          <TrucoBoardLayout
+            slots={slots}
+            seatRadiusXMultiplier={isDesktop ? 1.07 : isMidViewport ? 1.03 : 1}
+            seatRadiusYMultiplier={isDesktop ? 1 : isMidViewport ? 0.9 : 1}
+            topContent={
+              <>
+                <Paper sx={scoreCardSx}>
+                  <Typography fontSize="0.78rem" color="grey.300">
+                    {myTeamIdx === 0 ? "Nosotros" : "Ellos"}
+                  </Typography>
+                  <Typography fontSize="1.75rem" fontWeight={800} color="warning.light">
+                    {pointsLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
+                  </Typography>
+                </Paper>
+                <Paper sx={topBadgeSx}>
+                  <Typography color="common.white" fontWeight={700} fontSize="1.1rem">
+                    Ronda {Math.min(rounds.length + 1, 3)} / 3
+                  </Typography>
+                </Paper>
+                <Stack direction="row" alignItems="center" spacing={0.6}>
+                  <Paper sx={scoreCardSx}>
+                    <Typography fontSize="0.78rem" color="grey.300">
+                      {myTeamIdx === 0 ? "Ellos" : "Nosotros"}
+                    </Typography>
+                    <Typography fontSize="1.75rem" fontWeight={800} color="warning.light">
+                      {pointsLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
+                    </Typography>
+                  </Paper>
+                  <IconButton
+                    sx={{
+                      bgcolor: "rgba(16, 27, 22, 0.9)",
+                      border: "1px solid rgba(255,255,255,0.14)",
+                    }}
+                    onClick={(event) => setMenuAnchor(event.currentTarget)}
+                  >
+                    <MoreHoriz />
+                  </IconButton>
+                </Stack>
+                <Menu
+                  open={Boolean(menuAnchor)}
+                  anchorEl={menuAnchor}
+                  onClose={() => setMenuAnchor(null)}
                 >
-                  Pausa
-                </Button>
-              </Tooltip>
-              {me && !me.abandoned && (
-                <Button disabled={!canSay} onClick={() => setAbandonOpen(true)} color="error">
-                  Rendirse
-                </Button>
-              )}
-            </Stack>
-            <Box>
-              <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
-              <Box position="absolute">
+                  <MenuItem
+                    onClick={() => {
+                      setRulesOpen(true);
+                      setMenuAnchor(null);
+                    }}
+                  >
+                    Reglas
+                  </MenuItem>
+                  <MenuItem
+                    disabled={!canSay || pauseRequested}
+                    onClick={() => {
+                      pauseMatch(true);
+                      setMenuAnchor(null);
+                    }}
+                  >
+                    {pauseRequested ? "Esperando pausa" : "Pausa"}
+                  </MenuItem>
+                  {me && !me.abandoned ? (
+                    <MenuItem
+                      onClick={() => {
+                        setAbandonOpen(true);
+                        setMenuAnchor(null);
+                      }}
+                    >
+                      Rendirse
+                    </MenuItem>
+                  ) : null}
+                </Menu>
+              </>
+            }
+            centerContent={
+              <TrickCenter
+                rounds={rounds}
+                slots={slots}
+                facePlayerRotation={false}
+                spreadBoost={isDesktop ? 1 : 0}
+              />
+            }
+            renderSeat={(slot) =>
+              slot.player ? (
+                <SeatCard
+                  player={slot.player}
+                  isTurn={Boolean(
+                    slot.player.isTurn &&
+                      !slot.player.disabled &&
+                      !slot.player.abandoned
+                  )}
+                  match={match}
+                  serverAheadTime={serverAheadTime}
+                />
+              ) : (
+                <Box sx={emptySeatSx}>
+                  <Typography color="grey.300" fontSize="0.8rem">
+                    Esperando
+                  </Typography>
+                </Box>
+              )
+            }
+            bottomContent={
+              <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
+                <Paper
+                  sx={{
+                    p: isDesktop ? 0.6 : 1,
+                    borderRadius: "1rem",
+                    background: "linear-gradient(150deg, rgba(58,36,24,0.97), rgba(28,20,14,0.97))",
+                    border: "1px solid rgba(255,255,255,0.16)",
+                  }}
+                >
+                  <Stack direction="row" justifyContent="center" alignItems="flex-end">
+                    {me?.hand.map((card, idx) => (
+                      <Box key={`${card}-${idx}`} ml={idx ? -1.4 : 0}>
+                        <GameCard
+                          card={card as ICard}
+                          width={handCardWidth}
+                          shadow
+                          enableHover={canInteractWithHand}
+                          onClick={() => canInteractWithHand && onPlayCard(card as ICard, idx)}
+                        />
+                      </Box>
+                    ))}
+                  </Stack>
+                </Paper>
+                <Box minHeight={isDesktop ? "4.1rem" : "5.4rem"}>
+                  {me ? (
+                    <CommandBar
+                      canSay={canSay}
+                      onSayCommand={sayCommand}
+                      player={me}
+                      compact={isDesktop || isMidViewport}
+                    />
+                  ) : null}
+                </Box>
+              </Stack>
+            }
+            boardFooter={
+              <Box position="absolute" visibility="hidden" height={0} width={0}>
                 {debugComponent(match.handState)}
                 {debugComponent(match.players.find((p) => p.isTurn)?.name || null)}
               </Box>
-            </Box>
-          </Box>
+            }
+          />
+
           <RulesDialog
             open={isRulesOpen}
             onClose={() => setRulesOpen(false)}
@@ -469,14 +769,15 @@ const _Match = () => {
               setAbandonOpen(false);
             }}
           />
+          <ConfirmationModal {...confirmation} />
         </>
       ) : (
         <FloatingProgress />
       )}
-      <FixedChatContainer>
-        <ChatRoom {...chatProps} />
-      </FixedChatContainer>
-      {stats?.spectators && (
+
+      <CommDrawer chatProps={chatProps} />
+
+      {stats?.spectators ? (
         <Tooltip
           placement="top"
           title={`${stats.spectators} Espectador${stats.spectators > 1 ? "es" : ""}`}
@@ -487,7 +788,7 @@ const _Match = () => {
             </Typography>
           </Box>
         </Tooltip>
-      )}
+      ) : null}
       <Toasty animate={chatProps.latestMessage?.sound === "toasty"} />
     </Box>
   );
