@@ -68,8 +68,21 @@ export const CommDrawer = ({ chatProps, bottomOffset = "calc(env(safe-area-inset
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
           <Stack direction="row" alignItems="center" spacing={0.8} minWidth={0}>
-            <CampaignOutlinedIcon sx={{ fontSize: "1.15rem" }} color="warning" />
-            <Typography color={latestColor} fontSize="1.06rem" fontWeight={700} noWrap>
+            <CampaignOutlinedIcon sx={{ fontSize: { xs: "1.32rem", sm: "1.15rem" } }} color="warning" />
+            <Typography
+              color={latestColor}
+              fontWeight={800}
+              sx={{
+                fontSize: { xs: "1.22rem", sm: "1.06rem" },
+                lineHeight: 1.12,
+                whiteSpace: "normal",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin novedades"}
             </Typography>
           </Stack>
@@ -78,7 +91,13 @@ export const CommDrawer = ({ chatProps, bottomOffset = "calc(env(safe-area-inset
             variant="contained"
             startIcon={<ChatBubbleOutlineIcon />}
             onClick={() => chatProps.setActive(true)}
-            sx={{ whiteSpace: "nowrap", borderRadius: "999px", px: 1.8, fontSize: "0.96rem" }}
+            sx={{
+              whiteSpace: "nowrap",
+              borderRadius: "999px",
+              px: 1.8,
+              fontSize: { xs: "0.96rem", sm: "0.9rem" },
+              flexShrink: 0,
+            }}
           >
             Abrir
           </Button>
