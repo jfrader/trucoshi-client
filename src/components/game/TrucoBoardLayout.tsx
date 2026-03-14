@@ -53,15 +53,24 @@ const getSeatPosition = (
   index: number,
   total: number,
   xMultiplier: number = 1,
-  yMultiplier: number = 1
+  yMultiplier: number = 1,
+  sideInset: number = 0,
+  sideVerticalOffset: number = 0
 ) => {
   const angle = ((90 + (index * 360) / total) * Math.PI) / 180;
   const radiusX = 50 * xMultiplier;
   const radiusY = 40 * yMultiplier;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const sideStrength = Math.abs(cos);
+  const leftBase = 50 + cos * radiusX;
+  const topBase = 50 + sin * radiusY;
 
   return {
-    left: `${50 + Math.cos(angle) * radiusX}%`,
-    top: `${50 + Math.sin(angle) * radiusY}%`,
+    left: `${leftBase - cos * sideStrength * sideInset}%`,
+    top: `${topBase + Math.sign(sin || 1) * sideStrength * sideVerticalOffset}%`,
+    cos,
+    sin,
   };
 };
 
@@ -70,6 +79,11 @@ export type TrucoBoardLayoutProps<T extends SeatLike> = {
   renderSeat: (slot: TrucoBoardSlot<T>, index: number) => ReactNode;
   seatRadiusXMultiplier?: number;
   seatRadiusYMultiplier?: number;
+  seatOutwardOffset?: number;
+  seatOutwardOffsetX?: number;
+  seatOutwardOffsetY?: number;
+  seatSideInset?: number;
+  seatSideVerticalOffset?: number;
   topContent?: ReactNode;
   centerContent?: ReactNode;
   bottomContent?: ReactNode;
@@ -83,6 +97,11 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   renderSeat,
   seatRadiusXMultiplier = 1,
   seatRadiusYMultiplier = 1,
+  seatOutwardOffset = 0,
+  seatOutwardOffsetX,
+  seatOutwardOffsetY,
+  seatSideInset = 0,
+  seatSideVerticalOffset = 0,
   topContent,
   centerContent,
   bottomContent,
@@ -91,6 +110,9 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   boardFooter,
   ...props
 }: TrucoBoardLayoutProps<T>) => {
+  const outwardX = seatOutwardOffsetX ?? seatOutwardOffset;
+  const outwardY = seatOutwardOffsetY ?? seatOutwardOffset;
+
   return (
     <Root {...props}>
       {topContent ? <TopStrip>{topContent}</TopStrip> : null}
@@ -98,11 +120,23 @@ export const TrucoBoardLayout = <T extends SeatLike>({
         <BoardSurface elevation={8}>
           <BoardCenter>{centerContent}</BoardCenter>
           {slots.map((slot, index) => {
-            const pos = getSeatPosition(index, slots.length, seatRadiusXMultiplier, seatRadiusYMultiplier);
+            const pos = getSeatPosition(
+              index,
+              slots.length,
+              seatRadiusXMultiplier,
+              seatRadiusYMultiplier,
+              seatSideInset,
+              seatSideVerticalOffset
+            );
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
-                style={{ left: pos.left, top: pos.top }}
+                style={{
+                  left: pos.left,
+                  top: pos.top,
+                  ["--seat-shift-x" as any]: `${pos.cos * outwardX}px`,
+                  ["--seat-shift-y" as any]: `${pos.sin * outwardY}px`,
+                }}
                 data-slot-team={slot.teamIdx}
               >
                 {renderSeat(slot, index)}
@@ -120,11 +154,12 @@ export const TrucoBoardLayout = <T extends SeatLike>({
 };
 
 const Root = styled(Box)(({ theme }) => ({
-  "--board-shadow": "rgba(0, 0, 0, 0.44)",
-  "--felt-primary": "#0f5b4a",
-  "--felt-secondary": "#0a4639",
-  "--wood-primary": "#6f4728",
-  "--wood-secondary": "#3a2214",
+  "--board-shadow": "rgba(0, 0, 0, 0.5)",
+  "--felt-primary": "#1b6250",
+  "--felt-secondary": "#0f4a3d",
+  "--felt-tertiary": "#0a332a",
+  "--wood-primary": "#7d4e2d",
+  "--wood-secondary": "#442916",
   position: "relative",
   height: "100%",
   maxHeight: "100%",
@@ -133,14 +168,23 @@ const Root = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  padding: theme.spacing(0.9, 0.2, 1.2),
+  padding: theme.spacing(0.62, 0.05, 0.9),
   background:
-    "radial-gradient(circle at 20% 12%, rgba(255,255,255,0.06), transparent 22%), radial-gradient(circle at 80% 10%, rgba(0,0,0,0.15), transparent 26%), linear-gradient(160deg, #123f35 0%, #0b3029 72%, #092722 100%)",
+    "radial-gradient(110% 75% at 50% 4%, rgba(255,255,255,0.08), transparent 64%), radial-gradient(130% 90% at 50% 100%, rgba(0,0,0,0.42), transparent 70%), linear-gradient(160deg, #113b31 0%, #0d2f29 62%, #08211d 100%)",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    inset: 0,
+    pointerEvents: "none",
+    background:
+      "radial-gradient(circle at 10% 8%, rgba(255,255,255,0.05), transparent 30%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.04), transparent 28%), radial-gradient(circle at 18% 92%, rgba(0,0,0,0.3), transparent 25%), radial-gradient(circle at 84% 88%, rgba(0,0,0,0.34), transparent 26%)",
+    zIndex: 0,
+  },
   [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(1.2, 0.45, 1.6),
+    padding: theme.spacing(1.05, 0.35, 1.25),
   },
   [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(1.2, 0.7, 1.6),
+    padding: theme.spacing(1.2, 0.6, 1.45),
   },
 }));
 
@@ -150,19 +194,20 @@ const TopStrip = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   flexWrap: "wrap",
   gap: theme.spacing(0.7),
-  marginBottom: theme.spacing(0.7),
+  marginBottom: theme.spacing(0.36),
   position: "relative",
   zIndex: 2,
+  width: "100%",
   [theme.breakpoints.up("sm")]: {
     gap: theme.spacing(1),
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(0.72),
   },
 }));
 
 const BoardShell = styled(Box)(() => ({
   position: "relative",
   width: "100%",
-  maxWidth: "54rem",
+  maxWidth: "56rem",
   margin: "0 auto",
   flexGrow: 1,
   minHeight: 0,
@@ -173,20 +218,38 @@ const BoardShell = styled(Box)(() => ({
 }));
 
 const BoardSurface = styled(Paper)(({ theme }) => ({
-  width: "116%",
+  width: "120%",
   maxWidth: "46rem",
   aspectRatio: "1 / 1",
   borderRadius: "50%",
   position: "relative",
   overflow: "visible",
   background:
-    "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.06), transparent 24%), radial-gradient(circle at 65% 65%, rgba(255,255,255,0.04), transparent 22%), linear-gradient(165deg, var(--felt-primary), var(--felt-secondary))",
-  boxShadow: "0 14px 34px var(--board-shadow)",
-  border: "0.55rem solid var(--wood-primary)",
-  outline: "0.2rem solid var(--wood-secondary)",
+    "radial-gradient(circle at 34% 28%, rgba(255,255,255,0.09), transparent 23%), radial-gradient(circle at 70% 72%, rgba(255,255,255,0.045), transparent 20%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.22), transparent 68%), linear-gradient(166deg, var(--felt-primary), var(--felt-secondary) 66%, var(--felt-tertiary) 100%)",
+  boxShadow:
+    "0 16px 36px var(--board-shadow), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -24px 35px rgba(0,0,0,0.24)",
+  border: "0.68rem solid var(--wood-primary)",
+  outline: "0.22rem solid var(--wood-secondary)",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    inset: "-0.12rem",
+    borderRadius: "50%",
+    border: "1px solid rgba(255,255,255,0.18)",
+    pointerEvents: "none",
+  },
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    inset: "5.5%",
+    borderRadius: "50%",
+    pointerEvents: "none",
+    boxShadow: "inset 0 0 45px rgba(0,0,0,0.26)",
+  },
   [theme.breakpoints.up("sm")]: {
-    width: "106%",
+    width: "108%",
     borderWidth: "0.9rem",
+    outlineWidth: "0.24rem",
   },
   [theme.breakpoints.up("md")]: {
     width: "auto",
@@ -204,8 +267,8 @@ const BoardCenter = styled(Box)(({ theme }) => ({
   left: "50%",
   top: "50%",
   transform: "translate(-50%, -50%)",
-  width: "55%",
-  height: "55%",
+  width: "57%",
+  height: "57%",
   borderRadius: "50%",
   display: "flex",
   alignItems: "center",
@@ -220,9 +283,10 @@ const BoardCenter = styled(Box)(({ theme }) => ({
 
 const SeatPosition = styled(Box)(() => ({
   position: "absolute",
-  transform: "translate(-50%, -50%)",
-  width: "30%",
-  maxWidth: "10.4rem",
+  transform:
+    "translate(calc(-50% + var(--seat-shift-x, 0px)), calc(-50% + var(--seat-shift-y, 0px)))",
+  width: "35%",
+  maxWidth: "11.8rem",
   zIndex: 3,
 }));
 
@@ -232,9 +296,9 @@ const BottomStrip = styled(Box)(({ theme }) => ({
   width: "100%",
   maxWidth: "58rem",
   margin: "0 auto",
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(0.34),
   [theme.breakpoints.up("sm")]: {
-    marginTop: theme.spacing(1.4),
+    marginTop: theme.spacing(0.92),
   },
 }));
 

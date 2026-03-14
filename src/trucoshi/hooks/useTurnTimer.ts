@@ -52,9 +52,18 @@ export const useTurnTimer = (
           newTimer.alert = true;
         }
 
+        // Skip no-op updates to avoid unnecessary re-renders.
+        if (
+          !newTimer.alert &&
+          prev.isExtension === newTimer.isExtension &&
+          Math.abs(prev.progress - newTimer.progress) < 0.75
+        ) {
+          return prev;
+        }
+
         return newTimer;
       });
-    }, 16);
+    }, 120);
 
     return () => clearInterval(interval);
   }, [match, player, queue, serverAheadTime]);

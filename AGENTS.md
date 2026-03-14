@@ -6,6 +6,7 @@
 - Keep card rendering based on existing card primitives (`GameCard` / `FlipGameCard`).
 
 ## Guardrails for future changes
+- Design idea at .idea/trucoshi-mobile.png
 - Do not reintroduce the legacy circular `GameTable` system.
 - Prefer mobile-first behavior and avoid page scroll in gameplay/lobby surfaces.
 - Keep header visible (no clipping) and avoid layout jumps on turn/command changes.

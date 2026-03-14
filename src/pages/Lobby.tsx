@@ -87,9 +87,15 @@ export const Lobby = () => {
   }, [match, navigate, sessionId]);
 
   useEffect(() => {
-    context.socket?.on("disconnect", () => {
+    const onDisconnect = () => {
       setReadyLoading(false);
-    });
+    };
+
+    context.socket?.on("disconnect", onDisconnect);
+
+    return () => {
+      context.socket?.off("disconnect", onDisconnect);
+    };
   }, [context.socket]);
 
   const onJoinMatch = (teamIdx: 0 | 1) => {

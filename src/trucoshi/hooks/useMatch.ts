@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   IPublicMatch,
   ICard,
@@ -38,6 +38,25 @@ export const useMatch = (
   const { pay } = usePayRequest();
   const { onMyTurn, onFreshHand, onPauseRequest, onUnpause, onPlayAgainRequest, onPlayAgain } =
     options;
+  const optionCallbacksRef = useRef({
+    onMyTurn,
+    onFreshHand,
+    onPauseRequest,
+    onUnpause,
+    onPlayAgainRequest,
+    onPlayAgain,
+  });
+
+  useEffect(() => {
+    optionCallbacksRef.current = {
+      onMyTurn,
+      onFreshHand,
+      onPauseRequest,
+      onUnpause,
+      onPlayAgainRequest,
+      onPlayAgain,
+    };
+  }, [onMyTurn, onFreshHand, onPauseRequest, onUnpause, onPlayAgainRequest, onPlayAgain]);
 
   if (!context) {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
@@ -379,7 +398,6 @@ export const useMatch = (
 
     const handleWaitingPlay = (value: IPublicMatch, callback: IWaitingPlayCallback) => {
       if (matchId && value.matchSessionId === matchId) {
-        console.log(value.players.find((p) => p.isMe)?.turnExtensionExpiresAt);
         setMatchState((prev) => ({
           ...prev,
           match: value,
@@ -393,12 +411,11 @@ export const useMatch = (
 
     const handleWaitingSay = (match: IPublicMatch, callback: IWaitingSayCallback) => {
       if (matchId && match.matchSessionId === matchId) {
-        console.log(match.players.find((p) => p.isMe)?.turnExtensionExpiresAt);
-        if (onFreshHand && match.freshHand) {
-          onFreshHand();
+        if (optionCallbacksRef.current.onFreshHand && match.freshHand) {
+          optionCallbacksRef.current.onFreshHand();
         }
-        if (onMyTurn && match.me?.isTurn) {
-          setTimeout(onMyTurn, 0);
+        if (optionCallbacksRef.current.onMyTurn && match.me?.isTurn) {
+          setTimeout(optionCallbacksRef.current.onMyTurn, 0);
         }
         setMatchState((prev) => ({
           ...prev,
@@ -427,19 +444,19 @@ export const useMatch = (
       answer: (answer: boolean) => void
     ) => {
       if (matchId === matchSessionId) {
-        onPauseRequest?.(fromOpponent, expiresAt, answer);
+        optionCallbacksRef.current.onPauseRequest?.(fromOpponent, expiresAt, answer);
       }
     };
 
     const handleUnpause = (matchSessionId: string, unpausesAt: number) => {
       if (matchId === matchSessionId) {
-        onUnpause?.(unpausesAt);
+        optionCallbacksRef.current.onUnpause?.(unpausesAt);
       }
     };
 
     const handlePlayAgainRequest = (matchSessionId: string, expiresAt: number) => {
       if (matchId === matchSessionId) {
-        onPlayAgainRequest?.(expiresAt);
+        optionCallbacksRef.current.onPlayAgainRequest?.(expiresAt);
       }
     };
 
@@ -463,12 +480,6 @@ export const useMatch = (
   }, [
     socket,
     matchId,
-    onMyTurn,
-    onFreshHand,
-    onPauseRequest,
-    onUnpause,
-    onPlayAgainRequest,
-    onPlayAgain,
   ]);
 
   return [
