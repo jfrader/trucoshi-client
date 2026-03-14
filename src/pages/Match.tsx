@@ -168,6 +168,8 @@ const SeatCard = ({
   const sideStrength = Math.abs(seatCos);
   const isLowerLeftSeat = totalSeats === 6 && seatIndex === 1;
   const isLowerRightSeat = totalSeats === 6 && seatIndex === 5;
+  const isUpperLeftSeat = totalSeats === 6 && seatIndex === 2;
+  const isUpperRightSeat = totalSeats === 6 && seatIndex === 4;
   const inwardDistance = 24 + sideStrength * 10;
   const arcShift = sideStrength > 0.2 ? 16 + sideStrength * 8 : 0;
   const arcDir = sideStrength > 0.2 ? Math.sign(seatCos) : 0;
@@ -178,8 +180,13 @@ const SeatCard = ({
     ? { x: 0, y: 0, rotate: 0, origin: "center center" }
     : {
         // Radial inward pull + side arc shift places hands between seat anchors.
-        x: isLowerLeftSeat ? 80 : isLowerRightSeat ? -76 : baseX,
-        y: isLowerLeftSeat || isLowerRightSeat ? -18 : baseY,
+        x: isLowerLeftSeat ? 85 : isLowerRightSeat ? -85 : baseX,
+        y:
+          isLowerLeftSeat || isLowerRightSeat
+            ? -20
+            : isUpperLeftSeat || isUpperRightSeat
+            ? baseY - 8
+            : baseY,
         // Bottom side hands: rotate inward around avatar axis.
         rotate: isLowerLeftSeat ? 20 : isLowerRightSeat ? -20 : baseRotate,
         // Anchor rotation near avatar center; name remains a hanging label.
@@ -330,8 +337,8 @@ const TrickCenter = ({
   facePlayerRotation?: boolean;
   spreadBoost?: number;
 }) => {
-  const CENTER_SHIFT_X = 0;
-  const CENTER_SHIFT_Y = 0;
+  const CENTER_SHIFT_X = -1.2;
+  const CENTER_SHIFT_Y = 3.6;
   const PLAYER_SPREAD_X = 42 + spreadBoost;
   const PLAYER_SPREAD_Y = 39 + spreadBoost;
   const getStableRotation = (seed: string) => {
