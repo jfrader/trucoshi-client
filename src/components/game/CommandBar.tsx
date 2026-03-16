@@ -1,4 +1,5 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, useTheme } from "@mui/material";
+import { Theme } from "@mui/material/styles";
 import { ITrucoshiMatchActions, PropsWithPlayer } from "../../trucoshi/types";
 import {
   COMMANDS_HUMAN_READABLE,
@@ -16,23 +17,23 @@ import {
   ETrucoCommand,
 } from "trucoshi";
 
-const actionColorByCommand: Partial<Record<ECommand, string>> = {
-  [ETrucoCommand.TRUCO]: "#ab3a2a",
-  [ETrucoCommand.RE_TRUCO]: "#b43a29",
-  [ETrucoCommand.VALE_CUATRO]: "#c03d2b",
-  [EEnvidoCommand.ENVIDO]: "#3d546a",
-  [EEnvidoCommand.REAL_ENVIDO]: "#7a6640",
-  [EEnvidoCommand.FALTA_ENVIDO]: "#6c5b36",
-  [EFlorCommand.FLOR]: "#4b6938",
-  [EFlorCommand.CONTRAFLOR]: "#4e6a39",
-  [EFlorCommand.CONTRAFLOR_AL_RESTO]: "#4e6a39",
-  [EAnswerCommand.QUIERO]: "#3d7a45",
-  [EAnswerCommand.NO_QUIERO]: "#4a3224",
-  [EEnvidoAnswerCommand.SON_BUENAS]: "#5c3e2c",
-  [EFlorCommand.ACHICO]: "#5b3b2a",
-  [ESayCommand.PASO]: "#435260",
-  [ESayCommand.MAZO]: "#5f2e24",
-};
+const getActionColorByCommand = (theme: Theme): Partial<Record<ECommand, string>> => ({
+  [ETrucoCommand.TRUCO]: theme.trucoshiUi.commandBar.actionColors.truco,
+  [ETrucoCommand.RE_TRUCO]: theme.trucoshiUi.commandBar.actionColors.reTruco,
+  [ETrucoCommand.VALE_CUATRO]: theme.trucoshiUi.commandBar.actionColors.valeCuatro,
+  [EEnvidoCommand.ENVIDO]: theme.trucoshiUi.commandBar.actionColors.envido,
+  [EEnvidoCommand.REAL_ENVIDO]: theme.trucoshiUi.commandBar.actionColors.realEnvido,
+  [EEnvidoCommand.FALTA_ENVIDO]: theme.trucoshiUi.commandBar.actionColors.faltaEnvido,
+  [EFlorCommand.FLOR]: theme.trucoshiUi.commandBar.actionColors.flor,
+  [EFlorCommand.CONTRAFLOR]: theme.trucoshiUi.commandBar.actionColors.contraflor,
+  [EFlorCommand.CONTRAFLOR_AL_RESTO]: theme.trucoshiUi.commandBar.actionColors.contraflorAlResto,
+  [EAnswerCommand.QUIERO]: theme.trucoshiUi.commandBar.actionColors.quiero,
+  [EAnswerCommand.NO_QUIERO]: theme.trucoshiUi.commandBar.actionColors.noQuiero,
+  [EEnvidoAnswerCommand.SON_BUENAS]: theme.trucoshiUi.commandBar.actionColors.sonBuenas,
+  [EFlorCommand.ACHICO]: theme.trucoshiUi.commandBar.actionColors.achico,
+  [ESayCommand.PASO]: theme.trucoshiUi.commandBar.actionColors.paso,
+  [ESayCommand.MAZO]: theme.trucoshiUi.commandBar.actionColors.mazo,
+});
 
 const baseActionButtonSx = {
   whiteSpace: "nowrap",
@@ -60,6 +61,8 @@ export const CommandBar = ({
     }
   >
 >) => {
+  const theme = useTheme();
+  const actionColorByCommand = getActionColorByCommand(theme);
   const bestEnvido = Math.max(...(player.envido?.map((e) => e.value) || []));
 
   if (player.abandoned || !canSay) {
@@ -70,16 +73,20 @@ export const CommandBar = ({
     <Box
       sx={(theme) => ({
         zIndex: theme.zIndex.fab,
-        background:
-          "linear-gradient(164deg, rgba(63, 36, 22, 0.97) 0%, rgba(32, 20, 12, 0.98) 70%, rgba(25, 16, 11, 0.98) 100%)",
+        background: theme.trucoshiUi.commandBar.background,
         borderRadius: "0.95rem",
         border: "1px solid rgba(255,255,255,0.16)",
         p: compact ? 0.75 : 0.95,
+        height: "100%",
+        boxSizing: "border-box",
+        display: "flex",
+        alignItems: "center",
         boxShadow: "0 10px 24px rgba(0,0,0,0.42)",
       })}
     >
       <Box
         sx={{
+          width: "100%",
           overflowX: "auto",
           overflowY: "hidden",
           scrollbarWidth: "none",
@@ -111,7 +118,10 @@ export const CommandBar = ({
                     py: compact ? 0.48 : 0.62,
                     flexShrink: 0,
                     minWidth: compact ? "3.1rem" : "3.35rem",
-                    bgcolor: bestEnvido === points.value ? "#3d7a45" : "#7a3229",
+                    bgcolor:
+                      bestEnvido === points.value
+                        ? theme.trucoshiUi.commandBar.envidoBestColor
+                        : theme.trucoshiUi.commandBar.envidoBaseColor,
                   }}
                 >
                   {points.value}
@@ -144,7 +154,8 @@ export const CommandBar = ({
                       px: compact ? 0.9 : 1.2,
                       py: compact ? 0.48 : 0.62,
                       flexShrink: 0,
-                      bgcolor: actionColorByCommand[command] || "#3d7051",
+                      bgcolor:
+                        actionColorByCommand[command] || theme.trucoshiUi.commandBar.defaultActionColor,
                     }}
                   >
                     {COMMANDS_HUMAN_READABLE[command] || command}

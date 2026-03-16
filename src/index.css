@@ -11,6 +11,21 @@ body {
   font-size: calc(8px + 0.85vmin);
 }
 
+/* Non-game pages need larger base rem sizing on mobile, while game/lobby
+   keep their current tuned scale. Layout mounts either .app-surface or
+   .game-surface so we can scope this globally without JS effects. */
+@media (max-width: 899px) {
+  html:has(.app-surface) {
+    font-size: calc(9px + 1vmin);
+  }
+}
+
+@media (max-width: 600px) {
+  html:has(.app-surface) {
+    font-size: calc(9.4px + 1.15vmin);
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

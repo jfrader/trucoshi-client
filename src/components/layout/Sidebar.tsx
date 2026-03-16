@@ -4,8 +4,15 @@ import { PlayMenu } from "../menu/PlayMenu";
 import { WalletMenu } from "../menu/WalletMenu";
 import { useNavigate } from "react-router-dom";
 import { MatchList } from "../game/MatchList";
+import { Topbar } from "./Topbar";
 
-export const Sidebar = () => {
+export const Sidebar = ({
+  topOffset = "50px",
+  showEmbeddedTopbar = false,
+}: {
+  topOffset?: string;
+  showEmbeddedTopbar?: boolean;
+}) => {
   const navigate = useNavigate();
   const [{ isSidebarOpen, account, activeMatches }, { logout, setSidebarOpen }] = useTrucoshi();
 
@@ -17,19 +24,29 @@ export const Sidebar = () => {
         sx={(theme) => ({
           zIndex: theme.zIndex.drawer,
           position: "fixed",
-          top: "50px",
+          top: topOffset,
           borderRadius: 0,
           right: 0,
           boxShadow: theme.shadows[6],
-          pt: 1,
-          px: 1,
+          pt: showEmbeddedTopbar ? 0 : 1,
+          px: 0,
           paddingBottom: "48px",
           height: "100vh",
-          width: { xs: "98vw", sm: "20rem" },
+          width: { xs: "100vw", sm: "24rem", md: "26rem" },
+          maxWidth: { xs: "100vw", sm: "24rem", md: "26rem" },
         })}
       >
-        <CardContent sx={{ display: "flex", direction: "column", height: "100%" }}>
-          <Stack gap={3} height="100%" width="100%">
+        <CardContent
+          sx={{
+            p: 0,
+            "&:last-child": { pb: 0 },
+            display: "flex",
+            direction: "column",
+            height: "100%",
+          }}
+        >
+          <Stack gap={3} height="100%" width="100%" px={showEmbeddedTopbar ? 1 : 1.5} pt={showEmbeddedTopbar ? 0.25 : 0}>
+            {showEmbeddedTopbar ? <Topbar embedded /> : null}
             <WalletMenu />
             <PlayMenu onMenuClick={onMenuClick} />
             <Box flexGrow={1} />

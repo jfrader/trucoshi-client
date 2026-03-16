@@ -21,8 +21,7 @@ import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { useRounds } from "../trucoshi/hooks/useRounds";
-import { useTurnTimer } from "../trucoshi/hooks/useTurnTimer";
-import { EFlorCommand, EMatchState, ICard, IPlayedCard, IPublicPlayer } from "trucoshi";
+import { EFlorCommand, EMatchState, ICard } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { getMessageContent, useChatRoom } from "../components/chat/ChatRoom";
@@ -47,10 +46,15 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { GameCard } from "../components/card/GameCard";
 import { useConfirmationModal } from "../hooks/useConfirmationModal";
 import { ConfirmationModal } from "../shared/ConfirmationModal";
-import { UserAvatar } from "../shared/UserAvatar";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
-import { BURNT_CARD } from "trucoshi";
 import { CommDrawer } from "../components/chat/CommDrawer";
+import { MatchSeatCard } from "../components/game/MatchSeatCard";
+import { TrickCenter } from "../components/game/TrickCenter";
+import {
+  getMatchBoardLayout,
+  getMatchSeatTranslateYPx,
+  resolveBoardViewport,
+} from "../components/game/boardLayoutPresets";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -143,302 +147,6 @@ const RulesDialog = ({
 );
 
 const pointsLabel = (points: { buenas: number; malas: number }) => points.buenas || points.malas;
-
-const SeatCard = ({
-  player,
-  isTurn,
-  match,
-  serverAheadTime,
-  seatIndex,
-  totalSeats,
-}: {
-  player: IPublicPlayer;
-  isTurn: boolean;
-  match: ReturnType<typeof useMatch>[0]["match"];
-  serverAheadTime: number;
-  seatIndex: number;
-  totalSeats: number;
-}) => {
-  const turnTimer = useTurnTimer(player, serverAheadTime, match);
-  const hiddenCards = Math.min(player.hand.length, 3);
-  const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
-  const seatAngle = ((90 + (seatIndex * 360) / Math.max(totalSeats, 2)) * Math.PI) / 180;
-  const seatCos = Math.cos(seatAngle);
-  const seatSin = Math.sin(seatAngle);
-  const sideStrength = Math.abs(seatCos);
-  const isLowerLeftSeat = totalSeats === 6 && seatIndex === 1;
-  const isLowerRightSeat = totalSeats === 6 && seatIndex === 5;
-  const isUpperLeftSeat = totalSeats === 6 && seatIndex === 2;
-  const isUpperRightSeat = totalSeats === 6 && seatIndex === 4;
-  const inwardDistance = 24 + sideStrength * 10;
-  const arcShift = sideStrength > 0.2 ? 16 + sideStrength * 8 : 0;
-  const arcDir = sideStrength > 0.2 ? Math.sign(seatCos) : 0;
-  const baseX = -seatCos * inwardDistance + arcDir * arcShift;
-  const baseY = -seatSin * inwardDistance - sideStrength * 16;
-  const baseRotate = seatCos * 44;
-  const seatHandTransform = player.isMe
-    ? { x: 0, y: 0, rotate: 0, origin: "center center" }
-    : {
-        // Radial inward pull + side arc shift places hands between seat anchors.
-        x: isLowerLeftSeat ? 85 : isLowerRightSeat ? -85 : baseX,
-        y:
-          isLowerLeftSeat || isLowerRightSeat
-            ? -20
-            : isUpperLeftSeat || isUpperRightSeat
-            ? baseY - 8
-            : baseY,
-        // Bottom side hands: rotate inward around avatar axis.
-        rotate: isLowerLeftSeat ? 20 : isLowerRightSeat ? -20 : baseRotate,
-        // Anchor rotation near avatar center; name remains a hanging label.
-        origin: isLowerLeftSeat || isLowerRightSeat ? "50% -40px" : "50% -80px",
-      };
-
-  const ringColor = turnTimer.alert ? "#f6b748" : turnTimer.isExtension ? "#ff6554" : "#44cc7b";
-  const statusColor = player.abandoned
-    ? "error.main"
-    : player.disabled
-    ? "warning.main"
-    : isTurn
-    ? "info.light"
-    : `${getTeamColor(player.teamIdx)}.light`;
-
-  const ringAngle = timerVisible ? Math.max(0, Math.min(100, turnTimer.progress)) * 3.6 : 0;
-
-  return (
-    <Stack
-      alignItems="center"
-      spacing={0.42}
-      sx={{
-        position: "relative",
-        width: "100%",
-        minHeight: { xs: "9rem", sm: "9.4rem" },
-        justifyContent: "flex-start",
-      }}
-    >
-      <Box
-        sx={(theme) => ({
-          p: timerVisible ? "2px" : 0,
-          borderRadius: "999px",
-          transition: theme.transitions.create(["background", "padding"], {
-            duration: theme.transitions.duration.shortest,
-          }),
-          background: timerVisible
-            ? `conic-gradient(from -90deg, ${ringColor} ${ringAngle}deg, ${alpha(
-                theme.palette.common.white,
-                0.12
-              )} ${ringAngle}deg 360deg)`
-            : "transparent",
-        })}
-      >
-        <Paper
-          sx={{
-            p: 0.25,
-            borderRadius: "999px",
-            bgcolor: "rgba(0,0,0,0.28)",
-            border: "2px solid rgba(201,126,59,0.95)",
-            boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
-            position: "relative",
-          }}
-        >
-          <UserAvatar
-            account={player}
-            size={player.isMe ? "large" : "big"}
-            bgcolor={`${getTeamColor(player.teamIdx)}.main`}
-            sx={{
-              border: "2px solid rgba(255,255,255,0.12)",
-              boxSizing: "border-box",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              right: 1,
-              bottom: 1,
-              width: "0.76rem",
-              height: "0.76rem",
-              borderRadius: "50%",
-              bgcolor: statusColor,
-              border: "2px solid rgba(17,24,20,0.95)",
-              boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
-            }}
-          />
-        </Paper>
-      </Box>
-
-      <Paper
-        sx={{
-          px: 1.05,
-          py: 0.24,
-          minWidth: "4.6rem",
-          borderRadius: "0.62rem",
-          bgcolor: "rgba(11, 19, 16, 0.9)",
-          border: "1px solid rgba(255,255,255,0.13)",
-          boxShadow: "0 6px 10px rgba(0,0,0,0.24)",
-        }}
-      >
-        <Typography
-          color="common.white"
-          fontWeight={800}
-          lineHeight={1.1}
-          textAlign="center"
-          fontSize={{ xs: "1rem", sm: "0.94rem" }}
-          noWrap
-          title={player.name}
-          sx={{ textTransform: "capitalize" }}
-        >
-          {player.name}
-        </Typography>
-      </Paper>
-
-      {!player.isMe ? (
-        <Stack
-          direction="row"
-          justifyContent="center"
-          sx={{
-            position: "absolute",
-            left: "50%",
-            top: "4.7rem",
-            width: "7rem",
-            minHeight: "3.35rem",
-            transform: `translate(calc(-50% + ${seatHandTransform.x}px), ${seatHandTransform.y}px) rotate(${seatHandTransform.rotate}deg)`,
-            transformOrigin: seatHandTransform.origin,
-          }}
-        >
-          {Array.from({ length: 3 }).map((_, idx) => {
-            const visible = idx < hiddenCards && !player.abandoned;
-            return (
-              <Box
-                key={`${player.key}-${idx}`}
-                ml={idx ? -1.42 : 0}
-                sx={{
-                  transform: `rotate(${(idx - 1) * 5}deg)`,
-                  transformOrigin: "bottom center",
-                  visibility: visible ? "visible" : "hidden",
-                }}
-              >
-                <GameCard disableButton card={BURNT_CARD} width="clamp(1.82rem, 5.1vw, 2.02rem)" shadow />
-              </Box>
-            );
-          })}
-        </Stack>
-      ) : null}
-    </Stack>
-  );
-};
-
-const TrickCenter = ({
-  rounds,
-  slots,
-  facePlayerRotation = false,
-  spreadBoost = 0,
-}: {
-  rounds: IPlayedCard[][];
-  slots: ReturnType<typeof buildAlternatingSlots<IPublicPlayer>>;
-  facePlayerRotation?: boolean;
-  spreadBoost?: number;
-}) => {
-  const CENTER_SHIFT_X = -1.2;
-  const CENTER_SHIFT_Y = 3.6;
-  const PLAYER_SPREAD_X = 42 + spreadBoost;
-  const PLAYER_SPREAD_Y = 39 + spreadBoost;
-  const getStableRotation = (seed: string) => {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = (hash * 31 + seed.charCodeAt(i)) | 0;
-    }
-    const normalized = (((hash % 1000) + 1000) % 1000) / 1000;
-    return normalized * 12 - 6;
-  };
-  const getStableJitter = (seed: string) => {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = (hash * 33 + seed.charCodeAt(i)) | 0;
-    }
-    const xNorm = (((hash % 1000) + 1000) % 1000) / 1000;
-    const yNorm = ((((hash / 1000) | 0) % 1000) + 1000) % 1000 / 1000;
-    return {
-      x: xNorm * 8 - 4,
-      y: yNorm * 8 - 4,
-    };
-  };
-
-  const slotByPlayer = useMemo(
-    () =>
-      slots.reduce<Record<string, number>>((acc, slot, i) => {
-        if (slot.player) {
-          acc[slot.player.key] = i;
-        }
-        return acc;
-      }, {}),
-    [slots]
-  );
-
-  const playOrder = useMemo(() => {
-    const orderByCard: Record<string, number> = {};
-    let order = 1;
-
-    rounds.forEach((round, roundIdx) => {
-      round.forEach((played) => {
-        orderByCard[`${roundIdx}-${played.player.key}-${played.card}`] = order;
-        order += 1;
-      });
-    });
-
-    return orderByCard;
-  }, [rounds]);
-
-  return (
-    <Box width="100%" height="100%" position="relative">
-      {slots.flatMap((slot) => {
-        if (!slot.player) {
-          return [];
-        }
-
-        const slotIndex = slotByPlayer[slot.player.key] ?? 0;
-        const angleDeg = 90 + (slotIndex * 360) / Math.max(slots.length, 2);
-        const angle = (angleDeg * Math.PI) / 180;
-        const x = 50 + CENTER_SHIFT_X + Math.cos(angle) * PLAYER_SPREAD_X;
-        const y = 50 + CENTER_SHIFT_Y + Math.sin(angle) * PLAYER_SPREAD_Y;
-
-        const playerRoundCards = rounds
-          .map((round, roundIdx) => ({
-            roundIdx,
-            played: round.find((entry) => entry.player.key === slot.player?.key),
-          }))
-          .filter((entry): entry is { roundIdx: number; played: IPlayedCard } => Boolean(entry.played))
-          .slice(0, 3);
-
-        return playerRoundCards.map(({ played, roundIdx }) => {
-          const orderKey = `${roundIdx}-${played.player.key}-${played.card}`;
-          const zOrder = playOrder[orderKey] || 0;
-          const baseRotation = facePlayerRotation ? angleDeg - 90 : 0;
-          const rotation = baseRotation + getStableRotation(orderKey);
-          const jitter = getStableJitter(orderKey);
-
-          return (
-            <Box
-              key={`${played.player.key}-${played.card}-${roundIdx}`}
-              sx={{
-                position: "absolute",
-                left: `${x}%`,
-                top: `${y}%`,
-                transform: `translate(calc(-50% + ${jitter.x}px), calc(-50% + ${jitter.y}px)) rotate(${rotation}deg)`,
-                zIndex: 20 + zOrder,
-              }}
-            >
-              <GameCard
-                card={played.card}
-                width="clamp(4.0rem, 12vw, 4.6rem)"
-                shadow
-                disableButton
-              />
-            </Box>
-          );
-        });
-      })}
-    </Box>
-  );
-};
 
 const _Match = () => {
   const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
@@ -605,6 +313,19 @@ const _Match = () => {
   const myTeamIdx = me?.teamIdx ?? 0;
   const isDesktop = useMediaQuery((theme: any) => theme.breakpoints.up("md"));
   const isMidViewport = useMediaQuery("(min-width:450px) and (max-width:899px)");
+  const isShortViewport = useMediaQuery("(max-height: 760px)");
+  const boardViewport = useMemo(
+    () => resolveBoardViewport({ isDesktop, isMidViewport }),
+    [isDesktop, isMidViewport]
+  );
+  const matchBoardLayout = useMemo(
+    () =>
+      getMatchBoardLayout({
+        totalSeats: slots.length,
+        viewport: boardViewport,
+      }),
+    [boardViewport, slots.length]
+  );
   const canInteractWithHand = Boolean(canPlay && me?.isTurn && !me?.disabled && !me?.abandoned);
   const hasCommandActions = Boolean(
     me &&
@@ -613,7 +334,20 @@ const _Match = () => {
   );
   const handCardWidth = isDesktop
     ? "clamp(3.05rem, 3.2vw, 3.7rem)"
-    : "clamp(4.95rem, 13.4dvh, 6.65rem)";
+    : isShortViewport
+    ? "clamp(3.3rem, 9.2dvh, 4.5rem)"
+    : "clamp(4.9rem, 14.8dvh, 6.95rem)";
+  const playedCardWidth = isDesktop
+    ? "clamp(2.85rem, 2.4vw, 3.2rem)"
+    : isMidViewport
+    ? "clamp(3.05rem, 5vw, 3.6rem)"
+    : "clamp(4.0rem, 12vw, 4.6rem)";
+  const announcementBlockHeight = isShortViewport ? "4rem" : "4.75rem";
+  const handBlockHeight = isDesktop ? "5.2rem" : isShortViewport ? "4.45rem" : "6.95rem";
+  const commandBlockHeight = isDesktop ? "3.5rem" : isShortViewport ? "3.3rem" : "3.95rem";
+  const dockGap = isShortViewport ? "0.38rem" : "0.58rem";
+  const dockBottomOffset = "calc(env(safe-area-inset-bottom) + 3.2rem)";
+  const bottomDockReserveHeight = isDesktop ? "14.8rem" : isShortViewport ? "12.7rem" : "16.9rem";
 
   useEffect(() => {
     if (!latestAnnouncement?.id) {
@@ -719,8 +453,8 @@ const _Match = () => {
       maxWidth="100%"
       position="relative"
       sx={{
-        height: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
-        maxHeight: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
+        height: "100dvh",
+        maxHeight: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -750,27 +484,31 @@ const _Match = () => {
         <>
           <TrucoBoardLayout
             slots={slots}
-            seatRadiusXMultiplier={isDesktop ? 1.1 : isMidViewport ? 1.07 : 1.04}
-            seatRadiusYMultiplier={isDesktop ? 1.12 : isMidViewport ? 1.08 : 1.1}
-            seatOutwardOffsetX={isDesktop ? 4 : isMidViewport ? 6 : 7}
-            seatOutwardOffsetY={isDesktop ? 10 : isMidViewport ? 12 : 14}
-            seatSideInset={isDesktop ? 4.5 : isMidViewport ? 5.1 : 5.7}
-            seatSideVerticalOffset={isDesktop ? 2.8 : isMidViewport ? 3.2 : 3.6}
+            seatAngleOffsetDeg={matchBoardLayout.seat.seatAngleOffsetDeg}
+            seatSideAngleOffsetDeg={matchBoardLayout.seat.seatSideAngleOffsetDeg}
+            seatRadiusXMultiplier={matchBoardLayout.seat.seatRadiusXMultiplier}
+            seatRadiusYMultiplier={matchBoardLayout.seat.seatRadiusYMultiplier}
+            seatSideWeightedYMultiplier={matchBoardLayout.seat.seatSideWeightedYMultiplier}
+            seatOutwardOffsetX={matchBoardLayout.seat.seatOutwardOffsetX}
+            seatOutwardOffsetY={matchBoardLayout.seat.seatOutwardOffsetY}
+            seatSideInset={matchBoardLayout.seat.seatSideInset}
+            seatSideVerticalOffset={matchBoardLayout.seat.seatSideVerticalOffset}
             topContent={
               <>
                 <Box
                   sx={{
-                    width: "100%",
-                    maxWidth: "37rem",
+                    width: isDesktop ? "100%" : "auto",
+                    maxWidth: isDesktop ? "37rem" : "fit-content",
                     margin: "0 auto",
-                    px: { xs: 0.35, sm: 0.5 },
+                    px: isDesktop ? { xs: 0.35, sm: 0.5 } : 0,
                     display: "grid",
-                    gridTemplateColumns: "1fr auto 1fr",
+                    gridTemplateColumns: isDesktop ? "1fr auto 1fr" : "auto auto auto",
                     alignItems: "start",
                     gap: { xs: 0.55, sm: 0.75 },
+                    justifyContent: "center",
                   }}
                 >
-                  <Paper sx={{ ...scoreCardSx, justifySelf: "start" }}>
+                  <Paper sx={{ ...scoreCardSx, justifySelf: isDesktop ? "start" : "center" }}>
                     <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
                       {myTeamIdx === 0 ? "Nosotros" : "Ellos"}
                     </Typography>
@@ -783,7 +521,7 @@ const _Match = () => {
                       Ronda {Math.min(rounds.length + 1, 3)} / 3
                     </Typography>
                   </Paper>
-                  <Box sx={{ justifySelf: "end", position: "relative" }}>
+                  <Box sx={{ justifySelf: isDesktop ? "end" : "center", position: "relative" }}>
                     <Paper sx={scoreCardSx}>
                       <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
                         {myTeamIdx === 0 ? "Ellos" : "Nosotros"}
@@ -850,20 +588,22 @@ const _Match = () => {
                 slots={slots}
                 facePlayerRotation={false}
                 spreadBoost={isDesktop ? 1 : 0}
+                playedCardWidth={playedCardWidth}
               />
             }
             renderSeat={(slot, index) =>
               slot.player ? (
                 <Box
                   sx={{
-                    transform: slot.player.isMe
-                      ? "translateY(18px)"
-                      : slots.length === 6 && (index === 1 || index === 5)
-                      ? "translateY(24px)"
-                      : "none",
+                    transform: `translateY(${getMatchSeatTranslateYPx({
+                      totalSeats: slots.length,
+                      seatIndex: index,
+                      isMe: Boolean(slot.player.isMe),
+                      layout: matchBoardLayout,
+                    })}px)`,
                   }}
                 >
-                  <SeatCard
+                  <MatchSeatCard
                     player={slot.player}
                     isTurn={Boolean(
                       slot.player.isTurn &&
@@ -874,6 +614,8 @@ const _Match = () => {
                     serverAheadTime={serverAheadTime}
                     seatIndex={index}
                     totalSeats={slots.length}
+                    seatAngleOffsetDeg={matchBoardLayout.seat.seatAngleOffsetDeg}
+                    seatSideAngleOffsetDeg={matchBoardLayout.seat.seatSideAngleOffsetDeg}
                   />
                 </Box>
               ) : (
@@ -885,181 +627,14 @@ const _Match = () => {
               )
             }
             bottomContent={
-              <Stack spacing={0.68} pb={{ xs: "4.75rem", sm: "4.35rem", md: "4.1rem" }}>
-                <Paper
-                  sx={{
-                    borderRadius: "0.8rem",
-                    py: 0.68,
-                    px: 0.95,
-                    minHeight: "4.75rem",
-                    bgcolor: "rgba(14, 23, 20, 0.88)",
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    boxShadow: "0 8px 14px rgba(0,0,0,0.28)",
-                    animation: animateAnnouncement ? "annAboveCardsPulse 520ms ease-out" : "none",
-                    "@keyframes annAboveCardsPulse": {
-                      "0%": { transform: "translateY(6px)", opacity: 0.65 },
-                      "50%": { transform: "translateY(0)", opacity: 1 },
-                      "100%": { transform: "translateY(0)", opacity: 1 },
-                    },
-                  }}
-                >
-                  <Typography
-                    color={thirdAnnouncementColor}
-                    sx={{
-                      mt: 0.02,
-                      fontSize: { xs: "0.88rem", sm: "0.8rem" },
-                      lineHeight: 1.08,
-                      textAlign: "center",
-                      fontWeight: 600,
-                      opacity: thirdAnnouncement ? 0.88 : 0.45,
-                      visibility: thirdAnnouncement ? "visible" : "hidden",
-                      whiteSpace: "normal",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "Anterior: sin datos"}
-                  </Typography>
-                  <Typography
-                    color={previousAnnouncementColor}
-                    sx={{
-                      mt: 0.16,
-                      fontSize: { xs: "1rem", sm: "0.9rem" },
-                      lineHeight: 1.1,
-                      textAlign: "center",
-                      fontWeight: 600,
-                      opacity: 0.96,
-                      whiteSpace: "normal",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {previousAnnouncement ? getMessageContent(previousAnnouncement) : "Anterior: sin datos"}
-                  </Typography>
-                  <Typography
-                    fontWeight={900}
-                    color={latestAnnouncementColor}
-                    sx={{
-                      mt: 0.2,
-                      fontSize: { xs: "1.24rem", sm: "1.08rem" },
-                      lineHeight: 1.05,
-                      textAlign: "center",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.02em",
-                      whiteSpace: "normal",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin anuncios"}
-                  </Typography>
-                </Paper>
-                <Paper
-                  sx={{
-                    pt: isDesktop ? 0.4 : 0.65,
-                    px: isDesktop ? 0.5 : 0.65,
-                    pb: 0.45,
-                    minHeight: isDesktop ? "5.9rem" : "6.15rem",
-                    borderRadius: "0.86rem",
-                    background:
-                      "linear-gradient(180deg, rgba(112,72,39,0.96) 0%, rgba(70,45,27,0.98) 18%, rgba(45,28,18,0.98) 100%)",
-                    border: "1px solid rgba(255,255,255,0.16)",
-                    boxShadow:
-                      "0 10px 20px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -5px 12px rgba(0,0,0,0.28)",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="flex-end"
-                    sx={{
-                      minHeight: isDesktop ? "4.7rem" : "5rem",
-                      transform: isDesktop ? "translateY(0.1rem)" : "translateY(-0.45rem)",
-                    }}
-                  >
-                    {(() => {
-                      const hand = (me?.hand || []).slice(0, 3) as ICard[];
-                      const handCount = hand.length;
-                      const fanRotations =
-                        handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0];
-
-                      if (!handCount) {
-                        return (
-                          <Box
-                            sx={{
-                              width: handCardWidth,
-                              height: `calc(${handCardWidth} * 1.48)`,
-                              visibility: "hidden",
-                              pointerEvents: "none",
-                            }}
-                          />
-                        );
-                      }
-
-                      return hand.map((card, idx) => {
-                        const rotation = fanRotations[idx] || 0;
-                        return (
-                          <Box
-                            key={`${card}-${idx}`}
-                            ml={idx ? -1.32 : 0}
-                            sx={{
-                              transform: `rotate(${rotation}deg) translateY(${Math.abs(rotation) > 0 ? "2px" : "0"})`,
-                              transformOrigin: "bottom center",
-                            }}
-                          >
-                            <GameCard
-                              card={card}
-                              width={handCardWidth}
-                              shadow
-                              enableHover={canInteractWithHand}
-                              onClick={() => canInteractWithHand && onPlayCard(card, idx)}
-                            />
-                          </Box>
-                        );
-                      });
-                    })()}
-                  </Stack>
-                </Paper>
-                <Box minHeight={isDesktop ? "4rem" : "4.55rem"}>
-                  {me && hasCommandActions ? (
-                    <CommandBar
-                      canSay={canSay}
-                      onSayCommand={sayCommand}
-                      player={me}
-                      compact={isDesktop || isMidViewport}
-                    />
-                  ) : me ? (
-                    <Paper
-                      sx={{
-                        borderRadius: "0.75rem",
-                        py: 0.64,
-                        px: 1,
-                        textAlign: "center",
-                        minHeight: isDesktop ? "4rem" : "4.55rem",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bgcolor: "rgba(33, 23, 16, 0.82)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        boxShadow: "0 6px 14px rgba(0,0,0,0.24)",
-                      }}
-                    >
-                      <Typography fontSize="0.86rem" color="grey.300" fontWeight={600}>
-                        Esperando jugada
-                      </Typography>
-                    </Paper>
-                  ) : null}
-                </Box>
-              </Stack>
+              <Box
+                sx={{
+                  height: bottomDockReserveHeight,
+                  minHeight: bottomDockReserveHeight,
+                  maxHeight: bottomDockReserveHeight,
+                  pointerEvents: "none",
+                }}
+              />
             }
             boardFooter={
               <Box position="absolute" visibility="hidden" height={0} width={0}>
@@ -1068,6 +643,210 @@ const _Match = () => {
               </Box>
             }
           />
+
+          <Box
+            sx={(theme) => ({
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: dockBottomOffset,
+              zIndex: theme.zIndex.drawer + 1,
+              px: { xs: 0.35, sm: 0.6 },
+              pointerEvents: "auto",
+            })}
+          >
+            <Stack spacing={dockGap}>
+              <Paper
+                sx={{
+                  borderRadius: "0.8rem",
+                  py: isShortViewport ? 0.5 : 0.68,
+                  px: 0.95,
+                  minHeight: announcementBlockHeight,
+                  maxHeight: announcementBlockHeight,
+                  bgcolor: "rgba(14, 23, 20, 0.88)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  boxShadow: "0 8px 14px rgba(0,0,0,0.28)",
+                  animation: animateAnnouncement ? "annAboveCardsPulse 520ms ease-out" : "none",
+                  "@keyframes annAboveCardsPulse": {
+                    "0%": { transform: "translateY(6px)", opacity: 0.65 },
+                    "50%": { transform: "translateY(0)", opacity: 1 },
+                    "100%": { transform: "translateY(0)", opacity: 1 },
+                  },
+                }}
+              >
+                <Typography
+                  color={thirdAnnouncementColor}
+                  sx={{
+                    mt: 0.02,
+                    fontSize: { xs: "0.88rem", sm: "0.8rem" },
+                    lineHeight: 1.08,
+                    textAlign: "center",
+                    fontWeight: 600,
+                    opacity: thirdAnnouncement ? 0.88 : 0.45,
+                    visibility: thirdAnnouncement ? "visible" : "hidden",
+                    whiteSpace: "normal",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "Anterior: sin datos"}
+                </Typography>
+                <Typography
+                  color={previousAnnouncementColor}
+                  sx={{
+                    mt: 0.16,
+                    fontSize: { xs: "1rem", sm: "0.9rem" },
+                    lineHeight: 1.1,
+                    textAlign: "center",
+                    fontWeight: 600,
+                    opacity: 0.96,
+                    whiteSpace: "normal",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {previousAnnouncement ? getMessageContent(previousAnnouncement) : "Anterior: sin datos"}
+                </Typography>
+                <Typography
+                  fontWeight={900}
+                  color={latestAnnouncementColor}
+                  sx={{
+                    mt: 0.2,
+                    fontSize: { xs: "1.24rem", sm: "1.08rem" },
+                    lineHeight: 1.05,
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.02em",
+                    whiteSpace: "normal",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin anuncios"}
+                </Typography>
+              </Paper>
+
+              <Paper
+                sx={{
+                  pt: isDesktop ? 0.32 : 0.48,
+                  px: isDesktop ? 0.45 : 0.58,
+                  pb: isShortViewport ? 0.26 : 0.38,
+                  minHeight: handBlockHeight,
+                  maxHeight: handBlockHeight,
+                  borderRadius: "0.86rem",
+                  background:
+                    "linear-gradient(180deg, rgba(112,72,39,0.96) 0%, rgba(70,45,27,0.98) 18%, rgba(45,28,18,0.98) 100%)",
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  overflow: "hidden",
+                  boxShadow:
+                    "0 10px 20px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -5px 12px rgba(0,0,0,0.28)",
+                }}
+              >
+                <Stack
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="flex-end"
+                  sx={{
+                    minHeight: isDesktop ? "4.1rem" : isShortViewport ? "3.45rem" : "5.8rem",
+                    transform: isDesktop
+                      ? "translateY(0.08rem)"
+                      : isShortViewport
+                      ? "translateY(-0.12rem)"
+                      : "translateY(0)",
+                  }}
+                >
+                  {(() => {
+                    const hand = (me?.hand || []).slice(0, 3) as ICard[];
+                    const handCount = hand.length;
+                    const fanRotations = handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0];
+
+                    if (!handCount) {
+                      return (
+                        <Box
+                          sx={{
+                            width: handCardWidth,
+                            height: `calc(${handCardWidth} * 1.48)`,
+                            visibility: "hidden",
+                            pointerEvents: "none",
+                          }}
+                        />
+                      );
+                    }
+
+                    return hand.map((card, idx) => {
+                      const rotation = fanRotations[idx] || 0;
+                      return (
+                        <Box
+                          key={`${card}-${idx}`}
+                          ml={idx ? -1.32 : 0}
+                          sx={{
+                            transform: `rotate(${rotation}deg) translateY(${Math.abs(rotation) > 0 ? "2px" : "0"})`,
+                            transformOrigin: "bottom center",
+                          }}
+                        >
+                          <GameCard
+                            card={card}
+                            width={handCardWidth}
+                            shadow
+                            enableHover={canInteractWithHand}
+                            onClick={() => canInteractWithHand && onPlayCard(card, idx)}
+                          />
+                        </Box>
+                      );
+                    });
+                  })()}
+                </Stack>
+              </Paper>
+
+              <Box
+                sx={{
+                  height: commandBlockHeight,
+                  minHeight: commandBlockHeight,
+                  maxHeight: commandBlockHeight,
+                }}
+              >
+                {me && hasCommandActions ? (
+                  <Box sx={{ height: "100%" }}>
+                    <CommandBar
+                      canSay={canSay}
+                      onSayCommand={sayCommand}
+                      player={me}
+                      compact={isDesktop || isMidViewport || isShortViewport}
+                    />
+                  </Box>
+                ) : me ? (
+                  <Paper
+                    sx={{
+                      borderRadius: "0.75rem",
+                      py: 0.52,
+                      px: 1,
+                      textAlign: "center",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bgcolor: "rgba(33, 23, 16, 0.82)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      boxShadow: "0 6px 14px rgba(0,0,0,0.24)",
+                    }}
+                  >
+                    <Typography fontSize="0.82rem" color="grey.300" fontWeight={600}>
+                      Esperando jugada
+                    </Typography>
+                  </Paper>
+                ) : null}
+              </Box>
+            </Stack>
+          </Box>
 
           <RulesDialog
             open={isRulesOpen}
@@ -1092,6 +871,7 @@ const _Match = () => {
         chatProps={chatProps}
         variant="chatEmotes"
         bottomOffset="calc(env(safe-area-inset-bottom) + 0.28rem)"
+        compact={isShortViewport}
       />
 
       {stats?.spectators ? (

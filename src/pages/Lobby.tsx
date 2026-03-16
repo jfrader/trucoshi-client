@@ -11,6 +11,8 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { getTeamColor, getTeamName } from "../utils/team";
 import { AnimatedButton } from "../shared/AnimatedButton";
@@ -32,6 +34,7 @@ import { BURNT_CARD } from "trucoshi";
 import { UserAvatar } from "../shared/UserAvatar";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
+import { getLobbyBoardLayout, resolveBoardViewport } from "../components/game/boardLayoutPresets";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -44,13 +47,26 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
 const seatCardSx = {
   borderRadius: "0.95rem",
   p: 0.8,
+  minWidth: { xs: "9.3rem", sm: "9.8rem" },
+  boxSizing: "border-box",
+  display: "flex",
+  flexDirection: "column",
   background: "rgba(17, 28, 24, 0.87)",
   border: "1px solid rgba(255,255,255,0.12)",
   boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
 };
 
+const LOBBY_SEAT_ROWS = {
+  header: "2.35rem",
+  cards: "3.1rem",
+  actions: "4.75rem",
+};
+
 export const Lobby = () => {
   useSound();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isMidViewport = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const context = useContext(TrucoshiContext);
 
   if (!context) {
@@ -128,12 +144,24 @@ export const Lobby = () => {
       match ? buildAlternatingSlots(match.players, match.options.maxPlayers) : buildAlternatingSlots([]),
     [match]
   );
+  const boardViewport = useMemo(
+    () => resolveBoardViewport({ isDesktop, isMidViewport }),
+    [isDesktop, isMidViewport]
+  );
+  const seatLayout = useMemo(
+    () =>
+      getLobbyBoardLayout({
+        totalSeats: slots.length,
+        viewport: boardViewport,
+      }),
+    [boardViewport, slots.length]
+  );
 
   return (
     <Box
       sx={{
-        height: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
-        maxHeight: { xs: "calc(100dvh - 50px)", md: "calc(100dvh - 102px)" },
+        height: "100dvh",
+        maxHeight: "100dvh",
         overflow: "hidden",
       }}
     >
@@ -142,6 +170,15 @@ export const Lobby = () => {
       {match ? (
         <TrucoBoardLayout
           slots={slots}
+          seatRadiusXMultiplier={seatLayout.seatRadiusXMultiplier}
+          seatRadiusYMultiplier={seatLayout.seatRadiusYMultiplier}
+          seatSideWeightedYMultiplier={seatLayout.seatSideWeightedYMultiplier}
+          seatSideInset={seatLayout.seatSideInset}
+          seatSideVerticalOffset={seatLayout.seatSideVerticalOffset}
+          seatAngleOffsetDeg={seatLayout.seatAngleOffsetDeg}
+          seatSideAngleOffsetDeg={seatLayout.seatSideAngleOffsetDeg}
+          seatTopGroupShiftYPx={seatLayout.seatTopGroupShiftYPx}
+          seatBottomGroupShiftYPx={seatLayout.seatBottomGroupShiftYPx}
           topContent={
             <>
               <Paper
@@ -225,96 +262,156 @@ export const Lobby = () => {
 
               return (
                 <Paper sx={seatCardSx}>
-                  <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.77rem" mb={0.6}>
-                    {getTeamName(slot.teamIdx)}
-                  </Typography>
-                  {canJoin && canJoinBet ? (
-                    <Stack spacing={0.6}>
-                      {slot.teamIdx !== match.me?.teamIdx ? (
-                        <Button
-                          variant="contained"
-                          disabled={isReadyLoading}
-                          color={getTeamColor(slot.teamIdx)}
-                          size="small"
-                          onClick={() => onJoinMatch(slot.teamIdx)}
-                        >
-                          Unirse
-                        </Button>
-                      ) : (
-                        <Typography color="text.disabled" fontSize="0.74rem">
-                          Espacio libre
-                        </Typography>
-                      )}
-                      {match.me?.isOwner && match.options.satsPerPlayer <= 0 ? (
-                        <Button
-                          variant="outlined"
-                          disabled={isReadyLoading}
-                          color="warning"
-                          size="small"
-                          onClick={() => onAddBot(slot.teamIdx)}
-                        >
-                          Agregar Bot
-                        </Button>
-                      ) : null}
-                    </Stack>
-                  ) : canJoin && !canJoinBet ? (
-                    <Stack spacing={0.6}>
-                      {context.state.account?.wallet ? (
-                        <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.75rem">
-                          Necesitas depositar sats
-                        </Typography>
-                      ) : (
-                        <Button color={getTeamColor(slot.teamIdx)} component={Link} to="/login" size="small">
-                          Inicia sesion
-                        </Button>
-                      )}
-                    </Stack>
-                  ) : (
-                    <Typography color="text.disabled" fontSize="0.75rem">
-                      Completo
+                  <Box
+                    sx={{
+                      minHeight: LOBBY_SEAT_ROWS.header,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.77rem">
+                      {getTeamName(slot.teamIdx)}
                     </Typography>
-                  )}
+                  </Box>
+                  <Box
+                    sx={{
+                      mt: 0.6,
+                      minHeight: LOBBY_SEAT_ROWS.cards,
+                      height: LOBBY_SEAT_ROWS.cards,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box sx={{ width: "100%", height: "100%", visibility: "hidden" }} />
+                  </Box>
+                  <Stack
+                    mt={0.7}
+                    spacing={0.5}
+                    sx={{
+                      minHeight: LOBBY_SEAT_ROWS.actions,
+                      height: LOBBY_SEAT_ROWS.actions,
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {canJoin && canJoinBet ? (
+                      <>
+                        {slot.teamIdx !== match.me?.teamIdx ? (
+                          <Button
+                            variant="contained"
+                            disabled={isReadyLoading}
+                            color={getTeamColor(slot.teamIdx)}
+                            size="small"
+                            onClick={() => onJoinMatch(slot.teamIdx)}
+                          >
+                            Unirse
+                          </Button>
+                        ) : (
+                          <Typography color="text.disabled" fontSize="0.74rem">
+                            Espacio libre
+                          </Typography>
+                        )}
+                        {match.me?.isOwner && match.options.satsPerPlayer <= 0 ? (
+                          <Button
+                            variant="outlined"
+                            disabled={isReadyLoading}
+                            color="warning"
+                            size="small"
+                            onClick={() => onAddBot(slot.teamIdx)}
+                          >
+                            Agregar Bot
+                          </Button>
+                        ) : (
+                          <Box sx={{ height: "2rem", visibility: "hidden" }} />
+                        )}
+                      </>
+                    ) : canJoin && !canJoinBet ? (
+                      <>
+                        {context.state.account?.wallet ? (
+                          <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.75rem">
+                            Necesitas depositar sats
+                          </Typography>
+                        ) : (
+                          <Button color={getTeamColor(slot.teamIdx)} component={Link} to="/login" size="small">
+                            Inicia sesion
+                          </Button>
+                        )}
+                        <Box sx={{ height: "2rem", visibility: "hidden" }} />
+                      </>
+                    ) : (
+                      <>
+                        <Typography color="text.disabled" fontSize="0.75rem">
+                          Completo
+                        </Typography>
+                        <Box sx={{ height: "2rem", visibility: "hidden" }} />
+                      </>
+                    )}
+                  </Stack>
                 </Paper>
               );
             }
 
             const player: IPublicPlayer = slot.player;
+            const hiddenCardsCount = Math.min(player.hand.length || 3, 3);
 
             return (
               <Paper sx={seatCardSx}>
-                <Stack direction="row" alignItems="center" spacing={0.8}>
-                  <UserAvatar
-                    account={player}
-                    size="small"
-                    bgcolor={`${getTeamColor(player.teamIdx)}.main`}
-                  />
-                  <Box minWidth={0}>
-                    <Typography
-                      color="common.white"
-                      fontWeight={700}
-                      fontSize="0.98rem"
-                      noWrap
-                      title={player.name}
-                    >
-                      {player.name}
-                    </Typography>
-                    <Typography fontSize="0.82rem" color="grey.300">
-                      {player.ready ? "Listo" : "Esperando"}
-                    </Typography>
-                  </Box>
-                </Stack>
+                <Box sx={{ minHeight: LOBBY_SEAT_ROWS.header, display: "flex", alignItems: "center" }}>
+                  <Stack direction="row" alignItems="center" spacing={0.8}>
+                    <UserAvatar
+                      account={player}
+                      size="small"
+                      bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+                    />
+                    <Box minWidth={0}>
+                      <Typography
+                        color="common.white"
+                        fontWeight={700}
+                        fontSize="0.98rem"
+                        noWrap
+                        title={player.name}
+                      >
+                        {player.name}
+                      </Typography>
+                      <Typography fontSize="0.82rem" color="grey.300">
+                        {player.ready ? "Listo" : "Esperando"}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
 
-                {!player.isMe ? (
-                  <Stack direction="row" justifyContent="center" mt={0.6}>
-                    {Array.from({ length: Math.min(player.hand.length || 3, 3) }).map((_, idx) => (
-                      <Box key={`${player.key}-${idx}`} ml={idx ? -1.2 : 0}>
+                <Box
+                  sx={{
+                    mt: 0.6,
+                    minHeight: LOBBY_SEAT_ROWS.cards,
+                    height: LOBBY_SEAT_ROWS.cards,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Stack direction="row" justifyContent="center">
+                    {Array.from({ length: 3 }).map((_, idx) => (
+                      <Box
+                        key={`${player.key}-${idx}`}
+                        ml={idx ? -1.2 : 0}
+                        sx={{ visibility: idx < hiddenCardsCount ? "visible" : "hidden" }}
+                      >
                         <GameCard disableButton card={BURNT_CARD} width="clamp(2.15rem, 7vw, 2.35rem)" shadow />
                       </Box>
                     ))}
                   </Stack>
-                ) : null}
+                </Box>
 
-                <Stack mt={0.7} spacing={0.5}>
+                <Stack
+                  mt={0.7}
+                  spacing={0.5}
+                  sx={{
+                    minHeight: LOBBY_SEAT_ROWS.actions,
+                    height: LOBBY_SEAT_ROWS.actions,
+                    justifyContent: "flex-end",
+                  }}
+                >
                   {player.isMe ? (
                     <>
                       {player.ready ? (

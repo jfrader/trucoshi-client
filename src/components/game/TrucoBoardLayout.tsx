@@ -1,5 +1,5 @@
 import { Box, BoxProps, Paper, styled } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
 export type SeatLike = {
   key: string;
@@ -17,26 +17,25 @@ export const buildAlternatingSlots = <T extends SeatLike>(
   players: T[],
   fill?: number
 ): TrucoBoardSlot<T>[] => {
-  const length = fill && players.length < fill ? fill : players.length;
-  const used = new Set<string>();
+  const length = Math.max(fill && players.length < fill ? fill : players.length, 2);
+  const teamPlayers: Record<0 | 1, T[]> = { 0: [], 1: [] };
+  players.forEach((player) => {
+    teamPlayers[player.teamIdx].push(player);
+  });
+  const teamIndex: Record<0 | 1, number> = { 0: 0, 1: 0 };
 
-  const slots: TrucoBoardSlot<T>[] = Array.from({ length: Math.max(length, 2) }, (_, i) => {
+  const slots: TrucoBoardSlot<T>[] = Array.from({ length }, (_, i) => {
     const teamIdx = (i % 2) as 0 | 1;
-    const player = players.find((candidate) => {
-      if (used.has(candidate.key)) {
-        return false;
-      }
-      return candidate.teamIdx === teamIdx;
-    });
-
+    const queue = teamPlayers[teamIdx];
+    const player = queue[teamIndex[teamIdx]] || null;
     if (player) {
-      used.add(player.key);
+      teamIndex[teamIdx] += 1;
     }
 
     return {
       key: player?.key || `slot-${i}`,
       teamIdx,
-      player: player || null,
+      player,
     };
   });
 
@@ -54,21 +53,33 @@ const getSeatPosition = (
   total: number,
   xMultiplier: number = 1,
   yMultiplier: number = 1,
+  sideWeightedYMultiplier: boolean = false,
   sideInset: number = 0,
-  sideVerticalOffset: number = 0
+  sideVerticalOffset: number = 0,
+  angleOffsetDeg: number = 0,
+  sideAngleOffsetDeg: number = 0,
+  topGroupShiftYPx: number = 0,
+  bottomGroupShiftYPx: number = 0
 ) => {
-  const angle = ((90 + (index * 360) / total) * Math.PI) / 180;
+  const baseAngleDeg = 90 + angleOffsetDeg + (index * 360) / total;
+  const baseAngle = (baseAngleDeg * Math.PI) / 180;
+  const sideOffsetDeg = sideAngleOffsetDeg * Math.abs(Math.cos(baseAngle));
+  const angle = ((baseAngleDeg + sideOffsetDeg) * Math.PI) / 180;
   const radiusX = 50 * xMultiplier;
-  const radiusY = 40 * yMultiplier;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
   const sideStrength = Math.abs(cos);
+  const effectiveYMultiplier = sideWeightedYMultiplier
+    ? 1 + (yMultiplier - 1) * sideStrength
+    : yMultiplier;
+  const radiusY = 40 * effectiveYMultiplier;
   const leftBase = 50 + cos * radiusX;
   const topBase = 50 + sin * radiusY;
 
   return {
     left: `${leftBase - cos * sideStrength * sideInset}%`,
     top: `${topBase + Math.sign(sin || 1) * sideStrength * sideVerticalOffset}%`,
+    groupShiftY: sin < 0 ? -topGroupShiftYPx : sin > 0 ? bottomGroupShiftYPx : 0,
     cos,
     sin,
   };
@@ -79,11 +90,16 @@ export type TrucoBoardLayoutProps<T extends SeatLike> = {
   renderSeat: (slot: TrucoBoardSlot<T>, index: number) => ReactNode;
   seatRadiusXMultiplier?: number;
   seatRadiusYMultiplier?: number;
+  seatSideWeightedYMultiplier?: boolean;
   seatOutwardOffset?: number;
   seatOutwardOffsetX?: number;
   seatOutwardOffsetY?: number;
   seatSideInset?: number;
   seatSideVerticalOffset?: number;
+  seatAngleOffsetDeg?: number;
+  seatSideAngleOffsetDeg?: number;
+  seatTopGroupShiftYPx?: number;
+  seatBottomGroupShiftYPx?: number;
   topContent?: ReactNode;
   centerContent?: ReactNode;
   bottomContent?: ReactNode;
@@ -97,11 +113,16 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   renderSeat,
   seatRadiusXMultiplier = 1,
   seatRadiusYMultiplier = 1,
+  seatSideWeightedYMultiplier = false,
   seatOutwardOffset = 0,
   seatOutwardOffsetX,
   seatOutwardOffsetY,
   seatSideInset = 0,
   seatSideVerticalOffset = 0,
+  seatAngleOffsetDeg = 0,
+  seatSideAngleOffsetDeg = 0,
+  seatTopGroupShiftYPx = 0,
+  seatBottomGroupShiftYPx = 0,
   topContent,
   centerContent,
   bottomContent,
@@ -112,6 +133,36 @@ export const TrucoBoardLayout = <T extends SeatLike>({
 }: TrucoBoardLayoutProps<T>) => {
   const outwardX = seatOutwardOffsetX ?? seatOutwardOffset;
   const outwardY = seatOutwardOffsetY ?? seatOutwardOffset;
+  const seatPositions = useMemo(
+    () =>
+      slots.map((_, index) =>
+        getSeatPosition(
+          index,
+          slots.length,
+          seatRadiusXMultiplier,
+          seatRadiusYMultiplier,
+          seatSideWeightedYMultiplier,
+          seatSideInset,
+          seatSideVerticalOffset,
+          seatAngleOffsetDeg,
+          seatSideAngleOffsetDeg,
+          seatTopGroupShiftYPx,
+          seatBottomGroupShiftYPx
+        )
+      ),
+    [
+      seatAngleOffsetDeg,
+      seatBottomGroupShiftYPx,
+      seatRadiusXMultiplier,
+      seatRadiusYMultiplier,
+      seatSideAngleOffsetDeg,
+      seatSideInset,
+      seatSideVerticalOffset,
+      seatSideWeightedYMultiplier,
+      seatTopGroupShiftYPx,
+      slots,
+    ]
+  );
 
   return (
     <Root {...props}>
@@ -120,14 +171,7 @@ export const TrucoBoardLayout = <T extends SeatLike>({
         <BoardSurface elevation={8}>
           <BoardCenter>{centerContent}</BoardCenter>
           {slots.map((slot, index) => {
-            const pos = getSeatPosition(
-              index,
-              slots.length,
-              seatRadiusXMultiplier,
-              seatRadiusYMultiplier,
-              seatSideInset,
-              seatSideVerticalOffset
-            );
+            const pos = seatPositions[index];
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
@@ -136,6 +180,7 @@ export const TrucoBoardLayout = <T extends SeatLike>({
                   top: pos.top,
                   ["--seat-shift-x" as any]: `${pos.cos * outwardX}px`,
                   ["--seat-shift-y" as any]: `${pos.sin * outwardY}px`,
+                  ["--seat-group-shift-y" as any]: `${pos.groupShiftY}px`,
                 }}
                 data-slot-team={slot.teamIdx}
               >
@@ -154,12 +199,12 @@ export const TrucoBoardLayout = <T extends SeatLike>({
 };
 
 const Root = styled(Box)(({ theme }) => ({
-  "--board-shadow": "rgba(0, 0, 0, 0.5)",
-  "--felt-primary": "#1b6250",
-  "--felt-secondary": "#0f4a3d",
-  "--felt-tertiary": "#0a332a",
-  "--wood-primary": "#7d4e2d",
-  "--wood-secondary": "#442916",
+  "--board-shadow": theme.trucoshiUi.board.shadow,
+  "--felt-primary": theme.trucoshiUi.board.feltPrimary,
+  "--felt-secondary": theme.trucoshiUi.board.feltSecondary,
+  "--felt-tertiary": theme.trucoshiUi.board.feltTertiary,
+  "--wood-primary": theme.trucoshiUi.board.woodPrimary,
+  "--wood-secondary": theme.trucoshiUi.board.woodSecondary,
   position: "relative",
   height: "100%",
   maxHeight: "100%",
@@ -169,15 +214,13 @@ const Root = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   overflow: "hidden",
   padding: theme.spacing(0.62, 0.05, 0.9),
-  background:
-    "radial-gradient(110% 75% at 50% 4%, rgba(255,255,255,0.08), transparent 64%), radial-gradient(130% 90% at 50% 100%, rgba(0,0,0,0.42), transparent 70%), linear-gradient(160deg, #113b31 0%, #0d2f29 62%, #08211d 100%)",
+  background: theme.trucoshiUi.board.shellBackground,
   "&::before": {
     content: '""',
     position: "absolute",
     inset: 0,
     pointerEvents: "none",
-    background:
-      "radial-gradient(circle at 10% 8%, rgba(255,255,255,0.05), transparent 30%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.04), transparent 28%), radial-gradient(circle at 18% 92%, rgba(0,0,0,0.3), transparent 25%), radial-gradient(circle at 84% 88%, rgba(0,0,0,0.34), transparent 26%)",
+    background: theme.trucoshiUi.board.shellOverlay,
     zIndex: 0,
   },
   [theme.breakpoints.up("sm")]: {
@@ -224,10 +267,8 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
   borderRadius: "50%",
   position: "relative",
   overflow: "visible",
-  background:
-    "radial-gradient(circle at 34% 28%, rgba(255,255,255,0.09), transparent 23%), radial-gradient(circle at 70% 72%, rgba(255,255,255,0.045), transparent 20%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.22), transparent 68%), linear-gradient(166deg, var(--felt-primary), var(--felt-secondary) 66%, var(--felt-tertiary) 100%)",
-  boxShadow:
-    "0 16px 36px var(--board-shadow), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -24px 35px rgba(0,0,0,0.24)",
+  background: theme.trucoshiUi.board.surfaceBackground,
+  boxShadow: theme.trucoshiUi.board.surfaceShadow,
   border: "0.68rem solid var(--wood-primary)",
   outline: "0.22rem solid var(--wood-secondary)",
   "&::before": {
@@ -284,7 +325,7 @@ const BoardCenter = styled(Box)(({ theme }) => ({
 const SeatPosition = styled(Box)(() => ({
   position: "absolute",
   transform:
-    "translate(calc(-50% + var(--seat-shift-x, 0px)), calc(-50% + var(--seat-shift-y, 0px)))",
+    "translate(calc(-50% + var(--seat-shift-x, 0px)), calc(-50% + var(--seat-shift-y, 0px) + var(--seat-group-shift-y, 0px)))",
   width: "35%",
   maxWidth: "11.8rem",
   zIndex: 3,

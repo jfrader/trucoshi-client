@@ -30,6 +30,81 @@ declare module "@mui/material/Button" {
   }
 }
 
+type TrucoshiUiTokens = {
+  board: {
+    feltPrimary: string;
+    feltSecondary: string;
+    feltTertiary: string;
+    woodPrimary: string;
+    woodSecondary: string;
+    shadow: string;
+    shellBackground: string;
+    shellOverlay: string;
+    surfaceBackground: string;
+    surfaceShadow: string;
+  };
+  commandBar: {
+    background: string;
+    defaultActionColor: string;
+    envidoBaseColor: string;
+    envidoBestColor: string;
+    actionColors: Record<string, string>;
+  };
+};
+
+declare module "@mui/material/styles" {
+  interface Theme {
+    trucoshiUi: TrucoshiUiTokens;
+  }
+
+  interface ThemeOptions {
+    trucoshiUi?: Partial<TrucoshiUiTokens>;
+  }
+}
+
+const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
+  board: {
+    feltPrimary: "#1b6250",
+    feltSecondary: "#0f4a3d",
+    feltTertiary: "#0a332a",
+    woodPrimary: "#7d4e2d",
+    woodSecondary: "#442916",
+    shadow: "rgba(0, 0, 0, 0.5)",
+    shellBackground:
+      "radial-gradient(110% 75% at 50% 4%, rgba(255,255,255,0.08), transparent 64%), radial-gradient(130% 90% at 50% 100%, rgba(0,0,0,0.42), transparent 70%), linear-gradient(160deg, #113b31 0%, #0d2f29 62%, #08211d 100%)",
+    shellOverlay:
+      "radial-gradient(circle at 10% 8%, rgba(255,255,255,0.05), transparent 30%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.04), transparent 28%), radial-gradient(circle at 18% 92%, rgba(0,0,0,0.3), transparent 25%), radial-gradient(circle at 84% 88%, rgba(0,0,0,0.34), transparent 26%)",
+    surfaceBackground:
+      "radial-gradient(circle at 34% 28%, rgba(255,255,255,0.09), transparent 23%), radial-gradient(circle at 70% 72%, rgba(255,255,255,0.045), transparent 20%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.22), transparent 68%), linear-gradient(166deg, var(--felt-primary), var(--felt-secondary) 66%, var(--felt-tertiary) 100%)",
+    surfaceShadow:
+      "0 16px 36px var(--board-shadow), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -24px 35px rgba(0,0,0,0.24)",
+  },
+  commandBar: {
+    background:
+      "linear-gradient(164deg, rgba(63, 36, 22, 0.97) 0%, rgba(32, 20, 12, 0.98) 70%, rgba(25, 16, 11, 0.98) 100%)",
+    defaultActionColor: "#3d7051",
+    envidoBaseColor: "#7a3229",
+    envidoBestColor: "#3d7a45",
+    actionColors: {
+      truco: "#ab3a2a",
+      reTruco: "#b43a29",
+      valeCuatro: "#c03d2b",
+      envido: "#3d546a",
+      realEnvido: "#7a6640",
+      faltaEnvido: "#6c5b36",
+      flor: "#4b6938",
+      contraflor: "#4e6a39",
+      contraflorAlResto: "#4e6a39",
+      quiero: "#3d7a45",
+      noQuiero: "#4a3224",
+      sonBuenas: "#5c3e2c",
+      achico: "#5b3b2a",
+      paso: "#435260",
+      mazo: "#5f2e24",
+    },
+  },
+};
+
 export const lightPalette = createPalette({
   mode: "light",
   primary: {
@@ -196,6 +271,7 @@ export const darkPalette = createPalette({
 });
 
 const base = {
+  trucoshiUi: defaultTrucoshiUiTokens,
   components: {
     MuiLinearProgress: {
       styleOverrides: {

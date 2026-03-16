@@ -24,6 +24,7 @@ type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
   bottomOffset?: string;
   variant?: "announcement" | "chatEmotes";
+  compact?: boolean;
 };
 
 type TabName = "chat" | "announcements";
@@ -32,6 +33,7 @@ export const CommDrawer = ({
   chatProps,
   bottomOffset = "calc(env(safe-area-inset-bottom) + 0.2rem)",
   variant = "announcement",
+  compact = false,
 }: Props) => {
   const [tab, setTab] = useState<TabName>(variant === "chatEmotes" ? "chat" : "announcements");
 
@@ -72,16 +74,16 @@ export const CommDrawer = ({
       {variant === "chatEmotes" ? (
         <Paper
           sx={{
-            borderRadius: "0.6rem",
+            borderRadius: compact ? "0.52rem" : "0.6rem",
             border: "1px solid rgba(255,255,255,0.12)",
             background:
               "linear-gradient(180deg, rgba(92,58,34,0.95), rgba(63,39,24,0.98) 40%, rgba(42,27,17,0.98))",
             boxShadow: "0 8px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
-            px: 0.55,
-            py: 0.5,
+            px: compact ? 0.4 : 0.55,
+            py: compact ? 0.32 : 0.5,
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={0.6}>
+          <Stack direction="row" alignItems="center" spacing={compact ? 0.45 : 0.6}>
             <Button
               variant="contained"
               startIcon={<ChatBubbleOutlineIcon />}
@@ -90,9 +92,9 @@ export const CommDrawer = ({
                 flex: 1,
                 borderRadius: "999px",
                 justifyContent: "flex-start",
-                px: 1.1,
-                py: 0.45,
-                fontSize: "0.94rem",
+                px: compact ? 0.9 : 1.1,
+                py: compact ? 0.3 : 0.45,
+                fontSize: compact ? "0.84rem" : "0.94rem",
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.02em",
@@ -101,6 +103,8 @@ export const CommDrawer = ({
                   "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
                 boxShadow: "0 6px 12px rgba(0,0,0,0.35)",
                 flexShrink: 0,
+                "& .MuiButton-startIcon": { marginRight: compact ? 0.32 : 0.45 },
+                "& .MuiSvgIcon-root": { fontSize: compact ? "1rem" : "1.12rem" },
               }}
             >
               Chat
@@ -114,9 +118,9 @@ export const CommDrawer = ({
                 flex: 1,
                 borderRadius: "999px",
                 justifyContent: "flex-start",
-                px: 1.1,
-                py: 0.45,
-                fontSize: "0.94rem",
+                px: compact ? 0.9 : 1.1,
+                py: compact ? 0.3 : 0.45,
+                fontSize: compact ? "0.84rem" : "0.94rem",
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.02em",
@@ -125,6 +129,8 @@ export const CommDrawer = ({
                   "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
                 boxShadow: "0 6px 12px rgba(0,0,0,0.35)",
                 flexShrink: 0,
+                "& .MuiButton-startIcon": { marginRight: compact ? 0.32 : 0.45 },
+                "& .MuiSvgIcon-root": { fontSize: compact ? "1rem" : "1.12rem" },
               }}
             >
               Emotes
