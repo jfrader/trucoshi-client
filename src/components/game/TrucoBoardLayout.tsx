@@ -261,6 +261,7 @@ const BoardShell = styled(Box)(() => ({
 }));
 
 const BoardSurface = styled(Paper)(({ theme }) => ({
+  boxSizing: "border-box",
   width: "120%",
   maxWidth: "46rem",
   aspectRatio: "1 / 1",
@@ -300,6 +301,23 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
   },
   [theme.breakpoints.between("sm", "md")]: {
     maxHeight: "34rem",
+  },
+  // Landscape / wide-aspect mode: intentionally oval to use horizontal space better.
+  // Keep width capped to container to avoid side clipping.
+  "@media (min-width: 600px) and (min-aspect-ratio: 6/5)": {
+    width: "min(calc(100% - 1.5rem), 56rem)",
+    maxWidth: "calc(100% - 1.5rem)",
+    height: "min(88%, 42rem)",
+    maxHeight: "42rem",
+    aspectRatio: "auto",
+    borderRadius: "50% / 48%",
+    "&::before, &::after": {
+      borderRadius: "50% / 48%",
+    },
+  },
+  "@media (min-width: 900px) and (min-aspect-ratio: 6/5)": {
+    width: "min(calc(100% - 2.6rem), 50rem)",
+    maxWidth: "calc(100% - 2.6rem)",
   },
 }));
 

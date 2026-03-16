@@ -191,6 +191,22 @@ export const getMatchSeatTranslateYPx = ({
   return isLowerSideSeat ? layout.offsets.lowerSideTranslateYPx : 0;
 };
 
+export const getMatchSeatAvatarNudgeYPx = ({
+  totalSeats,
+  seatIndex,
+  viewport,
+  isShortViewport,
+}: {
+  totalSeats: number;
+  seatIndex: number;
+  viewport: BoardViewport;
+  isShortViewport: boolean;
+}): number => {
+  const isTopSeat = totalSeats === 6 && seatIndex === 3;
+  const shouldNudgeTopSeatDown = isTopSeat && !(viewport === "mobile" && !isShortViewport);
+  return shouldNudgeTopSeatDown ? 15 : 0;
+};
+
 export const getLobbyBoardLayout = ({
   totalSeats,
   viewport,

@@ -52,6 +52,7 @@ import { MatchSeatCard } from "../components/game/MatchSeatCard";
 import { TrickCenter } from "../components/game/TrickCenter";
 import {
   getMatchBoardLayout,
+  getMatchSeatAvatarNudgeYPx,
   getMatchSeatTranslateYPx,
   resolveBoardViewport,
 } from "../components/game/boardLayoutPresets";
@@ -616,6 +617,12 @@ const _Match = () => {
                     totalSeats={slots.length}
                     seatAngleOffsetDeg={matchBoardLayout.seat.seatAngleOffsetDeg}
                     seatSideAngleOffsetDeg={matchBoardLayout.seat.seatSideAngleOffsetDeg}
+                    avatarNudgeYPx={getMatchSeatAvatarNudgeYPx({
+                      totalSeats: slots.length,
+                      seatIndex: index,
+                      viewport: boardViewport,
+                      isShortViewport,
+                    })}
                   />
                 </Box>
               ) : (

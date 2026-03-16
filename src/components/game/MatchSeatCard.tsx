@@ -16,6 +16,7 @@ type MatchSeatCardProps = {
   totalSeats: number;
   seatAngleOffsetDeg?: number;
   seatSideAngleOffsetDeg?: number;
+  avatarNudgeYPx?: number;
 };
 
 export const MatchSeatCard = ({
@@ -27,6 +28,7 @@ export const MatchSeatCard = ({
   totalSeats,
   seatAngleOffsetDeg = 0,
   seatSideAngleOffsetDeg = 0,
+  avatarNudgeYPx = 0,
 }: MatchSeatCardProps) => {
   const turnTimer = useTurnTimer(player, serverAheadTime, match);
   const hiddenCards = Math.min(player.hand.length, 3);
@@ -67,80 +69,84 @@ export const MatchSeatCard = ({
         justifyContent: "flex-start",
       }}
     >
-      <Box
-        sx={(theme) => ({
-          p: timerVisible ? "2px" : 0,
-          borderRadius: "999px",
-          transition: theme.transitions.create(["background", "padding"], {
-            duration: theme.transitions.duration.shortest,
-          }),
-          background: timerVisible
-            ? `conic-gradient(from -90deg, ${ringColor} ${ringAngle}deg, ${alpha(
-                theme.palette.common.white,
-                0.12
-              )} ${ringAngle}deg 360deg)`
-            : "transparent",
-        })}
-      >
-        <Paper
+      <Box sx={{ transform: avatarNudgeYPx ? `translateY(${avatarNudgeYPx}px)` : "none" }}>
+        <Box
           sx={{
-            p: 0.25,
+            p: timerVisible ? "2px" : 0,
             borderRadius: "999px",
-            bgcolor: "rgba(0,0,0,0.28)",
-            border: "2px solid rgba(201,126,59,0.95)",
-            boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
-            position: "relative",
+            transition: (theme) =>
+              theme.transitions.create(["background", "padding"], {
+                duration: theme.transitions.duration.shortest,
+              }),
+            background: timerVisible
+              ? `conic-gradient(from -90deg, ${ringColor} ${ringAngle}deg, ${alpha(
+                  "#ffffff",
+                  0.12
+                )} ${ringAngle}deg 360deg)`
+              : "transparent",
           }}
         >
-          <UserAvatar
-            account={player}
-            size={player.isMe ? "large" : "big"}
-            bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+          <Paper
             sx={{
-              border: "2px solid rgba(255,255,255,0.12)",
-              boxSizing: "border-box",
+              p: 0.25,
+              borderRadius: "999px",
+              bgcolor: "rgba(0,0,0,0.28)",
+              border: "2px solid rgba(201,126,59,0.95)",
+              boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+              position: "relative",
             }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              right: 1,
-              bottom: 1,
-              width: "0.76rem",
-              height: "0.76rem",
-              borderRadius: "50%",
-              bgcolor: statusColor,
-              border: "2px solid rgba(17,24,20,0.95)",
-              boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
-            }}
-          />
+          >
+            <UserAvatar
+              account={player}
+              size={player.isMe ? "large" : "big"}
+              bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+              sx={{
+                border: "2px solid rgba(255,255,255,0.12)",
+                boxSizing: "border-box",
+              }}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                right: 1,
+                bottom: 1,
+                width: "0.76rem",
+                height: "0.76rem",
+                borderRadius: "50%",
+                bgcolor: statusColor,
+                border: "2px solid rgba(17,24,20,0.95)",
+                boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+              }}
+            />
+          </Paper>
+        </Box>
+
+        <Paper
+          sx={{
+            mt: 0.42,
+            px: 1.05,
+            py: 0.24,
+            minWidth: "4.6rem",
+            borderRadius: "0.62rem",
+            bgcolor: "rgba(11, 19, 16, 0.9)",
+            border: "1px solid rgba(255,255,255,0.13)",
+            boxShadow: "0 6px 10px rgba(0,0,0,0.24)",
+          }}
+        >
+          <Typography
+            color="common.white"
+            fontWeight={800}
+            lineHeight={1.1}
+            textAlign="center"
+            fontSize={{ xs: "1rem", sm: "0.94rem" }}
+            noWrap
+            title={player.name}
+            sx={{ textTransform: "capitalize" }}
+          >
+            {player.name}
+          </Typography>
         </Paper>
       </Box>
-
-      <Paper
-        sx={{
-          px: 1.05,
-          py: 0.24,
-          minWidth: "4.6rem",
-          borderRadius: "0.62rem",
-          bgcolor: "rgba(11, 19, 16, 0.9)",
-          border: "1px solid rgba(255,255,255,0.13)",
-          boxShadow: "0 6px 10px rgba(0,0,0,0.24)",
-        }}
-      >
-        <Typography
-          color="common.white"
-          fontWeight={800}
-          lineHeight={1.1}
-          textAlign="center"
-          fontSize={{ xs: "1rem", sm: "0.94rem" }}
-          noWrap
-          title={player.name}
-          sx={{ textTransform: "capitalize" }}
-        >
-          {player.name}
-        </Typography>
-      </Paper>
 
       {!player.isMe ? (
         <Stack
