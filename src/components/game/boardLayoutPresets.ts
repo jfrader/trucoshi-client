@@ -53,6 +53,29 @@ export type SeatHandTransform = {
   origin: string;
 };
 
+export type OpponentHiddenHandCardTransform = {
+  x: number;
+  y: number;
+  rotateDeg: number;
+  zIndex: number;
+};
+
+export type OpponentHiddenHandLayout = {
+  anchor: {
+    x: number;
+    y: number;
+    rotateDeg: number;
+    origin: string;
+  };
+  cards: OpponentHiddenHandCardTransform[];
+};
+
+export type HiddenHandAnchorOverride = {
+  x: number;
+  y: number;
+  rotateDeg: number;
+};
+
 export type BoardSurfaceFrameConfig = {
   rootPadding: string;
   shellMaxWidth: string;
@@ -98,6 +121,21 @@ export type MatchDockSizingConfig = {
   commandCompact: boolean;
 };
 
+export type HiddenHandRadialRules = {
+  baseDistancePx: number;
+  sideDistanceBoostPx: number;
+  topDistanceBoostPx: number;
+  arcShiftPx: number;
+  verticalLiftPx: number;
+  fanSpacingPx: number;
+  fanArcDepthPx: number;
+  fanSpreadDeg: number;
+  minClearancePx: number;
+  rimClearancePx: number;
+  rimEllipseInsetPx: number;
+  handOrigin: string;
+};
+
 export type MatchSeatPresentationRules = {
   meTranslateY: number;
   lowerSideTranslateY: number;
@@ -105,6 +143,7 @@ export type MatchSeatPresentationRules = {
   hideTopSeatAvatarNudgeOnProfiles: BoardViewportProfile[];
   hiddenHandCardWidth: string;
   hiddenHandScale: number;
+  hiddenHandRules: HiddenHandRadialRules;
 };
 
 export type MatchLayoutConfig = {
@@ -145,6 +184,7 @@ export type MatchSeatPresentation = {
   avatarNudgeY: number;
   hiddenHandCardWidth: string;
   hiddenHandScale: number;
+  hiddenHandRules: HiddenHandRadialRules;
 };
 
 const VIEWPORT_FALLBACK = {
@@ -358,7 +398,7 @@ const MATCH_CENTER_SPREAD_BOOST_BY_PROFILE: Record<BoardViewportProfile, number>
 const MATCH_DOCK_BY_PROFILE: Record<BoardViewportProfile, MatchDockSizingConfig> = {
   desktop: {
     handCardWidth: "clamp(3.05rem, 3.2vw, 3.7rem)",
-    playedCardWidth: "clamp(2.85rem, 2.4vw, 3.2rem)",
+    playedCardWidth: "clamp(3.2rem, 2.8vw, 3.65rem)",
     announcementBlockHeight: "4.75rem",
     handBlockHeight: "5.2rem",
     commandBlockHeight: "3.5rem",
@@ -371,7 +411,7 @@ const MATCH_DOCK_BY_PROFILE: Record<BoardViewportProfile, MatchDockSizingConfig>
   },
   tabletWide: {
     handCardWidth: "clamp(3.05rem, 3.2vw, 3.7rem)",
-    playedCardWidth: "clamp(2.85rem, 2.4vw, 3.2rem)",
+    playedCardWidth: "clamp(3.15rem, 2.75vw, 3.55rem)",
     announcementBlockHeight: "4.75rem",
     handBlockHeight: "5.2rem",
     commandBlockHeight: "3.5rem",
@@ -425,44 +465,114 @@ const MATCH_DOCK_BY_PROFILE: Record<BoardViewportProfile, MatchDockSizingConfig>
 
 const MATCH_SEAT_PRESENTATION_BY_PROFILE: Record<BoardViewportProfile, MatchSeatPresentationRules> = {
   desktop: {
-    meTranslateY: 18,
+    meTranslateY: 22,
     lowerSideTranslateY: 24,
     topSeatAvatarNudgeY: 15,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
+    hiddenHandRules: {
+      baseDistancePx: 41,
+      sideDistanceBoostPx: 10.5,
+      topDistanceBoostPx: 8,
+      arcShiftPx: 3.2,
+      verticalLiftPx: 2.2,
+      fanSpacingPx: 12.6,
+      fanArcDepthPx: 2.3,
+      fanSpreadDeg: 7.4,
+      minClearancePx: 10.5,
+      rimClearancePx: 50,
+      rimEllipseInsetPx: 15,
+      handOrigin: "50% 118%",
+    },
   },
   tabletWide: {
-    meTranslateY: 18,
+    meTranslateY: 22,
     lowerSideTranslateY: 24,
     topSeatAvatarNudgeY: 15,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
+    hiddenHandRules: {
+      baseDistancePx: 39,
+      sideDistanceBoostPx: 9.8,
+      topDistanceBoostPx: 7.4,
+      arcShiftPx: 3,
+      verticalLiftPx: 2,
+      fanSpacingPx: 12,
+      fanArcDepthPx: 2.2,
+      fanSpreadDeg: 7,
+      minClearancePx: 10,
+      rimClearancePx: 26,
+      rimEllipseInsetPx: 14,
+      handOrigin: "50% 117%",
+    },
   },
   tablet: {
-    meTranslateY: 18,
+    meTranslateY: 20,
     lowerSideTranslateY: 24,
     topSeatAvatarNudgeY: 15,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
+    hiddenHandRules: {
+      baseDistancePx: 36.5,
+      sideDistanceBoostPx: 9,
+      topDistanceBoostPx: 6.6,
+      arcShiftPx: 2.8,
+      verticalLiftPx: 1.8,
+      fanSpacingPx: 11.4,
+      fanArcDepthPx: 2,
+      fanSpreadDeg: 6.6,
+      minClearancePx: 9.5,
+      rimClearancePx: 25,
+      rimEllipseInsetPx: 13,
+      handOrigin: "50% 116%",
+    },
   },
   phoneWide: {
-    meTranslateY: 14,
+    meTranslateY: 16,
     lowerSideTranslateY: 18,
     topSeatAvatarNudgeY: 15,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.65rem, 4.6vw, 1.88rem)",
     hiddenHandScale: 0.92,
+    hiddenHandRules: {
+      baseDistancePx: 33,
+      sideDistanceBoostPx: 8,
+      topDistanceBoostPx: 5.6,
+      arcShiftPx: 2.4,
+      verticalLiftPx: 1.4,
+      fanSpacingPx: 10.3,
+      fanArcDepthPx: 1.8,
+      fanSpreadDeg: 6,
+      minClearancePx: 8.5,
+      rimClearancePx: 22,
+      rimEllipseInsetPx: 11,
+      handOrigin: "50% 112%",
+    },
   },
   phoneTall: {
-    meTranslateY: 18,
+    meTranslateY: 20,
     lowerSideTranslateY: 24,
     topSeatAvatarNudgeY: 15,
     hideTopSeatAvatarNudgeOnProfiles: ["phoneTall"],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
+    hiddenHandRules: {
+      baseDistancePx: 35,
+      sideDistanceBoostPx: 8.5,
+      topDistanceBoostPx: 6,
+      arcShiftPx: 2.5,
+      verticalLiftPx: 1.5,
+      fanSpacingPx: 11,
+      fanArcDepthPx: 1.9,
+      fanSpreadDeg: 6.3,
+      minClearancePx: 9,
+      rimClearancePx: 23,
+      rimEllipseInsetPx: 12,
+      handOrigin: "50% 114%",
+    },
   },
 };
 
@@ -598,39 +708,19 @@ const EMPTY_CENTER_STACK: BoardCenterStackConfig = {
   facePlayerRotation: false,
 };
 
-const SIX_PLAYER_HAND_OVERRIDES: Partial<Record<number, (base: SeatHandTransform) => SeatHandTransform>> = {
-  1: () => ({
-    x: 85,
-    y: -20,
-    rotate: 20,
-    origin: "50% -40px",
-  }),
-  2: (base) => ({
-    ...base,
-    y: base.y - 8,
-  }),
-  4: (base) => ({
-    ...base,
-    y: base.y - 8,
-  }),
-  5: () => ({
-    x: -85,
-    y: -20,
-    rotate: -20,
-    origin: "50% -40px",
-  }),
-};
-
-const FOUR_PLAYER_HAND_OVERRIDES: Partial<Record<number, (base: SeatHandTransform) => SeatHandTransform>> = {
-  1: (base) => ({
-    ...base,
-    x: base.x - 8,
-    y: -96,
-  }),
-  3: (base) => ({
-    ...base,
-    y: 18,
-  }),
+const DEFAULT_HIDDEN_HAND_RADIAL_RULES: HiddenHandRadialRules = {
+  baseDistancePx: 30,
+  sideDistanceBoostPx: 6.5,
+  topDistanceBoostPx: 4.5,
+  arcShiftPx: 2.5,
+  verticalLiftPx: 1.5,
+  fanSpacingPx: 11,
+  fanArcDepthPx: 1.9,
+  fanSpreadDeg: 6.3,
+  minClearancePx: 9,
+  rimClearancePx: 23,
+  rimEllipseInsetPx: 12,
+  handOrigin: "50% 114%",
 };
 
 const mergeSeatConfig = (
@@ -803,72 +893,125 @@ export const buildSeatGeometries = ({
   );
 };
 
-const getSixSeatHiddenHandBaseTransform = ({
-  geometry,
-}: {
-  geometry: BoardSeatGeometry;
-}): SeatHandTransform => {
-  const inwardDistance = 24 + geometry.sideStrength * 10;
-  const arcShift = geometry.sideStrength > 0.2 ? 16 + geometry.sideStrength * 8 : 0;
-  const arcDirection = geometry.sideStrength > 0.2 ? Math.sign(geometry.cos) : 0;
+const getHiddenHandSlots = (hiddenCardCount: number): number[] => {
+  if (hiddenCardCount <= 1) {
+    return [0];
+  }
 
-  return {
-    x: -geometry.cos * inwardDistance + arcDirection * arcShift,
-    y: -geometry.sin * inwardDistance - geometry.sideStrength * 16,
-    rotate: geometry.cos * 44,
-    origin: "50% -80px",
-  };
+  if (hiddenCardCount === 2) {
+    return [-0.5, 0.5];
+  }
+
+  return [-1, 0, 1];
 };
 
-const getGenericHiddenHandBaseTransform = ({
+export const buildOpponentHiddenHandLayout = ({
   geometry,
+  profileRules,
+  hiddenCardCount,
+  avatarSizePx,
+  nameBlockPx,
+  rimDistancePx,
+  rimInwardVector,
+  anchorOverride,
+  scale = 1,
 }: {
   geometry: BoardSeatGeometry;
-}): SeatHandTransform => ({
-  x: -geometry.cos * 18,
-  y: -geometry.sin * 16,
-  rotate: 0,
-  origin: "50% -36px",
-});
+  profileRules: HiddenHandRadialRules;
+  hiddenCardCount: number;
+  avatarSizePx: number;
+  nameBlockPx: number;
+  rimDistancePx?: number;
+  rimInwardVector?: { x: number; y: number };
+  anchorOverride?: HiddenHandAnchorOverride;
+  scale?: number;
+}): OpponentHiddenHandLayout => {
+  const safeHiddenCardCount = Math.max(0, Math.min(3, Math.floor(hiddenCardCount)));
+  let anchor: OpponentHiddenHandLayout["anchor"];
 
-const scaleSeatHandTransform = (
-  transform: SeatHandTransform,
-  scale: number
-): SeatHandTransform => ({
-  ...transform,
-  x: transform.x * scale,
-  y: transform.y * scale,
-});
+  if (anchorOverride) {
+    anchor = {
+      x: anchorOverride.x,
+      y: anchorOverride.y,
+      rotateDeg: anchorOverride.rotateDeg,
+      origin: profileRules.handOrigin,
+    };
+  } else {
+    const fallbackInward = { x: -geometry.cos, y: -geometry.sin };
+    const rimInwardMagnitude = rimInwardVector ? Math.hypot(rimInwardVector.x, rimInwardVector.y) : 0;
+    const inwardMagnitude =
+      rimInwardMagnitude > 0.0001 ? rimInwardMagnitude : Math.hypot(fallbackInward.x, fallbackInward.y) || 1;
+    const inward = {
+      x: (rimInwardMagnitude > 0.0001 ? rimInwardVector!.x : fallbackInward.x) / inwardMagnitude,
+      y: (rimInwardMagnitude > 0.0001 ? rimInwardVector!.y : fallbackInward.y) / inwardMagnitude,
+    };
+    const baseFacingDeg = (Math.atan2(inward.y, inward.x) * 180) / Math.PI + 90;
+    const radialDistance =
+      (profileRules.baseDistancePx +
+        geometry.sideStrength * profileRules.sideDistanceBoostPx +
+        Math.max(0, -geometry.sin) * profileRules.topDistanceBoostPx) *
+      scale;
+    const minAvatarAndNameClearance =
+      avatarSizePx * 0.5 + profileRules.minClearancePx * scale + nameBlockPx * 0.32;
+    const anchorDistance = Math.max(
+      rimDistancePx == null ? radialDistance : rimDistancePx + profileRules.rimClearancePx * scale,
+      minAvatarAndNameClearance
+    );
+
+    anchor = {
+      x: inward.x * anchorDistance,
+      y: inward.y * anchorDistance,
+      rotateDeg: baseFacingDeg,
+      origin: profileRules.handOrigin,
+    };
+  }
+
+  const cards = safeHiddenCardCount
+    ? getHiddenHandSlots(safeHiddenCardCount).map((slot, index) => ({
+        x: slot * profileRules.fanSpacingPx * scale,
+        y: -Math.abs(slot) * profileRules.fanArcDepthPx * scale,
+        rotateDeg: slot * profileRules.fanSpreadDeg,
+        zIndex: 100 - Math.round(Math.abs(slot) * 10) + (safeHiddenCardCount - index),
+      }))
+    : [];
+
+  return {
+    anchor,
+    cards,
+  };
+};
 
 export const getOpponentSeatHandTransform = ({
   seatIndex,
   totalSeats,
   geometry,
   hiddenHandScale = 1,
+  hiddenHandRules,
 }: {
   seatIndex: number;
   totalSeats: number;
   geometry: BoardSeatGeometry;
   hiddenHandScale?: number;
+  hiddenHandRules?: HiddenHandRadialRules;
 }): SeatHandTransform => {
-  const safeTotalSeats = Math.max(totalSeats, 2);
+  void seatIndex;
+  void totalSeats;
 
-  const base =
-    safeTotalSeats === 6
-      ? getSixSeatHiddenHandBaseTransform({ geometry })
-      : getGenericHiddenHandBaseTransform({ geometry });
+  const layout = buildOpponentHiddenHandLayout({
+    geometry,
+    profileRules: hiddenHandRules || DEFAULT_HIDDEN_HAND_RADIAL_RULES,
+    hiddenCardCount: 3,
+    avatarSizePx: 56,
+    nameBlockPx: 28,
+    scale: hiddenHandScale,
+  });
 
-  let transformed = base;
-
-  if (safeTotalSeats === 6) {
-    const override = SIX_PLAYER_HAND_OVERRIDES[seatIndex];
-    transformed = override ? override(base) : base;
-  } else if (safeTotalSeats === 4) {
-    const override = FOUR_PLAYER_HAND_OVERRIDES[seatIndex];
-    transformed = override ? override(base) : base;
-  }
-
-  return hiddenHandScale !== 1 ? scaleSeatHandTransform(transformed, hiddenHandScale) : transformed;
+  return {
+    x: layout.anchor.x,
+    y: layout.anchor.y,
+    rotate: layout.anchor.rotateDeg,
+    origin: layout.anchor.origin,
+  };
 };
 
 export const getMatchSeatPresentationForIndex = ({
@@ -886,6 +1029,9 @@ export const getMatchSeatPresentationForIndex = ({
       avatarNudgeY: 0,
       hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
       hiddenHandScale: 1,
+      hiddenHandRules: {
+        ...DEFAULT_HIDDEN_HAND_RADIAL_RULES,
+      },
     };
   }
 
@@ -908,6 +1054,7 @@ export const getMatchSeatPresentationForIndex = ({
     avatarNudgeY,
     hiddenHandCardWidth: seatPresentation.hiddenHandCardWidth,
     hiddenHandScale: seatPresentation.hiddenHandScale,
+    hiddenHandRules: seatPresentation.hiddenHandRules,
   };
 };
 

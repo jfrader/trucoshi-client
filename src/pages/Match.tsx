@@ -467,7 +467,6 @@ const _Match = () => {
                     match={match}
                     serverAheadTime={serverAheadTime}
                     seatGeometry={geometry}
-                    totalSeats={slots.length}
                     seatPresentation={seatPresentation}
                   />
                 </Box>

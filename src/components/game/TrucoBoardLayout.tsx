@@ -114,6 +114,7 @@ export const TrucoBoardLayout = <T extends SeatLike>({
       <BoardShell sx={{ maxWidth: layout.frame.shellMaxWidth }}>
         <BoardSurface
           elevation={8}
+          data-truco-board-surface="true"
           sx={{
             width: layout.frame.boardWidth,
             maxWidth: layout.frame.boardMaxWidth,
