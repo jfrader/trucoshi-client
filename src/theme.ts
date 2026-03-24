@@ -50,6 +50,18 @@ type TrucoshiUiTokens = {
     envidoBestColor: string;
     actionColors: Record<string, string>;
   };
+  match: {
+    scoreCard: Record<string, any>;
+    topBadge: Record<string, any>;
+    settingsButton: Record<string, any>;
+    emptySeat: Record<string, any>;
+    announcementPanel: Record<string, any>;
+    handPanel: Record<string, any>;
+    waitingPanel: Record<string, any>;
+  };
+  lobby: {
+    seatCard: Record<string, any>;
+  };
 };
 
 declare module "@mui/material/styles" {
@@ -101,6 +113,71 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       achico: "#5b3b2a",
       paso: "#435260",
       mazo: "#5f2e24",
+    },
+  },
+  match: {
+    scoreCard: {
+      px: { xs: 1.2, sm: 1.35 },
+      py: { xs: 0.55, sm: 0.7 },
+      minWidth: { xs: "5.2rem", sm: "5.55rem" },
+      borderRadius: "0.95rem",
+      background: "linear-gradient(170deg, rgba(19, 43, 35, 0.9), rgba(7, 24, 20, 0.92))",
+      border: "1px solid rgba(255,255,255,0.16)",
+      boxShadow: "0 10px 20px rgba(0,0,0,0.34)",
+    },
+    topBadge: {
+      px: { xs: 1.35, sm: 1.6 },
+      py: { xs: 0.56, sm: 0.7 },
+      borderRadius: "0.8rem",
+      bgcolor: "rgba(13, 27, 22, 0.89)",
+      border: "1px solid rgba(255,255,255,0.15)",
+      boxShadow: "0 8px 18px rgba(0,0,0,0.28)",
+    },
+    settingsButton: {
+      bgcolor: "rgba(23, 18, 13, 0.96)",
+      color: "warning.light",
+      border: "1px solid rgba(255,255,255,0.2)",
+      boxShadow: "0 8px 16px rgba(0,0,0,0.35)",
+    },
+    emptySeat: {
+      borderRadius: "999px",
+      border: "1px dashed rgba(255,255,255,0.35)",
+      bgcolor: "rgba(7,15,12,0.5)",
+      px: 1.05,
+      py: 0.45,
+      textAlign: "center",
+      minWidth: "4.2rem",
+    },
+    announcementPanel: {
+      borderRadius: "0.8rem",
+      bgcolor: "rgba(14, 23, 20, 0.88)",
+      border: "1px solid rgba(255,255,255,0.14)",
+      boxShadow: "0 8px 14px rgba(0,0,0,0.28)",
+    },
+    handPanel: {
+      borderRadius: "0.86rem",
+      background:
+        "linear-gradient(180deg, rgba(112,72,39,0.96) 0%, rgba(70,45,27,0.98) 18%, rgba(45,28,18,0.98) 100%)",
+      border: "1px solid rgba(255,255,255,0.16)",
+      overflow: "hidden",
+      boxShadow:
+        "0 10px 20px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -5px 12px rgba(0,0,0,0.28)",
+    },
+    waitingPanel: {
+      borderRadius: "0.75rem",
+      bgcolor: "rgba(33, 23, 16, 0.82)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 6px 14px rgba(0,0,0,0.24)",
+    },
+  },
+  lobby: {
+    seatCard: {
+      boxSizing: "border-box",
+      display: "flex",
+      flexDirection: "column",
+      background: "rgba(17, 28, 24, 0.87)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
     },
   },
 };

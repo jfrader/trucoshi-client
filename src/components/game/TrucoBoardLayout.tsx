@@ -1,5 +1,10 @@
 import { Box, BoxProps, Paper, styled } from "@mui/material";
 import { ReactNode, useMemo } from "react";
+import {
+  BoardLayoutModel,
+  BoardSeatGeometry,
+  buildSeatGeometries,
+} from "./boardLayoutPresets";
 
 export type SeatLike = {
   key: string;
@@ -19,15 +24,18 @@ export const buildAlternatingSlots = <T extends SeatLike>(
 ): TrucoBoardSlot<T>[] => {
   const length = Math.max(fill && players.length < fill ? fill : players.length, 2);
   const teamPlayers: Record<0 | 1, T[]> = { 0: [], 1: [] };
+
   players.forEach((player) => {
     teamPlayers[player.teamIdx].push(player);
   });
+
   const teamIndex: Record<0 | 1, number> = { 0: 0, 1: 0 };
 
   const slots: TrucoBoardSlot<T>[] = Array.from({ length }, (_, i) => {
     const teamIdx = (i % 2) as 0 | 1;
     const queue = teamPlayers[teamIdx];
     const player = queue[teamIndex[teamIdx]] || null;
+
     if (player) {
       teamIndex[teamIdx] += 1;
     }
@@ -48,58 +56,10 @@ export const buildAlternatingSlots = <T extends SeatLike>(
   return [...slots.slice(meIndex), ...slots.slice(0, meIndex)];
 };
 
-const getSeatPosition = (
-  index: number,
-  total: number,
-  xMultiplier: number = 1,
-  yMultiplier: number = 1,
-  sideWeightedYMultiplier: boolean = false,
-  sideInset: number = 0,
-  sideVerticalOffset: number = 0,
-  angleOffsetDeg: number = 0,
-  sideAngleOffsetDeg: number = 0,
-  topGroupShiftYPx: number = 0,
-  bottomGroupShiftYPx: number = 0
-) => {
-  const baseAngleDeg = 90 + angleOffsetDeg + (index * 360) / total;
-  const baseAngle = (baseAngleDeg * Math.PI) / 180;
-  const sideOffsetDeg = sideAngleOffsetDeg * Math.abs(Math.cos(baseAngle));
-  const angle = ((baseAngleDeg + sideOffsetDeg) * Math.PI) / 180;
-  const radiusX = 50 * xMultiplier;
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-  const sideStrength = Math.abs(cos);
-  const effectiveYMultiplier = sideWeightedYMultiplier
-    ? 1 + (yMultiplier - 1) * sideStrength
-    : yMultiplier;
-  const radiusY = 40 * effectiveYMultiplier;
-  const leftBase = 50 + cos * radiusX;
-  const topBase = 50 + sin * radiusY;
-
-  return {
-    left: `${leftBase - cos * sideStrength * sideInset}%`,
-    top: `${topBase + Math.sign(sin || 1) * sideStrength * sideVerticalOffset}%`,
-    groupShiftY: sin < 0 ? -topGroupShiftYPx : sin > 0 ? bottomGroupShiftYPx : 0,
-    cos,
-    sin,
-  };
-};
-
 export type TrucoBoardLayoutProps<T extends SeatLike> = {
   slots: TrucoBoardSlot<T>[];
-  renderSeat: (slot: TrucoBoardSlot<T>, index: number) => ReactNode;
-  seatRadiusXMultiplier?: number;
-  seatRadiusYMultiplier?: number;
-  seatSideWeightedYMultiplier?: boolean;
-  seatOutwardOffset?: number;
-  seatOutwardOffsetX?: number;
-  seatOutwardOffsetY?: number;
-  seatSideInset?: number;
-  seatSideVerticalOffset?: number;
-  seatAngleOffsetDeg?: number;
-  seatSideAngleOffsetDeg?: number;
-  seatTopGroupShiftYPx?: number;
-  seatBottomGroupShiftYPx?: number;
+  layout: BoardLayoutModel;
+  renderSeat: (slot: TrucoBoardSlot<T>, index: number, geometry: BoardSeatGeometry) => ReactNode;
   topContent?: ReactNode;
   centerContent?: ReactNode;
   bottomContent?: ReactNode;
@@ -110,19 +70,8 @@ export type TrucoBoardLayoutProps<T extends SeatLike> = {
 
 export const TrucoBoardLayout = <T extends SeatLike>({
   slots,
+  layout,
   renderSeat,
-  seatRadiusXMultiplier = 1,
-  seatRadiusYMultiplier = 1,
-  seatSideWeightedYMultiplier = false,
-  seatOutwardOffset = 0,
-  seatOutwardOffsetX,
-  seatOutwardOffsetY,
-  seatSideInset = 0,
-  seatSideVerticalOffset = 0,
-  seatAngleOffsetDeg = 0,
-  seatSideAngleOffsetDeg = 0,
-  seatTopGroupShiftYPx = 0,
-  seatBottomGroupShiftYPx = 0,
   topContent,
   centerContent,
   bottomContent,
@@ -131,67 +80,99 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   boardFooter,
   ...props
 }: TrucoBoardLayoutProps<T>) => {
-  const outwardX = seatOutwardOffsetX ?? seatOutwardOffset;
-  const outwardY = seatOutwardOffsetY ?? seatOutwardOffset;
-  const seatPositions = useMemo(
+  const rootSx = props.sx;
+  const mergedRootSx: any = rootSx
+    ? [{ padding: layout.frame.rootPadding }, ...(Array.isArray(rootSx) ? rootSx : [rootSx])]
+    : { padding: layout.frame.rootPadding };
+
+  const seatGeometries = useMemo(
     () =>
-      slots.map((_, index) =>
-        getSeatPosition(
-          index,
-          slots.length,
-          seatRadiusXMultiplier,
-          seatRadiusYMultiplier,
-          seatSideWeightedYMultiplier,
-          seatSideInset,
-          seatSideVerticalOffset,
-          seatAngleOffsetDeg,
-          seatSideAngleOffsetDeg,
-          seatTopGroupShiftYPx,
-          seatBottomGroupShiftYPx
-        )
-      ),
-    [
-      seatAngleOffsetDeg,
-      seatBottomGroupShiftYPx,
-      seatRadiusXMultiplier,
-      seatRadiusYMultiplier,
-      seatSideAngleOffsetDeg,
-      seatSideInset,
-      seatSideVerticalOffset,
-      seatSideWeightedYMultiplier,
-      seatTopGroupShiftYPx,
-      slots,
-    ]
+      layout.seatGeometries.length === slots.length
+        ? layout.seatGeometries
+        : buildSeatGeometries({
+            totalSeats: slots.length,
+            config: layout.seatConfig,
+          }),
+    [layout.seatConfig, layout.seatGeometries, slots.length]
   );
 
+  const fallbackGeometry = seatGeometries[0];
+
   return (
-    <Root {...props}>
-      {topContent ? <TopStrip>{topContent}</TopStrip> : null}
-      <BoardShell>
-        <BoardSurface elevation={8}>
-          <BoardCenter>{centerContent}</BoardCenter>
+    <Root {...props} sx={mergedRootSx}>
+      {topContent ? (
+        <TopStrip
+          sx={{
+            gap: layout.frame.topStripGap,
+            marginBottom: layout.frame.topStripMarginBottom,
+          }}
+        >
+          {topContent}
+        </TopStrip>
+      ) : null}
+
+      <BoardShell sx={{ maxWidth: layout.frame.shellMaxWidth }}>
+        <BoardSurface
+          elevation={8}
+          sx={{
+            width: layout.frame.boardWidth,
+            maxWidth: layout.frame.boardMaxWidth,
+            height: layout.frame.boardHeight,
+            maxHeight: layout.frame.boardMaxHeight,
+            aspectRatio: layout.frame.boardAspectRatio,
+            borderRadius: layout.frame.boardBorderRadius,
+            borderWidth: layout.frame.boardBorderWidth,
+            outlineWidth: layout.frame.boardOutlineWidth,
+            "&::before, &::after": {
+              borderRadius: layout.frame.boardInnerBorderRadius,
+            },
+          }}
+        >
+          <BoardCenter
+            sx={{
+              width: layout.frame.centerSize,
+              height: layout.frame.centerSize,
+            }}
+          >
+            {centerContent}
+          </BoardCenter>
+
           {slots.map((slot, index) => {
-            const pos = seatPositions[index];
+            const geometry = seatGeometries[index] || fallbackGeometry;
+
+            if (!geometry) {
+              return null;
+            }
+
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
                 style={{
-                  left: pos.left,
-                  top: pos.top,
-                  ["--seat-shift-x" as any]: `${pos.cos * outwardX}px`,
-                  ["--seat-shift-y" as any]: `${pos.sin * outwardY}px`,
-                  ["--seat-group-shift-y" as any]: `${pos.groupShiftY}px`,
+                  left: `${geometry.leftPercent}%`,
+                  top: `${geometry.topPercent}%`,
+                }}
+                sx={{
+                  width: layout.frame.seatWidth,
+                  maxWidth: layout.frame.seatMaxWidth,
+                  ["--seat-shift-x" as any]: `${geometry.seatShiftX}px`,
+                  ["--seat-shift-y" as any]: `${geometry.seatShiftY}px`,
+                  ["--seat-group-shift-y" as any]: `${geometry.groupShiftY}px`,
                 }}
                 data-slot-team={slot.teamIdx}
               >
-                {renderSeat(slot, index)}
+                {renderSeat(slot, index, geometry)}
               </SeatPosition>
             );
           })}
         </BoardSurface>
       </BoardShell>
+
       {boardFooter ? <BoardFooter>{boardFooter}</BoardFooter> : null}
-      {bottomContent ? <BottomStrip>{bottomContent}</BottomStrip> : null}
+
+      {bottomContent ? (
+        <BottomStrip sx={{ marginTop: layout.frame.bottomStripMarginTop }}>{bottomContent}</BottomStrip>
+      ) : null}
+
       {floatingLeft ? <FloatingLeft>{floatingLeft}</FloatingLeft> : null}
       {floatingRight ? <FloatingRight>{floatingRight}</FloatingRight> : null}
     </Root>
@@ -213,7 +194,6 @@ const Root = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  padding: theme.spacing(0.62, 0.05, 0.9),
   background: theme.trucoshiUi.board.shellBackground,
   "&::before": {
     content: '""',
@@ -223,34 +203,21 @@ const Root = styled(Box)(({ theme }) => ({
     background: theme.trucoshiUi.board.shellOverlay,
     zIndex: 0,
   },
-  [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(1.05, 0.35, 1.25),
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(1.2, 0.6, 1.45),
-  },
 }));
 
-const TopStrip = styled(Box)(({ theme }) => ({
+const TopStrip = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   flexWrap: "wrap",
-  gap: theme.spacing(0.7),
-  marginBottom: theme.spacing(0.36),
   position: "relative",
   zIndex: 2,
   width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    gap: theme.spacing(1),
-    marginBottom: theme.spacing(0.72),
-  },
 }));
 
 const BoardShell = styled(Box)(() => ({
   position: "relative",
   width: "100%",
-  maxWidth: "56rem",
   margin: "0 auto",
   flexGrow: 1,
   minHeight: 0,
@@ -262,10 +229,6 @@ const BoardShell = styled(Box)(() => ({
 
 const BoardSurface = styled(Paper)(({ theme }) => ({
   boxSizing: "border-box",
-  width: "120%",
-  maxWidth: "46rem",
-  aspectRatio: "1 / 1",
-  borderRadius: "50%",
   position: "relative",
   overflow: "visible",
   background: theme.trucoshiUi.board.surfaceBackground,
@@ -276,7 +239,6 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
     content: '""',
     position: "absolute",
     inset: "-0.12rem",
-    borderRadius: "50%",
     border: "1px solid rgba(255,255,255,0.18)",
     pointerEvents: "none",
   },
@@ -284,68 +246,28 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
     content: '""',
     position: "absolute",
     inset: "5.5%",
-    borderRadius: "50%",
     pointerEvents: "none",
     boxShadow: "inset 0 0 45px rgba(0,0,0,0.26)",
   },
-  [theme.breakpoints.up("sm")]: {
-    width: "108%",
-    borderWidth: "0.9rem",
-    outlineWidth: "0.24rem",
-  },
-  [theme.breakpoints.up("md")]: {
-    width: "auto",
-    maxWidth: "100%",
-    height: "100%",
-    maxHeight: "46.5rem",
-  },
-  [theme.breakpoints.between("sm", "md")]: {
-    maxHeight: "34rem",
-  },
-  // Landscape / wide-aspect mode: intentionally oval to use horizontal space better.
-  // Keep width capped to container to avoid side clipping.
-  "@media (min-width: 600px) and (min-aspect-ratio: 6/5)": {
-    width: "min(calc(100% - 1.5rem), 56rem)",
-    maxWidth: "calc(100% - 1.5rem)",
-    height: "min(88%, 42rem)",
-    maxHeight: "42rem",
-    aspectRatio: "auto",
-    borderRadius: "50% / 48%",
-    "&::before, &::after": {
-      borderRadius: "50% / 48%",
-    },
-  },
-  "@media (min-width: 900px) and (min-aspect-ratio: 6/5)": {
-    width: "min(calc(100% - 2.6rem), 50rem)",
-    maxWidth: "calc(100% - 2.6rem)",
-  },
 }));
 
-const BoardCenter = styled(Box)(({ theme }) => ({
+const BoardCenter = styled(Box)(() => ({
   position: "absolute",
   left: "50%",
   top: "50%",
   transform: "translate(-50%, -50%)",
-  width: "57%",
-  height: "57%",
   borderRadius: "50%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   textAlign: "center",
   zIndex: 2,
-  [theme.breakpoints.up("md")]: {
-    width: "50%",
-    height: "50%",
-  },
 }));
 
 const SeatPosition = styled(Box)(() => ({
   position: "absolute",
   transform:
     "translate(calc(-50% + var(--seat-shift-x, 0px)), calc(-50% + var(--seat-shift-y, 0px) + var(--seat-group-shift-y, 0px)))",
-  width: "35%",
-  maxWidth: "11.8rem",
   zIndex: 3,
 }));
 
@@ -354,11 +276,8 @@ const BottomStrip = styled(Box)(({ theme }) => ({
   zIndex: theme.zIndex.fab,
   width: "100%",
   maxWidth: "58rem",
-  margin: "0 auto",
-  marginTop: theme.spacing(0.34),
-  [theme.breakpoints.up("sm")]: {
-    marginTop: theme.spacing(0.92),
-  },
+  marginLeft: "auto",
+  marginRight: "auto",
 }));
 
 const BoardFooter = styled(Box)(({ theme }) => ({

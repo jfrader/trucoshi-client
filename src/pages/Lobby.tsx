@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import {
   Box,
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -11,11 +10,7 @@ import {
   Paper,
   Stack,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import { getTeamColor, getTeamName } from "../utils/team";
-import { AnimatedButton } from "../shared/AnimatedButton";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { useChatRoom } from "../components/chat/ChatRoom";
@@ -23,18 +18,14 @@ import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
 import { Settings } from "@mui/icons-material";
 import { GameOptions } from "../components/game/GameOptions";
-import { EMatchState, ILobbyOptions, IPublicPlayer } from "trucoshi";
+import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
 import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
-import { Link } from "../shared/Link";
-import { Sats } from "../shared/Sats";
-import { GameCard } from "../components/card/GameCard";
-import { BURNT_CARD } from "trucoshi";
-import { UserAvatar } from "../shared/UserAvatar";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
-import { getLobbyBoardLayout, resolveBoardViewport } from "../components/game/boardLayoutPresets";
+import { useBoardLayoutModel } from "../components/game/boardLayoutPresets";
+import { LobbySeatCard } from "../components/game/LobbySeatCard";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -44,29 +35,9 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "flor",
 ];
 
-const seatCardSx = {
-  borderRadius: "0.95rem",
-  p: 0.8,
-  minWidth: { xs: "9.3rem", sm: "9.8rem" },
-  boxSizing: "border-box",
-  display: "flex",
-  flexDirection: "column",
-  background: "rgba(17, 28, 24, 0.87)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
-};
-
-const LOBBY_SEAT_ROWS = {
-  header: "2.35rem",
-  cards: "3.1rem",
-  actions: "4.75rem",
-};
-
 export const Lobby = () => {
   useSound();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const isMidViewport = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const context = useContext(TrucoshiContext);
 
   if (!context) {
@@ -85,20 +56,27 @@ export const Lobby = () => {
     useMatch(sessionId);
 
   const chatRoom = useChatRoom(match);
+
   useEffect(() => {
-    if (match) {
-      if (
-        match.state === EMatchState.STARTED ||
-        match.state === EMatchState.FINISHED ||
-        match.state === EMatchState.PAUSED
-      ) {
-        match.state === EMatchState.STARTED ? setShuffle((c) => c + 1) : null;
-        const timer = setTimeout(
-          () => navigate(`/match/${sessionId}`, { replace: true }),
-          match.state === EMatchState.FINISHED ? 0 : 2000
-        );
-        return () => clearTimeout(timer);
+    if (!match) {
+      return;
+    }
+
+    if (
+      match.state === EMatchState.STARTED ||
+      match.state === EMatchState.FINISHED ||
+      match.state === EMatchState.PAUSED
+    ) {
+      if (match.state === EMatchState.STARTED) {
+        setShuffle((count) => count + 1);
       }
+
+      const timer = setTimeout(
+        () => navigate(`/match/${sessionId}`, { replace: true }),
+        match.state === EMatchState.FINISHED ? 0 : 2000
+      );
+
+      return () => clearTimeout(timer);
     }
   }, [match, navigate, sessionId]);
 
@@ -116,12 +94,16 @@ export const Lobby = () => {
 
   const onJoinMatch = (teamIdx: 0 | 1) => {
     setReadyLoading(true);
-    sessionId && joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
+    if (sessionId) {
+      joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
+    }
   };
 
   const onAddBot = (teamIdx: 0 | 1) => {
     setReadyLoading(true);
-    sessionId && addBot(sessionId, () => setReadyLoading(false), teamIdx);
+    if (sessionId) {
+      addBot(sessionId, () => setReadyLoading(false), teamIdx);
+    }
   };
 
   const onStartMatch = () => {
@@ -131,12 +113,16 @@ export const Lobby = () => {
 
   const onSetReady = () => {
     setReadyLoading(true);
-    sessionId && setReady(sessionId, true, () => setReadyLoading(false));
+    if (sessionId) {
+      setReady(sessionId, true, () => setReadyLoading(false));
+    }
   };
 
   const onSetUnReady = () => {
     setReadyLoading(true);
-    sessionId && setReady(sessionId, false, () => setReadyLoading(false));
+    if (sessionId) {
+      setReady(sessionId, false, () => setReadyLoading(false));
+    }
   };
 
   const slots = useMemo(
@@ -144,18 +130,11 @@ export const Lobby = () => {
       match ? buildAlternatingSlots(match.players, match.options.maxPlayers) : buildAlternatingSlots([]),
     [match]
   );
-  const boardViewport = useMemo(
-    () => resolveBoardViewport({ isDesktop, isMidViewport }),
-    [isDesktop, isMidViewport]
-  );
-  const seatLayout = useMemo(
-    () =>
-      getLobbyBoardLayout({
-        totalSeats: slots.length,
-        viewport: boardViewport,
-      }),
-    [boardViewport, slots.length]
-  );
+
+  const boardLayout = useBoardLayoutModel({
+    surface: "lobby",
+    totalSeats: slots.length,
+  });
 
   return (
     <Box
@@ -167,18 +146,11 @@ export const Lobby = () => {
     >
       <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
       <MatchBackdrop error={error} />
+
       {match ? (
         <TrucoBoardLayout
           slots={slots}
-          seatRadiusXMultiplier={seatLayout.seatRadiusXMultiplier}
-          seatRadiusYMultiplier={seatLayout.seatRadiusYMultiplier}
-          seatSideWeightedYMultiplier={seatLayout.seatSideWeightedYMultiplier}
-          seatSideInset={seatLayout.seatSideInset}
-          seatSideVerticalOffset={seatLayout.seatSideVerticalOffset}
-          seatAngleOffsetDeg={seatLayout.seatAngleOffsetDeg}
-          seatSideAngleOffsetDeg={seatLayout.seatSideAngleOffsetDeg}
-          seatTopGroupShiftYPx={seatLayout.seatTopGroupShiftYPx}
-          seatBottomGroupShiftYPx={seatLayout.seatBottomGroupShiftYPx}
+          layout={boardLayout}
           topContent={
             <>
               <Paper
@@ -186,7 +158,8 @@ export const Lobby = () => {
                   px: 1.2,
                   py: 0.8,
                   borderRadius: "1rem",
-                  background: "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
+                  background:
+                    "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
                   border: "1px solid rgba(255,255,255,0.14)",
                 }}
               >
@@ -197,6 +170,7 @@ export const Lobby = () => {
                   {match.players.length} / {match.options.maxPlayers}
                 </Typography>
               </Paper>
+
               <Paper
                 sx={{
                   px: 1.6,
@@ -210,6 +184,7 @@ export const Lobby = () => {
                   Sala {sessionId}
                 </Typography>
               </Paper>
+
               <IconButton
                 sx={{
                   bgcolor: "rgba(16, 27, 22, 0.9)",
@@ -247,223 +222,25 @@ export const Lobby = () => {
             </Paper>
           }
           renderSeat={(slot) => {
-            if (!slot.player) {
-              const team0Count = match.players.filter((p) => p.teamIdx === 0).length;
-              const team1Count = match.players.filter((p) => p.teamIdx === 1).length;
-              const canJoin =
-                match.players.length < match.options.maxPlayers &&
-                (slot.teamIdx === 0
-                  ? team0Count < match.options.maxPlayers / 2
-                  : team1Count < match.options.maxPlayers / 2);
+            const seatCard = boardLayout.lobby?.seatCard;
 
-              const canJoinBet =
-                !match.options.satsPerPlayer ||
-                (context.state.account?.wallet?.balanceInSats || 0) >= match.options.satsPerPlayer;
-
-              return (
-                <Paper sx={seatCardSx}>
-                  <Box
-                    sx={{
-                      minHeight: LOBBY_SEAT_ROWS.header,
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.77rem">
-                      {getTeamName(slot.teamIdx)}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      mt: 0.6,
-                      minHeight: LOBBY_SEAT_ROWS.cards,
-                      height: LOBBY_SEAT_ROWS.cards,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Box sx={{ width: "100%", height: "100%", visibility: "hidden" }} />
-                  </Box>
-                  <Stack
-                    mt={0.7}
-                    spacing={0.5}
-                    sx={{
-                      minHeight: LOBBY_SEAT_ROWS.actions,
-                      height: LOBBY_SEAT_ROWS.actions,
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    {canJoin && canJoinBet ? (
-                      <>
-                        {slot.teamIdx !== match.me?.teamIdx ? (
-                          <Button
-                            variant="contained"
-                            disabled={isReadyLoading}
-                            color={getTeamColor(slot.teamIdx)}
-                            size="small"
-                            onClick={() => onJoinMatch(slot.teamIdx)}
-                          >
-                            Unirse
-                          </Button>
-                        ) : (
-                          <Typography color="text.disabled" fontSize="0.74rem">
-                            Espacio libre
-                          </Typography>
-                        )}
-                        {match.me?.isOwner && match.options.satsPerPlayer <= 0 ? (
-                          <Button
-                            variant="outlined"
-                            disabled={isReadyLoading}
-                            color="warning"
-                            size="small"
-                            onClick={() => onAddBot(slot.teamIdx)}
-                          >
-                            Agregar Bot
-                          </Button>
-                        ) : (
-                          <Box sx={{ height: "2rem", visibility: "hidden" }} />
-                        )}
-                      </>
-                    ) : canJoin && !canJoinBet ? (
-                      <>
-                        {context.state.account?.wallet ? (
-                          <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.75rem">
-                            Necesitas depositar sats
-                          </Typography>
-                        ) : (
-                          <Button color={getTeamColor(slot.teamIdx)} component={Link} to="/login" size="small">
-                            Inicia sesion
-                          </Button>
-                        )}
-                        <Box sx={{ height: "2rem", visibility: "hidden" }} />
-                      </>
-                    ) : (
-                      <>
-                        <Typography color="text.disabled" fontSize="0.75rem">
-                          Completo
-                        </Typography>
-                        <Box sx={{ height: "2rem", visibility: "hidden" }} />
-                      </>
-                    )}
-                  </Stack>
-                </Paper>
-              );
+            if (!seatCard) {
+              return null;
             }
 
-            const player: IPublicPlayer = slot.player;
-            const hiddenCardsCount = Math.min(player.hand.length || 3, 3);
-
             return (
-              <Paper sx={seatCardSx}>
-                <Box sx={{ minHeight: LOBBY_SEAT_ROWS.header, display: "flex", alignItems: "center" }}>
-                  <Stack direction="row" alignItems="center" spacing={0.8}>
-                    <UserAvatar
-                      account={player}
-                      size="small"
-                      bgcolor={`${getTeamColor(player.teamIdx)}.main`}
-                    />
-                    <Box minWidth={0}>
-                      <Typography
-                        color="common.white"
-                        fontWeight={700}
-                        fontSize="0.98rem"
-                        noWrap
-                        title={player.name}
-                      >
-                        {player.name}
-                      </Typography>
-                      <Typography fontSize="0.82rem" color="grey.300">
-                        {player.ready ? "Listo" : "Esperando"}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Box>
-
-                <Box
-                  sx={{
-                    mt: 0.6,
-                    minHeight: LOBBY_SEAT_ROWS.cards,
-                    height: LOBBY_SEAT_ROWS.cards,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Stack direction="row" justifyContent="center">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                      <Box
-                        key={`${player.key}-${idx}`}
-                        ml={idx ? -1.2 : 0}
-                        sx={{ visibility: idx < hiddenCardsCount ? "visible" : "hidden" }}
-                      >
-                        <GameCard disableButton card={BURNT_CARD} width="clamp(2.15rem, 7vw, 2.35rem)" shadow />
-                      </Box>
-                    ))}
-                  </Stack>
-                </Box>
-
-                <Stack
-                  mt={0.7}
-                  spacing={0.5}
-                  sx={{
-                    minHeight: LOBBY_SEAT_ROWS.actions,
-                    height: LOBBY_SEAT_ROWS.actions,
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  {player.isMe ? (
-                    <>
-                      {player.ready ? (
-                        <Button
-                          title="Click para dejar de estar listo"
-                          disabled={isReadyLoading}
-                          size="small"
-                          color="success"
-                          onClick={onSetUnReady}
-                          endIcon={
-                            player.ready && match.options.satsPerPlayer > 0 && context.state.account ? (
-                              <Sats variant="body2">{match.options.satsPerPlayer}</Sats>
-                            ) : undefined
-                          }
-                        >
-                          Listo
-                        </Button>
-                      ) : (
-                        <AnimatedButton
-                          title="Pone listo para empezar"
-                          variant="contained"
-                          disabled={isReadyLoading}
-                          size="small"
-                          color="warning"
-                          onClick={onSetReady}
-                        >
-                          Estoy Listo
-                        </AnimatedButton>
-                      )}
-
-                      {!match.me?.isOwner ? (
-                        <Button
-                          color="error"
-                          size="small"
-                          onClick={() => match.me && kickPlayer(match.me.key)}
-                        >
-                          Salir
-                        </Button>
-                      ) : null}
-                    </>
-                  ) : match.me?.isOwner ? (
-                    <Button
-                      variant="contained"
-                      color="error"
-                      size="small"
-                      onClick={() => kickPlayer(player.key)}
-                    >
-                      Quitar
-                    </Button>
-                  ) : null}
-                </Stack>
-              </Paper>
+              <LobbySeatCard
+                slot={slot}
+                match={match}
+                seatCard={seatCard}
+                account={context.state.account}
+                isReadyLoading={isReadyLoading}
+                onJoinMatch={onJoinMatch}
+                onAddBot={onAddBot}
+                onSetReady={onSetReady}
+                onSetUnReady={onSetUnReady}
+                onKickPlayer={kickPlayer}
+              />
             );
           }}
           bottomContent={
@@ -495,7 +272,7 @@ export const Lobby = () => {
             </Stack>
           }
           boardFooter={
-            match?.players.some((p) => p.bot) ? (
+            match.players.some((player) => player.bot) ? (
               <Typography color="text.disabled" fontSize="small">
                 Las partidas con bots no suman victorias ni derrotas en el perfil.
               </Typography>
@@ -513,7 +290,7 @@ export const Lobby = () => {
             <GameOptions
               defaultValues={match.options}
               onClose={() => setOptionsOpen(false)}
-              onSubmit={(o) => setOptions(o, () => setOptionsOpen(false))}
+              onSubmit={(options) => setOptions(options, () => setOptionsOpen(false))}
             />
           </DialogContent>
         </Dialog>

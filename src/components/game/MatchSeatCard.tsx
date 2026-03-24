@@ -1,22 +1,23 @@
 import { alpha, Box, Paper, Stack, Typography } from "@mui/material";
-import { IPublicPlayer } from "trucoshi";
+import { BURNT_CARD, IPublicPlayer } from "trucoshi";
 import { useTurnTimer } from "../../trucoshi/hooks/useTurnTimer";
 import { getTeamColor } from "../../utils/team";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { GameCard } from "../card/GameCard";
-import { BURNT_CARD } from "trucoshi";
-import { getOpponentSeatHandTransform, getSeatPolarVector } from "./seatHandLayout";
+import {
+  BoardSeatGeometry,
+  MatchSeatPresentation,
+  getOpponentSeatHandTransform,
+} from "./boardLayoutPresets";
 
 type MatchSeatCardProps = {
   player: IPublicPlayer;
   isTurn: boolean;
   match: Parameters<typeof useTurnTimer>[2];
   serverAheadTime: number;
-  seatIndex: number;
+  seatGeometry: BoardSeatGeometry;
   totalSeats: number;
-  seatAngleOffsetDeg?: number;
-  seatSideAngleOffsetDeg?: number;
-  avatarNudgeYPx?: number;
+  seatPresentation: MatchSeatPresentation;
 };
 
 export const MatchSeatCard = ({
@@ -24,27 +25,21 @@ export const MatchSeatCard = ({
   isTurn,
   match,
   serverAheadTime,
-  seatIndex,
+  seatGeometry,
   totalSeats,
-  seatAngleOffsetDeg = 0,
-  seatSideAngleOffsetDeg = 0,
-  avatarNudgeYPx = 0,
+  seatPresentation,
 }: MatchSeatCardProps) => {
   const turnTimer = useTurnTimer(player, serverAheadTime, match);
   const hiddenCards = Math.min(player.hand.length, 3);
   const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
-  const polar = getSeatPolarVector({
-    seatIndex,
-    totalSeats,
-    seatAngleOffsetDeg,
-    seatSideAngleOffsetDeg,
-  });
+
   const seatHandTransform = player.isMe
     ? { x: 0, y: 0, rotate: 0, origin: "center center" }
     : getOpponentSeatHandTransform({
-        seatIndex,
+        seatIndex: seatGeometry.index,
         totalSeats,
-        polar,
+        geometry: seatGeometry,
+        hiddenHandScale: seatPresentation.hiddenHandScale,
       });
 
   const ringColor = turnTimer.alert ? "#f6b748" : turnTimer.isExtension ? "#ff6554" : "#44cc7b";
@@ -69,7 +64,7 @@ export const MatchSeatCard = ({
         justifyContent: "flex-start",
       }}
     >
-      <Box sx={{ transform: avatarNudgeYPx ? `translateY(${avatarNudgeYPx}px)` : "none" }}>
+      <Box sx={{ transform: seatPresentation.avatarNudgeY ? `translateY(${seatPresentation.avatarNudgeY}px)` : "none" }}>
         <Box
           sx={{
             p: timerVisible ? "2px" : 0,
@@ -164,6 +159,7 @@ export const MatchSeatCard = ({
         >
           {Array.from({ length: 3 }).map((_, idx) => {
             const visible = idx < hiddenCards && !player.abandoned;
+
             return (
               <Box
                 key={`${player.key}-${idx}`}
@@ -174,7 +170,12 @@ export const MatchSeatCard = ({
                   visibility: visible ? "visible" : "hidden",
                 }}
               >
-                <GameCard disableButton card={BURNT_CARD} width="clamp(1.82rem, 5.1vw, 2.02rem)" shadow />
+                <GameCard
+                  disableButton
+                  card={BURNT_CARD}
+                  width={seatPresentation.hiddenHandCardWidth}
+                  shadow
+                />
               </Box>
             );
           })}
