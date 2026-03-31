@@ -391,14 +391,19 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           aria-hidden="true"
           style={{
             position: "fixed",
-            left: "-200vw",
-            top: "-200vh",
-            width: 1,
-            height: 1,
+            left: 0,
+            top: 0,
+            width: "100vw",
+            height: "100vh",
             overflow: "hidden",
             opacity: 0,
             pointerEvents: "none",
             userSelect: "none",
+            zIndex: -1,
+            display: "flex",
+            flexWrap: "wrap",
+            alignContent: "flex-start",
+            gap: "1px",
           }}
         >
           {ALL_CARDS.map((card) => {
@@ -414,8 +419,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
                 alt=""
                 loading="eager"
                 decoding="sync"
+                fetchPriority="high"
                 draggable={false}
-                style={{ width: 1, height: 1, opacity: 0 }}
+                style={{ width: 24, height: 36, opacity: 0 }}
               />
             );
           })}

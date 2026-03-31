@@ -155,6 +155,7 @@ const _GameCard = ({
           src={request ? reqCards[name] : cards[name]}
           loading="eager"
           decoding="sync"
+          fetchPriority="high"
           draggable={false}
         />
       </GameCardButton>
