@@ -10,6 +10,12 @@ type Options = {
 
 export type CardSources = Record<ICard, string>;
 
+const themeSourceCache = new Map<ICardTheme, Partial<CardSources>>();
+const themeImageWarmCache = new Map<ICardTheme, Map<ICard, HTMLImageElement>>();
+
+const getRequestedCards = (cards?: ICard[]) =>
+  Array.from(new Set([...(cards || (Object.keys(CARDS) as ICard[])), BURNT_CARD])) as ICard[];
+
 export const getRandomCard = () => {
   const cardsArray = Object.keys(CARDS);
   const index = Math.floor(Math.random() * cardsArray.length);
@@ -57,39 +63,54 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
       setReady(false);
     }
 
-    const all: Array<Promise<[ICard, string]>> = [];
+    const requestedCards = getRequestedCards(cards);
+    const cachedForTheme = themeSourceCache.get(theme) || {};
+    const imageWarmCache = themeImageWarmCache.get(theme) || new Map<ICard, HTMLImageElement>();
+    const missingCards = requestedCards.filter((card) => !cachedForTheme[card]);
 
-    const importingCards = (cards || Object.keys(CARDS)).concat(BURNT_CARD);
+    const importPromises: Array<Promise<[ICard, string]>> = missingCards.map((card) =>
+      import(`../../assets/cards/${theme}/${card}.png`)
+        .catch(() => "Was not able to find a dynamic import for card " + card)
+        .then((png) => [card, png.default as string])
+    );
 
-    for (const card of importingCards) {
-      if (card) {
-        all.push(
-          import(`../../assets/cards/${theme}/${card}.png`)
-            .catch(() => "Was not able to find a dynamic import for card " + card)
-            .then((png) => [card as ICard, png.default as string])
-        );
-      }
-    }
-
-    Promise.all(Object.values(all))
+    Promise.all(importPromises)
       .then((results) => {
-        setSources((current) =>
-          results.reduce((prev, [card, png]) => {
-            return { ...prev, [card]: png };
-          }, current)
-        );
+        const mergedForTheme: Partial<CardSources> = { ...cachedForTheme };
+        for (const [card, png] of results) {
+          mergedForTheme[card] = png;
+        }
+
+        themeSourceCache.set(theme, mergedForTheme);
+        themeImageWarmCache.set(theme, imageWarmCache);
+
+        setSources((current) => ({ ...current, ...(mergedForTheme as CardSources) }));
 
         const imagePromises: Promise<void>[] = [];
 
-        for (const [card, png] of results) {
+        for (const card of requestedCards) {
+          const png = mergedForTheme[card];
+          if (!png || imageWarmCache.has(card)) {
+            continue;
+          }
+
           imagePromises.push(
             new Promise((resolve) => {
               const image = new Image();
               image.src = png;
-              image.onload = function () {
+
+              const done = () => {
+                imageWarmCache.set(card, image);
                 resolve();
               };
-              image.onerror = function () {
+
+              if (image.complete) {
+                done();
+                return;
+              }
+
+              image.onload = done;
+              image.onerror = () => {
                 console.error("failed to load " + theme + " card " + card);
                 resolve();
               };
@@ -102,6 +123,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
       .then(() => {
         setLoadedTheme(theme);
         setReady(true);
+        setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, loadedTheme, ready, theme]);

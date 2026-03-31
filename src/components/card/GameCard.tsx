@@ -153,6 +153,9 @@ const _GameCard = ({
           alt={CARDS_HUMAN_READABLE[name] || "Carta quemada"}
           style={{ objectFit: "cover", width }}
           src={request ? reqCards[name] : cards[name]}
+          loading="eager"
+          decoding="sync"
+          draggable={false}
         />
       </GameCardButton>
     );
