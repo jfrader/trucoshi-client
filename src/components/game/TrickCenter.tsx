@@ -113,6 +113,24 @@ export const TrickCenter = ({
     return orderByCard;
   }, [rounds]);
 
+  const playerRoundCardsByPlayerKey = useMemo(() => {
+    const byPlayer: Record<string, { roundIdx: number; played: IPlayedCard }[]> = {};
+
+    rounds.forEach((round, roundIdx) => {
+      round.forEach((played) => {
+        if (!byPlayer[played.player.key]) {
+          byPlayer[played.player.key] = [];
+        }
+
+        if (byPlayer[played.player.key].length < 3) {
+          byPlayer[played.player.key].push({ roundIdx, played });
+        }
+      });
+    });
+
+    return byPlayer;
+  }, [rounds]);
+
   return (
     <Box width="100%" height="100%" position="relative">
       {slots.flatMap((slot) => {
@@ -137,13 +155,7 @@ export const TrickCenter = ({
           centerLayout.centerShiftYPercent +
           geometry.sin * (centerLayout.playerSpreadYPercent + centerLayout.spreadBoost);
 
-        const playerRoundCards = rounds
-          .map((round, roundIdx) => ({
-            roundIdx,
-            played: round.find((entry) => entry.player.key === slot.player?.key),
-          }))
-          .filter((entry): entry is { roundIdx: number; played: IPlayedCard } => Boolean(entry.played))
-          .slice(0, 3);
+        const playerRoundCards = playerRoundCardsByPlayerKey[slot.player.key] || [];
 
         if (!playerRoundCards.length) {
           return [];

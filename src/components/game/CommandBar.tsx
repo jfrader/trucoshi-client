@@ -6,7 +6,7 @@ import {
   DANGEROUS_COMMANDS,
   WARNING_COMMANDS,
 } from "../../trucoshi/constants";
-import { PropsWithChildren } from "react";
+import { memo, PropsWithChildren, useMemo } from "react";
 import {
   EAnswerCommand,
   ECommand,
@@ -54,9 +54,10 @@ type CommandBarProps = PropsWithChildren<{
   compact?: boolean;
   showActions?: boolean;
   statusLabel?: string;
+  embedded?: boolean;
 }>;
 
-export const CommandBar = ({
+const _CommandBar = ({
   children,
   player,
   canSay,
@@ -64,10 +65,34 @@ export const CommandBar = ({
   compact = false,
   showActions = true,
   statusLabel = "Esperando jugada",
+  embedded = false,
 }: CommandBarProps) => {
   const theme = useTheme();
-  const actionColorByCommand = getActionColorByCommand(theme);
-  const bestEnvido = Math.max(...(player?.envido?.map((e) => e.value) || []));
+  const actionColorByCommand = useMemo(() => getActionColorByCommand(theme), [theme]);
+  const sortedEnvido = useMemo(
+    () => [...(player?.envido || [])].sort((a, b) => a.value - b.value),
+    [player?.envido]
+  );
+  const sortedCommands = useMemo(
+    () =>
+      [...(player?.commands || [])]
+        .map((c): [number, ECommand] => {
+          if (DANGEROUS_COMMANDS.includes(c)) {
+            return [2, c];
+          }
+
+          if (WARNING_COMMANDS.includes(c)) {
+            return [1, c];
+          }
+
+          return [0, c];
+        })
+        .sort(([a], [b]) => {
+          return a - b;
+        }),
+    [player?.commands]
+  );
+  const bestEnvido = Math.max(...sortedEnvido.map((e) => e.value));
   const shouldRenderActions = Boolean(showActions && canSay && player && !player.abandoned);
   const actionablePlayer = shouldRenderActions && player ? player : null;
 
@@ -76,15 +101,15 @@ export const CommandBar = ({
       sx={(theme) => ({
         position: "relative",
         zIndex: theme.zIndex.fab + 1,
-        background: theme.trucoshiUi.commandBar.background,
-        borderRadius: "0.95rem",
-        border: "1px solid rgba(255,255,255,0.16)",
-        p: compact ? 0.75 : 0.95,
+        background: embedded ? "transparent" : theme.trucoshiUi.commandBar.background,
+        borderRadius: embedded ? "0.6rem" : "0.95rem",
+        border: embedded ? "none" : "1px solid rgba(255,255,255,0.16)",
+        p: embedded ? 0.22 : compact ? 0.75 : 0.95,
         height: "100%",
         boxSizing: "border-box",
         display: "flex",
         alignItems: "center",
-        boxShadow: "0 10px 24px rgba(0,0,0,0.42)",
+        boxShadow: embedded ? "none" : "0 10px 24px rgba(0,0,0,0.42)",
       })}
     >
       <Box
@@ -107,14 +132,12 @@ export const CommandBar = ({
             flexWrap="nowrap"
             justifyContent="center"
             alignContent="flex-start"
-            minHeight="3.35rem"
+            minHeight={embedded ? "100%" : "3.35rem"}
             minWidth="100%"
             width="max-content"
           >
             {actionablePlayer.isEnvidoTurn &&
-              actionablePlayer.envido
-                ?.sort((a, b) => a.value - b.value)
-                .map((points) => (
+              sortedEnvido.map((points) => (
                   <Button
                     key={points.value}
                     onClick={() => onSayCommand(points.value)}
@@ -136,22 +159,7 @@ export const CommandBar = ({
                   </Button>
                 ))}
             {actionablePlayer.commands
-              ? [...actionablePlayer.commands]
-                  .map((c): [number, ECommand] => {
-                    if (DANGEROUS_COMMANDS.includes(c)) {
-                      return [2, c];
-                    }
-
-                    if (WARNING_COMMANDS.includes(c)) {
-                      return [1, c];
-                    }
-
-                    return [0, c];
-                  })
-                  .sort(([a], [b]) => {
-                    return a - b;
-                  })
-                  .map(([, command]) => (
+              ? sortedCommands.map(([, command]) => (
                     <Button
                       key={command}
                       onClick={() => onSayCommand(command)}
@@ -181,3 +189,5 @@ export const CommandBar = ({
     </Box>
   );
 };
+
+export const CommandBar = memo(_CommandBar);

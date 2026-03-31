@@ -29,6 +29,7 @@ import { CommDrawer } from "../components/chat/CommDrawer";
 import { DesktopCommRail } from "../components/chat/DesktopCommRail";
 import { useBoardLayoutModel } from "../components/game/boardLayoutPresets";
 import { LobbySeatCard } from "../components/game/LobbySeatCard";
+import { DevProfiler } from "../utils/devProfiler";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -155,10 +156,11 @@ export const Lobby = () => {
           })}
         >
           {isDesktopChat ? <DesktopCommRail chatProps={chatRoom} /> : null}
-          <TrucoBoardLayout
-            slots={slots}
-            layout={boardLayout}
-            topContent={
+          <DevProfiler id="Lobby.Board">
+            <TrucoBoardLayout
+              slots={slots}
+              layout={boardLayout}
+              topContent={
               <>
               <Paper
                 sx={{
@@ -284,8 +286,9 @@ export const Lobby = () => {
                   ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
                   : "Todos deben estar listos para empezar"}
               </Typography>
-            }
-          />
+              }
+            />
+          </DevProfiler>
         </Box>
       ) : (
         <FloatingProgress />

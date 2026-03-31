@@ -47,6 +47,7 @@ import {
 } from "../components/game/boardLayoutPresets";
 import { MatchTopBar } from "../components/game/MatchTopBar";
 import { MatchBottomDock } from "../components/game/MatchBottomDock";
+import { DevProfiler } from "../utils/devProfiler";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -335,6 +336,10 @@ const _Match = () => {
     [confirmation, me, playCard]
   );
 
+  const openChatDrawer = useCallback(() => {
+    chatProps.setActive(true);
+  }, [chatProps.setActive]);
+
   const shouldRedirectToLobby = Boolean(
     match &&
       (match.state === EMatchState.UNREADY || match.state === EMatchState.READY) &&
@@ -394,11 +399,8 @@ const _Match = () => {
 
   const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
   const matchDock = boardLayout.match?.dock;
-  const useShortPhoneChatDockButton =
-    boardLayout.profile === "phoneWide" ||
-    (boardLayout.profile === "phoneTall" && boardLayout.viewport.height <= 860);
-  const compactDockBottomOffset = useShortPhoneChatDockButton
-    ? "calc(env(safe-area-inset-bottom) + 0.28rem)"
+  const sideChatDockBottomOffset = !isDesktopChat
+    ? "env(safe-area-inset-bottom)"
     : undefined;
 
   return (
@@ -464,7 +466,11 @@ const _Match = () => {
                     onOpenAbandon={() => setAbandonOpen(true)}
                   />
                 }
-                centerContent={<TrickCenter rounds={rounds} slots={slots} layout={boardLayout} />}
+                centerContent={
+                  <DevProfiler id="Match.TrickCenter">
+                    <TrickCenter rounds={rounds} slots={slots} layout={boardLayout} />
+                  </DevProfiler>
+                }
                 renderSeat={(slot, index, geometry) => {
                   if (!slot.player) {
                     return (
@@ -517,28 +523,26 @@ const _Match = () => {
                 }
               />
 
-              <MatchBottomDock
-                layout={boardLayout}
-                latestAnnouncement={latestAnnouncement}
-                previousAnnouncement={previousAnnouncement}
-                thirdAnnouncement={thirdAnnouncement}
-                latestAnnouncementColor={latestAnnouncementColor}
-                previousAnnouncementColor={previousAnnouncementColor}
-                thirdAnnouncementColor={thirdAnnouncementColor}
-                animateAnnouncement={animateAnnouncement}
-                me={me}
-                canSay={canSay}
-                hasCommandActions={hasCommandActions}
-                canInteractWithHand={canInteractWithHand}
-                onPlayCard={onPlayCard}
-                onSayCommand={sayCommand}
-                onOpenChat={
-                  !isDesktopChat && useShortPhoneChatDockButton
-                    ? () => chatProps.setActive(true)
-                    : undefined
-                }
-                bottomOffsetOverride={compactDockBottomOffset}
-              />
+              <DevProfiler id="Match.BottomDock">
+                <MatchBottomDock
+                  layout={boardLayout}
+                  latestAnnouncement={latestAnnouncement}
+                  previousAnnouncement={previousAnnouncement}
+                  thirdAnnouncement={thirdAnnouncement}
+                  latestAnnouncementColor={latestAnnouncementColor}
+                  previousAnnouncementColor={previousAnnouncementColor}
+                  thirdAnnouncementColor={thirdAnnouncementColor}
+                  animateAnnouncement={animateAnnouncement}
+                  me={me}
+                  canSay={canSay}
+                  hasCommandActions={hasCommandActions}
+                  canInteractWithHand={canInteractWithHand}
+                  onPlayCard={onPlayCard}
+                  onSayCommand={sayCommand}
+                  onOpenChat={!isDesktopChat ? openChatDrawer : undefined}
+                  bottomOffsetOverride={sideChatDockBottomOffset}
+                />
+              </DevProfiler>
             </Box>
           </Box>
 
@@ -563,9 +567,9 @@ const _Match = () => {
         <CommDrawer
           chatProps={chatProps}
           variant="chatEmotes"
-          bottomOffset="calc(env(safe-area-inset-bottom) + 0.28rem)"
+          bottomOffset="env(safe-area-inset-bottom)"
           compact={boardLayout.profile === "phoneWide"}
-          showLauncher={!useShortPhoneChatDockButton}
+          showLauncher={false}
         />
       ) : null}
 

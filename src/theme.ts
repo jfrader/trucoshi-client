@@ -58,6 +58,10 @@ type TrucoshiUiTokens = {
     announcementPanel: Record<string, any>;
     handPanel: Record<string, any>;
     waitingPanel: Record<string, any>;
+    dockShell: Record<string, any>;
+    dockDivider: Record<string, any>;
+    dockCommandLane: Record<string, any>;
+    dockChatButton: Record<string, any>;
   };
   lobby: {
     seatCard: Record<string, any>;
@@ -187,6 +191,33 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       bgcolor: "rgba(33, 23, 16, 0.82)",
       border: "1px solid rgba(255,255,255,0.12)",
       boxShadow: "0 6px 14px rgba(0,0,0,0.24)",
+    },
+    dockShell: {
+      borderRadius: "0.95rem",
+      background:
+        "linear-gradient(180deg, rgba(115,72,39,0.96) 0%, rgba(73,47,29,0.98) 16%, rgba(44,29,19,0.98) 100%)",
+      border: "1px solid rgba(255,255,255,0.16)",
+      boxShadow:
+        "0 11px 24px rgba(0,0,0,0.36), inset 0 2px 0 rgba(255,255,255,0.08), inset 0 -7px 14px rgba(0,0,0,0.28)",
+      overflow: "visible",
+    },
+    dockDivider: {
+      height: "1px",
+      background:
+        "linear-gradient(90deg, rgba(0,0,0,0), rgba(255,255,255,0.24) 18%, rgba(255,255,255,0.18) 82%, rgba(0,0,0,0))",
+      opacity: 0.9,
+    },
+    dockCommandLane: {
+      background:
+        "linear-gradient(180deg, rgba(44,27,18,0.92) 0%, rgba(31,20,13,0.96) 100%)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+    },
+    dockChatButton: {
+      border: "1px solid rgba(255,255,255,0.2)",
+      background:
+        "linear-gradient(165deg, rgba(56,56,50,0.97), rgba(34,33,31,0.98))",
+      boxShadow: "0 6px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
+      color: "rgba(255,255,255,0.92)",
     },
   },
   lobby: {
