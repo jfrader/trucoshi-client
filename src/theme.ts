@@ -74,6 +74,12 @@ type TrucoshiUiTokens = {
     announcementPanelShadow: string;
     drawerPanelBackground: string;
     drawerPanelBorderTop: string;
+    railWidth: string;
+    railBorder: string;
+    railBackground: string;
+    railShadow: string;
+    railHeaderBackground: string;
+    railHeaderBorderBottom: string;
   };
 };
 
@@ -208,6 +214,13 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     drawerPanelBackground:
       "linear-gradient(180deg, rgba(17,24,22,0.98), rgba(9,14,13,0.99))",
     drawerPanelBorderTop: "1px solid rgba(255,255,255,0.12)",
+    railWidth: "19.5rem",
+    railBorder: "1px solid rgba(255,255,255,0.14)",
+    railBackground:
+      "radial-gradient(120% 90% at 8% 8%, rgba(255,255,255,0.07), transparent 52%), linear-gradient(175deg, rgba(74,46,28,0.95), rgba(40,26,18,0.98) 28%, rgba(18,22,20,0.98) 72%, rgba(12,17,15,0.99))",
+    railShadow: "0 12px 26px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.06)",
+    railHeaderBackground: "linear-gradient(180deg, rgba(18,30,25,0.66), rgba(11,18,16,0.35))",
+    railHeaderBorderBottom: "1px solid rgba(255,255,255,0.12)",
   },
 };
 

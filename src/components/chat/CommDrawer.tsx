@@ -13,22 +13,18 @@ import {
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import CloseIcon from "@mui/icons-material/Close";
-import EmojiEmotionsOutlinedIcon from "@mui/icons-material/EmojiEmotionsOutlined";
-import { SvgIconComponent } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { ChatRoom, getMessageContent, useChatRoom } from "./ChatRoom";
 import { getTeamColor } from "../../utils/team";
+import { CommTabName, FILTER_BY_TAB } from "./commTabs";
 
 type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
   bottomOffset?: string;
   variant?: "announcement" | "chatEmotes";
   compact?: boolean;
+  showLauncher?: boolean;
 };
-
-type TabName = "all" | "chat" | "system";
-type DrawerMessage = { command?: unknown; system?: unknown; card?: unknown };
-type MessageFilter = (message: DrawerMessage) => boolean;
 
 const DrawerContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
@@ -57,28 +53,12 @@ const AnnouncementPaper = styled(Paper)(({ theme }) => ({
   padding: "0.55rem 0.725rem",
 }));
 
-const FILTER_BY_TAB: Partial<Record<TabName, MessageFilter>> = {
-  chat: (message) => !message.command && !message.system && !message.card,
-  system: (message) => Boolean(message.command || message.system || message.card),
-};
-
-type QuickAction = {
-  label: string;
-  icon: SvgIconComponent;
-  tab: TabName;
-};
-
-const QUICK_ACTIONS: QuickAction[] = [
-  { label: "Chat", icon: ChatBubbleOutlineIcon, tab: "chat" },
-  { label: "Emotes", icon: EmojiEmotionsOutlinedIcon, tab: "chat" },
-];
-
 const QuickActionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "compact",
 })<{ compact: boolean }>(({ compact, theme }) => ({
-  flex: 1,
-  borderRadius: "999px",
-  justifyContent: "flex-start",
+  width: "100%",
+  borderRadius: "0.7rem",
+  justifyContent: "center",
   fontWeight: 800,
   textTransform: "uppercase",
   letterSpacing: "0.02em",
@@ -86,7 +66,7 @@ const QuickActionButton = styled(Button, {
   border: theme.trucoshiUi.chatDrawer.actionButtonBorder,
   background: theme.trucoshiUi.chatDrawer.actionButtonBackground,
   boxShadow: theme.trucoshiUi.chatDrawer.actionButtonShadow,
-  minHeight: "2.08rem",
+  minHeight: "2.2rem",
   paddingInline: "0.92rem",
   paddingBlock: "0.28rem",
   fontSize: "0.82rem",
@@ -97,7 +77,7 @@ const QuickActionButton = styled(Button, {
     fontSize: "1.02rem",
   },
   [theme.breakpoints.down("sm")]: {
-    minHeight: "1.92rem",
+    minHeight: "2rem",
     paddingInline: "0.74rem",
     paddingBlock: "0.2rem",
     fontSize: "0.74rem",
@@ -139,33 +119,32 @@ export const CommDrawer = ({
   bottomOffset = "calc(env(safe-area-inset-bottom) + 0.2rem)",
   variant = "announcement",
   compact = false,
+  showLauncher = true,
 }: Props) => {
-  const [tab, setTab] = useState<TabName>(() => (variant === "chatEmotes" ? "chat" : "all"));
+  const [tab, setTab] = useState<CommTabName>(() => (variant === "chatEmotes" ? "chat" : "all"));
 
   const room = chatProps.useChatState[0];
+  const filteredMessages = useMemo(() => {
+    const allMessages = room?.messages || [];
+    const filter = FILTER_BY_TAB[tab];
+    const tabMessages = filter ? allMessages.filter(filter) : allMessages;
+    return tabMessages.slice(-80);
+  }, [room?.messages, tab]);
 
-  const systemMessages = useMemo(
-    () =>
-      (room?.messages || [])
-        .filter((message) => message.command || message.system || message.card)
-        .slice(-80),
-    [room?.messages],
-  );
-
-  const latestAnnouncement = systemMessages[systemMessages.length - 1] || chatProps.latestMessage;
+  const latestAnnouncement = filteredMessages[filteredMessages.length - 1] || chatProps.latestMessage;
   const latestColor =
     latestAnnouncement?.command && latestAnnouncement?.user?.key !== undefined
       ? `${getTeamColor(Number(latestAnnouncement.user.key))}.light`
       : "grey.100";
 
-  const openDrawer = (nextTab?: TabName) => {
+  const openDrawer = (nextTab?: CommTabName) => {
     nextTab && setTab(nextTab);
     chatProps.setActive(true);
   };
 
   return (
     <DrawerContainer sx={{ bottom: bottomOffset }}>
-      {variant === "chatEmotes" ? (
+      {showLauncher && variant === "chatEmotes" ? (
         <ChatActionsPaper
           sx={{
             borderRadius: {
@@ -178,25 +157,16 @@ export const CommDrawer = ({
             py: { xs: 0.24, sm: 0.3, md: 0.36, lg: compact ? 0.32 : 0.5 },
           }}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={{ xs: 0.34, sm: 0.42, md: 0.5, lg: compact ? 0.45 : 0.6 }}
+          <QuickActionButton
+            variant="contained"
+            startIcon={<ChatBubbleOutlineIcon />}
+            onClick={() => openDrawer("chat")}
+            compact={compact}
           >
-            {QUICK_ACTIONS.map(({ label, icon: Icon, tab: targetTab }) => (
-              <QuickActionButton
-                key={label}
-                variant="contained"
-                startIcon={<Icon />}
-                onClick={() => openDrawer(targetTab)}
-                compact={compact}
-              >
-                {label}
-              </QuickActionButton>
-            ))}
-          </Stack>
+            Chat
+          </QuickActionButton>
         </ChatActionsPaper>
-      ) : (
+      ) : showLauncher ? (
         <AnnouncementPaper>
           <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
             <Stack direction="row" alignItems="center" spacing={0.8} minWidth={0}>
@@ -208,12 +178,9 @@ export const CommDrawer = ({
                 color={latestColor}
                 fontWeight={800}
                 sx={{
-                  fontSize: { xs: "1.22rem", sm: "1.06rem" },
+                  fontSize: { xs: "1.08rem", sm: "1.06rem" },
                   lineHeight: 1.12,
-                  whiteSpace: "normal",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
+                  whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                 }}
@@ -221,16 +188,27 @@ export const CommDrawer = ({
                 {latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin novedades"}
               </Typography>
             </Stack>
+            <IconButton
+              onClick={() => openDrawer()}
+              color="primary"
+              sx={{
+                display: { xs: "inline-flex", sm: "none" },
+                flexShrink: 0,
+              }}
+            >
+              <ChatBubbleOutlineIcon />
+            </IconButton>
             <Button
               size="small"
               variant="contained"
               startIcon={<ChatBubbleOutlineIcon />}
               onClick={() => openDrawer()}
               sx={{
+                display: { xs: "none", sm: "inline-flex" },
                 whiteSpace: "nowrap",
                 borderRadius: "999px",
                 px: 1.8,
-                fontSize: { xs: "0.96rem", sm: "0.9rem" },
+                fontSize: "0.9rem",
                 flexShrink: 0,
               }}
             >
@@ -238,7 +216,7 @@ export const CommDrawer = ({
             </Button>
           </Stack>
         </AnnouncementPaper>
-      )}
+      ) : null}
 
       <Drawer
         anchor="bottom"

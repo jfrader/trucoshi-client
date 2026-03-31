@@ -10,7 +10,9 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { useChatRoom } from "../components/chat/ChatRoom";
@@ -24,6 +26,7 @@ import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
+import { DesktopCommRail } from "../components/chat/DesktopCommRail";
 import { useBoardLayoutModel } from "../components/game/boardLayoutPresets";
 import { LobbySeatCard } from "../components/game/LobbySeatCard";
 
@@ -48,6 +51,8 @@ export const Lobby = () => {
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const [isReadyLoading, setReadyLoading] = useState(false);
+  const theme = useTheme();
+  const isDesktopChat = useMediaQuery(theme.breakpoints.up("lg"));
 
   const [{ match, error }, { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer }] =
     useMatch(sessionId);
@@ -136,11 +141,25 @@ export const Lobby = () => {
       <MatchBackdrop error={error} />
 
       {match ? (
-        <TrucoBoardLayout
-          slots={slots}
-          layout={boardLayout}
-          topContent={
-            <>
+        <Box
+          sx={(theme) => ({
+            height: "100%",
+            minHeight: 0,
+            display: "grid",
+            gridTemplateColumns: isDesktopChat
+              ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
+              : "minmax(0, 1fr)",
+            gap: 0,
+            p: 0,
+            boxSizing: "border-box",
+          })}
+        >
+          {isDesktopChat ? <DesktopCommRail chatProps={chatRoom} /> : null}
+          <TrucoBoardLayout
+            slots={slots}
+            layout={boardLayout}
+            topContent={
+              <>
               <Paper
                 sx={{
                   px: 1.2,
@@ -183,90 +202,91 @@ export const Lobby = () => {
               >
                 <Settings />
               </IconButton>
-            </>
-          }
-          centerContent={
-            <Paper
-              sx={{
-                width: "100%",
-                maxWidth: "18rem",
-                maxHeight: "100%",
-                overflow: "auto",
-                p: 1,
-                borderRadius: "1rem",
-                background: "rgba(10, 18, 15, 0.74)",
-                border: "1px solid rgba(255,255,255,0.1)",
-              }}
-            >
-              <Typography fontWeight={700} fontSize="0.9rem" textAlign="left" mb={0.4}>
-                Reglas
-              </Typography>
-              <GameOptionsList
-                dense
-                options={match.options}
-                keys={context.state.account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
-                disablePadding
-              />
-            </Paper>
-          }
-          renderSeat={(slot) => {
-            const seatCard = boardLayout.lobby?.seatCard;
-
-            if (!seatCard) {
-              return null;
+              </>
             }
+            centerContent={
+              <Paper
+                sx={{
+                  width: "100%",
+                  maxWidth: "18rem",
+                  maxHeight: "100%",
+                  overflow: "auto",
+                  p: 1,
+                  borderRadius: "1rem",
+                  background: "rgba(10, 18, 15, 0.74)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <Typography fontWeight={700} fontSize="0.9rem" textAlign="left" mb={0.4}>
+                  Reglas
+                </Typography>
+                <GameOptionsList
+                  dense
+                  options={match.options}
+                  keys={context.state.account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
+                  disablePadding
+                />
+              </Paper>
+            }
+            renderSeat={(slot) => {
+              const seatCard = boardLayout.lobby?.seatCard;
 
-            return (
-              <LobbySeatCard
-                slot={slot}
-                match={match}
-                seatCard={seatCard}
-                account={context.state.account}
-                isReadyLoading={isReadyLoading}
-                onJoinMatch={onJoinMatch}
-                onAddBot={onAddBot}
-                onSetReady={onSetReady}
-                onSetUnReady={onSetUnReady}
-                onKickPlayer={kickPlayer}
-              />
-            );
-          }}
-          bottomContent={
-            <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
-              {match.me?.isOwner ? (
-                <LoadingButton
-                  isLoading={isReadyLoading}
-                  disabled={match.state !== EMatchState.READY}
-                  variant="contained"
-                  color="success"
-                  onClick={onStartMatch}
-                >
-                  Empezar Partida
-                </LoadingButton>
-              ) : (
-                <Paper
-                  sx={{
-                    p: 1,
-                    borderRadius: "0.8rem",
-                    bgcolor: "rgba(18, 27, 23, 0.84)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  <Typography fontSize="0.86rem" color="grey.300" textAlign="center">
-                    Esperando al host para empezar la partida
-                  </Typography>
-                </Paper>
-              )}
-            </Stack>
-          }
-          boardFooter={
-            <Typography color="text.disabled" fontSize="small">
-              {match.players.some((player) => player.bot)
-                ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
-                : "Todos deben estar listos para empezar"}
-            </Typography>
-          }
-        />
+              if (!seatCard) {
+                return null;
+              }
+
+              return (
+                <LobbySeatCard
+                  slot={slot}
+                  match={match}
+                  seatCard={seatCard}
+                  account={context.state.account}
+                  isReadyLoading={isReadyLoading}
+                  onJoinMatch={onJoinMatch}
+                  onAddBot={onAddBot}
+                  onSetReady={onSetReady}
+                  onSetUnReady={onSetUnReady}
+                  onKickPlayer={kickPlayer}
+                />
+              );
+            }}
+            bottomContent={
+              <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
+                {match.me?.isOwner ? (
+                  <LoadingButton
+                    isLoading={isReadyLoading}
+                    disabled={match.state !== EMatchState.READY}
+                    variant="contained"
+                    color="success"
+                    onClick={onStartMatch}
+                  >
+                    Empezar Partida
+                  </LoadingButton>
+                ) : (
+                  <Paper
+                    sx={{
+                      p: 1,
+                      borderRadius: "0.8rem",
+                      bgcolor: "rgba(18, 27, 23, 0.84)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                  >
+                    <Typography fontSize="0.86rem" color="grey.300" textAlign="center">
+                      Esperando al host para empezar la partida
+                    </Typography>
+                  </Paper>
+                )}
+              </Stack>
+            }
+            boardFooter={
+              <Typography color="text.disabled" fontSize="small">
+                {match.players.some((player) => player.bot)
+                  ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
+                  : "Todos deben estar listos para empezar"}
+              </Typography>
+            }
+          />
+        </Box>
       ) : (
         <FloatingProgress />
       )}
@@ -284,7 +304,7 @@ export const Lobby = () => {
         </Dialog>
       ) : null}
 
-      <CommDrawer chatProps={chatRoom} />
+      {!isDesktopChat ? <CommDrawer chatProps={chatRoom} /> : null}
     </Box>
   );
 };

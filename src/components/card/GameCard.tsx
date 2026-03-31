@@ -65,6 +65,7 @@ const suitBottomSx = {
 export type GameCardProps = {
   card: ICard;
   disableButton?: boolean;
+  disabledMask?: boolean;
   disableDoubleClick?: boolean;
   enableHover?: boolean;
   burn?: boolean;
@@ -88,6 +89,7 @@ const _GameCard = ({
   shadow = false,
   width = "4.4em",
   disableButton,
+  disabledMask = false,
   theme = "",
   ...buttonProps
 }: GameCardProps) => {
@@ -136,6 +138,14 @@ const _GameCard = ({
         shadow={shadow}
         enablehover={enableHover}
         disableEvents={disableButton}
+        disabledmask={disabledMask}
+        sx={{
+          width,
+          height: `calc(${width} * 1.48)`,
+          borderRadius: `calc(${width} / 13)`,
+          overflow: "hidden",
+          ...buttonProps.sx,
+        }}
         {...events}
         {...buttonProps}
       >
@@ -164,10 +174,12 @@ const _GameCard = ({
       onDoubleClick={onDoubleClick}
       enablehover={enableHover}
       disableEvents={disableButton}
+      disabledmask={disabledMask}
       sx={{
         width,
         height: `calc(${width} * 1.48)`,
         borderRadius: `calc(${width} / 13)`,
+        overflow: "hidden",
         ...buttonProps.sx,
       }}
       {...buttonProps}
@@ -198,7 +210,7 @@ const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
 
 const GameCardButton = styled(Button, {
   shouldForwardProp: (prop) =>
-    !["enablehover", "emojicard", "zoom", "shadow", "scale", "disableEvents"].includes(
+    !["enablehover", "emojicard", "zoom", "shadow", "scale", "disableEvents", "disabledmask"].includes(
       prop as string
     ),
 })<{
@@ -208,7 +220,17 @@ const GameCardButton = styled(Button, {
   shadow?: boolean;
   scale?: number;
   disableEvents?: boolean;
-}>(({ theme, enablehover, emojicard, zoom, shadow, scale = 1.75, disableEvents = false }) => ({
+  disabledmask?: boolean;
+}>(({
+  theme,
+  enablehover,
+  emojicard,
+  zoom,
+  shadow,
+  scale = 1.75,
+  disableEvents = false,
+  disabledmask = false,
+}) => ({
   lineHeight: 1,
   position: "relative",
   transition: theme.transitions.create(["transform", "box-shadow"], {
@@ -238,6 +260,19 @@ const GameCardButton = styled(Button, {
       "& *": {
         zIndex: theme.zIndex.appBar,
       },
+    },
+  }),
+  ...(disabledmask && {
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      inset: 0,
+      borderRadius: "inherit",
+      border: "1px solid rgba(255,255,255,0.14)",
+      backgroundColor: "rgba(7, 10, 9, 0.42)",
+      boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22)",
+      pointerEvents: "none",
+      zIndex: 3,
     },
   }),
 }));

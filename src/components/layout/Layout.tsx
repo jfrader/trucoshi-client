@@ -1,5 +1,6 @@
 import { ClickAwayListener, CssBaseline, IconButton, Paper, ThemeProvider, styled } from "@mui/material";
 import { Box } from "@mui/system";
+import type { Theme } from "@mui/material/styles";
 import { PropsWithChildren, useEffect } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
 import { themes } from "../../theme";
@@ -115,7 +116,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
                 pt={isGameSurface ? 0 : "50px"}
                 sx={
                   isGameSurface
-                    ? (theme) => ({
+                    ? (theme: Theme) => ({
                         [theme.breakpoints.up("md")]: {
                           paddingTop: 0,
                         },

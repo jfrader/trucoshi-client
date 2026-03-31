@@ -8,12 +8,30 @@ body {
 }
 
 :root {
-  font-size: calc(8px + 0.85vmin);
+  font-size: clamp(12px, calc(8.4px + 0.9vmin), 16px);
 }
 
 /* Non-game pages need larger base rem sizing on mobile, while game/lobby
    keep their current tuned scale. Layout mounts either .app-surface or
    .game-surface so we can scope this globally without JS effects. */
+@media (max-width: 899px) {
+  html:has(.game-surface) {
+    font-size: clamp(12.2px, calc(8.8px + 0.95vmin), 16px);
+  }
+}
+
+@media (max-width: 600px) {
+  html:has(.game-surface) {
+    font-size: clamp(12.4px, calc(9px + 1vmin), 16px);
+  }
+}
+
+@media (max-width: 600px) and (max-height: 700px) {
+  html:has(.game-surface) {
+    font-size: clamp(11.6px, calc(8.1px + 0.78vmin), 15px);
+  }
+}
+
 @media (max-width: 899px) {
   html:has(.app-surface) {
     font-size: calc(9px + 1vmin);

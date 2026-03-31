@@ -11,7 +11,9 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
@@ -36,6 +38,7 @@ import { useConfirmationModal } from "../hooks/useConfirmationModal";
 import { ConfirmationModal } from "../shared/ConfirmationModal";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
+import { DesktopCommRail } from "../components/chat/DesktopCommRail";
 import { MatchSeatCard } from "../components/game/MatchSeatCard";
 import { TrickCenter } from "../components/game/TrickCenter";
 import {
@@ -119,6 +122,8 @@ const _Match = () => {
   const [animateAnnouncement, setAnimateAnnouncement] = useState(false);
   const { sessionId } = useParams<{ sessionId: string }>();
   const { queue } = useSound();
+  const theme = useTheme();
+  const isDesktopChat = useMediaQuery(theme.breakpoints.up("lg"));
   const navigate = useNavigate();
   const toast = useToast();
   const confirmation = useConfirmationModal();
@@ -389,6 +394,12 @@ const _Match = () => {
 
   const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
   const matchDock = boardLayout.match?.dock;
+  const useShortPhoneChatDockButton =
+    boardLayout.profile === "phoneWide" ||
+    (boardLayout.profile === "phoneTall" && boardLayout.viewport.height <= 860);
+  const compactDockBottomOffset = useShortPhoneChatDockButton
+    ? "calc(env(safe-area-inset-bottom) + 0.28rem)"
+    : undefined;
 
   return (
     <Box
@@ -420,93 +431,116 @@ const _Match = () => {
 
       {match ? (
         <>
-          <TrucoBoardLayout
-            slots={slots}
-            layout={boardLayout}
-            topContent={
-              <MatchTopBar
-                myTeamIdx={myTeamIdx}
-                myPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
-                opponentPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
-                roundLabel={`Ronda ${Math.min(rounds.length + 1, 3)} / 3`}
+          <Box
+            sx={(theme) => ({
+              height: "100%",
+              minHeight: 0,
+              display: "grid",
+              gridTemplateColumns: isDesktopChat
+                ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
+                : "minmax(0, 1fr)",
+              gap: 0,
+              p: 0,
+              boxSizing: "border-box",
+            })}
+          >
+            {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
+            <Box position="relative" minWidth={0} minHeight={0}>
+              <TrucoBoardLayout
+                slots={slots}
                 layout={boardLayout}
-                canSay={canSay}
-                pauseRequested={pauseRequested}
-                canAbandon={Boolean(me && !me.abandoned)}
-                onOpenRules={() => setRulesOpen(true)}
-                onTogglePause={() => pauseMatch(true)}
-                onOpenAbandon={() => setAbandonOpen(true)}
-              />
-            }
-            centerContent={<TrickCenter rounds={rounds} slots={slots} layout={boardLayout} />}
-            renderSeat={(slot, index, geometry) => {
-              if (!slot.player) {
-                return (
-                  <Box sx={(theme) => theme.trucoshiUi.match.emptySeat}>
-                    <Typography color="grey.300" fontSize="0.8rem">
-                      Esperando
-                    </Typography>
-                  </Box>
-                );
-              }
-
-              const seatPresentation = getMatchSeatPresentationForIndex({
-                layout: boardLayout,
-                seatIndex: index,
-                isMe: Boolean(slot.player.isMe),
-              });
-
-              return (
-                <Box
-                  sx={{
-                    transform: `translateY(${seatPresentation.translateY}px)`,
-                  }}
-                >
-                  <MatchSeatCard
-                    player={slot.player}
-                    isTurn={Boolean(slot.player.isTurn && !slot.player.disabled && !slot.player.abandoned)}
-                    match={match}
-                    serverAheadTime={serverAheadTime}
-                    seatGeometry={geometry}
-                    seatPresentation={seatPresentation}
+                topContent={
+                  <MatchTopBar
+                    myTeamIdx={myTeamIdx}
+                    myPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
+                    opponentPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
+                    roundLabel={`Ronda ${Math.min(rounds.length + 1, 3)} / 3`}
+                    layout={boardLayout}
+                    canSay={canSay}
+                    pauseRequested={pauseRequested}
+                    canAbandon={Boolean(me && !me.abandoned)}
+                    onOpenRules={() => setRulesOpen(true)}
+                    onTogglePause={() => pauseMatch(true)}
+                    onOpenAbandon={() => setAbandonOpen(true)}
                   />
-                </Box>
-              );
-            }}
-            bottomContent={
-              <Box
-                sx={{
-                  height: matchDock?.bottomDockReserveHeight || "0px",
-                  minHeight: matchDock?.bottomDockReserveHeight || "0px",
-                  maxHeight: matchDock?.bottomDockReserveHeight || "0px",
-                  pointerEvents: "none",
-                }}
-              />
-            }
-            boardFooter={
-              <Box position="absolute" visibility="hidden" height={0} width={0}>
-                {debugComponent(match.handState)}
-                {debugComponent(match.players.find((player) => player.isTurn)?.name || null)}
-              </Box>
-            }
-          />
+                }
+                centerContent={<TrickCenter rounds={rounds} slots={slots} layout={boardLayout} />}
+                renderSeat={(slot, index, geometry) => {
+                  if (!slot.player) {
+                    return (
+                      <Box sx={(theme) => theme.trucoshiUi.match.emptySeat}>
+                        <Typography color="grey.300" fontSize="0.8rem">
+                          Esperando
+                        </Typography>
+                      </Box>
+                    );
+                  }
 
-          <MatchBottomDock
-            layout={boardLayout}
-            latestAnnouncement={latestAnnouncement}
-            previousAnnouncement={previousAnnouncement}
-            thirdAnnouncement={thirdAnnouncement}
-            latestAnnouncementColor={latestAnnouncementColor}
-            previousAnnouncementColor={previousAnnouncementColor}
-            thirdAnnouncementColor={thirdAnnouncementColor}
-            animateAnnouncement={animateAnnouncement}
-            me={me}
-            canSay={canSay}
-            hasCommandActions={hasCommandActions}
-            canInteractWithHand={canInteractWithHand}
-            onPlayCard={onPlayCard}
-            onSayCommand={sayCommand}
-          />
+                  const seatPresentation = getMatchSeatPresentationForIndex({
+                    layout: boardLayout,
+                    seatIndex: index,
+                    isMe: Boolean(slot.player.isMe),
+                  });
+
+                  return (
+                    <Box
+                      sx={{
+                        transform: `translateY(${seatPresentation.translateY}px)`,
+                      }}
+                    >
+                      <MatchSeatCard
+                        player={slot.player}
+                        isTurn={Boolean(slot.player.isTurn && !slot.player.disabled && !slot.player.abandoned)}
+                        match={match}
+                        serverAheadTime={serverAheadTime}
+                        seatGeometry={geometry}
+                        seatPresentation={seatPresentation}
+                      />
+                    </Box>
+                  );
+                }}
+                bottomContent={
+                  <Box
+                    sx={{
+                      height: matchDock?.bottomDockReserveHeight || "0px",
+                      minHeight: matchDock?.bottomDockReserveHeight || "0px",
+                      maxHeight: matchDock?.bottomDockReserveHeight || "0px",
+                      pointerEvents: "none",
+                    }}
+                  />
+                }
+                boardFooter={
+                  <Box position="absolute" visibility="hidden" height={0} width={0}>
+                    {debugComponent(match.handState)}
+                    {debugComponent(match.players.find((player) => player.isTurn)?.name || null)}
+                  </Box>
+                }
+              />
+
+              <MatchBottomDock
+                layout={boardLayout}
+                latestAnnouncement={latestAnnouncement}
+                previousAnnouncement={previousAnnouncement}
+                thirdAnnouncement={thirdAnnouncement}
+                latestAnnouncementColor={latestAnnouncementColor}
+                previousAnnouncementColor={previousAnnouncementColor}
+                thirdAnnouncementColor={thirdAnnouncementColor}
+                animateAnnouncement={animateAnnouncement}
+                me={me}
+                canSay={canSay}
+                hasCommandActions={hasCommandActions}
+                canInteractWithHand={canInteractWithHand}
+                onPlayCard={onPlayCard}
+                onSayCommand={sayCommand}
+                onOpenChat={
+                  !isDesktopChat && useShortPhoneChatDockButton
+                    ? () => chatProps.setActive(true)
+                    : undefined
+                }
+                bottomOffsetOverride={compactDockBottomOffset}
+              />
+            </Box>
+          </Box>
 
           <RulesDialog open={isRulesOpen} onClose={() => setRulesOpen(false)} options={match.options} />
 
@@ -525,12 +559,15 @@ const _Match = () => {
         <FloatingProgress />
       )}
 
-      <CommDrawer
-        chatProps={chatProps}
-        variant="chatEmotes"
-        bottomOffset="calc(env(safe-area-inset-bottom) + 0.28rem)"
-        compact={boardLayout.profile === "phoneWide"}
-      />
+      {!isDesktopChat ? (
+        <CommDrawer
+          chatProps={chatProps}
+          variant="chatEmotes"
+          bottomOffset="calc(env(safe-area-inset-bottom) + 0.28rem)"
+          compact={boardLayout.profile === "phoneWide"}
+          showLauncher={!useShortPhoneChatDockButton}
+        />
+      ) : null}
 
       {stats?.spectators ? (
         <Tooltip
