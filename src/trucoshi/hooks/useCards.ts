@@ -33,21 +33,24 @@ const getThemeSourceManifest = (theme: ICardTheme): Partial<CardSources> => {
     return cached;
   }
 
+  const required = new Set(getRequestedCards());
   const manifest: Partial<CardSources> = {};
-  const matcher = `/cards/${theme}/`;
 
   for (const [assetPath, src] of Object.entries(RAW_CARD_ASSET_URLS)) {
-    const idx = assetPath.indexOf(matcher);
-    if (idx === -1) {
+    if (!assetPath.includes(`/cards/${theme}/`)) {
       continue;
     }
 
-    const fileName = assetPath.slice(idx + matcher.length);
-    if (fileName.includes("/")) {
+    const fileName = assetPath.split("/").pop() || "";
+    if (!fileName.endsWith(".png") || fileName.includes("_sepia")) {
       continue;
     }
 
     const card = fileName.replace(/\.png$/i, "") as ICard;
+    if (!required.has(card)) {
+      continue;
+    }
+
     manifest[card] = src;
   }
 
@@ -161,9 +164,11 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
   const [sources, setSources] = useState<CardSources>({} as CardSources);
 
   const theme = CardThemes.includes(themeProp) ? themeProp : "default";
-  const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
-  const cardsKey = useMemo(() => (cards?.length ? cards.join("|") : "__all__"), [cards]);
-  const requestedCards = useMemo(() => getRequestedCards(cards), [cards, cardsKey]);
+  const requestedCardsKey = useMemo(
+    () => (cards?.length ? Array.from(new Set(cards)).sort().join("|") : "__all__"),
+    [cards?.join("|")]
+  );
+  const requestedCards = useMemo(() => getRequestedCards(cards), [requestedCardsKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -180,12 +185,8 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
       return;
     }
 
-    if (ready && loadedTheme === theme) {
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
+    setReady(false);
 
     ensureThemeCardsReady(theme, requestedCards)
       .then((cache) => {
@@ -208,7 +209,6 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
           return changed ? next : current;
         });
 
-        setLoadedTheme(theme);
         setReady(true);
         setLoading(false);
       })
@@ -223,7 +223,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
     return () => {
       cancelled = true;
     };
-  }, [disabled, loadedTheme, ready, requestedCards, theme]);
+  }, [disabled, requestedCardsKey, theme]);
 
   return [sources, ready, loading] satisfies [CardSources, boolean, boolean];
 };

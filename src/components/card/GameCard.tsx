@@ -97,6 +97,7 @@ const _GameCard = ({
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
 
   const usedTheme = theme || cardTheme;
+  const themeReady = request ? reqReady : cardsReady;
 
   const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     (e) => {
@@ -114,11 +115,11 @@ const _GameCard = ({
     }
   }, [card, disableDoubleClick, inspectCard]);
 
-  if (usedTheme && ((!request && !cardsReady) || (request && !reqReady))) {
-    return null;
-  }
-
   const name = burn ? BURNT_CARD : card;
+  const imageSource = (request ? reqCards : cards)[name];
+  const showImage = Boolean(usedTheme && themeReady && imageSource);
+  const showThemeLoadingOverlay = Boolean(usedTheme && !themeReady);
+  const showMissingThemeAsset = Boolean(usedTheme && themeReady && !imageSource);
 
   const events: ButtonProps = disableButton
     ? { component: "div" }
@@ -128,7 +129,7 @@ const _GameCard = ({
         onDoubleClick: onDoubleClick,
       };
 
-  if (usedTheme) {
+  if (showImage) {
     return (
       <GameCardButton
         variant="card"
@@ -152,7 +153,7 @@ const _GameCard = ({
         <img
           alt={CARDS_HUMAN_READABLE[name] || "Carta quemada"}
           style={{ objectFit: "cover", width }}
-          src={request ? reqCards[name] : cards[name]}
+          src={imageSource}
           loading="eager"
           decoding="sync"
           draggable={false}
@@ -192,6 +193,35 @@ const _GameCard = ({
         <Box>{humanCard || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
         <Box sx={suitBottomSx}>{suit}</Box>
       </Box>
+      {showThemeLoadingOverlay ? (
+        <Box
+          sx={(theme) => ({
+            position: "absolute",
+            inset: 0,
+            borderRadius: "inherit",
+            background:
+              `linear-gradient(110deg, transparent 16%, ${theme.palette.action.hover} 42%, transparent 68%)`,
+            animation: "cardThemeLoadingShimmer 1.15s linear infinite",
+            boxShadow: `inset 0 0 0 1px ${theme.palette.action.selected}`,
+            pointerEvents: "none",
+            "@keyframes cardThemeLoadingShimmer": {
+              "0%": { transform: "translateX(-115%)" },
+              "100%": { transform: "translateX(115%)" },
+            },
+          })}
+        />
+      ) : null}
+      {showMissingThemeAsset ? (
+        <Box
+          sx={(theme) => ({
+            position: "absolute",
+            inset: 0,
+            borderRadius: "inherit",
+            boxShadow: `inset 0 0 0 2px ${theme.palette.error.main}`,
+            pointerEvents: "none",
+          })}
+        />
+      ) : null}
     </GameCardButton>
   );
 };

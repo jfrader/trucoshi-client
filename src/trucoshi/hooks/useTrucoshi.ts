@@ -19,16 +19,8 @@ export const useTrucoshi = (): [
   }
 
   useEffect(
-    () =>
-      !context.state.cardTheme || context.state.cardsReady
-        ? setHydrated(() => {
-            if (context.state.isLoggingIn) {
-              return false;
-            }
-            return true;
-          })
-        : undefined,
-    [context.state.cardTheme, context.state.cardsReady, context.state.isLoggingIn]
+    () => setHydrated(!context.state.isLoggingIn),
+    [context.state.isLoggingIn]
   );
 
   return [context.state, context.dispatch, context.socket, hydrated];

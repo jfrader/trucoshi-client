@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Menu, MenuItem } from "@mui/material";
+import { Button, Menu, MenuItem } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useState } from "react";
 import { TrucoshiLogo } from "../../shared/TrucoshiLogo";
@@ -7,7 +7,7 @@ import { EmojiSymbols } from "@mui/icons-material";
 import { BURNT_CARD } from "trucoshi";
 
 export const CardThemeToggle = () => {
-  const [{ cardTheme, cardsReady }, { setCardTheme }] = useTrucoshi();
+  const [{ cardTheme }, { setCardTheme }] = useTrucoshi();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -34,18 +34,13 @@ export const CardThemeToggle = () => {
         color="success"
         title="Cartas"
         id="card-theme-button"
-        disabled={Boolean(cardTheme && !cardsReady)}
         aria-controls={anchorEl ? "basic-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={anchorEl ? "true" : undefined}
         onClick={handleClick}
       >
         {cardTheme ? (
-          !cardsReady ? (
-            <CircularProgress size="1.1em" />
-          ) : (
-            <GameCard disableButton width="1.1em" card={BURNT_CARD} />
-          )
+          <GameCard disableButton width="1.1em" card={BURNT_CARD} />
         ) : (
           <TrucoshiLogo style={{ marginBottom: "0.4em" }} />
         )}

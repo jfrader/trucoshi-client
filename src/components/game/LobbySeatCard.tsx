@@ -215,7 +215,7 @@ export const LobbySeatCard = ({
           justifyContent: "center",
         }}
       >
-        <Stack direction="row" justifyContent="center">
+        <Stack direction="row" pt={5} justifyContent="center">
           {Array.from({ length: 3 }).map((_, idx) => (
             <Box
               key={`${player.key}-${idx}`}
