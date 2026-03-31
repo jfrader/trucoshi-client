@@ -161,7 +161,9 @@ export const ChatRoom = ({
   );
 
   return (
-    <ClickAwayListener onClickAway={active ? () => setActive(false) : () => {}}>
+    <ClickAwayListener
+      onClickAway={active && !alwaysVisible ? () => setActive(false) : () => {}}
+    >
       <ChatBox
         active={Number(alwaysVisible || active)}
         onClick={onActivate}

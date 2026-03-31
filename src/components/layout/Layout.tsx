@@ -113,7 +113,15 @@ export const Layout = ({ children }: PropsWithChildren) => {
                 display="flex"
                 flexDirection="column"
                 pt={isGameSurface ? 0 : "50px"}
-                sx={isGameSurface ? { "@media (min-width:900px)": { paddingTop: 0 } } : undefined}
+                sx={
+                  isGameSurface
+                    ? (theme) => ({
+                        [theme.breakpoints.up("md")]: {
+                          paddingTop: 0,
+                        },
+                      })
+                    : undefined
+                }
                 minWidth="100%"
                 flexGrow={1}
               >

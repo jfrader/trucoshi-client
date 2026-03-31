@@ -62,6 +62,19 @@ type TrucoshiUiTokens = {
   lobby: {
     seatCard: Record<string, any>;
   };
+  chatDrawer: {
+    actionsPanelBorder: string;
+    actionsPanelBackground: string;
+    actionsPanelShadow: string;
+    actionButtonBorder: string;
+    actionButtonBackground: string;
+    actionButtonShadow: string;
+    announcementPanelBorder: string;
+    announcementPanelBackground: string;
+    announcementPanelShadow: string;
+    drawerPanelBackground: string;
+    drawerPanelBorderTop: string;
+  };
 };
 
 declare module "@mui/material/styles" {
@@ -179,6 +192,22 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       border: "1px solid rgba(255,255,255,0.12)",
       boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
     },
+  },
+  chatDrawer: {
+    actionsPanelBorder: "1px solid rgba(255,255,255,0.12)",
+    actionsPanelBackground:
+      "linear-gradient(180deg, rgba(92,58,34,0.95), rgba(63,39,24,0.98) 40%, rgba(42,27,17,0.98))",
+    actionsPanelShadow: "0 8px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
+    actionButtonBorder: "1px solid rgba(255,255,255,0.2)",
+    actionButtonBackground:
+      "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
+    actionButtonShadow: "0 6px 12px rgba(0,0,0,0.35)",
+    announcementPanelBorder: "1px solid rgba(255,255,255,0.12)",
+    announcementPanelBackground: "rgba(9,16,14,0.94)",
+    announcementPanelShadow: "0 10px 26px rgba(0,0,0,0.4)",
+    drawerPanelBackground:
+      "linear-gradient(180deg, rgba(17,24,22,0.98), rgba(9,14,13,0.99))",
+    drawerPanelBorderTop: "1px solid rgba(255,255,255,0.12)",
   },
 };
 

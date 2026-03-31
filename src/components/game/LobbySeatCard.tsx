@@ -66,7 +66,14 @@ export const LobbySeatCard = ({
       (account?.wallet?.balanceInSats || 0) >= match.options.satsPerPlayer;
 
     return (
-      <Paper sx={(theme) => ({ ...theme.trucoshiUi.lobby.seatCard, p: seatCard.padding, minWidth: seatCard.minWidth, borderRadius: seatCard.borderRadius })}>
+      <Paper
+        sx={(theme) => ({
+          ...theme.trucoshiUi.lobby.seatCard,
+          p: seatCard.padding,
+          minWidth: seatCard.minWidth,
+          borderRadius: seatCard.borderRadius,
+        })}
+      >
         <Box
           sx={{
             minHeight: seatCard.headerHeight,
@@ -88,9 +95,7 @@ export const LobbySeatCard = ({
             alignItems: "center",
             justifyContent: "center",
           }}
-        >
-          <Box sx={{ width: "100%", height: "100%", visibility: "hidden" }} />
-        </Box>
+        />
 
         <Stack
           mt={0.7}
@@ -140,7 +145,12 @@ export const LobbySeatCard = ({
                   Necesitas depositar sats
                 </Typography>
               ) : (
-                <Button color={getTeamColor(slot.teamIdx)} component={Link} to="/login" size="small">
+                <Button
+                  color={getTeamColor(slot.teamIdx)}
+                  component={Link}
+                  to="/login"
+                  size="small"
+                >
                   Inicia sesion
                 </Button>
               )}
@@ -163,12 +173,29 @@ export const LobbySeatCard = ({
   const hiddenCardsCount = Math.min(player.hand.length || 3, 3);
 
   return (
-    <Paper sx={(theme) => ({ ...theme.trucoshiUi.lobby.seatCard, p: seatCard.padding, minWidth: seatCard.minWidth, borderRadius: seatCard.borderRadius })}>
+    <Paper
+      sx={(theme) => ({
+        ...theme.trucoshiUi.lobby.seatCard,
+        p: seatCard.padding,
+        minWidth: seatCard.minWidth,
+        borderRadius: seatCard.borderRadius,
+      })}
+    >
       <Box sx={{ minHeight: seatCard.headerHeight, display: "flex", alignItems: "center" }}>
         <Stack direction="row" alignItems="center" spacing={0.8}>
-          <UserAvatar account={player} size="small" bgcolor={`${getTeamColor(player.teamIdx)}.main`} />
+          <UserAvatar
+            account={player}
+            size="small"
+            bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+          />
           <Box minWidth={0}>
-            <Typography color="common.white" fontWeight={700} fontSize="0.98rem" noWrap title={player.name}>
+            <Typography
+              color="common.white"
+              fontWeight={700}
+              fontSize="0.98rem"
+              noWrap
+              title={player.name}
+            >
               {player.name}
             </Typography>
             <Typography fontSize="0.82rem" color="grey.300">
@@ -251,7 +278,12 @@ export const LobbySeatCard = ({
             ) : null}
           </>
         ) : match.me?.isOwner ? (
-          <Button variant="contained" color="error" size="small" onClick={() => onKickPlayer(player.key)}>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            onClick={() => onKickPlayer(player.key)}
+          >
             Quitar
           </Button>
         ) : null}
