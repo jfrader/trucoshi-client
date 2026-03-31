@@ -16,31 +16,59 @@ type ThemeCardCache = {
   inflight: Promise<void> | null;
 };
 
-const THEME_CARD_CACHE = new Map<ICardTheme, ThemeCardCache>();
+const RAW_CARD_ASSET_URLS = import.meta.glob("../../assets/cards/*/*.png", {
+  eager: true,
+  import: "default",
+}) as Record<string, string>;
+
+const THEME_SOURCE_MANIFEST = new Map<ICardTheme, Partial<CardSources>>();
+const THEME_RUNTIME_CACHE = new Map<ICardTheme, ThemeCardCache>();
+
+const getRequestedCards = (cards?: ICard[]) =>
+  Array.from(new Set([...(cards || (Object.keys(CARDS) as ICard[])), BURNT_CARD])) as ICard[];
+
+const getThemeSourceManifest = (theme: ICardTheme): Partial<CardSources> => {
+  const cached = THEME_SOURCE_MANIFEST.get(theme);
+  if (cached) {
+    return cached;
+  }
+
+  const manifest: Partial<CardSources> = {};
+  const matcher = `/cards/${theme}/`;
+
+  for (const [assetPath, src] of Object.entries(RAW_CARD_ASSET_URLS)) {
+    const idx = assetPath.indexOf(matcher);
+    if (idx === -1) {
+      continue;
+    }
+
+    const fileName = assetPath.slice(idx + matcher.length);
+    if (fileName.includes("/")) {
+      continue;
+    }
+
+    const card = fileName.replace(/\.png$/i, "") as ICard;
+    manifest[card] = src;
+  }
+
+  THEME_SOURCE_MANIFEST.set(theme, manifest);
+  return manifest;
+};
 
 const getThemeCache = (theme: ICardTheme): ThemeCardCache => {
-  const cached = THEME_CARD_CACHE.get(theme);
+  const cached = THEME_RUNTIME_CACHE.get(theme);
   if (cached) {
     return cached;
   }
 
   const created: ThemeCardCache = {
-    sources: {},
+    sources: { ...getThemeSourceManifest(theme) },
     warmedImages: new Map<ICard, HTMLImageElement>(),
     inflight: null,
   };
-  THEME_CARD_CACHE.set(theme, created);
+
+  THEME_RUNTIME_CACHE.set(theme, created);
   return created;
-};
-
-const getRequestedCards = (cards?: ICard[]) =>
-  Array.from(new Set([...(cards || (Object.keys(CARDS) as ICard[])), BURNT_CARD])) as ICard[];
-
-const importCardSource = async (theme: ICardTheme, card: ICard): Promise<string> => {
-  const loaded = await import(`../../assets/cards/${theme}/${card}.png`).catch(() => {
-    throw new Error(`Was not able to find a dynamic import for card ${card}`);
-  });
-  return loaded.default as string;
 };
 
 const warmImage = async (card: ICard, src: string): Promise<HTMLImageElement> =>
@@ -79,37 +107,22 @@ const ensureThemeCardsReady = async (theme: ICardTheme, requestedCards: ICard[])
     await cache.inflight;
   }
 
-  const missingSources = requestedCards.filter((card) => !cache.sources[card]);
-  const missingWarm = requestedCards.filter((card) => cache.sources[card] && !cache.warmedImages.has(card));
+  const cardsToWarm = requestedCards.filter((card) => {
+    const src = cache.sources[card];
+    return Boolean(src) && !cache.warmedImages.has(card);
+  });
 
-  if (!missingSources.length && !missingWarm.length) {
+  if (!cardsToWarm.length) {
     return cache;
   }
 
   const task = (async () => {
-    if (missingSources.length) {
-      const loadedSources = await Promise.all(
-        missingSources.map(async (card) => [card, await importCardSource(theme, card)] as const)
-      );
+    const warmed = await Promise.all(
+      cardsToWarm.map(async (card) => [card, await warmImage(card, cache.sources[card] as string)] as const)
+    );
 
-      for (const [card, src] of loadedSources) {
-        cache.sources[card] = src;
-      }
-    }
-
-    const cardsToWarm = requestedCards.filter((card) => {
-      const src = cache.sources[card];
-      return Boolean(src) && !cache.warmedImages.has(card);
-    });
-
-    if (cardsToWarm.length) {
-      const warmed = await Promise.all(
-        cardsToWarm.map(async (card) => [card, await warmImage(card, cache.sources[card] as string)] as const)
-      );
-
-      for (const [card, image] of warmed) {
-        cache.warmedImages.set(card, image);
-      }
+    for (const [card, image] of warmed) {
+      cache.warmedImages.set(card, image);
     }
   })();
 
@@ -148,10 +161,9 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
   const [sources, setSources] = useState<CardSources>({} as CardSources);
 
   const theme = CardThemes.includes(themeProp) ? themeProp : "default";
-
   const [loadedTheme, setLoadedTheme] = useState<ICardTheme | null>(theme);
   const cardsKey = useMemo(() => (cards?.length ? cards.join("|") : "__all__"), [cards]);
-  const requestedCards = useMemo(() => getRequestedCards(cards), [cardsKey, cards]);
+  const requestedCards = useMemo(() => getRequestedCards(cards), [cards, cardsKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,16 +186,28 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
     }
 
     setLoading(true);
-    if (!loadedTheme) {
-      setReady(false);
-    }
 
     ensureThemeCardsReady(theme, requestedCards)
       .then((cache) => {
         if (cancelled) {
           return;
         }
-        setSources((current) => ({ ...current, ...(cache.sources as CardSources) }));
+
+        setSources((current) => {
+          let changed = false;
+          const next = { ...current };
+
+          for (const [card, src] of Object.entries(cache.sources) as [ICard, string][]) {
+            if (!src || next[card] === src) {
+              continue;
+            }
+            next[card] = src;
+            changed = true;
+          }
+
+          return changed ? next : current;
+        });
+
         setLoadedTheme(theme);
         setReady(true);
         setLoading(false);
@@ -193,6 +217,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
           return;
         }
         setLoading(false);
+        setReady(false);
       });
 
     return () => {
