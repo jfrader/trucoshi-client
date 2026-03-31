@@ -209,10 +209,7 @@ export const MatchBottomDock = ({
               pb: layout.profile === "phoneWide" ? 0.12 : 0.38,
               minHeight: dock.handBlockHeight,
               maxHeight: dock.handBlockHeight,
-              overflow: "hidden",
-              "&:has(.truco-play-card:hover)": {
-                overflow: "visible",
-              },
+              overflow: "visible",
             })}
           >
             <Stack
@@ -222,10 +219,7 @@ export const MatchBottomDock = ({
               sx={{
                 minHeight: dock.handRowMinHeight,
                 transform: `translateY(${dock.handRowTranslateY})`,
-                overflow: "hidden",
-                "&:has(.truco-play-card:hover)": {
-                  overflow: "visible",
-                },
+                overflow: "visible",
               }}
             >
               {!handCount ? (
@@ -244,7 +238,7 @@ export const MatchBottomDock = ({
                   return (
                     <Box
                       key={`${card}-${idx}`}
-                      className="truco-play-card"
+                      className={canInteractWithHand ? "truco-play-card-interactive" : undefined}
                       ml={idx ? -1.32 : 0}
                       sx={{
                         transform: `rotate(${rotation}deg) translateY(${Math.abs(rotation) > 0 ? "2px" : "0"})`,
@@ -275,43 +269,24 @@ export const MatchBottomDock = ({
             maxHeight: dock.commandBlockHeight,
           }}
         >
-          {me && hasCommandActions && !isUnavailable ? (
-            <Box sx={{ height: "100%" }}>
-              <CommandBar
-                canSay={canSay}
-                onSayCommand={onSayCommand}
-                player={me}
-                compact={dock.commandCompact}
-              />
-            </Box>
-          ) : me ? (
-            <Paper
-              sx={(theme) => ({
-                ...theme.trucoshiUi.match.waitingPanel,
-                py: 0.52,
-                px: 1,
-                textAlign: "center",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              })}
-            >
-              {me.abandoned ? (
-                <Typography fontSize="0.82rem" color="text.disabled" fontWeight={700}>
-                  Retirado
-                </Typography>
-              ) : me.disabled ? (
-                <Typography fontSize="0.82rem" color="text.disabled" fontWeight={700}>
-                  Al mazo
-                </Typography>
-              ) : (
-                <Typography fontSize="0.82rem" color="grey.300" fontWeight={600}>
-                  Esperando jugada
-                </Typography>
-              )}
-            </Paper>
-          ) : null}
+          <Box sx={{ height: "100%" }}>
+            <CommandBar
+              canSay={canSay}
+              onSayCommand={onSayCommand}
+              player={me}
+              compact={dock.commandCompact}
+              showActions={Boolean(me && hasCommandActions && !isUnavailable)}
+              statusLabel={
+                me
+                  ? me.abandoned
+                    ? "Retirado"
+                    : me.disabled
+                    ? "Al mazo"
+                    : "Esperando jugada"
+                  : "Modo espectador"
+              }
+            />
+          </Box>
         </Box>
       </Stack>
     </Box>

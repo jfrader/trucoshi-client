@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { IPlayedCard, IPublicPlayer } from "trucoshi";
 import { GameCard } from "../card/GameCard";
 import { BoardLayoutModel, BoardSeatGeometry } from "./boardLayoutPresets";
@@ -51,12 +51,38 @@ const getStableJitter = ({
   };
 };
 
+const getStackOffset = ({
+  index,
+  total,
+  open,
+}: {
+  index: number;
+  total: number;
+  open: boolean;
+}) => {
+  const center = (total - 1) / 2;
+  const delta = index - center;
+
+  if (open) {
+    return {
+      x: delta * 22,
+      y: -Math.abs(delta) * 4,
+    };
+  }
+
+  return {
+    x: delta * 4,
+    y: Math.abs(delta) * 1.5,
+  };
+};
+
 export const TrickCenter = ({
   rounds,
   slots,
   layout,
   seatGeometries,
 }: TrickCenterProps) => {
+  const [openStackPlayerKey, setOpenStackPlayerKey] = useState<string | null>(null);
   const geometries = seatGeometries || layout.seatGeometries;
   const centerLayout = layout.centerStack;
   const playedCardWidth = layout.match?.dock.playedCardWidth || "clamp(4.0rem, 12vw, 4.6rem)";
@@ -119,37 +145,73 @@ export const TrickCenter = ({
           .filter((entry): entry is { roundIdx: number; played: IPlayedCard } => Boolean(entry.played))
           .slice(0, 3);
 
-        return playerRoundCards.map(({ played, roundIdx }) => {
-          const orderKey = `${roundIdx}-${played.player.key}-${played.card}`;
-          const zOrder = playOrder[orderKey] || 0;
-          const baseRotation = centerLayout.facePlayerRotation ? geometry.angleDeg - 90 : 0;
-          const rotation =
-            baseRotation +
-            getStableRotation({
-              seed: orderKey,
-              maxRotationOffsetDeg: centerLayout.maxRotationOffsetDeg,
-            });
+        if (!playerRoundCards.length) {
+          return [];
+        }
 
-          const jitter = getStableJitter({
-            seed: orderKey,
-            spread: centerLayout.maxJitterPx,
-          });
+        const playerKey = slot.player.key;
+        const isStackOpen = openStackPlayerKey === playerKey;
 
-          return (
-            <Box
-              key={`${played.player.key}-${played.card}-${roundIdx}`}
-              sx={{
-                position: "absolute",
-                left: `${x}%`,
-                top: `${y}%`,
-                transform: `translate(calc(-50% + ${jitter.x}px), calc(-50% + ${jitter.y}px)) rotate(${rotation}deg)`,
-                zIndex: 20 + zOrder,
-              }}
-            >
-              <GameCard card={played.card} width={playedCardWidth} shadow disableButton />
-            </Box>
-          );
-        });
+        return (
+          <Box
+            key={`stack-${playerKey}`}
+            onMouseEnter={() => setOpenStackPlayerKey(playerKey)}
+            onMouseLeave={() =>
+              setOpenStackPlayerKey((current) => (current === playerKey ? null : current))
+            }
+            onClick={() =>
+              setOpenStackPlayerKey((current) => (current === playerKey ? null : playerKey))
+            }
+            sx={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              width: playedCardWidth,
+              height: `calc(${playedCardWidth} * 1.48)`,
+              transform: "translate(-50%, -50%)",
+              zIndex: isStackOpen ? 240 : 40,
+            }}
+          >
+            {playerRoundCards.map(({ played, roundIdx }, index) => {
+              const orderKey = `${roundIdx}-${played.player.key}-${played.card}`;
+              const zOrder = playOrder[orderKey] || 0;
+              const baseRotation = centerLayout.facePlayerRotation ? geometry.angleDeg - 90 : 0;
+              const rotation =
+                baseRotation +
+                getStableRotation({
+                  seed: orderKey,
+                  maxRotationOffsetDeg: centerLayout.maxRotationOffsetDeg,
+                });
+
+              const jitter = getStableJitter({
+                seed: orderKey,
+                spread: centerLayout.maxJitterPx,
+              });
+
+              const stackOffset = getStackOffset({
+                index,
+                total: playerRoundCards.length,
+                open: isStackOpen,
+              });
+
+              return (
+                <Box
+                  key={`${played.player.key}-${played.card}-${roundIdx}`}
+                  sx={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translate(calc(-50% + ${jitter.x + stackOffset.x}px), calc(-50% + ${jitter.y + stackOffset.y}px)) rotate(${rotation}deg)`,
+                    transition: "transform 170ms ease, box-shadow 170ms ease",
+                    zIndex: isStackOpen ? 280 + index : 20 + zOrder,
+                  }}
+                >
+                  <GameCard card={played.card} width={playedCardWidth} shadow disableButton />
+                </Box>
+              );
+            })}
+          </Box>
+        );
       })}
     </Box>
   );

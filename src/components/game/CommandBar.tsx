@@ -1,6 +1,6 @@
-import { Box, Button, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { Theme } from "@mui/material/styles";
-import { ITrucoshiMatchActions, PropsWithPlayer } from "../../trucoshi/types";
+import { ITrucoshiMatchActions } from "../../trucoshi/types";
 import {
   COMMANDS_HUMAN_READABLE,
   DANGEROUS_COMMANDS,
@@ -16,6 +16,7 @@ import {
   ESayCommand,
   ETrucoCommand,
 } from "trucoshi";
+import { IPublicPlayer } from "trucoshi";
 
 const getActionColorByCommand = (theme: Theme): Partial<Record<ECommand, string>> => ({
   [ETrucoCommand.TRUCO]: theme.trucoshiUi.commandBar.actionColors.truco,
@@ -46,33 +47,35 @@ const baseActionButtonSx = {
   color: "common.white",
 };
 
+type CommandBarProps = PropsWithChildren<{
+  player?: IPublicPlayer | null;
+  canSay: boolean;
+  onSayCommand: ITrucoshiMatchActions["sayCommand"];
+  compact?: boolean;
+  showActions?: boolean;
+  statusLabel?: string;
+}>;
+
 export const CommandBar = ({
   children,
   player,
   canSay,
   onSayCommand,
   compact = false,
-}: PropsWithChildren<
-  PropsWithPlayer<
-    {
-      canSay: boolean;
-      onSayCommand: ITrucoshiMatchActions["sayCommand"];
-      compact?: boolean;
-    }
-  >
->) => {
+  showActions = true,
+  statusLabel = "Esperando jugada",
+}: CommandBarProps) => {
   const theme = useTheme();
   const actionColorByCommand = getActionColorByCommand(theme);
-  const bestEnvido = Math.max(...(player.envido?.map((e) => e.value) || []));
-
-  if (player.abandoned || !canSay) {
-    return null;
-  }
+  const bestEnvido = Math.max(...(player?.envido?.map((e) => e.value) || []));
+  const shouldRenderActions = Boolean(showActions && canSay && player && !player.abandoned);
+  const actionablePlayer = shouldRenderActions && player ? player : null;
 
   return (
     <Box
       sx={(theme) => ({
-        zIndex: theme.zIndex.fab,
+        position: "relative",
+        zIndex: theme.zIndex.fab + 1,
         background: theme.trucoshiUi.commandBar.background,
         borderRadius: "0.95rem",
         border: "1px solid rgba(255,255,255,0.16)",
@@ -87,66 +90,34 @@ export const CommandBar = ({
       <Box
         sx={{
           width: "100%",
-          overflowX: "auto",
+          overflowX: shouldRenderActions ? "auto" : "hidden",
           overflowY: "hidden",
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" },
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
         }}
       >
-        <Box
-          display="flex"
-          gap={0.5}
-          flexWrap="nowrap"
-          justifyContent="center"
-          alignContent="flex-start"
-          minHeight="3.35rem"
-          minWidth="100%"
-          width="max-content"
-        >
-          {player.isEnvidoTurn &&
-            player.envido
-              ?.sort((a, b) => a.value - b.value)
-              .map((points) => (
-                <Button
-                  key={points.value}
-                  onClick={() => onSayCommand(points.value)}
-                  variant="contained"
-                  sx={{
-                    ...baseActionButtonSx,
-                    fontSize: compact ? "0.76rem" : "0.85rem",
-                    px: compact ? 0.9 : 1.2,
-                    py: compact ? 0.48 : 0.62,
-                    flexShrink: 0,
-                    minWidth: compact ? "3.1rem" : "3.35rem",
-                    bgcolor:
-                      bestEnvido === points.value
-                        ? theme.trucoshiUi.commandBar.envidoBestColor
-                        : theme.trucoshiUi.commandBar.envidoBaseColor,
-                  }}
-                >
-                  {points.value}
-                </Button>
-              ))}
-          {player.commands
-            ? [...player.commands]
-                .map((c): [number, ECommand] => {
-                  if (DANGEROUS_COMMANDS.includes(c)) {
-                    return [2, c];
-                  }
-
-                  if (WARNING_COMMANDS.includes(c)) {
-                    return [1, c];
-                  }
-
-                  return [0, c];
-                })
-                .sort(([a], [b]) => {
-                  return a - b;
-                })
-                .map(([, command]) => (
+        {actionablePlayer ? (
+          <Box
+            display="flex"
+            gap={0.5}
+            flexWrap="nowrap"
+            justifyContent="center"
+            alignContent="flex-start"
+            minHeight="3.35rem"
+            minWidth="100%"
+            width="max-content"
+          >
+            {actionablePlayer.isEnvidoTurn &&
+              actionablePlayer.envido
+                ?.sort((a, b) => a.value - b.value)
+                .map((points) => (
                   <Button
-                    key={command}
-                    onClick={() => onSayCommand(command)}
+                    key={points.value}
+                    onClick={() => onSayCommand(points.value)}
                     variant="contained"
                     sx={{
                       ...baseActionButtonSx,
@@ -154,16 +125,58 @@ export const CommandBar = ({
                       px: compact ? 0.9 : 1.2,
                       py: compact ? 0.48 : 0.62,
                       flexShrink: 0,
+                      minWidth: compact ? "3.1rem" : "3.35rem",
                       bgcolor:
-                        actionColorByCommand[command] || theme.trucoshiUi.commandBar.defaultActionColor,
+                        bestEnvido === points.value
+                          ? theme.trucoshiUi.commandBar.envidoBestColor
+                          : theme.trucoshiUi.commandBar.envidoBaseColor,
                     }}
                   >
-                    {COMMANDS_HUMAN_READABLE[command] || command}
+                    {points.value}
                   </Button>
-                ))
-            : null}
-          {children}
-        </Box>
+                ))}
+            {actionablePlayer.commands
+              ? [...actionablePlayer.commands]
+                  .map((c): [number, ECommand] => {
+                    if (DANGEROUS_COMMANDS.includes(c)) {
+                      return [2, c];
+                    }
+
+                    if (WARNING_COMMANDS.includes(c)) {
+                      return [1, c];
+                    }
+
+                    return [0, c];
+                  })
+                  .sort(([a], [b]) => {
+                    return a - b;
+                  })
+                  .map(([, command]) => (
+                    <Button
+                      key={command}
+                      onClick={() => onSayCommand(command)}
+                      variant="contained"
+                      sx={{
+                        ...baseActionButtonSx,
+                        fontSize: compact ? "0.76rem" : "0.85rem",
+                        px: compact ? 0.9 : 1.2,
+                        py: compact ? 0.48 : 0.62,
+                        flexShrink: 0,
+                        bgcolor:
+                          actionColorByCommand[command] || theme.trucoshiUi.commandBar.defaultActionColor,
+                      }}
+                    >
+                      {COMMANDS_HUMAN_READABLE[command] || command}
+                    </Button>
+                  ))
+              : null}
+            {children}
+          </Box>
+        ) : (
+          <Typography fontSize="0.84rem" color="grey.300" fontWeight={600} textAlign="center">
+            {statusLabel}
+          </Typography>
+        )}
       </Box>
     </Box>
   );
