@@ -8,8 +8,6 @@ import {
   IPublicMatchInfo,
   ServerToClientEvents,
   EMatchState,
-  BURNT_CARD,
-  CARDS,
   ITrucoshiStats,
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
@@ -34,7 +32,6 @@ const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
 export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "development";
 
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
-const ALL_CARDS = [...(Object.keys(CARDS) as ICard[]), BURNT_CARD];
 
 const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) => {
   socket.emit(EClientEvent.PING, Date.now());
@@ -386,47 +383,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       }}
     >
       {children}
-      {cardsReady && cardTheme ? (
-        <div
-          aria-hidden="true"
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100vw",
-            height: "100vh",
-            overflow: "hidden",
-            opacity: 0,
-            pointerEvents: "none",
-            userSelect: "none",
-            zIndex: -1,
-            display: "flex",
-            flexWrap: "wrap",
-            alignContent: "flex-start",
-            gap: "1px",
-          }}
-        >
-          {ALL_CARDS.map((card) => {
-            const src = cards[card];
-            if (!src) {
-              return null;
-            }
-
-            return (
-              <img
-                key={card}
-                src={src}
-                alt=""
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
-                draggable={false}
-                style={{ width: 24, height: 36, opacity: 0 }}
-              />
-            );
-          })}
-        </div>
-      ) : null}
     </TrucoshiContext.Provider>
   );
 };
