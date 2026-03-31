@@ -2,12 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 export type BoardSurface = "match" | "lobby";
 
-export type BoardViewportProfile =
-  | "phoneTall"
-  | "phoneWide"
-  | "tablet"
-  | "tabletWide"
-  | "desktop";
+export type BoardViewportProfile = "phoneTall" | "phoneWide" | "tablet" | "tabletWide" | "desktop";
 
 export type BoardPlayerCount = 2 | 4 | 6;
 
@@ -258,11 +253,11 @@ const PROFILE_LAYOUT_TOKENS: Record<BoardViewportProfile, BoardProfileLayoutToke
       center: {
         overrides: {
           centerShiftYPercent: 1.2,
-          playerSpreadXPercent: 38,
-          playerSpreadYPercent: 34,
-          maxJitterPx: 3,
+          playerSpreadXPercent: 37,
+          playerSpreadYPercent: 32,
+          maxJitterPx: 2,
         },
-        spreadBoost: 0,
+        spreadBoost: 3.5,
       },
       dock: {
         handCardWidth: "clamp(4.7rem, 14.2dvh, 6.65rem)",
@@ -283,7 +278,7 @@ const PROFILE_LAYOUT_TOKENS: Record<BoardViewportProfile, BoardProfileLayoutToke
         topSeatAvatarNudgeY: 0,
         hideTopSeatAvatarNudgeOnProfiles: ["phoneTall"],
         hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
-        hiddenHandScale: 1.2,
+        hiddenHandScale: 1,
         hiddenHandRules: {
           tableInsetPx: 42,
           axialInsetReductionPx: 22,
@@ -774,7 +769,7 @@ const PROFILE_LAYOUT_TOKENS: Record<BoardViewportProfile, BoardProfileLayoutToke
   },
 };
 
-const mapProfileTokens = <T,>(selector: (config: BoardProfileLayoutTokens) => T) =>
+const mapProfileTokens = <T>(selector: (config: BoardProfileLayoutTokens) => T) =>
   ({
     phoneTall: selector(PROFILE_LAYOUT_TOKENS.phoneTall),
     phoneWide: selector(PROFILE_LAYOUT_TOKENS.phoneWide),
@@ -831,13 +826,19 @@ const MATCH_CENTER_BASE: Omit<BoardCenterStackConfig, "spreadBoost"> = {
   facePlayerRotation: false,
 };
 
-const MATCH_CENTER_OVERRIDES_BY_PROFILE = mapProfileTokens((config) => config.match.center.overrides);
+const MATCH_CENTER_OVERRIDES_BY_PROFILE = mapProfileTokens(
+  (config) => config.match.center.overrides,
+);
 
-const MATCH_CENTER_SPREAD_BOOST_BY_PROFILE = mapProfileTokens((config) => config.match.center.spreadBoost);
+const MATCH_CENTER_SPREAD_BOOST_BY_PROFILE = mapProfileTokens(
+  (config) => config.match.center.spreadBoost,
+);
 
 const MATCH_DOCK_BY_PROFILE = mapProfileTokens((config) => config.match.dock);
 
-const MATCH_SEAT_PRESENTATION_BY_PROFILE = mapProfileTokens((config) => config.match.seatPresentation);
+const MATCH_SEAT_PRESENTATION_BY_PROFILE = mapProfileTokens(
+  (config) => config.match.seatPresentation,
+);
 
 const SIX_PLAYER_LOBBY_SEAT_BY_PROFILE = mapProfileTokens((config) => config.lobby.sixPlayerSeat);
 
@@ -878,7 +879,7 @@ const DEFAULT_HIDDEN_HAND_RADIAL_RULES: HiddenHandRadialRules = {
 
 const mergeSeatConfig = (
   base: BoardSeatGeometryConfig,
-  overrides?: Partial<BoardSeatGeometryConfig>
+  overrides?: Partial<BoardSeatGeometryConfig>,
 ): BoardSeatGeometryConfig => ({
   ...base,
   ...(overrides || {}),
@@ -1019,12 +1020,7 @@ export const buildSeatGeometry = ({
     sideStrength,
     leftPercent,
     topPercent,
-    groupShiftY:
-      sin < 0
-        ? -config.topGroupShiftYPx
-        : sin > 0
-        ? config.bottomGroupShiftYPx
-        : 0,
+    groupShiftY: sin < 0 ? -config.topGroupShiftYPx : sin > 0 ? config.bottomGroupShiftYPx : 0,
     seatShiftX: cos * config.outwardOffsetX,
     seatShiftY: sin * config.outwardOffsetY,
   };
@@ -1043,7 +1039,7 @@ export const buildSeatGeometries = ({
       index,
       totalSeats: safeSeatCount,
       config,
-    })
+    }),
   );
 };
 
@@ -1192,10 +1188,12 @@ export const getMatchSeatPresentationForIndex = ({
   const translateY = isMe
     ? seatPresentation.meTranslateY
     : isLowerSideSeat
-    ? seatPresentation.lowerSideTranslateY
-    : 0;
+      ? seatPresentation.lowerSideTranslateY
+      : 0;
 
-  const avatarNudgeBlocked = seatPresentation.hideTopSeatAvatarNudgeOnProfiles.includes(layout.profile);
+  const avatarNudgeBlocked = seatPresentation.hideTopSeatAvatarNudgeOnProfiles.includes(
+    layout.profile,
+  );
   const avatarNudgeY = isTopSeat && !avatarNudgeBlocked ? seatPresentation.topSeatAvatarNudgeY : 0;
 
   return {
@@ -1259,10 +1257,10 @@ export const buildBoardLayoutModel = ({
     playerCount === 6
       ? SIX_PLAYER_LOBBY_SEAT_BY_PROFILE[profile]
       : playerCount === 4
-      ? profile !== "desktop"
-        ? FOUR_PLAYER_LOBBY_MOBILE_SEAT_BY_PROFILE[profile]
-        : mergeSeatConfig(DEFAULT_SEAT_CONFIG)
-      : mergeSeatConfig(DEFAULT_SEAT_CONFIG);
+        ? profile !== "desktop"
+          ? FOUR_PLAYER_LOBBY_MOBILE_SEAT_BY_PROFILE[profile]
+          : mergeSeatConfig(DEFAULT_SEAT_CONFIG)
+        : mergeSeatConfig(DEFAULT_SEAT_CONFIG);
 
   const seatGeometries = buildSeatGeometries({ totalSeats: totalSeatCount, config: seatConfig });
 
@@ -1298,6 +1296,6 @@ export const useBoardLayoutModel = ({
         totalSeats,
         viewport,
       }),
-    [surface, totalSeats, viewport]
+    [surface, totalSeats, viewport],
   );
 };
