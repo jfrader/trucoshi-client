@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import {
   Box,
@@ -48,37 +48,19 @@ export const Lobby = () => {
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const [isReadyLoading, setReadyLoading] = useState(false);
-  const [shuffle, setShuffle] = useState(0);
-
-  const navigate = useNavigate();
 
   const [{ match, error }, { addBot, joinMatch, setReady, startMatch, setOptions, kickPlayer }] =
     useMatch(sessionId);
 
   const chatRoom = useChatRoom(match);
 
-  useEffect(() => {
-    if (!match) {
-      return;
-    }
-
-    if (
-      match.state === EMatchState.STARTED ||
+  const shouldRedirectToMatch = Boolean(
+    match &&
+    (match.state === EMatchState.STARTED ||
       match.state === EMatchState.FINISHED ||
-      match.state === EMatchState.PAUSED
-    ) {
-      if (match.state === EMatchState.STARTED) {
-        setShuffle((count) => count + 1);
-      }
-
-      const timer = setTimeout(
-        () => navigate(`/match/${sessionId}`, { replace: true }),
-        match.state === EMatchState.FINISHED ? 0 : 2000
-      );
-
-      return () => clearTimeout(timer);
-    }
-  }, [match, navigate, sessionId]);
+      match.state === EMatchState.PAUSED) &&
+    sessionId,
+  );
 
   useEffect(() => {
     const onDisconnect = () => {
@@ -127,14 +109,20 @@ export const Lobby = () => {
 
   const slots = useMemo(
     () =>
-      match ? buildAlternatingSlots(match.players, match.options.maxPlayers) : buildAlternatingSlots([]),
-    [match]
+      match
+        ? buildAlternatingSlots(match.players, match.options.maxPlayers)
+        : buildAlternatingSlots([]),
+    [match],
   );
 
   const boardLayout = useBoardLayoutModel({
     surface: "lobby",
     totalSeats: slots.length,
   });
+
+  if (shouldRedirectToMatch) {
+    return <Navigate to={`/match/${sessionId}`} replace />;
+  }
 
   return (
     <Box
@@ -253,7 +241,7 @@ export const Lobby = () => {
                   color="success"
                   onClick={onStartMatch}
                 >
-                  {shuffle > 0 ? "Empezando..." : "Empezar Partida"}
+                  Empezar Partida
                 </LoadingButton>
               ) : (
                 <Paper
@@ -272,11 +260,11 @@ export const Lobby = () => {
             </Stack>
           }
           boardFooter={
-            match.players.some((player) => player.bot) ? (
-              <Typography color="text.disabled" fontSize="small">
-                Las partidas con bots no suman victorias ni derrotas en el perfil.
-              </Typography>
-            ) : undefined
+            <Typography color="text.disabled" fontSize="small">
+              {match.players.some((player) => player.bot)
+                ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
+                : "Todos deben estar listos para empezar"}
+            </Typography>
           }
         />
       ) : (

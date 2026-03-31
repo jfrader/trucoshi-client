@@ -27,7 +27,7 @@ type Props = {
   compact?: boolean;
 };
 
-type TabName = "chat" | "announcements";
+type TabName = "all" | "chat" | "system";
 
 export const CommDrawer = ({
   chatProps,
@@ -35,20 +35,29 @@ export const CommDrawer = ({
   variant = "announcement",
   compact = false,
 }: Props) => {
-  const [tab, setTab] = useState<TabName>(variant === "chatEmotes" ? "chat" : "announcements");
+  const [tab, setTab] = useState<TabName>(variant === "chatEmotes" ? "chat" : "all");
 
   const room = chatProps.useChatState[0];
 
-  const announcements = useMemo(
-    () => (room?.messages || []).filter((message) => message.command || message.system).slice(-40),
+  const systemMessages = useMemo(
+    () =>
+      (room?.messages || [])
+        .filter((message) => message.command || message.system || message.card)
+        .slice(-80),
     [room?.messages]
   );
 
-  const latestAnnouncement = announcements[announcements.length - 1] || chatProps.latestMessage;
+  const latestAnnouncement = systemMessages[systemMessages.length - 1] || chatProps.latestMessage;
   const latestColor =
     latestAnnouncement?.command && latestAnnouncement?.user?.key !== undefined
       ? `${getTeamColor(Number(latestAnnouncement.user.key))}.light`
       : "grey.100";
+
+  const onlyChatFilter = useMemo(
+    () => (message: { command?: unknown; system?: unknown; card?: unknown }) =>
+      !message.command && !message.system && !message.card,
+    []
+  );
 
   const openDrawer = (nextTab: TabName) => {
     setTab(nextTab);
@@ -74,16 +83,16 @@ export const CommDrawer = ({
       {variant === "chatEmotes" ? (
         <Paper
           sx={{
-            borderRadius: compact ? "0.52rem" : "0.6rem",
+            borderRadius: { xs: "0.5rem", sm: "0.56rem", md: "0.6rem", lg: compact ? "0.56rem" : "0.64rem" },
             border: "1px solid rgba(255,255,255,0.12)",
             background:
               "linear-gradient(180deg, rgba(92,58,34,0.95), rgba(63,39,24,0.98) 40%, rgba(42,27,17,0.98))",
             boxShadow: "0 8px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
-            px: compact ? 0.4 : 0.55,
-            py: compact ? 0.32 : 0.5,
+            px: { xs: 0.28, sm: 0.34, md: 0.42, lg: compact ? 0.4 : 0.55 },
+            py: { xs: 0.24, sm: 0.3, md: 0.36, lg: compact ? 0.32 : 0.5 },
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={compact ? 0.45 : 0.6}>
+          <Stack direction="row" alignItems="center" spacing={{ xs: 0.34, sm: 0.42, md: 0.5, lg: compact ? 0.45 : 0.6 }}>
             <Button
               variant="contained"
               startIcon={<ChatBubbleOutlineIcon />}
@@ -92,9 +101,10 @@ export const CommDrawer = ({
                 flex: 1,
                 borderRadius: "999px",
                 justifyContent: "flex-start",
-                px: compact ? 0.9 : 1.1,
-                py: compact ? 0.3 : 0.45,
-                fontSize: compact ? "0.84rem" : "0.94rem",
+                minHeight: { xs: "1.92rem", sm: "2rem", md: "2.08rem", lg: compact ? "2.06rem" : "2.16rem" },
+                px: { xs: 0.74, sm: 0.82, md: 0.92, lg: compact ? 0.9 : 1.1 },
+                py: { xs: 0.2, sm: 0.24, md: 0.28, lg: compact ? 0.3 : 0.45 },
+                fontSize: { xs: "0.74rem", sm: "0.78rem", md: "0.82rem", lg: compact ? "0.84rem" : "0.94rem" },
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.02em",
@@ -103,8 +113,8 @@ export const CommDrawer = ({
                   "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
                 boxShadow: "0 6px 12px rgba(0,0,0,0.35)",
                 flexShrink: 0,
-                "& .MuiButton-startIcon": { marginRight: compact ? 0.32 : 0.45 },
-                "& .MuiSvgIcon-root": { fontSize: compact ? "1rem" : "1.12rem" },
+                "& .MuiButton-startIcon": { marginRight: { xs: 0.24, sm: 0.3, md: 0.36, lg: compact ? 0.32 : 0.45 } },
+                "& .MuiSvgIcon-root": { fontSize: { xs: "0.94rem", sm: "0.98rem", md: "1.02rem", lg: compact ? "1rem" : "1.12rem" } },
               }}
             >
               Chat
@@ -118,9 +128,10 @@ export const CommDrawer = ({
                 flex: 1,
                 borderRadius: "999px",
                 justifyContent: "flex-start",
-                px: compact ? 0.9 : 1.1,
-                py: compact ? 0.3 : 0.45,
-                fontSize: compact ? "0.84rem" : "0.94rem",
+                minHeight: { xs: "1.92rem", sm: "2rem", md: "2.08rem", lg: compact ? "2.06rem" : "2.16rem" },
+                px: { xs: 0.74, sm: 0.82, md: 0.92, lg: compact ? 0.9 : 1.1 },
+                py: { xs: 0.2, sm: 0.24, md: 0.28, lg: compact ? 0.3 : 0.45 },
+                fontSize: { xs: "0.74rem", sm: "0.78rem", md: "0.82rem", lg: compact ? "0.84rem" : "0.94rem" },
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.02em",
@@ -129,8 +140,8 @@ export const CommDrawer = ({
                   "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
                 boxShadow: "0 6px 12px rgba(0,0,0,0.35)",
                 flexShrink: 0,
-                "& .MuiButton-startIcon": { marginRight: compact ? 0.32 : 0.45 },
-                "& .MuiSvgIcon-root": { fontSize: compact ? "1rem" : "1.12rem" },
+                "& .MuiButton-startIcon": { marginRight: { xs: 0.24, sm: 0.3, md: 0.36, lg: compact ? 0.32 : 0.45 } },
+                "& .MuiSvgIcon-root": { fontSize: { xs: "0.94rem", sm: "0.98rem", md: "1.02rem", lg: compact ? "1rem" : "1.12rem" } },
               }}
             >
               Emotes
@@ -172,7 +183,7 @@ export const CommDrawer = ({
               size="small"
               variant="contained"
               startIcon={<ChatBubbleOutlineIcon />}
-              onClick={() => openDrawer("chat")}
+              onClick={() => openDrawer("system")}
               sx={{
                 whiteSpace: "nowrap",
                 borderRadius: "999px",
@@ -209,38 +220,44 @@ export const CommDrawer = ({
             indicatorColor="secondary"
             sx={{ "& .MuiTab-root": { fontSize: "0.92rem" } }}
           >
-            <Tab value="announcements" label="Anuncios" />
+            <Tab value="all" label="Todo" />
             <Tab value="chat" label="Chat" />
+            <Tab value="system" label="Sistema" />
           </Tabs>
           <IconButton onClick={() => chatProps.setActive(false)}>
             <CloseIcon />
           </IconButton>
         </Stack>
 
-        <Box px={1} pb={1} minHeight={0} flex={1} position="relative" overflow="hidden">
-          {tab === "chat" ? (
-            <ChatRoom alwaysVisible {...chatProps} />
-          ) : (
+        <Box px={0} pb={0} minHeight={0} flex={1} position="relative" overflow="hidden">
+          {tab === "system" ? (
             <List
               component={Paper}
               sx={{
                 height: "100%",
                 overflowY: "auto",
                 bgcolor: "rgba(17,24,22,0.6)",
+                borderRadius: 0,
               }}
             >
-              {announcements.length ? (
-                announcements.map((message) => (
+              {systemMessages.length ? (
+                systemMessages.map((message) => (
                   <ChatMessage key={message.id} message={message} players={chatProps.players} />
                 ))
               ) : (
                 <ListItem>
                   <ListItemText
-                    primary={<Typography color="text.secondary">Todavia no hay anuncios.</Typography>}
+                    primary={<Typography color="text.secondary">Todavia no hay mensajes de sistema.</Typography>}
                   />
                 </ListItem>
               )}
             </List>
+          ) : (
+            <ChatRoom
+              alwaysVisible
+              {...chatProps}
+              messageFilter={tab === "chat" ? onlyChatFilter : undefined}
+            />
           )}
         </Box>
       </Drawer>

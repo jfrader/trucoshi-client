@@ -52,7 +52,12 @@ export const MatchTopBar = ({
           justifyContent: "center",
         }}
       >
-        <Paper sx={(theme) => ({ ...theme.trucoshiUi.match.scoreCard, justifySelf: useWideGrid ? "start" : "center" })}>
+        <Paper
+          sx={(theme) => ({
+            ...theme.trucoshiUi.match.scoreCard,
+            justifySelf: useWideGrid ? "start" : "center",
+          })}
+        >
           <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
             {myTeamIdx === 0 ? "Nosotros" : "Ellos"}
           </Typography>
@@ -61,14 +66,23 @@ export const MatchTopBar = ({
           </Typography>
         </Paper>
 
-        <Paper sx={(theme) => ({ ...theme.trucoshiUi.match.topBadge, mt: 0.12 })}>
+        <Paper
+          sx={(theme) => ({
+            ...theme.trucoshiUi.match.topBadge,
+            mt: 0.12,
+          })}
+        >
           <Typography color="common.white" fontWeight={800} fontSize={{ xs: "1.24rem", sm: "1.08rem" }}>
             {roundLabel}
           </Typography>
         </Paper>
 
         <Box sx={{ justifySelf: useWideGrid ? "end" : "center", position: "relative" }}>
-          <Paper sx={(theme) => theme.trucoshiUi.match.scoreCard}>
+          <Paper
+            sx={(theme) => ({
+              ...theme.trucoshiUi.match.scoreCard,
+            })}
+          >
             <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
               {myTeamIdx === 0 ? "Ellos" : "Nosotros"}
             </Typography>

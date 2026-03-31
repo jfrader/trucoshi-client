@@ -70,10 +70,9 @@ export type OpponentHiddenHandLayout = {
   cards: OpponentHiddenHandCardTransform[];
 };
 
-export type HiddenHandAnchorOverride = {
+type SeatOffsetVector = {
   x: number;
   y: number;
-  rotateDeg: number;
 };
 
 export type BoardSurfaceFrameConfig = {
@@ -122,17 +121,14 @@ export type MatchDockSizingConfig = {
 };
 
 export type HiddenHandRadialRules = {
-  baseDistancePx: number;
-  sideDistanceBoostPx: number;
-  topDistanceBoostPx: number;
-  arcShiftPx: number;
+  tableInsetPx: number;
+  axialInsetReductionPx: number;
+  distanceScale: number;
   verticalLiftPx: number;
   fanSpacingPx: number;
   fanArcDepthPx: number;
   fanSpreadDeg: number;
   minClearancePx: number;
-  rimClearancePx: number;
-  rimEllipseInsetPx: number;
   handOrigin: string;
 };
 
@@ -372,19 +368,45 @@ const MATCH_SEAT_BASE_BY_PROFILE: Record<BoardViewportProfile, BoardSeatGeometry
   },
 };
 
-const MATCH_FOUR_PLAYER_SEAT_OVERRIDES: Partial<BoardSeatGeometryConfig> = {
+const MATCH_TWO_PLAYER_SEAT_OVERRIDES: Partial<BoardSeatGeometryConfig> = {
   angleOffsetDeg: -14,
-  sideAngleOffsetDeg: -20,
+  sideAngleOffsetDeg: -14,
+};
+
+const MATCH_FOUR_PLAYER_SEAT_OVERRIDES: Partial<BoardSeatGeometryConfig> = {
+  angleOffsetDeg: -16,
+  sideAngleOffsetDeg: -22,
 };
 
 const MATCH_CENTER_BASE: Omit<BoardCenterStackConfig, "spreadBoost"> = {
   centerShiftXPercent: -1.2,
-  centerShiftYPercent: 3.6,
+  centerShiftYPercent: 1.8,
   playerSpreadXPercent: 42,
   playerSpreadYPercent: 39,
   maxJitterPx: 4,
   maxRotationOffsetDeg: 6,
   facePlayerRotation: false,
+};
+
+const MATCH_CENTER_OVERRIDES_BY_PROFILE: Partial<
+  Record<BoardViewportProfile, Partial<Omit<BoardCenterStackConfig, "spreadBoost">>>
+> = {
+  tablet: {
+    playerSpreadXPercent: 40,
+    playerSpreadYPercent: 37,
+  },
+  phoneWide: {
+    centerShiftYPercent: 1.4,
+    playerSpreadXPercent: 36,
+    playerSpreadYPercent: 32,
+    maxJitterPx: 3.2,
+  },
+  phoneTall: {
+    centerShiftYPercent: 1.2,
+    playerSpreadXPercent: 34,
+    playerSpreadYPercent: 30,
+    maxJitterPx: 3,
+  },
 };
 
 const MATCH_CENTER_SPREAD_BOOST_BY_PROFILE: Record<BoardViewportProfile, number> = {
@@ -437,7 +459,7 @@ const MATCH_DOCK_BY_PROFILE: Record<BoardViewportProfile, MatchDockSizingConfig>
   },
   phoneWide: {
     handCardWidth: "clamp(3.3rem, 9.2dvh, 4.5rem)",
-    playedCardWidth: "clamp(3.05rem, 5vw, 3.6rem)",
+    playedCardWidth: "clamp(2.68rem, 4.1vw, 3.1rem)",
     announcementBlockHeight: "4rem",
     handBlockHeight: "4.45rem",
     commandBlockHeight: "3.3rem",
@@ -450,7 +472,7 @@ const MATCH_DOCK_BY_PROFILE: Record<BoardViewportProfile, MatchDockSizingConfig>
   },
   phoneTall: {
     handCardWidth: "clamp(4.9rem, 14.8dvh, 6.95rem)",
-    playedCardWidth: "clamp(4.0rem, 12vw, 4.6rem)",
+    playedCardWidth: "clamp(3.34rem, 9.8vw, 3.9rem)",
     announcementBlockHeight: "4.75rem",
     handBlockHeight: "6.95rem",
     commandBlockHeight: "3.95rem",
@@ -467,110 +489,95 @@ const MATCH_SEAT_PRESENTATION_BY_PROFILE: Record<BoardViewportProfile, MatchSeat
   desktop: {
     meTranslateY: 22,
     lowerSideTranslateY: 24,
-    topSeatAvatarNudgeY: 15,
+    topSeatAvatarNudgeY: 0,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
     hiddenHandRules: {
-      baseDistancePx: 41,
-      sideDistanceBoostPx: 10.5,
-      topDistanceBoostPx: 8,
-      arcShiftPx: 3.2,
+      tableInsetPx: 72,
+      axialInsetReductionPx: 36,
+      distanceScale: 1,
       verticalLiftPx: 2.2,
       fanSpacingPx: 12.6,
       fanArcDepthPx: 2.3,
       fanSpreadDeg: 7.4,
       minClearancePx: 10.5,
-      rimClearancePx: 50,
-      rimEllipseInsetPx: 15,
       handOrigin: "50% 118%",
     },
   },
   tabletWide: {
     meTranslateY: 22,
     lowerSideTranslateY: 24,
-    topSeatAvatarNudgeY: 15,
+    topSeatAvatarNudgeY: 0,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
     hiddenHandRules: {
-      baseDistancePx: 39,
-      sideDistanceBoostPx: 9.8,
-      topDistanceBoostPx: 7.4,
-      arcShiftPx: 3,
+      tableInsetPx: 68,
+      axialInsetReductionPx: 29,
+      distanceScale: 0.96,
       verticalLiftPx: 2,
       fanSpacingPx: 12,
       fanArcDepthPx: 2.2,
       fanSpreadDeg: 7,
       minClearancePx: 10,
-      rimClearancePx: 26,
-      rimEllipseInsetPx: 14,
       handOrigin: "50% 117%",
     },
   },
   tablet: {
     meTranslateY: 20,
     lowerSideTranslateY: 24,
-    topSeatAvatarNudgeY: 15,
+    topSeatAvatarNudgeY: 0,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
     hiddenHandRules: {
-      baseDistancePx: 36.5,
-      sideDistanceBoostPx: 9,
-      topDistanceBoostPx: 6.6,
-      arcShiftPx: 2.8,
+      tableInsetPx: 64,
+      axialInsetReductionPx: 23,
+      distanceScale: 0.93,
       verticalLiftPx: 1.8,
       fanSpacingPx: 11.4,
       fanArcDepthPx: 2,
       fanSpreadDeg: 6.6,
       minClearancePx: 9.5,
-      rimClearancePx: 25,
-      rimEllipseInsetPx: 13,
       handOrigin: "50% 116%",
     },
   },
   phoneWide: {
     meTranslateY: 16,
     lowerSideTranslateY: 18,
-    topSeatAvatarNudgeY: 15,
+    topSeatAvatarNudgeY: 0,
     hideTopSeatAvatarNudgeOnProfiles: [],
     hiddenHandCardWidth: "clamp(1.65rem, 4.6vw, 1.88rem)",
     hiddenHandScale: 0.92,
     hiddenHandRules: {
-      baseDistancePx: 33,
-      sideDistanceBoostPx: 8,
-      topDistanceBoostPx: 5.6,
-      arcShiftPx: 2.4,
+      tableInsetPx: 57,
+      axialInsetReductionPx: 20,
+      distanceScale: 0.73,
       verticalLiftPx: 1.4,
       fanSpacingPx: 10.3,
       fanArcDepthPx: 1.8,
       fanSpreadDeg: 6,
       minClearancePx: 8.5,
-      rimClearancePx: 22,
-      rimEllipseInsetPx: 11,
       handOrigin: "50% 112%",
     },
   },
   phoneTall: {
     meTranslateY: 20,
     lowerSideTranslateY: 24,
-    topSeatAvatarNudgeY: 15,
+    topSeatAvatarNudgeY: 0,
     hideTopSeatAvatarNudgeOnProfiles: ["phoneTall"],
     hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
     hiddenHandScale: 1,
     hiddenHandRules: {
-      baseDistancePx: 35,
-      sideDistanceBoostPx: 8.5,
-      topDistanceBoostPx: 6,
-      arcShiftPx: 2.5,
+      tableInsetPx: 62,
+      axialInsetReductionPx: 22,
+      distanceScale: 0.7,
       verticalLiftPx: 1.5,
       fanSpacingPx: 11,
       fanArcDepthPx: 1.9,
       fanSpreadDeg: 6.3,
       minClearancePx: 9,
-      rimClearancePx: 23,
-      rimEllipseInsetPx: 12,
       handOrigin: "50% 114%",
     },
   },
@@ -709,17 +716,14 @@ const EMPTY_CENTER_STACK: BoardCenterStackConfig = {
 };
 
 const DEFAULT_HIDDEN_HAND_RADIAL_RULES: HiddenHandRadialRules = {
-  baseDistancePx: 30,
-  sideDistanceBoostPx: 6.5,
-  topDistanceBoostPx: 4.5,
-  arcShiftPx: 2.5,
+  tableInsetPx: 62,
+  axialInsetReductionPx: 22,
+  distanceScale: 0.82,
   verticalLiftPx: 1.5,
   fanSpacingPx: 11,
   fanArcDepthPx: 1.9,
   fanSpreadDeg: 6.3,
   minClearancePx: 9,
-  rimClearancePx: 23,
-  rimEllipseInsetPx: 12,
   handOrigin: "50% 114%",
 };
 
@@ -911,9 +915,7 @@ export const buildOpponentHiddenHandLayout = ({
   hiddenCardCount,
   avatarSizePx,
   nameBlockPx,
-  rimDistancePx,
-  rimInwardVector,
-  anchorOverride,
+  seatOffsetPx,
   scale = 1,
 }: {
   geometry: BoardSeatGeometry;
@@ -921,50 +923,47 @@ export const buildOpponentHiddenHandLayout = ({
   hiddenCardCount: number;
   avatarSizePx: number;
   nameBlockPx: number;
-  rimDistancePx?: number;
-  rimInwardVector?: { x: number; y: number };
-  anchorOverride?: HiddenHandAnchorOverride;
+  seatOffsetPx?: SeatOffsetVector;
   scale?: number;
 }): OpponentHiddenHandLayout => {
   const safeHiddenCardCount = Math.max(0, Math.min(3, Math.floor(hiddenCardCount)));
-  let anchor: OpponentHiddenHandLayout["anchor"];
-
-  if (anchorOverride) {
-    anchor = {
-      x: anchorOverride.x,
-      y: anchorOverride.y,
-      rotateDeg: anchorOverride.rotateDeg,
-      origin: profileRules.handOrigin,
-    };
-  } else {
-    const fallbackInward = { x: -geometry.cos, y: -geometry.sin };
-    const rimInwardMagnitude = rimInwardVector ? Math.hypot(rimInwardVector.x, rimInwardVector.y) : 0;
-    const inwardMagnitude =
-      rimInwardMagnitude > 0.0001 ? rimInwardMagnitude : Math.hypot(fallbackInward.x, fallbackInward.y) || 1;
-    const inward = {
-      x: (rimInwardMagnitude > 0.0001 ? rimInwardVector!.x : fallbackInward.x) / inwardMagnitude,
-      y: (rimInwardMagnitude > 0.0001 ? rimInwardVector!.y : fallbackInward.y) / inwardMagnitude,
-    };
-    const baseFacingDeg = (Math.atan2(inward.y, inward.x) * 180) / Math.PI + 90;
-    const radialDistance =
-      (profileRules.baseDistancePx +
-        geometry.sideStrength * profileRules.sideDistanceBoostPx +
-        Math.max(0, -geometry.sin) * profileRules.topDistanceBoostPx) *
-      scale;
-    const minAvatarAndNameClearance =
-      avatarSizePx * 0.5 + profileRules.minClearancePx * scale + nameBlockPx * 0.32;
-    const anchorDistance = Math.max(
-      rimDistancePx == null ? radialDistance : rimDistancePx + profileRules.rimClearancePx * scale,
-      minAvatarAndNameClearance
-    );
-
-    anchor = {
-      x: inward.x * anchorDistance,
-      y: inward.y * anchorDistance,
-      rotateDeg: baseFacingDeg,
-      origin: profileRules.handOrigin,
-    };
-  }
+  const OVAL_NORMAL_RADIUS_X = 50;
+  const OVAL_NORMAL_RADIUS_Y = 40;
+  const seatVector = {
+    x: geometry.leftPercent - 50,
+    y: geometry.topPercent - 50,
+  };
+  const hasSeatVector = Math.abs(seatVector.x) > 0.0001 || Math.abs(seatVector.y) > 0.0001;
+  const fallbackInward = hasSeatVector
+    ? {
+        x: -(seatVector.x / (OVAL_NORMAL_RADIUS_X * OVAL_NORMAL_RADIUS_X)),
+        y: -(seatVector.y / (OVAL_NORMAL_RADIUS_Y * OVAL_NORMAL_RADIUS_Y)),
+      }
+    : { x: -geometry.cos, y: -geometry.sin };
+  const inwardMagnitude = Math.hypot(fallbackInward.x, fallbackInward.y) || 1;
+  const inward = {
+    x: fallbackInward.x / inwardMagnitude,
+    y: fallbackInward.y / inwardMagnitude,
+  };
+  const baseFacingDeg = (Math.atan2(inward.y, inward.x) * 180) / Math.PI + 90;
+  const anchorScale = scale * profileRules.distanceScale;
+  const seatOffsetInwardProjectionPx = seatOffsetPx
+    ? seatOffsetPx.x * inward.x + seatOffsetPx.y * inward.y
+    : 0;
+  const poleStrength = Math.pow(Math.abs(geometry.sin), 3);
+  const axialReductionPx = poleStrength * profileRules.axialInsetReductionPx * anchorScale;
+  const targetInsetPx = Math.max(0, profileRules.tableInsetPx * anchorScale - axialReductionPx);
+  const radialDistance = Math.max(0, targetInsetPx - seatOffsetInwardProjectionPx);
+  const minAvatarAndNameClearance =
+    avatarSizePx * 0.5 + profileRules.minClearancePx * anchorScale + nameBlockPx * 0.32;
+  const anchorDistance =
+    Math.max(radialDistance, minAvatarAndNameClearance) + profileRules.verticalLiftPx * anchorScale;
+  const anchor = {
+    x: inward.x * anchorDistance,
+    y: inward.y * anchorDistance,
+    rotateDeg: baseFacingDeg,
+    origin: profileRules.handOrigin,
+  };
 
   const cards = safeHiddenCardCount
     ? getHiddenHandSlots(safeHiddenCardCount).map((slot, index) => ({
@@ -1074,10 +1073,14 @@ export const buildBoardLayoutModel = ({
 
   if (surface === "match") {
     const baseSeat = MATCH_SEAT_BASE_BY_PROFILE[profile];
-    const seatConfig =
-      playerCount === 4
-        ? mergeSeatConfig(baseSeat, MATCH_FOUR_PLAYER_SEAT_OVERRIDES)
-        : mergeSeatConfig(baseSeat);
+    const seatOverridesByPlayerCount: Partial<
+      Record<BoardPlayerCount, Partial<BoardSeatGeometryConfig>>
+    > = {
+      2: MATCH_TWO_PLAYER_SEAT_OVERRIDES,
+      4: MATCH_FOUR_PLAYER_SEAT_OVERRIDES,
+    };
+
+    const seatConfig = mergeSeatConfig(baseSeat, seatOverridesByPlayerCount[playerCount]);
 
     const seatGeometries = buildSeatGeometries({ totalSeats: totalSeatCount, config: seatConfig });
 
@@ -1091,6 +1094,7 @@ export const buildBoardLayoutModel = ({
       seatGeometries,
       centerStack: {
         ...MATCH_CENTER_BASE,
+        ...(MATCH_CENTER_OVERRIDES_BY_PROFILE[profile] || {}),
         spreadBoost: MATCH_CENTER_SPREAD_BOOST_BY_PROFILE[profile],
       },
       match: {

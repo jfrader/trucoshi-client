@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { EFlorCommand, EMatchState, ICard } from "trucoshi";
@@ -309,15 +309,6 @@ const _Match = () => {
     return () => clearTimeout(timer);
   }, [latestAnnouncement?.id]);
 
-  useEffect(() => {
-    if (
-      match?.state &&
-      (match.state === EMatchState.UNREADY || match.state === EMatchState.READY)
-    ) {
-      navigate(`/lobby/${sessionId}`);
-    }
-  }, [match?.state, navigate, sessionId]);
-
   const onPlayCard = useCallback(
     (card: ICard, cardIdx: number) => {
       if (!me) {
@@ -339,6 +330,12 @@ const _Match = () => {
     [confirmation, me, playCard]
   );
 
+  const shouldRedirectToLobby = Boolean(
+    match &&
+      (match.state === EMatchState.UNREADY || match.state === EMatchState.READY) &&
+      sessionId
+  );
+
   if (!hydrated) {
     return (
       <Container maxWidth="sm">
@@ -353,6 +350,10 @@ const _Match = () => {
         <Backdrop open message="Partida no encontrada" />
       </Container>
     );
+  }
+
+  if (shouldRedirectToLobby) {
+    return <Navigate to={`/lobby/${sessionId}`} replace />;
   }
 
   if (match?.winner) {

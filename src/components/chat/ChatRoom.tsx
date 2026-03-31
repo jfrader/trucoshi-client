@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import {
   useState,
-  createRef,
   useLayoutEffect,
   FC,
   PropsWithChildren,
@@ -53,6 +52,8 @@ const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
 
 type Props = BoxProps & {
   alwaysVisible?: boolean;
+  messageFilter?: (message: IChatMessage) => boolean;
+  hideInput?: boolean;
 } & ReturnType<typeof useChatRoom>;
 
 const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
@@ -113,11 +114,18 @@ export const ChatRoom = ({
   setActive,
   latestMessage,
   alwaysVisible,
+  messageFilter,
+  hideInput,
   ...boxProps
 }: Props) => {
   const [room, chat, isLoading] = useChatState;
 
-  const listRef = createRef<HTMLDivElement>();
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  const filteredMessages = useMemo(() => {
+    const allMessages = room?.messages || [];
+    return messageFilter ? allMessages.filter(messageFilter) : allMessages;
+  }, [messageFilter, room?.messages]);
 
   useLayoutEffect(() => {
     if (listRef.current) {
@@ -125,7 +133,7 @@ export const ChatRoom = ({
         top: listRef.current.scrollHeight,
       });
     }
-  }, [listRef, room]);
+  }, [filteredMessages.length]);
 
   const onActivate = (e: any) => {
     e.stopPropagation();
@@ -134,8 +142,8 @@ export const ChatRoom = ({
 
   const messagesWithAuthorVisibility = useMemo(
     () =>
-      room?.messages.map((message, index) => {
-        const prevMessage = index > 0 ? room.messages[index - 1] : null;
+      filteredMessages.map((message, index) => {
+        const prevMessage = index > 0 ? filteredMessages[index - 1] : null;
         const isConsecutive = Boolean(
           prevMessage &&
             prevMessage.user.key === message.user.key &&
@@ -149,7 +157,7 @@ export const ChatRoom = ({
 
         return { message, hideAuthor: isConsecutive };
       }),
-    [room?.messages]
+    [filteredMessages]
   );
 
   return (
@@ -160,12 +168,18 @@ export const ChatRoom = ({
         position="absolute"
         left="0"
         top="0"
+        right="0"
+        bottom="0"
         width="100%"
-        flexGrow={1}
+        height="100%"
+        minHeight={0}
         display="flex"
         textAlign="left"
         flexDirection="column"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer,
+          overflow: "hidden",
+        }}
         {...boxProps}
       >
         <List
@@ -175,9 +189,11 @@ export const ChatRoom = ({
             justifyContent: "flex-end",
             m: 0,
             background: theme.palette.background.paper,
-            overflowY: "scroll",
-            flexGrow: 1,
-            height: "15rem",
+            overflowY: "auto",
+            width: "100%",
+            flex: 1,
+            minHeight: 0,
+            borderRadius: 0,
           })}
         >
           {messagesWithAuthorVisibility?.map(({ message, hideAuthor }) => (
@@ -190,24 +206,26 @@ export const ChatRoom = ({
             />
           ))}
         </List>
-        <Suspense
-          fallback={
-            <ChatField
+        {hideInput ? null : (
+          <Suspense
+            fallback={
+              <ChatField
+                alwaysVisible={alwaysVisible}
+                active={active}
+                isLoading={isLoading}
+                chat={chat}
+                disableEmojis
+              />
+            }
+          >
+            <ChatFieldWithEmojis
               alwaysVisible={alwaysVisible}
               active={active}
               isLoading={isLoading}
               chat={chat}
-              disableEmojis
             />
-          }
-        >
-          <ChatFieldWithEmojis
-            alwaysVisible={alwaysVisible}
-            active={active}
-            isLoading={isLoading}
-            chat={chat}
-          />
-        </Suspense>
+          </Suspense>
+        )}
       </ChatBox>
     </ClickAwayListener>
   );

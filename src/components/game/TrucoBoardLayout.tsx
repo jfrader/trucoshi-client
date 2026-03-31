@@ -206,14 +206,15 @@ const Root = styled(Box)(({ theme }) => ({
   },
 }));
 
-const TopStrip = styled(Box)(() => ({
+const TopStrip = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   flexWrap: "wrap",
   position: "relative",
-  zIndex: 2,
+  zIndex: theme.zIndex.appBar + 1,
   width: "100%",
+  overflow: "visible",
 }));
 
 const BoardShell = styled(Box)(() => ({
@@ -225,7 +226,7 @@ const BoardShell = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  overflow: "hidden",
+  overflow: "visible",
 }));
 
 const BoardSurface = styled(Paper)(({ theme }) => ({
