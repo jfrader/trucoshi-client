@@ -164,11 +164,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
   const [sources, setSources] = useState<CardSources>({} as CardSources);
 
   const theme = CardThemes.includes(themeProp) ? themeProp : "default";
-  const requestedCardsKey = useMemo(
-    () => (cards?.length ? Array.from(new Set(cards)).sort().join("|") : "__all__"),
-    [cards?.join("|")]
-  );
-  const requestedCards = useMemo(() => getRequestedCards(cards), [requestedCardsKey]);
+  const requestedCards = useMemo(() => getRequestedCards(cards), [cards]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,7 +219,7 @@ export const useCards = ({ disabled, theme: themeProp = "default", cards }: Opti
     return () => {
       cancelled = true;
     };
-  }, [disabled, requestedCardsKey, theme]);
+  }, [disabled, requestedCards, theme]);
 
   return [sources, ready, loading] satisfies [CardSources, boolean, boolean];
 };

@@ -46,16 +46,17 @@ const _MatchBottomDock = ({
   bottomOffsetOverride,
 }: MatchBottomDockProps) => {
   const dock = layout.match?.dock;
-
-  if (!dock) {
-    return null;
-  }
-
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
-  const hand = !isUnavailable ? ((me?.hand || []).slice(0, 3) as ICard[]) : [];
+  const hand = useMemo(
+    () => (!isUnavailable ? ((me?.hand || []).slice(0, 3) as ICard[]) : []),
+    [isUnavailable, me?.hand]
+  );
   const handCount = hand.length;
-  const fanRotations = handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0];
+  const fanRotations = useMemo(
+    () => (handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0]),
+    [handCount]
+  );
   const latestAnnouncementText = useMemo(
     () => (latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin anuncios"),
     [latestAnnouncement]
@@ -81,6 +82,10 @@ const _MatchBottomDock = ({
   );
   const showCommandActions = Boolean(me && hasCommandActions && !isUnavailable);
   const handCardsNode = useMemo(() => {
+    if (!dock) {
+      return null;
+    }
+
     if (!showHandPanel || !handCount) {
       return (
         <Box
@@ -119,7 +124,11 @@ const _MatchBottomDock = ({
         </Box>
       );
     });
-  }, [canInteractWithHand, dock.handCardWidth, fanRotations, hand, handCount, onPlayCard, showHandPanel]);
+  }, [canInteractWithHand, dock, fanRotations, hand, handCount, onPlayCard, showHandPanel]);
+
+  if (!dock) {
+    return null;
+  }
 
   return (
     <Box

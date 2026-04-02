@@ -338,7 +338,7 @@ const _Match = () => {
 
   const openChatDrawer = useCallback(() => {
     chatProps.setActive(true);
-  }, [chatProps.setActive]);
+  }, [chatProps]);
 
   const shouldRedirectToLobby = Boolean(
     match &&
