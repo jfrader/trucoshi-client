@@ -1,5 +1,4 @@
-import { ClickAwayListener, CssBaseline, IconButton, Paper, ThemeProvider, styled } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, ClickAwayListener, CssBaseline, IconButton, Paper, ThemeProvider, styled } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { PropsWithChildren, useEffect } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
