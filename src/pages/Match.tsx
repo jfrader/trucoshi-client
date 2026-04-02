@@ -110,7 +110,9 @@ const RulesDialog = ({
   </Dialog>
 );
 
-const pointsLabel = (points: { buenas: number; malas: number }) => points.buenas || points.malas;
+const pointsValue = (points: { buenas: number; malas: number }) => points.buenas || points.malas;
+const pointsKindLabel = (points: { buenas: number; malas: number }) =>
+  points.buenas > 0 ? "Buenas" : "Malas";
 
 const _Match = () => {
   const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
@@ -454,9 +456,11 @@ const _Match = () => {
                 topContent={
                   <MatchTopBar
                     myTeamIdx={myTeamIdx}
-                    myPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
-                    opponentPoints={pointsLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
-                    roundLabel={`Ronda ${Math.min(rounds.length + 1, 3)} / 3`}
+                    myPoints={pointsValue(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
+                    myPointsLabel={pointsKindLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
+                    opponentPoints={pointsValue(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
+                    opponentPointsLabel={pointsKindLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
+                    roundLabel={`Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`}
                     layout={boardLayout}
                     canSay={canSay}
                     pauseRequested={pauseRequested}

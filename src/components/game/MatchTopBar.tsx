@@ -6,7 +6,9 @@ import { BoardLayoutModel } from "./boardLayoutPresets";
 type MatchTopBarProps = {
   myTeamIdx: 0 | 1;
   myPoints: number;
+  myPointsLabel: string;
   opponentPoints: number;
+  opponentPointsLabel: string;
   roundLabel: string;
   layout: BoardLayoutModel;
   canSay: boolean;
@@ -20,7 +22,9 @@ type MatchTopBarProps = {
 export const MatchTopBar = ({
   myTeamIdx,
   myPoints,
+  myPointsLabel,
   opponentPoints,
+  opponentPointsLabel,
   roundLabel,
   layout,
   canSay,
@@ -64,6 +68,9 @@ export const MatchTopBar = ({
           <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
             {myPoints}
           </Typography>
+          <Typography fontSize={{ xs: "0.64rem", sm: "0.6rem" }} lineHeight={1} color="grey.400" fontWeight={700}>
+            {myPointsLabel}
+          </Typography>
         </Paper>
 
         <Paper
@@ -88,6 +95,14 @@ export const MatchTopBar = ({
             </Typography>
             <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
               {opponentPoints}
+            </Typography>
+            <Typography
+              fontSize={{ xs: "0.64rem", sm: "0.6rem" }}
+              lineHeight={1}
+              color="grey.400"
+              fontWeight={700}
+            >
+              {opponentPointsLabel}
             </Typography>
           </Paper>
 

@@ -85,7 +85,14 @@ export const Layout = ({ children }: PropsWithChildren) => {
       {!isGameSurface ? <Topbar /> : null}
       {isGameSurface ? (
         <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
-          <Box sx={{ position: "fixed", top: "calc(env(safe-area-inset-top) + 0.35rem)", right: 6, zIndex: 1400 }}>
+          <Box
+            sx={(theme) => ({
+              position: "fixed",
+              top: "calc(env(safe-area-inset-top) + 0.35rem)",
+              right: 6,
+              zIndex: theme.zIndex.drawer,
+            })}
+          >
             <IconButton
               title="Menu"
               size="small"

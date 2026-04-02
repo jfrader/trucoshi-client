@@ -144,32 +144,46 @@ export const MatchSeatCard = ({
               boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
               position: "relative",
               zIndex: 1,
-              overflow: "hidden",
             }}
           >
-            <UserAvatar
-              account={player}
-              size="big"
-              bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+            <Box
               sx={{
-                width: "100%",
-                height: "100%",
+                position: "absolute",
+                inset: "2px",
+                borderRadius: "50%",
+                overflow: "hidden",
+                "& .MuiBadge-root": {
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                },
+                "& .MuiAvatar-root": {
+                  width: "100%",
+                  height: "100%",
+                },
                 "& .MuiAvatar-img": {
                   objectFit: "cover",
                 },
               }}
-            />
+            >
+              <UserAvatar
+                account={player}
+                size="big"
+                bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+              />
+            </Box>
             <Box
               sx={{
                 position: "absolute",
-                right: 1,
-                bottom: 1,
+                right: -1,
+                bottom: -1,
                 width: "0.76rem",
                 height: "0.76rem",
                 borderRadius: "50%",
                 bgcolor: statusColor,
                 border: "2px solid rgba(17,24,20,0.95)",
                 boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+                zIndex: 3,
               }}
             />
           </Paper>
