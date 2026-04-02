@@ -135,6 +135,18 @@ export type MatchSeatPresentationRules = {
   hiddenHandCardWidth: string;
   hiddenHandScale: number;
   hiddenHandRules: HiddenHandRadialRules;
+  tablePoints?: Partial<TablePointsPlacementRules>;
+};
+
+export type TablePointsPlacementRules = {
+  sideOffsetDesktopPx: number;
+  sideOffsetMobilePx: number;
+  inwardNudgePx: number;
+  tiltDesktopDeg: number;
+  tiltMobileDeg: number;
+  imageHeightDesktop: string;
+  imageHeightMobile: string;
+  pileGap: string;
 };
 
 export type MatchLayoutConfig = {
@@ -176,6 +188,7 @@ export type MatchSeatPresentation = {
   hiddenHandCardWidth: string;
   hiddenHandScale: number;
   hiddenHandRules: HiddenHandRadialRules;
+  tablePoints: TablePointsPlacementRules;
 };
 
 const VIEWPORT_FALLBACK = {
@@ -877,6 +890,17 @@ const DEFAULT_HIDDEN_HAND_RADIAL_RULES: HiddenHandRadialRules = {
   handOrigin: "50% 114%",
 };
 
+const DEFAULT_TABLE_POINTS_PLACEMENT_RULES: TablePointsPlacementRules = {
+  sideOffsetDesktopPx: 88,
+  sideOffsetMobilePx: 56,
+  inwardNudgePx: -10,
+  tiltDesktopDeg: 10,
+  tiltMobileDeg: 24,
+  imageHeightDesktop: "1.35rem",
+  imageHeightMobile: "1.1rem",
+  pileGap: "0.24rem",
+};
+
 const mergeSeatConfig = (
   base: BoardSeatGeometryConfig,
   overrides?: Partial<BoardSeatGeometryConfig>,
@@ -1177,6 +1201,9 @@ export const getMatchSeatPresentationForIndex = ({
       hiddenHandRules: {
         ...DEFAULT_HIDDEN_HAND_RADIAL_RULES,
       },
+      tablePoints: {
+        ...DEFAULT_TABLE_POINTS_PLACEMENT_RULES,
+      },
     };
   }
 
@@ -1202,6 +1229,10 @@ export const getMatchSeatPresentationForIndex = ({
     hiddenHandCardWidth: seatPresentation.hiddenHandCardWidth,
     hiddenHandScale: seatPresentation.hiddenHandScale,
     hiddenHandRules: seatPresentation.hiddenHandRules,
+    tablePoints: {
+      ...DEFAULT_TABLE_POINTS_PLACEMENT_RULES,
+      ...(seatPresentation.tablePoints || {}),
+    },
   };
 };
 

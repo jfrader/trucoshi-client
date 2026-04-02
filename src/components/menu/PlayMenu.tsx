@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, FormGroup, Stack, Typography } from "@mui/material";
+import { Box, BoxProps, Button, Divider, FormGroup, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CreateMatchButton } from "./CreateMatchButton";
@@ -47,13 +47,20 @@ export const PlayMenu = ({
         <Button color="secondary" size="large" onClick={() => navigate("/matches")}>
           Buscar Partida
         </Button>
+        <Divider flexItem sx={{ my: 0.4, opacity: 0.38 }} />
         <Button color="warning" size="large" onClick={() => navigate("/ranking")}>
           Ranking
         </Button>
+        <Button color="inherit" size="large" onClick={() => navigate("/help")}>
+          Ayuda
+        </Button>
         {account ? null : (
-          <Button size="large" color="info" onClick={() => navigate("/login")}>
-            Iniciar Sesion
-          </Button>
+          <>
+            <Divider flexItem sx={{ my: 0.4, opacity: 0.38 }} />
+            <Button size="large" color="info" onClick={() => navigate("/login")}>
+              Iniciar Sesion
+            </Button>
+          </>
         )}
       </FormGroup>
     </Box>

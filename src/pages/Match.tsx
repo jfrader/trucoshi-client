@@ -294,6 +294,27 @@ const _Match = () => {
   });
 
   const myTeamIdx = me?.teamIdx ?? 0;
+  const myTeamPoints = match ? pointsValue(match.teams[myTeamIdx === 0 ? 0 : 1].points) : 0;
+  const opponentTeamPoints = match ? pointsValue(match.teams[myTeamIdx === 0 ? 1 : 0].points) : 0;
+  const myTeamPointsLabel = match ? pointsKindLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points) : "Malas";
+  const opponentTeamPointsLabel = match
+    ? pointsKindLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)
+    : "Malas";
+  const bottomLeaderSeatIndex = useMemo(() => {
+    const mySeatIndex = slots.findIndex((slot) => Boolean(slot.player?.isMe));
+    if (mySeatIndex >= 0) {
+      return mySeatIndex;
+    }
+
+    return slots.findIndex((slot) => Boolean(slot.player));
+  }, [slots]);
+  const frontLeaderSeatIndex = useMemo(() => {
+    if (bottomLeaderSeatIndex < 0 || !slots.length) {
+      return -1;
+    }
+
+    return (bottomLeaderSeatIndex + Math.floor(slots.length / 2)) % slots.length;
+  }, [bottomLeaderSeatIndex, slots.length]);
 
   const canInteractWithHand = Boolean(canPlay && me?.isTurn && !me?.disabled && !me?.abandoned);
 
@@ -456,10 +477,10 @@ const _Match = () => {
                 topContent={
                   <MatchTopBar
                     myTeamIdx={myTeamIdx}
-                    myPoints={pointsValue(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
-                    myPointsLabel={pointsKindLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points)}
-                    opponentPoints={pointsValue(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
-                    opponentPointsLabel={pointsKindLabel(match.teams[myTeamIdx === 0 ? 1 : 0].points)}
+                    myPoints={myTeamPoints}
+                    myPointsLabel={myTeamPointsLabel}
+                    opponentPoints={opponentTeamPoints}
+                    opponentPointsLabel={opponentTeamPointsLabel}
                     roundLabel={`Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`}
                     layout={boardLayout}
                     canSay={canSay}
@@ -505,6 +526,14 @@ const _Match = () => {
                         serverAheadTime={serverAheadTime}
                         seatGeometry={geometry}
                         seatPresentation={seatPresentation}
+                        tablePoints={
+                          index === bottomLeaderSeatIndex
+                            ? myTeamPoints
+                            : index === frontLeaderSeatIndex
+                            ? opponentTeamPoints
+                            : undefined
+                        }
+                        tablePointsSide={index === frontLeaderSeatIndex ? "right" : "left"}
                       />
                     </Box>
                   );

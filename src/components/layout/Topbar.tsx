@@ -11,7 +11,6 @@ import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Link } from "../../shared/Link";
 import { TrucoshiText } from "../../shared/TrucoshiText";
 import { CardThemeToggle } from "../card/CardThemeToggle";
-import { TOOLBAR_LINKS } from "../../assets/links/links";
 import { Close, Login, Menu } from "@mui/icons-material";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { VolumeControl } from "./VolumeControl";
@@ -48,14 +47,6 @@ export const Topbar = ({ embedded = false }: { embedded?: boolean }) => {
             })
           }
         />
-        {TOOLBAR_LINKS.map(({ to, Icon, title }) => {
-          return (
-            <IconButton size="small" component={Link} title={title} key={to} to={to}>
-              <Icon fontSize="small" />
-            </IconButton>
-          );
-        })}
-
         <VolumeControl />
         <TomaMate />
         <CardThemeToggle />

@@ -9,6 +9,11 @@ import {
   MatchSeatPresentation,
   buildOpponentHiddenHandLayout,
 } from "./boardLayoutPresets";
+import matchOne from "../../assets/points/matches/1.png";
+import matchTwo from "../../assets/points/matches/2.png";
+import matchThree from "../../assets/points/matches/3.png";
+import matchFour from "../../assets/points/matches/4.png";
+import matchFive from "../../assets/points/matches/5.png";
 
 type MatchSeatCardProps = {
   player: IPublicPlayer;
@@ -17,6 +22,30 @@ type MatchSeatCardProps = {
   serverAheadTime: number;
   seatGeometry: BoardSeatGeometry;
   seatPresentation: MatchSeatPresentation;
+  tablePoints?: number;
+  tablePointsSide?: "left" | "right";
+};
+
+const matchAssetByCount: Record<number, string> = {
+  1: matchOne,
+  2: matchTwo,
+  3: matchThree,
+  4: matchFour,
+  5: matchFive,
+};
+
+const decomposeScoreToMatches = (score: number) => {
+  const clamped = Math.max(0, score);
+  const chunks: number[] = [];
+  let remaining = clamped;
+
+  while (remaining > 0) {
+    const chunk = Math.min(5, remaining);
+    chunks.push(chunk);
+    remaining -= chunk;
+  }
+
+  return chunks;
 };
 
 export const MatchSeatCard = ({
@@ -26,6 +55,8 @@ export const MatchSeatCard = ({
   serverAheadTime,
   seatGeometry,
   seatPresentation,
+  tablePoints,
+  tablePointsSide = "left",
 }: MatchSeatCardProps) => {
   const turnTimer = useTurnTimer(player, serverAheadTime, match);
   const hiddenCards = Math.min(player.hand.length, 3);
@@ -35,21 +66,18 @@ export const MatchSeatCard = ({
   const playerNameBlockPx = 30;
   const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
 
-  const hiddenHandLayout =
-    !player.abandoned && hiddenCards > 0
-      ? buildOpponentHiddenHandLayout({
-          geometry: seatGeometry,
-          profileRules: seatPresentation.hiddenHandRules,
-          hiddenCardCount: hiddenCards,
-          avatarSizePx: avatarFrameSizePx,
-          nameBlockPx: playerNameBlockPx,
-          seatOffsetPx: {
-            x: seatGeometry.seatShiftX,
-            y: seatGeometry.seatShiftY + seatGeometry.groupShiftY + seatPresentation.translateY,
-          },
-          scale: seatPresentation.hiddenHandScale,
-        })
-      : null;
+  const hiddenHandLayout = buildOpponentHiddenHandLayout({
+    geometry: seatGeometry,
+    profileRules: seatPresentation.hiddenHandRules,
+    hiddenCardCount: hiddenCards,
+    avatarSizePx: avatarFrameSizePx,
+    nameBlockPx: playerNameBlockPx,
+    seatOffsetPx: {
+      x: seatGeometry.seatShiftX,
+      y: seatGeometry.seatShiftY + seatGeometry.groupShiftY + seatPresentation.translateY,
+    },
+    scale: seatPresentation.hiddenHandScale,
+  });
 
   const ringColor = turnTimer.alert ? "#f6b748" : turnTimer.isExtension ? "#ff6554" : "#44cc7b";
   const statusColor = player.abandoned
@@ -66,6 +94,15 @@ export const MatchSeatCard = ({
   const ringCircumference = 2 * Math.PI * ringRadiusPx;
   const ringOffset = ringCircumference * (1 - ringProgress / 100);
   const ringTrackColor = alpha("#ffffff", 0.14);
+  const tablePointChunks = tablePoints === undefined ? [] : decomposeScoreToMatches(tablePoints);
+  const tablePointsPlacement = seatPresentation.tablePoints;
+  const pointsOffsetPx =
+    tablePointsSide === "left"
+      ? -tablePointsPlacement.sideOffsetDesktopPx
+      : tablePointsPlacement.sideOffsetDesktopPx;
+  const pointsInwardNudgePx = tablePointsPlacement.inwardNudgePx;
+  const pointsTiltDeg =
+    tablePointsSide === "left" ? tablePointsPlacement.tiltDesktopDeg : -tablePointsPlacement.tiltDesktopDeg;
 
   return (
     <Box
@@ -216,7 +253,7 @@ export const MatchSeatCard = ({
         </Paper>
       </Box>
 
-      {hiddenHandLayout ? (
+      {hiddenCards > 0 && !player.abandoned ? (
         <Box
           sx={{
             position: "absolute",
@@ -250,6 +287,60 @@ export const MatchSeatCard = ({
               />
             </Box>
           ))}
+        </Box>
+      ) : null}
+      {tablePointChunks.length ? (
+        <Box
+          sx={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            width: 0,
+            height: 0,
+            transform: `translate(-50%, -50%) translate(${hiddenHandLayout.anchor.x}px, ${hiddenHandLayout.anchor.y}px) rotate(${hiddenHandLayout.anchor.rotateDeg}deg)`,
+            transformOrigin: hiddenHandLayout.anchor.origin,
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              transform: `translate(calc(-50% + ${pointsOffsetPx}px), calc(-50% + ${4 + pointsInwardNudgePx}px)) rotate(${pointsTiltDeg}deg)`,
+              "@media (max-width:599px)": {
+                transform: `translate(calc(-50% + ${tablePointsSide === "left"
+                  ? -tablePointsPlacement.sideOffsetMobilePx
+                  : tablePointsPlacement.sideOffsetMobilePx}px), calc(-50% + ${4 + pointsInwardNudgePx}px)) rotate(${tablePointsSide === "left"
+                  ? tablePointsPlacement.tiltMobileDeg
+                  : -tablePointsPlacement.tiltMobileDeg}deg)`,
+              },
+              display: "flex",
+              alignItems: "center",
+              gap: tablePointsPlacement.pileGap,
+              zIndex: 220,
+            }}
+          >
+            {tablePointChunks.map((chunk, index) => (
+              <Box
+                key={`${player.key}-${chunk}-${index}`}
+                component="img"
+                src={matchAssetByCount[chunk]}
+                alt={`${chunk} puntos`}
+                sx={{
+                  height: {
+                    xs: tablePointsPlacement.imageHeightMobile,
+                    sm: tablePointsPlacement.imageHeightDesktop,
+                  },
+                  width: "auto",
+                  display: "block",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.35))",
+                }}
+              />
+            ))}
+          </Box>
         </Box>
       ) : null}
     </Box>

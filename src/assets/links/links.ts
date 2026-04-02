@@ -1,4 +1,4 @@
-import { Favorite, Flag, GitHub, HelpOutlined, Telegram, X } from "@mui/icons-material";
+import { Favorite, Flag, GitHub, Telegram, X } from "@mui/icons-material";
 
 export const GITHUB_LINK_FRAN = {
   label: "github",
@@ -26,15 +26,6 @@ export const GENERAL_LINKS = [
     label: "X",
     to: "https://x.com/trucoshi",
     Icon: X,
-  },
-];
-
-export const TOOLBAR_LINKS = [
-  {
-    label: "help",
-    title: "Ayuda",
-    to: "/help",
-    Icon: HelpOutlined,
   },
 ];
 
