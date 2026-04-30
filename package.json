@@ -15,7 +15,11 @@
     "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:update": "vitest run -u",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -87,6 +91,9 @@
   },
   "devDependencies": {
     "@types/emoji-js": "^3.5.2",
-    "@types/lodash.groupby": "^4.6.9"
+    "@types/lodash.groupby": "^4.6.9",
+    "@vitest/coverage-v8": "^4.1.2",
+    "jsdom": "^29.0.1",
+    "vitest": "^4.1.2"
   }
 }

@@ -18,12 +18,15 @@ import {
 import {
   useState,
   useLayoutEffect,
+  useEffect,
   FC,
   PropsWithChildren,
   useRef,
   lazy,
   Suspense,
   useMemo,
+  useCallback,
+  memo,
 } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
@@ -58,29 +61,61 @@ type Props = BoxProps & {
 
 const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
 
+const getPlayersSignature = (players: IPublicPlayer[] | undefined) =>
+  (players || [])
+    .map((player) => `${player.key}:${player.name}:${player.teamIdx}`)
+    .join("|");
+
+const useStableChatPlayers = (players: IPublicPlayer[] | undefined) => {
+  const previousPlayersRef = useRef<IPublicPlayer[] | undefined>(players);
+  const previousSignatureRef = useRef<string>(getPlayersSignature(players));
+  const nextSignature = getPlayersSignature(players);
+
+  if (previousSignatureRef.current !== nextSignature) {
+    previousSignatureRef.current = nextSignature;
+    previousPlayersRef.current = players;
+  }
+
+  return previousPlayersRef.current;
+};
+
 export const useChatRoom = (match?: IPublicMatch | null) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const latestAnimatedMessageIdRef = useRef<IChatMessage["id"] | null>(null);
 
   const [active, setActive] = useState<boolean>(false);
   const [latestMessage, setLatestMessage] = useState<IChatMessage | null>(null);
+  const onIncomingMessage = useCallback((incomingMessage?: IChatMessage) => {
+    if (!incomingMessage) {
+      return;
+    }
 
-  return {
-    useChatState: useChat(match?.matchSessionId, (incomingMessage) => {
-      if (!incomingMessage) {
+    if (incomingMessage.command) {
+      if (latestAnimatedMessageIdRef.current === incomingMessage.id) {
         return;
       }
+      latestAnimatedMessageIdRef.current = incomingMessage.id;
+      setLatestMessage(incomingMessage);
 
-      if (incomingMessage.command || incomingMessage.system) {
-        setLatestMessage(incomingMessage);
-
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-        timerRef.current = setTimeout(() => {
-          setLatestMessage(null);
-        }, 2500);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
       }
-    }),
+      timerRef.current = setTimeout(() => {
+        setLatestMessage(null);
+      }, 2500);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  return {
+    useChatState: useChat(match?.matchSessionId, onIncomingMessage),
     players: match?.players,
     active,
     setActive,
@@ -119,6 +154,7 @@ export const ChatRoom = ({
   ...boxProps
 }: Props) => {
   const [room, chat, isLoading] = useChatState;
+  const stablePlayers = useStableChatPlayers(players);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -199,11 +235,11 @@ export const ChatRoom = ({
           })}
         >
           {messagesWithAuthorVisibility?.map(({ message, hideAuthor }) => (
-            <ChatMessage
+            <MemoizedChatMessage
               animate={message.id === latestMessage?.id}
               key={message.id}
               message={message}
-              players={players}
+              players={stablePlayers}
               hideAuthor={hideAuthor}
             />
           ))}
@@ -340,6 +376,15 @@ export const ChatMessage = ({
     </Component>
   );
 };
+
+const MemoizedChatMessage = memo(
+  ChatMessage,
+  (prev, next) =>
+    prev.message.id === next.message.id &&
+    prev.animate === next.animate &&
+    prev.hideAuthor === next.hideAuthor &&
+    prev.players === next.players,
+);
 
 export const getMessageContent = (message: IChatMessage) => {
   if (message.command) {

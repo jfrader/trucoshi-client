@@ -1,0 +1,121 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
+>
+  <div
+    class="MuiBox-root css-ketqhc"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-y3iavu-MuiTypography-root"
+    >
+      Ellos
+    </p>
+  </div>
+  <div
+    class="MuiBox-root css-1bgpfc2"
+  />
+  <div
+    class="MuiStack-root css-1tkf38c-MuiStack-root"
+  >
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-z2d7rg-MuiButtonBase-root-MuiButton-root"
+      tabindex="0"
+      type="button"
+    >
+      Unirse
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <div
+      class="MuiBox-root css-qxnhi9"
+    />
+  </div>
+</div>
+`;
+
+exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
+>
+  <div
+    class="MuiBox-root css-ketqhc"
+  >
+    <div
+      class="MuiStack-root css-fcz5d9-MuiStack-root"
+    >
+      <div
+        data-testid="user-avatar"
+      >
+        Player p2
+      </div>
+      <div
+        class="MuiBox-root css-31l7gp"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-pc2pji-MuiTypography-root"
+          title="Player p2"
+        >
+          Player p2
+        </p>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-14iauk3-MuiTypography-root"
+        >
+          Esperando
+        </p>
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-1bgpfc2"
+  >
+    <div
+      class="MuiStack-root css-nc4a4j-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-sjfr1j"
+      >
+        <div
+          data-testid="game-card"
+        >
+          xx
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-pl4vc5"
+      >
+        <div
+          data-testid="game-card"
+        >
+          xx
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-pl4vc5"
+      >
+        <div
+          data-testid="game-card"
+        >
+          xx
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiStack-root css-1tkf38c-MuiStack-root"
+  >
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-mpa7qr-MuiButtonBase-root-MuiButton-root"
+      tabindex="0"
+      type="button"
+    >
+      Quitar
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </div>
+</div>
+`;

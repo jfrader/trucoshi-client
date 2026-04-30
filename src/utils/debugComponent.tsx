@@ -1,5 +1,7 @@
+import { IS_DEBUG } from "../config/debug";
+
 export const debugComponent = (children: any) => {
-  if (import.meta.env.VITE_DEBUG !== "1" && import.meta.env.VITE_DEBUG !== 1) {
+  if (!IS_DEBUG) {
     return null;
   }
 

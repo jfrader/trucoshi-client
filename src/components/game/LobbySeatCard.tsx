@@ -8,13 +8,12 @@ import { Link } from "../../shared/Link";
 import { AnimatedButton } from "../../shared/AnimatedButton";
 import { GameCard } from "../card/GameCard";
 import { BURNT_CARD } from "trucoshi";
-import { LobbySeatCardConfig } from "./boardLayoutPresets";
+import { useBoardLayout } from "../../board";
 import { TrucoBoardSlot } from "./TrucoBoardLayout";
 
 type LobbySeatCardProps = {
   slot: TrucoBoardSlot<IPublicPlayer>;
   match: IPublicMatch;
-  seatCard: LobbySeatCardConfig;
   account: User | null;
   isReadyLoading: boolean;
   onJoinMatch: (teamIdx: 0 | 1) => void;
@@ -45,7 +44,6 @@ const canJoinTeam = ({
 export const LobbySeatCard = ({
   slot,
   match,
-  seatCard,
   account,
   isReadyLoading,
   onJoinMatch,
@@ -54,6 +52,13 @@ export const LobbySeatCard = ({
   onSetUnReady,
   onKickPlayer,
 }: LobbySeatCardProps) => {
+  const layout = useBoardLayout();
+  const seatCard = layout.lobby?.seatCard;
+
+  if (!seatCard) {
+    return null;
+  }
+
   if (!slot.player) {
     const canJoin = canJoinTeam({
       players: match.players,

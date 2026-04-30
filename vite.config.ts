@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import { writeFile } from "fs/promises";
@@ -35,5 +35,18 @@ export default defineConfig({
       include: [/lightning-accounts/, /node_modules/],
     },
     sourcemap: true,
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    css: true,
+    clearMocks: true,
+    restoreMocks: true,
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["src/components/game/**/*.tsx", "src/pages/Lobby.tsx", "src/pages/Match.tsx"],
+    },
   },
 });

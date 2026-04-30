@@ -1,7 +1,7 @@
 import { Box, IconButton, Menu, MenuItem, Paper, Typography } from "@mui/material";
 import { Settings } from "@mui/icons-material";
 import { useMemo, useState } from "react";
-import { BoardLayoutModel } from "./boardLayoutPresets";
+import { useBoardLayout } from "../../board";
 
 type MatchTopBarProps = {
   myTeamIdx: 0 | 1;
@@ -10,7 +10,6 @@ type MatchTopBarProps = {
   opponentPoints: number;
   opponentPointsLabel: string;
   roundLabel: string;
-  layout: BoardLayoutModel;
   canSay: boolean;
   pauseRequested: boolean;
   canAbandon: boolean;
@@ -26,7 +25,6 @@ export const MatchTopBar = ({
   opponentPoints,
   opponentPointsLabel,
   roundLabel,
-  layout,
   canSay,
   pauseRequested,
   canAbandon,
@@ -34,6 +32,7 @@ export const MatchTopBar = ({
   onTogglePause,
   onOpenAbandon,
 }: MatchTopBarProps) => {
+  const layout = useBoardLayout();
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
   const useWideGrid = useMemo(

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { EClientEvent, EServerEvent, IChatMessage, IPublicChatRoom } from "trucoshi";
 import { TrucoshiContext } from "../trucoshi.context";
 import { useSound } from "../../sound/hooks/useSound";
@@ -19,9 +19,13 @@ export const useChat = (
   const [say, setSay] = useState<IChatMessage | null>(null);
   const [room, setRoom] = useState<IPublicChatRoom | null>(null);
   const [isLoading, setLoading] = useState<boolean>(false);
-
   const { queue, isPlayingQueueSoundRef } = useSound();
   const { socket } = context;
+  const onMessageRef = useRef(onMessage);
+  const isPlayingQueueSoundRefRef = useRef(isPlayingQueueSoundRef);
+
+  onMessageRef.current = onMessage;
+  isPlayingQueueSoundRefRef.current = isPlayingQueueSoundRef;
 
   useEffect(() => {
     if (!matchId || room) {
@@ -37,77 +41,101 @@ export const useChat = (
     }
 
     let timeout: NodeJS.Timeout | null = null;
-
-    socket.on(EServerEvent.UPDATE_CHAT, (room) => {
-      if (checkRoom(matchId, room.id)) {
-        setRoom(room);
-      }
-    });
-
-    socket.on(EServerEvent.NEW_MESSAGE, (roomId, message) => {
-      if (message && checkRoom(matchId, roomId)) {
+    const handleUpdateChat = (nextRoom: IPublicChatRoom) => {
+      if (checkRoom(matchId, nextRoom.id)) {
         setRoom((current) => {
-          if (!current) return current;
-
-          if (message.sound) {
-            const isPlaying = isPlayingQueueSoundRef.current === message.sound;
-
-            if (message.user.key !== "system") {
-              setSay(message);
-              timeout && clearTimeout(timeout);
-              timeout = setTimeout(() => setSay(null), 4000);
-            }
-
-            if (!isPlaying) {
-              if (message.sound === "play") {
-                const rndSound = Math.round(Math.random() * 2);
-                queue("play" + rndSound);
-              } else if (message.sound === "bot") {
-                const rndSound = Math.round(Math.random() * 3);
-                queue("bot" + rndSound);
-              } else if (message.sound === "hit") {
-                const rndSound = Math.round(Math.random() * 3);
-                queue("hit" + rndSound);
-              } else if (message.sound === "miss") {
-                const rndSound = Math.round(Math.random() * 3);
-                queue("miss" + rndSound);
-              } else if (message.sound === "botvoice") {
-                const rndSound = Math.round(Math.random() * 3);
-                queue("botvoice" + rndSound);
-              } else {
-                queue(typeof message.sound === "string" ? message.sound : "chat");
-              }
-            }
+          if (!current) {
+            return nextRoom;
           }
 
-          if (message.hidden) {
-            return current;
-          }
+          const currentLastMessageId = current.messages[current.messages.length - 1]?.id;
+          const nextLastMessageId = nextRoom.messages[nextRoom.messages.length - 1]?.id;
+          const sameMessageSequence =
+            current.messages.length === nextRoom.messages.length &&
+            currentLastMessageId === nextLastMessageId;
 
-          const newMessages = current ? [...current.messages] : [];
-          newMessages.push(message);
-          return {
-            ...current,
-            messages: newMessages.sort((a, b) => {
-              if (a.date < b.date) {
-                return -1;
-              }
-              if (a.date > b.date) {
-                return 1;
-              }
-              return 0;
-            }),
-          };
+          return sameMessageSequence ? current : nextRoom;
         });
-        onMessage?.(message);
       }
-    });
+    };
+
+    const handleNewMessage = (roomId: string, message?: IChatMessage) => {
+      if (!message || !checkRoom(matchId, roomId)) {
+        return;
+      }
+
+      setRoom((current) => {
+        if (!current) return current;
+
+        if (message.sound) {
+          const isPlaying = isPlayingQueueSoundRefRef.current.current === message.sound;
+
+          if (message.user.key !== "system") {
+            setSay(message);
+            timeout && clearTimeout(timeout);
+            timeout = setTimeout(() => setSay(null), 4000);
+          }
+
+          if (!isPlaying) {
+            if (message.sound === "play") {
+              const rndSound = Math.round(Math.random() * 2);
+              queue("play" + rndSound);
+            } else if (message.sound === "bot") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("bot" + rndSound);
+            } else if (message.sound === "hit") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("hit" + rndSound);
+            } else if (message.sound === "miss") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("miss" + rndSound);
+            } else if (message.sound === "botvoice") {
+              const rndSound = Math.round(Math.random() * 3);
+              queue("botvoice" + rndSound);
+            } else {
+              queue(typeof message.sound === "string" ? message.sound : "chat");
+            }
+          }
+        }
+
+        if (message.hidden) {
+          return current;
+        }
+
+        const incomingId = message.id;
+        const exists = current.messages.some((existingMessage) => existingMessage.id === incomingId);
+
+        if (exists) {
+          return current;
+        }
+
+        const newMessages = [...current.messages, message];
+        return {
+          ...current,
+          messages: newMessages.sort((a, b) => {
+            if (a.date < b.date) {
+              return -1;
+            }
+            if (a.date > b.date) {
+              return 1;
+            }
+            return 0;
+          }),
+        };
+      });
+
+      onMessageRef.current?.(message);
+    };
+
+    socket.on(EServerEvent.UPDATE_CHAT, handleUpdateChat);
+    socket.on(EServerEvent.NEW_MESSAGE, handleNewMessage);
 
     return () => {
-      socket.off(EServerEvent.UPDATE_CHAT);
-      socket.off(EServerEvent.NEW_MESSAGE);
+      socket.off(EServerEvent.UPDATE_CHAT, handleUpdateChat);
+      socket.off(EServerEvent.NEW_MESSAGE, handleNewMessage);
+      timeout && clearTimeout(timeout);
     };
-  }, [isPlayingQueueSoundRef, matchId, onMessage, queue, room, socket]);
+  }, [matchId, queue, socket]);
 
   const chat = useCallback(
     (message: string) => {

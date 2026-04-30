@@ -42,9 +42,15 @@ type TrucoshiUiTokens = {
     shellOverlay: string;
     surfaceBackground: string;
     surfaceShadow: string;
+    surfaceInsetBorder: string;
+    surfaceInnerShade: string;
   };
   commandBar: {
     background: string;
+    panelBorder: string;
+    panelShadow: string;
+    actionBorder: string;
+    actionShadow: string;
     defaultActionColor: string;
     envidoBaseColor: string;
     envidoBestColor: string;
@@ -62,9 +68,24 @@ type TrucoshiUiTokens = {
     dockDivider: Record<string, any>;
     dockCommandLane: Record<string, any>;
     dockChatButton: Record<string, any>;
+    seatTurnRing: {
+      alert: string;
+      extension: string;
+      normal: string;
+      track: string;
+      shadow: string;
+    };
+    seatAvatarFrame: Record<string, any>;
+    seatNameBadge: Record<string, any>;
+    seatStatusDot: Record<string, any>;
   };
   lobby: {
     seatCard: Record<string, any>;
+    topPlayersCard: Record<string, any>;
+    topSessionCard: Record<string, any>;
+    topSettingsButton: Record<string, any>;
+    rulesPanel: Record<string, any>;
+    waitingHostCard: Record<string, any>;
   };
   chatDrawer: {
     actionsPanelBorder: string;
@@ -113,10 +134,16 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       "radial-gradient(circle at 34% 28%, rgba(255,255,255,0.09), transparent 23%), radial-gradient(circle at 70% 72%, rgba(255,255,255,0.045), transparent 20%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.22), transparent 68%), linear-gradient(166deg, var(--felt-primary), var(--felt-secondary) 66%, var(--felt-tertiary) 100%)",
     surfaceShadow:
       "0 16px 36px var(--board-shadow), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -24px 35px rgba(0,0,0,0.24)",
+    surfaceInsetBorder: "1px solid rgba(255,255,255,0.18)",
+    surfaceInnerShade: "inset 0 0 45px rgba(0,0,0,0.26)",
   },
   commandBar: {
     background:
       "linear-gradient(164deg, rgba(63, 36, 22, 0.97) 0%, rgba(32, 20, 12, 0.98) 70%, rgba(25, 16, 11, 0.98) 100%)",
+    panelBorder: "1px solid rgba(255,255,255,0.16)",
+    panelShadow: "0 10px 24px rgba(0,0,0,0.42)",
+    actionBorder: "1px solid rgba(255,255,255,0.13)",
+    actionShadow: "0 3px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1)",
     defaultActionColor: "#3d7051",
     envidoBaseColor: "#7a3229",
     envidoBestColor: "#3d7a45",
@@ -219,6 +246,27 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       boxShadow: "0 6px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
       color: "rgba(255,255,255,0.92)",
     },
+    seatTurnRing: {
+      alert: "#f6b748",
+      extension: "#ff6554",
+      normal: "#44cc7b",
+      track: "rgba(255,255,255,0.14)",
+      shadow: "drop-shadow(0 2px 5px rgba(0,0,0,0.35))",
+    },
+    seatAvatarFrame: {
+      bgcolor: "rgba(0,0,0,0.28)",
+      border: "2px solid rgba(201,126,59,0.95)",
+      boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+    },
+    seatNameBadge: {
+      bgcolor: "rgba(11, 19, 16, 0.9)",
+      border: "1px solid rgba(255,255,255,0.13)",
+      boxShadow: "0 6px 10px rgba(0,0,0,0.24)",
+    },
+    seatStatusDot: {
+      border: "2px solid rgba(17,24,20,0.95)",
+      boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+    },
   },
   lobby: {
     seatCard: {
@@ -228,6 +276,27 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       background: "rgba(17, 28, 24, 0.87)",
       border: "1px solid rgba(255,255,255,0.12)",
       boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
+    },
+    topPlayersCard: {
+      background:
+        "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
+      border: "1px solid rgba(255,255,255,0.14)",
+    },
+    topSessionCard: {
+      bgcolor: "rgba(12, 24, 19, 0.85)",
+      border: "1px solid rgba(255,255,255,0.14)",
+    },
+    topSettingsButton: {
+      bgcolor: "rgba(16, 27, 22, 0.9)",
+      border: "1px solid rgba(255,255,255,0.14)",
+    },
+    rulesPanel: {
+      background: "rgba(10, 18, 15, 0.74)",
+      border: "1px solid rgba(255,255,255,0.1)",
+    },
+    waitingHostCard: {
+      bgcolor: "rgba(18, 27, 23, 0.84)",
+      border: "1px solid rgba(255,255,255,0.1)",
     },
   },
   chatDrawer: {

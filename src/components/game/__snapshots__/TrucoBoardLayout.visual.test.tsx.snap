@@ -1,0 +1,101 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TrucoBoardLayout visual guard > renders shared board shell with seat population 1`] = `
+<div
+  class="MuiBox-root css-qhqc14"
+>
+  <div
+    class="MuiBox-root css-19wwmka"
+  >
+    <div
+      data-testid="board-top"
+    >
+      Top
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-52nma6"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 css-mlsoqm-MuiPaper-root"
+      data-truco-board-surface="true"
+    >
+      <div
+        class="MuiBox-root css-14bz54"
+      >
+        <div
+          data-testid="board-center"
+        >
+          Center
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-16fta4n"
+        data-slot-team="0"
+        style="left: 50%; top: 90%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p1
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-16fta4n"
+        data-slot-team="1"
+        style="left: 12.146806022131377%; top: 83.85640646055101%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p2
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-64syb"
+        data-slot-team="0"
+        style="left: 12.146806022131384%; top: 16.14359353944898%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p3
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-64syb"
+        data-slot-team="1"
+        style="left: 49.99999999999999%; top: 9.999999999999998%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p4
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-64syb"
+        data-slot-team="0"
+        style="left: 87.85319397786861%; top: 16.143593539448972%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p5
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-16fta4n"
+        data-slot-team="1"
+        style="left: 87.85319397786863%; top: 83.856406460551%;"
+      >
+        <div
+          data-testid="board-seat"
+        >
+          Player p6
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -18,6 +18,18 @@ Edit `.env` file to point to your trucoshi instance
 
 `yarn start`
 
+### Test
+
+`yarn test`
+
+### Test (watch mode)
+
+`yarn test:watch`
+
+### Update snapshots
+
+`yarn test:update`
+
 # Donations
 
 Donate Bitcoin at [geyser.fund/project/trucoshi](https://geyser.fund/project/trucoshi)

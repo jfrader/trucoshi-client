@@ -4,7 +4,7 @@ import {
   SeatHandTransform as CanonicalSeatHandTransform,
   buildSeatGeometry,
   getOpponentSeatHandTransform as getCanonicalOpponentSeatHandTransform,
-} from "./boardLayoutPresets";
+} from "../../board";
 
 export type SeatPolarVector = {
   cos: number;

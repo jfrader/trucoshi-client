@@ -42,8 +42,6 @@ const baseActionButtonSx = {
   textTransform: "uppercase",
   letterSpacing: "0.02em",
   borderRadius: "0.66rem",
-  border: "1px solid rgba(255,255,255,0.13)",
-  boxShadow: "0 3px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1)",
   color: "common.white",
 };
 
@@ -103,13 +101,13 @@ const _CommandBar = ({
         zIndex: theme.zIndex.fab + 1,
         background: embedded ? "transparent" : theme.trucoshiUi.commandBar.background,
         borderRadius: embedded ? "0.6rem" : "0.95rem",
-        border: embedded ? "none" : "1px solid rgba(255,255,255,0.16)",
+        border: embedded ? "none" : theme.trucoshiUi.commandBar.panelBorder,
         p: embedded ? 0.22 : compact ? 0.75 : 0.95,
         height: "100%",
         boxSizing: "border-box",
         display: "flex",
         alignItems: "center",
-        boxShadow: embedded ? "none" : "0 10px 24px rgba(0,0,0,0.42)",
+        boxShadow: embedded ? "none" : theme.trucoshiUi.commandBar.panelShadow,
       })}
     >
       <Box
@@ -144,6 +142,8 @@ const _CommandBar = ({
                     variant="contained"
                     sx={{
                       ...baseActionButtonSx,
+                      border: theme.trucoshiUi.commandBar.actionBorder,
+                      boxShadow: theme.trucoshiUi.commandBar.actionShadow,
                       fontSize: compact ? "0.76rem" : "0.85rem",
                       px: compact ? 0.9 : 1.2,
                       py: compact ? 0.48 : 0.62,
@@ -166,6 +166,8 @@ const _CommandBar = ({
                       variant="contained"
                       sx={{
                         ...baseActionButtonSx,
+                        border: theme.trucoshiUi.commandBar.actionBorder,
+                        boxShadow: theme.trucoshiUi.commandBar.actionShadow,
                         fontSize: compact ? "0.76rem" : "0.85rem",
                         px: compact ? 0.9 : 1.2,
                         py: compact ? 0.48 : 0.62,

@@ -17,6 +17,8 @@ import { useMemo, useState } from "react";
 import { ChatRoom, getMessageContent, useChatRoom } from "./ChatRoom";
 import { getTeamColor } from "../../utils/team";
 import { CommTabName, FILTER_BY_TAB } from "./commTabs";
+import { useBoardLayout, useMatchState } from "../../board";
+import { IS_DEBUG } from "../../config/debug";
 
 type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
@@ -243,6 +245,7 @@ export const CommDrawer = ({
             <Tab value="all" label="Todo" />
             <Tab value="chat" label="Chat" />
             <Tab value="system" label="Sistema" />
+            {IS_DEBUG ? <Tab value="debug" label="Debug" /> : null}
           </Tabs>
           <IconButton onClick={() => chatProps.setActive(false)}>
             <CloseIcon />
@@ -250,9 +253,31 @@ export const CommDrawer = ({
         </Stack>
 
         <Box px={0} pb={0} minHeight={0} flex={1} position="relative" overflow="hidden">
-          <ChatRoom alwaysVisible {...chatProps} messageFilter={FILTER_BY_TAB[tab]} />
+          {tab === "debug" ? (
+            <DrawerDebugPanel />
+          ) : (
+            <ChatRoom alwaysVisible {...chatProps} messageFilter={FILTER_BY_TAB[tab]} />
+          )}
         </Box>
       </Drawer>
     </DrawerContainer>
+  );
+};
+
+const DrawerDebugPanel = () => {
+  const layout = useBoardLayout();
+  const match = useMatchState();
+
+  return (
+    <Box p={1.2} height="100%" overflow="auto" sx={{ fontFamily: "monospace" }}>
+      <Typography variant="subtitle2" fontWeight={800} mb={1}>
+        Debug
+      </Typography>
+      <Typography variant="body2">view_profile: {layout.profile}</Typography>
+      <Typography variant="body2">surface: {layout.surface}</Typography>
+      <Typography variant="body2">player_count: {layout.playerCount}</Typography>
+      <Typography variant="body2">hand_state: {match?.handState || "n/a"}</Typography>
+      <Typography variant="body2">match_state: {match?.state || "n/a"}</Typography>
+    </Box>
   );
 };

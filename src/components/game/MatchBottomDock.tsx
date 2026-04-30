@@ -5,11 +5,10 @@ import { getMessageContent } from "../chat/ChatRoom";
 import { ITrucoshiMatchActions } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
 import { CommandBar } from "./CommandBar";
-import { BoardLayoutModel } from "./boardLayoutPresets";
+import { useBoardLayout } from "../../board";
 import { memo, useMemo } from "react";
 
 type MatchBottomDockProps = {
-  layout: BoardLayoutModel;
   latestAnnouncement: IChatMessage | null;
   previousAnnouncement: IChatMessage | null;
   thirdAnnouncement: IChatMessage | null;
@@ -28,7 +27,6 @@ type MatchBottomDockProps = {
 };
 
 const _MatchBottomDock = ({
-  layout,
   latestAnnouncement,
   previousAnnouncement,
   thirdAnnouncement,
@@ -45,6 +43,7 @@ const _MatchBottomDock = ({
   onOpenChat,
   bottomOffsetOverride,
 }: MatchBottomDockProps) => {
+  const layout = useBoardLayout();
   const dock = layout.match?.dock;
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;

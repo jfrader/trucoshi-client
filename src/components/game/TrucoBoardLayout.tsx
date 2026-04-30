@@ -1,10 +1,10 @@
 import { Box, BoxProps, Paper, styled } from "@mui/material";
 import { ReactNode, useMemo } from "react";
 import {
-  BoardLayoutModel,
   BoardSeatGeometry,
   buildSeatGeometries,
-} from "./boardLayoutPresets";
+  useBoardLayout,
+} from "../../board";
 
 export type SeatLike = {
   key: string;
@@ -58,7 +58,6 @@ export const buildAlternatingSlots = <T extends SeatLike>(
 
 export type TrucoBoardLayoutProps<T extends SeatLike> = {
   slots: TrucoBoardSlot<T>[];
-  layout: BoardLayoutModel;
   renderSeat: (slot: TrucoBoardSlot<T>, index: number, geometry: BoardSeatGeometry) => ReactNode;
   topContent?: ReactNode;
   centerContent?: ReactNode;
@@ -68,9 +67,37 @@ export type TrucoBoardLayoutProps<T extends SeatLike> = {
   boardFooter?: ReactNode;
 } & Omit<BoxProps, "children">;
 
+const mergeRootSx = (rootSx: BoxProps["sx"], rootPadding: string) =>
+  rootSx
+    ? [{ padding: rootPadding }, ...(Array.isArray(rootSx) ? rootSx : [rootSx])]
+    : { padding: rootPadding };
+
+const resolveSeatGeometries = (
+  seatGeometries: BoardSeatGeometry[],
+  slotCount: number,
+  seatConfig: Parameters<typeof buildSeatGeometries>[0]["config"],
+) =>
+  seatGeometries.length === slotCount
+    ? seatGeometries
+    : buildSeatGeometries({
+        totalSeats: slotCount,
+        config: seatConfig,
+      });
+
+const getSeatPositionStyle = (geometry: BoardSeatGeometry) => ({
+  left: `${geometry.leftPercent}%`,
+  top: `${geometry.topPercent}%`,
+});
+
+const getSeatCssVars = (geometry: BoardSeatGeometry) =>
+  ({
+    ["--seat-shift-x" as any]: `${geometry.seatShiftX}px`,
+    ["--seat-shift-y" as any]: `${geometry.seatShiftY}px`,
+    ["--seat-group-shift-y" as any]: `${geometry.groupShiftY}px`,
+  }) as const;
+
 export const TrucoBoardLayout = <T extends SeatLike>({
   slots,
-  layout,
   renderSeat,
   topContent,
   centerContent,
@@ -80,19 +107,11 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   boardFooter,
   ...props
 }: TrucoBoardLayoutProps<T>) => {
-  const rootSx = props.sx;
-  const mergedRootSx: any = rootSx
-    ? [{ padding: layout.frame.rootPadding }, ...(Array.isArray(rootSx) ? rootSx : [rootSx])]
-    : { padding: layout.frame.rootPadding };
+  const layout = useBoardLayout();
+  const mergedRootSx = mergeRootSx(props.sx, layout.frame.rootPadding);
 
   const seatGeometries = useMemo(
-    () =>
-      layout.seatGeometries.length === slots.length
-        ? layout.seatGeometries
-        : buildSeatGeometries({
-            totalSeats: slots.length,
-            config: layout.seatConfig,
-          }),
+    () => resolveSeatGeometries(layout.seatGeometries, slots.length, layout.seatConfig),
     [layout.seatConfig, layout.seatGeometries, slots.length]
   );
 
@@ -148,16 +167,11 @@ export const TrucoBoardLayout = <T extends SeatLike>({
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
-                style={{
-                  left: `${geometry.leftPercent}%`,
-                  top: `${geometry.topPercent}%`,
-                }}
+                style={getSeatPositionStyle(geometry)}
                 sx={{
                   width: layout.frame.seatWidth,
                   maxWidth: layout.frame.seatMaxWidth,
-                  ["--seat-shift-x" as any]: `${geometry.seatShiftX}px`,
-                  ["--seat-shift-y" as any]: `${geometry.seatShiftY}px`,
-                  ["--seat-group-shift-y" as any]: `${geometry.groupShiftY}px`,
+                  ...getSeatCssVars(geometry),
                 }}
                 data-slot-team={slot.teamIdx}
               >
@@ -241,7 +255,7 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
     content: '""',
     position: "absolute",
     inset: "-0.12rem",
-    border: "1px solid rgba(255,255,255,0.18)",
+    border: theme.trucoshiUi.board.surfaceInsetBorder,
     pointerEvents: "none",
   },
   "&::after": {
@@ -249,7 +263,7 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
     position: "absolute",
     inset: "5.5%",
     pointerEvents: "none",
-    boxShadow: "inset 0 0 45px rgba(0,0,0,0.26)",
+    boxShadow: theme.trucoshiUi.board.surfaceInnerShade,
   },
 }));
 

@@ -1,0 +1,132 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TrickCenter visual guard > keeps all played cards visible across three rounds 1`] = `
+<div
+  class="MuiBox-root css-b7jmoi"
+>
+  <div
+    class="MuiBox-root css-lo8ywp"
+  >
+    <div
+      class="MuiBox-root css-1d5t53u"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        1e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-d02oyp"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        5e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-1r1yghh"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        2o
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-1vsswco"
+  >
+    <div
+      class="MuiBox-root css-1t8wodm"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        2e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-r1gi1l"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        6e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-rqcanw"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        3o
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-1d1qyt3"
+  >
+    <div
+      class="MuiBox-root css-soexig"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        3e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-6cfkii"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        7e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-1o0xqtn"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        4o
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-1l77zbe"
+  >
+    <div
+      class="MuiBox-root css-uyokvj"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        4e
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-5vwi5j"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        1o
+      </div>
+    </div>
+    <div
+      class="MuiBox-root css-8yd2dk"
+    >
+      <div
+        data-testid="trick-card"
+      >
+        5o
+      </div>
+    </div>
+  </div>
+</div>
+`;

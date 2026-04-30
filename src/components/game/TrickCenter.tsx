@@ -2,13 +2,12 @@ import { Box } from "@mui/material";
 import { useMemo, useState } from "react";
 import { IPlayedCard, IPublicPlayer } from "trucoshi";
 import { GameCard } from "../card/GameCard";
-import { BoardLayoutModel, BoardSeatGeometry } from "./boardLayoutPresets";
+import { BoardSeatGeometry, useBoardLayout } from "../../board";
 import { buildAlternatingSlots } from "./TrucoBoardLayout";
 
 type TrickCenterProps = {
   rounds: IPlayedCard[][];
   slots: ReturnType<typeof buildAlternatingSlots<IPublicPlayer>>;
-  layout: BoardLayoutModel;
   seatGeometries?: BoardSeatGeometry[];
 };
 
@@ -79,9 +78,9 @@ const getStackOffset = ({
 export const TrickCenter = ({
   rounds,
   slots,
-  layout,
   seatGeometries,
 }: TrickCenterProps) => {
+  const layout = useBoardLayout();
   const [openStackPlayerKey, setOpenStackPlayerKey] = useState<string | null>(null);
   const geometries = seatGeometries || layout.seatGeometries;
   const centerLayout = layout.centerStack;

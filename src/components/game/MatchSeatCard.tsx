@@ -1,4 +1,4 @@
-import { alpha, Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { BURNT_CARD, IPublicPlayer } from "trucoshi";
 import { useTurnTimer } from "../../trucoshi/hooks/useTurnTimer";
 import { getTeamColor } from "../../utils/team";
@@ -8,7 +8,7 @@ import {
   BoardSeatGeometry,
   MatchSeatPresentation,
   buildOpponentHiddenHandLayout,
-} from "./boardLayoutPresets";
+} from "../../board";
 import matchOne from "../../assets/points/matches/1.png";
 import matchTwo from "../../assets/points/matches/2.png";
 import matchThree from "../../assets/points/matches/3.png";
@@ -58,6 +58,7 @@ export const MatchSeatCard = ({
   tablePoints,
   tablePointsSide = "left",
 }: MatchSeatCardProps) => {
+  const theme = useTheme();
   const turnTimer = useTurnTimer(player, serverAheadTime, match);
   const hiddenCards = Math.min(player.hand.length, 3);
   const avatarFrameSizePx = 56;
@@ -79,7 +80,11 @@ export const MatchSeatCard = ({
     scale: seatPresentation.hiddenHandScale,
   });
 
-  const ringColor = turnTimer.alert ? "#f6b748" : turnTimer.isExtension ? "#ff6554" : "#44cc7b";
+  const ringColor = turnTimer.alert
+    ? theme.trucoshiUi.match.seatTurnRing.alert
+    : turnTimer.isExtension
+      ? theme.trucoshiUi.match.seatTurnRing.extension
+      : theme.trucoshiUi.match.seatTurnRing.normal;
   const statusColor = player.abandoned
     ? "error.main"
     : player.disabled
@@ -93,7 +98,7 @@ export const MatchSeatCard = ({
   const ringRadiusPx = (avatarOrbitSizePx - ringStrokePx) * 0.5;
   const ringCircumference = 2 * Math.PI * ringRadiusPx;
   const ringOffset = ringCircumference * (1 - ringProgress / 100);
-  const ringTrackColor = alpha("#ffffff", 0.14);
+  const ringTrackColor = theme.trucoshiUi.match.seatTurnRing.track;
   const tablePointChunks = tablePoints === undefined ? [] : decomposeScoreToMatches(tablePoints);
   const tablePointsPlacement = seatPresentation.tablePoints;
   const pointsOffsetPx =
@@ -142,7 +147,7 @@ export const MatchSeatCard = ({
                 inset: 0,
                 pointerEvents: "none",
                 transform: "rotate(-90deg)",
-                filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.35))",
+                filter: theme.trucoshiUi.match.seatTurnRing.shadow,
               }}
             >
               <circle
@@ -176,9 +181,7 @@ export const MatchSeatCard = ({
               justifyContent: "center",
               p: 0,
               borderRadius: "50%",
-              bgcolor: "rgba(0,0,0,0.28)",
-              border: "2px solid rgba(201,126,59,0.95)",
-              boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+              ...theme.trucoshiUi.match.seatAvatarFrame,
               position: "relative",
               zIndex: 1,
             }}
@@ -218,8 +221,7 @@ export const MatchSeatCard = ({
                 height: "0.76rem",
                 borderRadius: "50%",
                 bgcolor: statusColor,
-                border: "2px solid rgba(17,24,20,0.95)",
-                boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+                ...theme.trucoshiUi.match.seatStatusDot,
                 zIndex: 3,
               }}
             />
@@ -233,9 +235,7 @@ export const MatchSeatCard = ({
             py: 0.24,
             minWidth: "4.6rem",
             borderRadius: "0.62rem",
-            bgcolor: "rgba(11, 19, 16, 0.9)",
-            border: "1px solid rgba(255,255,255,0.13)",
-            boxShadow: "0 6px 10px rgba(0,0,0,0.24)",
+            ...theme.trucoshiUi.match.seatNameBadge,
           }}
         >
           <Typography

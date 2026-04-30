@@ -1,0 +1,62 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CommandBar visual guard > renders action flow with snapshot and style guard 1`] = `
+<div
+  class="MuiBox-root css-1cr88w3"
+>
+  <div
+    class="MuiBox-root css-16xd1m7"
+  >
+    <div
+      class="MuiBox-root css-1d1wmzu"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-6kgn34-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        27
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-qtl1nw-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        31
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1n3o1rv-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Truco!
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`CommandBar visual guard > renders waiting state when no actions are available 1`] = `
+<div
+  class="MuiBox-root css-1cr88w3"
+>
+  <div
+    class="MuiBox-root css-nz8yh0"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-1sz6cep-MuiTypography-root"
+    >
+      Esperando jugada
+    </p>
+  </div>
+</div>
+`;

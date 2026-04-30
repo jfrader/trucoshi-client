@@ -1,7 +1,8 @@
 import { Profiler, ProfilerOnRenderCallback, ReactNode } from "react";
+import { IS_DEBUG } from "../config/debug";
 
 const getProfilerThresholdMs = () => {
-  if (!import.meta.env.DEV) {
+  if (!IS_DEBUG) {
     return null;
   }
 
@@ -12,11 +13,7 @@ const getProfilerThresholdMs = () => {
 };
 
 const getProfilerEnabled = () => {
-  if (!import.meta.env.DEV) {
-    return false;
-  }
-
-  return import.meta.env.VITE_DEBUG === "1" || import.meta.env.VITE_DEBUG === 1;
+  return IS_DEBUG;
 };
 
 const onRender: ProfilerOnRenderCallback = (
