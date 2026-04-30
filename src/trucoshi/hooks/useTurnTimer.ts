@@ -20,6 +20,7 @@ export const useTurnTimer = (
 
   useEffect(() => {
     if (!player || !player.isTurn || !match) {
+      setTurnTimer((prev) => (prev === INITIAL_TIMER ? prev : INITIAL_TIMER));
       return;
     }
 
@@ -27,7 +28,7 @@ export const useTurnTimer = (
       return setTurnTimer({ isExtension: false, progress: 100 });
     }
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       if (match.state === EMatchState.PAUSED) {
         return;
       }
@@ -63,7 +64,11 @@ export const useTurnTimer = (
 
         return newTimer;
       });
-    }, 120);
+    };
+
+    updateTimer();
+
+    const interval = setInterval(updateTimer, 120);
 
     return () => clearInterval(interval);
   }, [match, player, queue, serverAheadTime]);

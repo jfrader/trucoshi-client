@@ -114,13 +114,18 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
     };
   }, []);
 
-  return {
-    useChatState: useChat(match?.matchSessionId, onIncomingMessage),
-    players: match?.players,
-    active,
-    setActive,
-    latestMessage,
-  };
+  const useChatState = useChat(match?.matchSessionId, onIncomingMessage);
+
+  return useMemo(
+    () => ({
+      useChatState,
+      players: match?.players,
+      active,
+      setActive,
+      latestMessage,
+    }),
+    [active, latestMessage, match?.players, useChatState]
+  );
 };
 
 export const FixedChatContainer = styled(Box)(({ theme }) => ({

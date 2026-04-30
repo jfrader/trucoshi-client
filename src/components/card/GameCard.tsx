@@ -287,12 +287,14 @@ const GameCardButton = styled(Button, {
       }),
   ...(enablehover && {
     transformOrigin: "50% 100%",
-    "&:hover": {
-      boxShadow: theme.shadows[4],
-      zIndex: theme.zIndex.fab - 1,
-      transform: "translateY(-9%) scale(1.5)",
-      "& *": {
+    "@media (hover: hover) and (pointer: fine)": {
+      "&:hover": {
+        boxShadow: theme.shadows[4],
         zIndex: theme.zIndex.fab - 1,
+        transform: "translateY(-9%) scale(1.5)",
+        "& *": {
+          zIndex: theme.zIndex.fab - 1,
+        },
       },
     },
   }),

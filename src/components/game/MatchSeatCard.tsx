@@ -14,6 +14,7 @@ import matchTwo from "../../assets/points/matches/2.png";
 import matchThree from "../../assets/points/matches/3.png";
 import matchFour from "../../assets/points/matches/4.png";
 import matchFive from "../../assets/points/matches/5.png";
+import { memo } from "react";
 
 type MatchSeatCardProps = {
   player: IPublicPlayer;
@@ -48,7 +49,7 @@ const decomposeScoreToMatches = (score: number) => {
   return chunks;
 };
 
-export const MatchSeatCard = ({
+const _MatchSeatCard = ({
   player,
   isTurn,
   match,
@@ -346,3 +347,31 @@ export const MatchSeatCard = ({
     </Box>
   );
 };
+
+const sameSeatPresentation = (prev: MatchSeatPresentation, next: MatchSeatPresentation) =>
+  prev.translateY === next.translateY &&
+  prev.avatarNudgeY === next.avatarNudgeY &&
+  prev.hiddenHandCardWidth === next.hiddenHandCardWidth &&
+  prev.hiddenHandScale === next.hiddenHandScale &&
+  prev.hiddenHandRules === next.hiddenHandRules &&
+  prev.tablePoints.sideOffsetDesktopPx === next.tablePoints.sideOffsetDesktopPx &&
+  prev.tablePoints.sideOffsetMobilePx === next.tablePoints.sideOffsetMobilePx &&
+  prev.tablePoints.inwardNudgePx === next.tablePoints.inwardNudgePx &&
+  prev.tablePoints.tiltDesktopDeg === next.tablePoints.tiltDesktopDeg &&
+  prev.tablePoints.tiltMobileDeg === next.tablePoints.tiltMobileDeg &&
+  prev.tablePoints.imageHeightDesktop === next.tablePoints.imageHeightDesktop &&
+  prev.tablePoints.imageHeightMobile === next.tablePoints.imageHeightMobile &&
+  prev.tablePoints.pileGap === next.tablePoints.pileGap;
+
+export const MatchSeatCard = memo(
+  _MatchSeatCard,
+  (prev, next) =>
+    prev.player === next.player &&
+    prev.isTurn === next.isTurn &&
+    prev.match === next.match &&
+    prev.serverAheadTime === next.serverAheadTime &&
+    prev.seatGeometry === next.seatGeometry &&
+    prev.tablePoints === next.tablePoints &&
+    prev.tablePointsSide === next.tablePointsSide &&
+    sameSeatPresentation(prev.seatPresentation, next.seatPresentation)
+);

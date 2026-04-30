@@ -50,6 +50,11 @@ import {
 import { MatchTopBar } from "../components/game/MatchTopBar";
 import { MatchBottomDock } from "../components/game/MatchBottomDock";
 import { DevProfiler } from "../utils/devProfiler";
+import {
+  MatchGameplayProvider,
+  useMatchGameplay,
+} from "../components/game/MatchGameplayContext";
+import type { MatchGameplayContextValue } from "../components/game/MatchGameplayContext";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -115,6 +120,186 @@ const RulesDialog = ({
 const pointsValue = (points: { buenas: number; malas: number }) => points.buenas || points.malas;
 const pointsKindLabel = (points: { buenas: number; malas: number }) =>
   points.buenas > 0 ? "Buenas" : "Malas";
+
+const MatchBoardScene = memo(() => {
+  const { state, score, seat, announcements, actions } = useMatchGameplay();
+  const {
+    match,
+    chatProps,
+    slots,
+    rounds,
+    isDesktopChat,
+    canSay,
+    pauseRequested,
+    me,
+    serverAheadTime,
+    hasCommandActions,
+    canInteractWithHand,
+  } = state;
+  const {
+    myTeamIdx,
+    myTeamPoints,
+    myTeamPointsLabel,
+    opponentTeamPoints,
+    opponentTeamPointsLabel,
+  } = score;
+  const { bottomLeaderSeatIndex, frontLeaderSeatIndex } = seat;
+  const {
+    latestAnnouncement,
+    previousAnnouncement,
+    thirdAnnouncement,
+    latestAnnouncementColor,
+    previousAnnouncementColor,
+    thirdAnnouncementColor,
+    animateAnnouncement,
+  } = announcements;
+  const { onPlayCard, sayCommand, pauseMatch, setRulesOpen, setAbandonOpen } = actions;
+  const boardLayout = useBoardLayout();
+  const { getMatchSeatPresentation } = useBoardLayoutHelpers();
+  const matchDock = boardLayout.match?.dock;
+  const sideChatDockBottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : undefined;
+
+  return (
+    <>
+      <Box
+        sx={(theme) => ({
+          height: "100%",
+          minHeight: 0,
+          display: "grid",
+          gridTemplateColumns: isDesktopChat
+            ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
+            : "minmax(0, 1fr)",
+          gap: 0,
+          p: 0,
+          boxSizing: "border-box",
+        })}
+      >
+        {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
+        <Box position="relative" minWidth={0} minHeight={0}>
+          <TrucoBoardLayout
+            slots={slots}
+            topContent={
+              <MatchTopBar
+                myTeamIdx={myTeamIdx}
+                myPoints={myTeamPoints}
+                myPointsLabel={myTeamPointsLabel}
+                opponentPoints={opponentTeamPoints}
+                opponentPointsLabel={opponentTeamPointsLabel}
+                roundLabel={`Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`}
+                canSay={canSay}
+                pauseRequested={pauseRequested}
+                canAbandon={Boolean(me && !me.abandoned)}
+                onOpenRules={() => setRulesOpen(true)}
+                onTogglePause={() => pauseMatch(true)}
+                onOpenAbandon={() => setAbandonOpen(true)}
+              />
+            }
+            centerContent={
+              <DevProfiler id="Match.TrickCenter">
+                <TrickCenter rounds={rounds} slots={slots} />
+              </DevProfiler>
+            }
+            renderSeat={(slot, index, geometry) => {
+              if (!slot.player) {
+                return (
+                  <Box sx={(theme) => theme.trucoshiUi.match.emptySeat}>
+                    <Typography color="grey.300" fontSize="0.8rem">
+                      Esperando
+                    </Typography>
+                  </Box>
+                );
+              }
+
+              const seatPresentation = getMatchSeatPresentation(index, Boolean(slot.player.isMe));
+
+              return (
+                <Box
+                  sx={{
+                    transform: `translateY(${seatPresentation.translateY}px)`,
+                  }}
+                >
+                  <MatchSeatCard
+                    player={slot.player}
+                    isTurn={Boolean(slot.player.isTurn && !slot.player.disabled && !slot.player.abandoned)}
+                    match={match}
+                    serverAheadTime={serverAheadTime}
+                    seatGeometry={geometry}
+                    seatPresentation={seatPresentation}
+                    tablePoints={
+                      index === bottomLeaderSeatIndex
+                        ? myTeamPoints
+                        : index === frontLeaderSeatIndex
+                          ? opponentTeamPoints
+                          : undefined
+                    }
+                    tablePointsSide={index === frontLeaderSeatIndex ? "right" : "left"}
+                  />
+                </Box>
+              );
+            }}
+            bottomContent={
+              <Box
+                sx={{
+                  height: matchDock?.bottomDockReserveHeight || "0px",
+                  minHeight: matchDock?.bottomDockReserveHeight || "0px",
+                  maxHeight: matchDock?.bottomDockReserveHeight || "0px",
+                  pointerEvents: "none",
+                }}
+              />
+            }
+            boardFooter={
+              <Box position="absolute" visibility="hidden" height={0} width={0}>
+                {debugComponent(match.handState)}
+                {debugComponent(match.players.find((player) => player.isTurn)?.name || null)}
+              </Box>
+            }
+          />
+
+          <DevProfiler id="Match.BottomDock">
+            <MatchBottomDock
+              latestAnnouncement={latestAnnouncement}
+              previousAnnouncement={previousAnnouncement}
+              thirdAnnouncement={thirdAnnouncement}
+              latestAnnouncementColor={latestAnnouncementColor}
+              previousAnnouncementColor={previousAnnouncementColor}
+              thirdAnnouncementColor={thirdAnnouncementColor}
+              animateAnnouncement={animateAnnouncement}
+              me={me}
+              canSay={canSay}
+              hasCommandActions={hasCommandActions}
+              canInteractWithHand={canInteractWithHand}
+              onPlayCard={onPlayCard}
+              onSayCommand={sayCommand}
+              onOpenChat={!isDesktopChat ? () => chatProps.setActive(true) : undefined}
+              bottomOffsetOverride={sideChatDockBottomOffset}
+            />
+          </DevProfiler>
+        </Box>
+      </Box>
+    </>
+  );
+});
+
+const MatchMobileCommDrawer = memo(() => {
+  const {
+    state: { chatProps, isDesktopChat },
+  } = useMatchGameplay();
+  const boardLayout = useBoardLayout();
+
+  if (isDesktopChat) {
+    return null;
+  }
+
+  return (
+    <CommDrawer
+      chatProps={chatProps}
+      variant="chatEmotes"
+      bottomOffset="env(safe-area-inset-bottom)"
+      compact={boardLayout.profile === "phoneWide"}
+      showLauncher={false}
+    />
+  );
+});
 
 const _Match = () => {
   const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
@@ -290,7 +475,7 @@ const _Match = () => {
   const [rounds] = useRounds(match);
   const slots = useMemo(() => (match ? buildAlternatingSlots(match.players) : []), [match]);
 
-  const myTeamIdx = me?.teamIdx ?? 0;
+  const myTeamIdx: 0 | 1 = me?.teamIdx ?? 0;
   const myTeamPoints = match ? pointsValue(match.teams[myTeamIdx === 0 ? 0 : 1].points) : 0;
   const opponentTeamPoints = match ? pointsValue(match.teams[myTeamIdx === 0 ? 1 : 0].points) : 0;
   const myTeamPointsLabel = match ? pointsKindLabel(match.teams[myTeamIdx === 0 ? 0 : 1].points) : "Malas";
@@ -356,9 +541,83 @@ const _Match = () => {
     [confirmation, me, playCard]
   );
 
-  const openChatDrawer = useCallback(() => {
-    chatProps.setActive(true);
-  }, [chatProps]);
+  const gameplayContext = useMemo<MatchGameplayContextValue | null>(() => {
+    if (!match) {
+      return null;
+    }
+
+    return {
+      state: {
+        match,
+        chatProps,
+        slots,
+        rounds,
+        isDesktopChat,
+        canSay,
+        pauseRequested,
+        me,
+        serverAheadTime,
+        hasCommandActions,
+        canInteractWithHand,
+      },
+      score: {
+        myTeamIdx,
+        myTeamPoints,
+        myTeamPointsLabel,
+        opponentTeamPoints,
+        opponentTeamPointsLabel,
+      },
+      seat: {
+        bottomLeaderSeatIndex,
+        frontLeaderSeatIndex,
+      },
+      announcements: {
+        latestAnnouncement,
+        previousAnnouncement,
+        thirdAnnouncement,
+        latestAnnouncementColor,
+        previousAnnouncementColor,
+        thirdAnnouncementColor,
+        animateAnnouncement,
+      },
+      actions: {
+        onPlayCard,
+        sayCommand,
+        pauseMatch,
+        setRulesOpen,
+        setAbandonOpen,
+      },
+    };
+  }, [
+    animateAnnouncement,
+    bottomLeaderSeatIndex,
+    canInteractWithHand,
+    canSay,
+    chatProps,
+    frontLeaderSeatIndex,
+    hasCommandActions,
+    isDesktopChat,
+    latestAnnouncement,
+    latestAnnouncementColor,
+    match,
+    me,
+    myTeamIdx,
+    myTeamPoints,
+    myTeamPointsLabel,
+    onPlayCard,
+    opponentTeamPoints,
+    opponentTeamPointsLabel,
+    pauseMatch,
+    pauseRequested,
+    previousAnnouncement,
+    previousAnnouncementColor,
+    rounds,
+    sayCommand,
+    serverAheadTime,
+    slots,
+    thirdAnnouncement,
+    thirdAnnouncementColor,
+  ]);
 
   const shouldRedirectToLobby = Boolean(
     match &&
@@ -429,168 +688,6 @@ const _Match = () => {
 
   const buttonText = unpauseAt ? `Reanudando partida en ${secondsLeft}` : "Reanudar";
 
-  const MatchBoardScene = () => {
-    const boardLayout = useBoardLayout();
-    const { getMatchSeatPresentation } = useBoardLayoutHelpers();
-    const matchDock = boardLayout.match?.dock;
-    const sideChatDockBottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : undefined;
-
-    if (!match) {
-      return null;
-    }
-
-    return (
-      <>
-        <Box
-          sx={(theme) => ({
-            height: "100%",
-            minHeight: 0,
-            display: "grid",
-            gridTemplateColumns: isDesktopChat
-              ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
-              : "minmax(0, 1fr)",
-            gap: 0,
-            p: 0,
-            boxSizing: "border-box",
-          })}
-        >
-          {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
-          <Box position="relative" minWidth={0} minHeight={0}>
-            <TrucoBoardLayout
-              slots={slots}
-              topContent={
-                <MatchTopBar
-                  myTeamIdx={myTeamIdx}
-                  myPoints={myTeamPoints}
-                  myPointsLabel={myTeamPointsLabel}
-                  opponentPoints={opponentTeamPoints}
-                  opponentPointsLabel={opponentTeamPointsLabel}
-                  roundLabel={`Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`}
-                  canSay={canSay}
-                  pauseRequested={pauseRequested}
-                  canAbandon={Boolean(me && !me.abandoned)}
-                  onOpenRules={() => setRulesOpen(true)}
-                  onTogglePause={() => pauseMatch(true)}
-                  onOpenAbandon={() => setAbandonOpen(true)}
-                />
-              }
-              centerContent={
-                <DevProfiler id="Match.TrickCenter">
-                  <TrickCenter rounds={rounds} slots={slots} />
-                </DevProfiler>
-              }
-              renderSeat={(slot, index, geometry) => {
-                if (!slot.player) {
-                  return (
-                    <Box sx={(theme) => theme.trucoshiUi.match.emptySeat}>
-                      <Typography color="grey.300" fontSize="0.8rem">
-                        Esperando
-                      </Typography>
-                    </Box>
-                  );
-                }
-
-                const seatPresentation = getMatchSeatPresentation(index, Boolean(slot.player.isMe));
-
-                return (
-                  <Box
-                    sx={{
-                      transform: `translateY(${seatPresentation.translateY}px)`,
-                    }}
-                  >
-                    <MatchSeatCard
-                      player={slot.player}
-                      isTurn={Boolean(slot.player.isTurn && !slot.player.disabled && !slot.player.abandoned)}
-                      match={match}
-                      serverAheadTime={serverAheadTime}
-                      seatGeometry={geometry}
-                      seatPresentation={seatPresentation}
-                      tablePoints={
-                        index === bottomLeaderSeatIndex
-                          ? myTeamPoints
-                          : index === frontLeaderSeatIndex
-                            ? opponentTeamPoints
-                            : undefined
-                      }
-                      tablePointsSide={index === frontLeaderSeatIndex ? "right" : "left"}
-                    />
-                  </Box>
-                );
-              }}
-              bottomContent={
-                <Box
-                  sx={{
-                    height: matchDock?.bottomDockReserveHeight || "0px",
-                    minHeight: matchDock?.bottomDockReserveHeight || "0px",
-                    maxHeight: matchDock?.bottomDockReserveHeight || "0px",
-                    pointerEvents: "none",
-                  }}
-                />
-              }
-              boardFooter={
-                <Box position="absolute" visibility="hidden" height={0} width={0}>
-                  {debugComponent(match.handState)}
-                  {debugComponent(match.players.find((player) => player.isTurn)?.name || null)}
-                </Box>
-              }
-            />
-
-            <DevProfiler id="Match.BottomDock">
-              <MatchBottomDock
-                latestAnnouncement={latestAnnouncement}
-                previousAnnouncement={previousAnnouncement}
-                thirdAnnouncement={thirdAnnouncement}
-                latestAnnouncementColor={latestAnnouncementColor}
-                previousAnnouncementColor={previousAnnouncementColor}
-                thirdAnnouncementColor={thirdAnnouncementColor}
-                animateAnnouncement={animateAnnouncement}
-                me={me}
-                canSay={canSay}
-                hasCommandActions={hasCommandActions}
-                canInteractWithHand={canInteractWithHand}
-                onPlayCard={onPlayCard}
-                onSayCommand={sayCommand}
-                onOpenChat={!isDesktopChat ? openChatDrawer : undefined}
-                bottomOffsetOverride={sideChatDockBottomOffset}
-              />
-            </DevProfiler>
-          </Box>
-        </Box>
-
-        <RulesDialog open={isRulesOpen} onClose={() => setRulesOpen(false)} options={match.options} />
-
-        <AbandonDialog
-          open={isAbandonOpen}
-          onClose={() => setAbandonOpen(false)}
-          onAbandon={() => {
-            leaveMatch();
-            setAbandonOpen(false);
-          }}
-        />
-
-        <ConfirmationModal {...confirmation} />
-      </>
-    );
-  };
-
-  const MatchMobileCommDrawer = () => {
-    const boardLayout = useBoardLayout();
-
-    if (isDesktopChat) {
-      return null;
-    }
-
-    return (
-      <CommDrawer
-        chatProps={chatProps}
-        variant="chatEmotes"
-        bottomOffset="env(safe-area-inset-bottom)"
-        compact={boardLayout.profile === "phoneWide"}
-        showLauncher={false}
-      />
-    );
-  };
-
   return (
     <MatchStateProvider match={match}>
       <BoardLayoutProvider surface="match" totalSeats={slots.length}>
@@ -621,9 +718,31 @@ const _Match = () => {
             </Stack>
           </Backdrop>
 
-          {match ? <MatchBoardScene /> : <FloatingProgress />}
+          {gameplayContext ? (
+            <MatchGameplayProvider value={gameplayContext}>
+              <MatchBoardScene />
+              <MatchMobileCommDrawer />
+            </MatchGameplayProvider>
+          ) : (
+            <FloatingProgress />
+          )}
 
-          <MatchMobileCommDrawer />
+          {match ? (
+            <>
+              <RulesDialog open={isRulesOpen} onClose={() => setRulesOpen(false)} options={match.options} />
+
+              <AbandonDialog
+                open={isAbandonOpen}
+                onClose={() => setAbandonOpen(false)}
+                onAbandon={() => {
+                  leaveMatch();
+                  setAbandonOpen(false);
+                }}
+              />
+            </>
+          ) : null}
+
+          <ConfirmationModal {...confirmation} />
 
           {stats?.spectators ? (
             <Tooltip

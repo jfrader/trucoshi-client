@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { EClientEvent, EServerEvent, IChatMessage, IPublicChatRoom } from "trucoshi";
 import { TrucoshiContext } from "../trucoshi.context";
 import { useSound } from "../../sound/hooks/useSound";
@@ -149,5 +149,8 @@ export const useChat = (
     [isLoading, matchId, socket]
   );
 
-  return [room, chat, isLoading, say];
+  return useMemo<[IPublicChatRoom | null, (message: string) => void, boolean, IChatMessage | null]>(
+    () => [room, chat, isLoading, say],
+    [chat, isLoading, room, say]
+  );
 };
