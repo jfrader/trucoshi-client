@@ -52,12 +52,19 @@ export type MatchGameplayContextValue = {
 const MatchGameplayContext = createContext<MatchGameplayContextValue | null>(null);
 
 export const MatchGameplayProvider = ({
-  value,
+  state,
+  score,
+  seat,
+  announcements,
+  actions,
   children,
-}: {
-  value: MatchGameplayContextValue;
+}: MatchGameplayContextValue & {
   children: ReactNode;
-}) => <MatchGameplayContext.Provider value={value}>{children}</MatchGameplayContext.Provider>;
+}) => (
+  <MatchGameplayContext.Provider value={{ state, score, seat, announcements, actions }}>
+    {children}
+  </MatchGameplayContext.Provider>
+);
 
 export const useMatchGameplay = () => {
   const value = useContext(MatchGameplayContext);

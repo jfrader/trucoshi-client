@@ -10,6 +10,7 @@ import { GameCard } from "../card/GameCard";
 import { BURNT_CARD } from "trucoshi";
 import { useBoardLayout } from "../../board";
 import { TrucoBoardSlot } from "./TrucoBoardLayout";
+import { memo } from "react";
 
 type LobbySeatCardProps = {
   slot: TrucoBoardSlot<IPublicPlayer>;
@@ -41,7 +42,7 @@ const canJoinTeam = ({
   return players.length < options.maxPlayers && teamCount < teamCap;
 };
 
-export const LobbySeatCard = ({
+const _LobbySeatCard = ({
   slot,
   match,
   account,
@@ -296,3 +297,5 @@ export const LobbySeatCard = ({
     </Paper>
   );
 };
+
+export const LobbySeatCard = memo(_LobbySeatCard);

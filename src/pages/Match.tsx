@@ -38,7 +38,6 @@ import { useConfirmationModal } from "../hooks/useConfirmationModal";
 import { ConfirmationModal } from "../shared/ConfirmationModal";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
-import { DesktopCommRail } from "../components/chat/DesktopCommRail";
 import { MatchSeatCard } from "../components/game/MatchSeatCard";
 import { TrickCenter } from "../components/game/TrickCenter";
 import {
@@ -50,11 +49,8 @@ import {
 import { MatchTopBar } from "../components/game/MatchTopBar";
 import { MatchBottomDock } from "../components/game/MatchBottomDock";
 import { DevProfiler } from "../utils/devProfiler";
-import {
-  MatchGameplayProvider,
-  useMatchGameplay,
-} from "../components/game/MatchGameplayContext";
-import type { MatchGameplayContextValue } from "../components/game/MatchGameplayContext";
+import { MatchGameplayProvider, useMatchGameplay } from "../components/game/MatchGameplayContext";
+import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -160,22 +156,7 @@ const MatchBoardScene = memo(() => {
   const sideChatDockBottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : undefined;
 
   return (
-    <>
-      <Box
-        sx={(theme) => ({
-          height: "100%",
-          minHeight: 0,
-          display: "grid",
-          gridTemplateColumns: isDesktopChat
-            ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
-            : "minmax(0, 1fr)",
-          gap: 0,
-          p: 0,
-          boxSizing: "border-box",
-        })}
-      >
-        {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
-        <Box position="relative" minWidth={0} minHeight={0}>
+    <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
           <TrucoBoardLayout
             slots={slots}
             topContent={
@@ -274,9 +255,7 @@ const MatchBoardScene = memo(() => {
               bottomOffsetOverride={sideChatDockBottomOffset}
             />
           </DevProfiler>
-        </Box>
-      </Box>
-    </>
+    </GameBoardSceneFrame>
   );
 });
 
@@ -541,84 +520,6 @@ const _Match = () => {
     [confirmation, me, playCard]
   );
 
-  const gameplayContext = useMemo<MatchGameplayContextValue | null>(() => {
-    if (!match) {
-      return null;
-    }
-
-    return {
-      state: {
-        match,
-        chatProps,
-        slots,
-        rounds,
-        isDesktopChat,
-        canSay,
-        pauseRequested,
-        me,
-        serverAheadTime,
-        hasCommandActions,
-        canInteractWithHand,
-      },
-      score: {
-        myTeamIdx,
-        myTeamPoints,
-        myTeamPointsLabel,
-        opponentTeamPoints,
-        opponentTeamPointsLabel,
-      },
-      seat: {
-        bottomLeaderSeatIndex,
-        frontLeaderSeatIndex,
-      },
-      announcements: {
-        latestAnnouncement,
-        previousAnnouncement,
-        thirdAnnouncement,
-        latestAnnouncementColor,
-        previousAnnouncementColor,
-        thirdAnnouncementColor,
-        animateAnnouncement,
-      },
-      actions: {
-        onPlayCard,
-        sayCommand,
-        pauseMatch,
-        setRulesOpen,
-        setAbandonOpen,
-      },
-    };
-  }, [
-    animateAnnouncement,
-    bottomLeaderSeatIndex,
-    canInteractWithHand,
-    canSay,
-    chatProps,
-    frontLeaderSeatIndex,
-    hasCommandActions,
-    isDesktopChat,
-    latestAnnouncement,
-    latestAnnouncementColor,
-    match,
-    me,
-    myTeamIdx,
-    myTeamPoints,
-    myTeamPointsLabel,
-    onPlayCard,
-    opponentTeamPoints,
-    opponentTeamPointsLabel,
-    pauseMatch,
-    pauseRequested,
-    previousAnnouncement,
-    previousAnnouncementColor,
-    rounds,
-    sayCommand,
-    serverAheadTime,
-    slots,
-    thirdAnnouncement,
-    thirdAnnouncementColor,
-  ]);
-
   const shouldRedirectToLobby = Boolean(
     match &&
       (match.state === EMatchState.UNREADY || match.state === EMatchState.READY) &&
@@ -718,8 +619,49 @@ const _Match = () => {
             </Stack>
           </Backdrop>
 
-          {gameplayContext ? (
-            <MatchGameplayProvider value={gameplayContext}>
+          {match ? (
+            <MatchGameplayProvider
+              state={{
+                match,
+                chatProps,
+                slots,
+                rounds,
+                isDesktopChat,
+                canSay,
+                pauseRequested,
+                me,
+                serverAheadTime,
+                hasCommandActions,
+                canInteractWithHand,
+              }}
+              score={{
+                myTeamIdx,
+                myTeamPoints,
+                myTeamPointsLabel,
+                opponentTeamPoints,
+                opponentTeamPointsLabel,
+              }}
+              seat={{
+                bottomLeaderSeatIndex,
+                frontLeaderSeatIndex,
+              }}
+              announcements={{
+                latestAnnouncement,
+                previousAnnouncement,
+                thirdAnnouncement,
+                latestAnnouncementColor,
+                previousAnnouncementColor,
+                thirdAnnouncementColor,
+                animateAnnouncement,
+              }}
+              actions={{
+                onPlayCard,
+                sayCommand,
+                pauseMatch,
+                setRulesOpen,
+                setAbandonOpen,
+              }}
+            >
               <MatchBoardScene />
               <MatchMobileCommDrawer />
             </MatchGameplayProvider>

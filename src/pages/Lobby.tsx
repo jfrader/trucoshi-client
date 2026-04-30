@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import {
@@ -26,10 +26,11 @@ import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
-import { DesktopCommRail } from "../components/chat/DesktopCommRail";
 import { BoardLayoutProvider, MatchStateProvider } from "../board";
 import { LobbySeatCard } from "../components/game/LobbySeatCard";
 import { DevProfiler } from "../utils/devProfiler";
+import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
+import { LobbyGameplayProvider, useLobbyGameplay } from "../components/game/LobbyGameplayContext";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -38,6 +39,141 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "turnTime",
   "flor",
 ];
+
+const LobbyBoardScene = memo(() => {
+  const {
+    state: { match, chatProps, slots, isDesktopChat, account, isReadyLoading, sessionId },
+    actions: {
+      onJoinMatch,
+      onAddBot,
+      onSetReady,
+      onSetUnReady,
+      onStartMatch,
+      onOpenOptions,
+      kickPlayer,
+    },
+  } = useLobbyGameplay();
+
+  return (
+    <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
+      <DevProfiler id="Lobby.Board">
+        <TrucoBoardLayout
+          slots={slots}
+          topContent={
+            <>
+              <Paper
+                sx={(theme) => ({
+                  ...theme.trucoshiUi.lobby.topPlayersCard,
+                  px: 1.2,
+                  py: 0.8,
+                  borderRadius: "1rem",
+                })}
+              >
+                <Typography fontSize="0.78rem" color="grey.300">
+                  Lobby
+                </Typography>
+                <Typography fontSize="1rem" fontWeight={700} color="common.white">
+                  {match.players.length} / {match.options.maxPlayers}
+                </Typography>
+              </Paper>
+
+              <Paper
+                sx={(theme) => ({
+                  ...theme.trucoshiUi.lobby.topSessionCard,
+                  px: 1.6,
+                  py: 0.8,
+                  borderRadius: "0.9rem",
+                })}
+              >
+                <Typography color="common.white" fontWeight={700} fontSize="1rem">
+                  Sala {sessionId}
+                </Typography>
+              </Paper>
+
+              <IconButton
+                sx={(theme) => theme.trucoshiUi.lobby.topSettingsButton}
+                onClick={onOpenOptions}
+                disabled={match.busy || !match.me?.isOwner}
+              >
+                <Settings />
+              </IconButton>
+            </>
+          }
+          centerContent={
+            <Paper
+              sx={(theme) => ({
+                ...theme.trucoshiUi.lobby.rulesPanel,
+                width: "100%",
+                maxWidth: "18rem",
+                maxHeight: "100%",
+                overflow: "auto",
+                p: 1,
+                borderRadius: "1rem",
+              })}
+            >
+              <Typography fontWeight={700} fontSize="0.9rem" textAlign="left" mb={0.4}>
+                Reglas
+              </Typography>
+              <GameOptionsList
+                dense
+                options={match.options}
+                keys={account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
+                disablePadding
+              />
+            </Paper>
+          }
+          renderSeat={(slot) => (
+            <LobbySeatCard
+              slot={slot}
+              match={match}
+              account={account}
+              isReadyLoading={isReadyLoading}
+              onJoinMatch={onJoinMatch}
+              onAddBot={onAddBot}
+              onSetReady={onSetReady}
+              onSetUnReady={onSetUnReady}
+              onKickPlayer={kickPlayer}
+            />
+          )}
+          bottomContent={
+            <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
+              {match.me?.isOwner ? (
+                <LoadingButton
+                  isLoading={isReadyLoading}
+                  disabled={match.state !== EMatchState.READY}
+                  variant="contained"
+                  color="success"
+                  onClick={onStartMatch}
+                >
+                  Empezar Partida
+                </LoadingButton>
+              ) : (
+                <Paper
+                  sx={(theme) => ({
+                    ...theme.trucoshiUi.lobby.waitingHostCard,
+                    p: 1,
+                    borderRadius: "0.8rem",
+                  })}
+                >
+                  <Typography fontSize="0.86rem" color="grey.300" textAlign="center">
+                    Esperando al host para empezar la partida
+                  </Typography>
+                </Paper>
+              )}
+            </Stack>
+          }
+          boardFooter={
+            <Typography color="text.disabled" fontSize="small">
+              {match.players.some((player) => player.bot)
+                ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
+                : "Todos deben estar listos para empezar"}
+            </Typography>
+          }
+        />
+      </DevProfiler>
+    </GameBoardSceneFrame>
+  );
+});
 
 export const Lobby = () => {
   useSound();
@@ -80,38 +216,40 @@ export const Lobby = () => {
     };
   }, [context.socket]);
 
-  const onJoinMatch = (teamIdx: 0 | 1) => {
+  const onJoinMatch = useCallback((teamIdx: 0 | 1) => {
     setReadyLoading(true);
     if (sessionId) {
       joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
     }
-  };
+  }, [joinMatch, sessionId]);
 
-  const onAddBot = (teamIdx: 0 | 1) => {
+  const onAddBot = useCallback((teamIdx: 0 | 1) => {
     setReadyLoading(true);
     if (sessionId) {
       addBot(sessionId, () => setReadyLoading(false), teamIdx);
     }
-  };
+  }, [addBot, sessionId]);
 
-  const onStartMatch = () => {
+  const onStartMatch = useCallback(() => {
     setReadyLoading(true);
     startMatch(() => setReadyLoading(false));
-  };
+  }, [startMatch]);
 
-  const onSetReady = () => {
+  const onSetReady = useCallback(() => {
     setReadyLoading(true);
     if (sessionId) {
       setReady(sessionId, true, () => setReadyLoading(false));
     }
-  };
+  }, [sessionId, setReady]);
 
-  const onSetUnReady = () => {
+  const onSetUnReady = useCallback(() => {
     setReadyLoading(true);
     if (sessionId) {
       setReady(sessionId, false, () => setReadyLoading(false));
     }
-  };
+  }, [sessionId, setReady]);
+
+  const onOpenOptions = useCallback(() => setOptionsOpen(true), []);
 
   const slots = useMemo(
     () =>
@@ -120,147 +258,6 @@ export const Lobby = () => {
         : buildAlternatingSlots([]),
     [match],
   );
-
-  const LobbyBoardScene = () => {
-    if (!match) {
-      return null;
-    }
-
-    return (
-      <Box
-        sx={(theme) => ({
-          height: "100%",
-          minHeight: 0,
-          display: "grid",
-          gridTemplateColumns: isDesktopChat
-            ? `${theme.trucoshiUi.chatDrawer.railWidth} minmax(0, 1fr)`
-            : "minmax(0, 1fr)",
-          gap: 0,
-          p: 0,
-          boxSizing: "border-box",
-        })}
-      >
-        {isDesktopChat ? <DesktopCommRail chatProps={chatRoom} /> : null}
-        <DevProfiler id="Lobby.Board">
-          <TrucoBoardLayout
-            slots={slots}
-            topContent={
-            <>
-            <Paper
-              sx={(theme) => ({
-                ...theme.trucoshiUi.lobby.topPlayersCard,
-                px: 1.2,
-                py: 0.8,
-                borderRadius: "1rem",
-              })}
-            >
-              <Typography fontSize="0.78rem" color="grey.300">
-                Lobby
-              </Typography>
-              <Typography fontSize="1rem" fontWeight={700} color="common.white">
-                {match.players.length} / {match.options.maxPlayers}
-              </Typography>
-            </Paper>
-
-            <Paper
-              sx={(theme) => ({
-                ...theme.trucoshiUi.lobby.topSessionCard,
-                px: 1.6,
-                py: 0.8,
-                borderRadius: "0.9rem",
-              })}
-            >
-              <Typography color="common.white" fontWeight={700} fontSize="1rem">
-                Sala {sessionId}
-              </Typography>
-            </Paper>
-
-            <IconButton
-              sx={(theme) => theme.trucoshiUi.lobby.topSettingsButton}
-              onClick={() => setOptionsOpen(true)}
-              disabled={match.busy || !match.me?.isOwner}
-            >
-              <Settings />
-            </IconButton>
-            </>
-          }
-          centerContent={
-            <Paper
-              sx={(theme) => ({
-                ...theme.trucoshiUi.lobby.rulesPanel,
-                width: "100%",
-                maxWidth: "18rem",
-                maxHeight: "100%",
-                overflow: "auto",
-                p: 1,
-                borderRadius: "1rem",
-              })}
-            >
-              <Typography fontWeight={700} fontSize="0.9rem" textAlign="left" mb={0.4}>
-                Reglas
-              </Typography>
-              <GameOptionsList
-                dense
-                options={match.options}
-                keys={context.state.account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
-                disablePadding
-              />
-            </Paper>
-          }
-          renderSeat={(slot) => {
-            return (
-              <LobbySeatCard
-                slot={slot}
-                match={match}
-                account={context.state.account}
-                isReadyLoading={isReadyLoading}
-                onJoinMatch={onJoinMatch}
-                onAddBot={onAddBot}
-                onSetReady={onSetReady}
-                onSetUnReady={onSetUnReady}
-                onKickPlayer={kickPlayer}
-              />
-            );
-          }}
-          bottomContent={
-            <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
-              {match.me?.isOwner ? (
-                <LoadingButton
-                  isLoading={isReadyLoading}
-                  disabled={match.state !== EMatchState.READY}
-                  variant="contained"
-                  color="success"
-                  onClick={onStartMatch}
-                >
-                  Empezar Partida
-                </LoadingButton>
-              ) : (
-                <Paper
-                  sx={(theme) => ({
-                    ...theme.trucoshiUi.lobby.waitingHostCard,
-                    p: 1,
-                    borderRadius: "0.8rem",
-                  })}
-                >
-                  <Typography fontSize="0.86rem" color="grey.300" textAlign="center">
-                    Esperando al host para empezar la partida
-                  </Typography>
-                </Paper>
-              )}
-            </Stack>
-          }
-          boardFooter={
-            <Typography color="text.disabled" fontSize="small">
-              {match.players.some((player) => player.bot)
-                ? "Las partidas con bots no suman victorias ni derrotas en el perfil."
-                : "Todos deben estar listos para empezar"}
-            </Typography>
-            }
-          />
-        </DevProfiler>
-      </Box>
-    );
-  };
 
   if (shouldRedirectToMatch) {
     return <Navigate to={`/match/${sessionId}`} replace />;
@@ -279,7 +276,33 @@ export const Lobby = () => {
           <SocketBackdrop message="Conectandose a partida...">{sessionId}</SocketBackdrop>
           <MatchBackdrop error={error} />
 
-          {match ? <LobbyBoardScene /> : <FloatingProgress />}
+          {match ? (
+            <LobbyGameplayProvider
+              state={{
+                match,
+                chatProps: chatRoom,
+                slots,
+                isDesktopChat,
+                account: context.state.account,
+                isReadyLoading,
+                sessionId,
+              }}
+              actions={{
+                onJoinMatch,
+                onAddBot,
+                onSetReady,
+                onSetUnReady,
+                onStartMatch,
+                onOpenOptions,
+                kickPlayer,
+              }}
+            >
+              <LobbyBoardScene />
+              {!isDesktopChat ? <CommDrawer chatProps={chatRoom} /> : null}
+            </LobbyGameplayProvider>
+          ) : (
+            <FloatingProgress />
+          )}
 
           {isOptionsOpen && match ? (
             <Dialog open={isOptionsOpen} onClose={() => setOptionsOpen(false)}>
@@ -293,8 +316,6 @@ export const Lobby = () => {
               </DialogContent>
             </Dialog>
           ) : null}
-
-          {!isDesktopChat ? <CommDrawer chatProps={chatRoom} /> : null}
         </Box>
       </BoardLayoutProvider>
     </MatchStateProvider>
