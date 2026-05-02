@@ -5,7 +5,7 @@ import { getMessageContent } from "../chat/ChatRoom";
 import { ITrucoshiMatchActions } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
 import { CommandBar } from "./CommandBar";
-import { useBoardLayout } from "../../board";
+import { useBoardLayout, useMatchState } from "../../board";
 import { memo, useMemo } from "react";
 
 type MatchBottomDockProps = {
@@ -43,42 +43,56 @@ const _MatchBottomDock = ({
   onOpenChat,
   bottomOffsetOverride,
 }: MatchBottomDockProps) => {
+  const match = useMatchState();
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
   const hand = useMemo(
     () => (!isUnavailable ? ((me?.hand || []).slice(0, 3) as ICard[]) : []),
-    [isUnavailable, me?.hand]
+    [isUnavailable, me?.hand],
   );
   const handCount = hand.length;
   const fanRotations = useMemo(
     () => (handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0]),
-    [handCount]
+    [handCount],
   );
   const latestAnnouncementText = useMemo(
     () => (latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin anuncios"),
-    [latestAnnouncement]
+    [latestAnnouncement],
   );
   const previousAnnouncementText = useMemo(
     () => (previousAnnouncement ? getMessageContent(previousAnnouncement) : "Anterior: sin datos"),
-    [previousAnnouncement]
+    [previousAnnouncement],
   );
   const thirdAnnouncementText = useMemo(
     () => (thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "Anterior: sin datos"),
-    [thirdAnnouncement]
+    [thirdAnnouncement],
   );
-  const statusLabel = useMemo(
-    () =>
-      me
-        ? me.abandoned
-          ? "Retirado"
-          : me.disabled
-          ? "Al mazo"
-          : "Esperando jugada"
-        : "Modo espectador",
-    [me]
-  );
+  const statusLabel = useMemo(() => {
+    if (me) {
+      if (me.abandoned) {
+        return "Retirado";
+      }
+
+      if (me.disabled && !me.hand.length) {
+        return "Al mazo";
+      }
+
+      if (me.isTurn || me.isEnvidoTurn) {
+        return "Tu turno";
+      }
+
+      if (match?.handState === "DISPLAY_PREVIOUS_HAND") {
+        return "Mano finalizada";
+      }
+
+      return "Esperando jugada";
+    }
+
+    return "Modo Espectador";
+  }, [match?.handState, me]);
+
   const showCommandActions = Boolean(me && hasCommandActions && !isUnavailable);
   const handCardsNode = useMemo(() => {
     if (!dock) {
@@ -145,10 +159,8 @@ const _MatchBottomDock = ({
         <Paper
           sx={(theme) => ({
             ...theme.trucoshiUi.match.announcementPanel,
-            py: layout.profile === "phoneWide" ? 0.5 : 0.68,
+            py: 0.5,
             px: 0.95,
-            minHeight: dock.announcementBlockHeight,
-            maxHeight: dock.announcementBlockHeight,
             position: "relative",
             animation: animateAnnouncement ? "annAboveCardsPulse 520ms ease-out" : "none",
             "@keyframes annAboveCardsPulse": {
@@ -169,67 +181,25 @@ const _MatchBottomDock = ({
                 : 0,
             }}
           >
-              <Typography
-                color={thirdAnnouncementColor}
-                sx={{
-                  mt: 0.02,
-                  fontSize: { xs: "0.88rem", sm: "0.8rem" },
-                  lineHeight: 1.08,
-                  textAlign: "center",
-                  fontWeight: 600,
-                  opacity: thirdAnnouncement ? 0.88 : 0.45,
-                  visibility: thirdAnnouncement ? "visible" : "hidden",
-                  whiteSpace: "normal",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {thirdAnnouncementText}
-              </Typography>
-
-              <Typography
-                color={previousAnnouncementColor}
-                sx={{
-                  mt: 0.16,
-                  fontSize: { xs: "1rem", sm: "0.9rem" },
-                  lineHeight: 1.1,
-                  textAlign: "center",
-                  fontWeight: 600,
-                  opacity: 0.96,
-                  whiteSpace: "normal",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {previousAnnouncementText}
-              </Typography>
-
-              <Typography
-                fontWeight={900}
-                color={latestAnnouncementColor}
-                sx={{
-                  mt: 0.2,
-                  fontSize: { xs: "1.24rem", sm: "1.08rem" },
-                  lineHeight: 1.05,
-                  textAlign: "center",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.02em",
-                  whiteSpace: "normal",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {latestAnnouncementText}
-              </Typography>
+            <Typography
+              variant="body2"
+              fontWeight="bold"
+              fontSize="small"
+              color={thirdAnnouncementColor}
+            >
+              {thirdAnnouncementText}
+            </Typography>
+            <Typography variant="body2" fontWeight="bold" color={previousAnnouncementColor}>
+              {previousAnnouncementText}
+            </Typography>
+            <Typography
+              variant="body2"
+              fontWeight="bold"
+              fontSize="large"
+              color={latestAnnouncementColor}
+            >
+              {latestAnnouncementText}
+            </Typography>
           </Box>
 
           {onOpenChat ? (
@@ -281,8 +251,8 @@ const _MatchBottomDock = ({
                 layout.profile === "desktop" || layout.profile === "tabletWide"
                   ? 0.3
                   : layout.profile === "phoneWide"
-                  ? 0.22
-                  : 0.42,
+                    ? 0.22
+                    : 0.42,
               px: layout.profile === "desktop" || layout.profile === "tabletWide" ? 0.45 : 0.58,
               pb: layout.profile === "phoneWide" ? 0.08 : 0.28,
               minHeight: dock.handBlockHeight,

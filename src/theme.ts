@@ -220,7 +220,7 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       boxShadow: "0 6px 14px rgba(0,0,0,0.24)",
     },
     dockShell: {
-      borderRadius: "0.95rem",
+      borderRadius: "1rem 1rem 0 0",
       background:
         "linear-gradient(180deg, rgba(115,72,39,0.96) 0%, rgba(73,47,29,0.98) 16%, rgba(44,29,19,0.98) 100%)",
       border: "1px solid rgba(255,255,255,0.16)",

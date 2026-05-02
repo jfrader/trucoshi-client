@@ -77,7 +77,7 @@ export const DESKTOP_PROFILE_TOKENS: BoardProfileLayoutTokens = {
       radiusYMultiplier: 1.02,
       sideWeightedYMultiplier: true,
       outwardOffsetX: 0,
-      outwardOffsetY: 0,
+      outwardOffsetY: 64,
       sideInset: 2.6,
       sideVerticalOffset: 1.8,
       angleOffsetDeg: 0,

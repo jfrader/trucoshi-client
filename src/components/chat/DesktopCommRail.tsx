@@ -9,17 +9,13 @@ type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
 };
 
-const RailRoot = styled(Paper)(({ theme }) => ({
+const RailRoot = styled(Paper)(() => ({
   position: "relative",
   height: "100%",
   minHeight: 0,
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  borderRadius: "1rem",
-  border: theme.trucoshiUi.chatDrawer.railBorder,
-  background: theme.trucoshiUi.chatDrawer.railBackground,
-  boxShadow: theme.trucoshiUi.chatDrawer.railShadow,
   backdropFilter: "blur(1px)",
 }));
 
