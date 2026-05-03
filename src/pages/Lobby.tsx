@@ -175,6 +175,8 @@ const LobbyBoardScene = memo(() => {
   );
 });
 
+LobbyBoardScene.displayName = "LobbyBoardScene";
+
 export const Lobby = () => {
   useSound();
 

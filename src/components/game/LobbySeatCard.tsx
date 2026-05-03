@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { ILobbyOptions, IPublicMatch, IPublicPlayer } from "trucoshi";
 import { User } from "lightning-accounts";
 import { getTeamColor, getTeamName } from "../../utils/team";
@@ -54,6 +54,8 @@ const _LobbySeatCard = ({
   onKickPlayer,
 }: LobbySeatCardProps) => {
   const layout = useBoardLayout();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
   const seatCard = layout.lobby?.seatCard;
 
   if (!seatCard) {
@@ -85,9 +87,10 @@ const _LobbySeatCard = ({
             minHeight: seatCard.headerHeight,
             display: "flex",
             alignItems: "center",
+            pl: 1
           }}
         >
-          <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="0.77rem">
+          <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="1rem">
             {getTeamName(slot.teamIdx)}
           </Typography>
         </Box>
@@ -182,18 +185,27 @@ const _LobbySeatCard = ({
     <Paper
       sx={(theme) => ({
         ...theme.trucoshiUi.lobby.seatCard,
-        p: seatCard.padding,
+        p: 1,
         minWidth: seatCard.minWidth,
         borderRadius: seatCard.borderRadius,
       })}
     >
-      <Box sx={{ minHeight: seatCard.headerHeight, display: "flex", alignItems: "center" }}>
-        <Stack direction="row" alignItems="center" spacing={0.8}>
-          <UserAvatar
-            account={player}
-            size="small"
-            bgcolor={`${getTeamColor(player.teamIdx)}.main`}
-          />
+      <Box
+        sx={{
+          minHeight: seatCard.headerHeight,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Stack direction="row" alignItems="start" spacing={0.8}>
+          <Box position="absolute" left={-6} top={-5}>
+            <UserAvatar
+              account={player}
+              size={isDesktop ? "medium" : "small"}
+              bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+            />
+          </Box>
           <Box minWidth={0}>
             <Typography
               color="common.white"
@@ -204,7 +216,7 @@ const _LobbySeatCard = ({
             >
               {player.name}
             </Typography>
-            <Typography fontSize="0.82rem" color="grey.300">
+            <Typography fontSize="0.92rem" color="grey.300">
               {player.ready ? "Listo" : "Esperando"}
             </Typography>
           </Box>
@@ -213,7 +225,6 @@ const _LobbySeatCard = ({
 
       <Box
         sx={{
-          mt: 0.6,
           minHeight: seatCard.cardsHeight,
           height: seatCard.cardsHeight,
           display: "flex",
@@ -221,7 +232,7 @@ const _LobbySeatCard = ({
           justifyContent: "center",
         }}
       >
-        <Stack direction="row" pt={5} justifyContent="center">
+        <Stack direction="row" pt={4} justifyContent="center">
           {Array.from({ length: 3 }).map((_, idx) => (
             <Box
               key={`${player.key}-${idx}`}
@@ -235,7 +246,6 @@ const _LobbySeatCard = ({
       </Box>
 
       <Stack
-        mt={0.7}
         spacing={0.5}
         sx={{
           minHeight: seatCard.actionsHeight,
