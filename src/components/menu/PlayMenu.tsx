@@ -23,26 +23,29 @@ export const OnlinePlayers = ({ stats, label }: { stats: ITrucoshiStats; label?:
 
 export const PlayMenu = ({
   onMenuClick,
+  eyebrow,
   ...props
-}: BoxProps & { onMenuClick?: (e: SyntheticEvent) => void }) => {
+}: BoxProps & { eyebrow?: boolean; onMenuClick?: (e: SyntheticEvent) => void }) => {
   const navigate = useNavigate();
   const [{ account, stats }] = useTrucoshi();
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" {...props}>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography
-          textAlign="left"
-          color="text.disabled"
-          textTransform="uppercase"
-          variant="subtitle1"
-        >
-          Jugar
-        </Typography>
-        <OnlinePlayers stats={stats} />
-      </Stack>
+      {eyebrow ? (
+        <Stack direction="row" justifyContent="space-between">
+          <Typography
+            textAlign="left"
+            color="text.disabled"
+            textTransform="uppercase"
+            variant="subtitle1"
+          >
+            Jugar
+          </Typography>
+          <OnlinePlayers stats={stats} />
+        </Stack>
+      ) : null}
       <FormGroup onClick={onMenuClick}>
-        <div>
+        <Stack direction="row" justifyContent="center">
           <Button
             sx={() => ({ my: 2, px: 5, fontWeight: 800, fontSize: "large" })}
             color="warning"
@@ -52,7 +55,7 @@ export const PlayMenu = ({
           >
             Jugar!
           </Button>
-        </div>
+        </Stack>
         <Button color="primary" size="large" onClick={() => navigate("/ranking")}>
           Ranking
         </Button>

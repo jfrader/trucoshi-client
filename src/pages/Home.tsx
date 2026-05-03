@@ -30,7 +30,7 @@ export const Home = () => {
           <Slide in direction="right">
             <Card>
               <CardContent>
-                <PlayMenu />
+                <PlayMenu eyebrow />
               </CardContent>
             </Card>
           </Slide>
