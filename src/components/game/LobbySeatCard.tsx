@@ -62,6 +62,12 @@ const _LobbySeatCard = ({
     return null;
   }
 
+  const teamLabel = (
+    <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="1rem">
+      {getTeamName(slot.teamIdx)}
+    </Typography>
+  );
+
   if (!slot.player) {
     const canJoin = canJoinTeam({
       players: match.players,
@@ -87,12 +93,10 @@ const _LobbySeatCard = ({
             minHeight: seatCard.headerHeight,
             display: "flex",
             alignItems: "center",
-            pl: 1
+            pl: 1,
           }}
         >
-          <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="1rem">
-            {getTeamName(slot.teamIdx)}
-          </Typography>
+          {teamLabel}
         </Box>
 
         <Box
@@ -248,6 +252,7 @@ const _LobbySeatCard = ({
       <Stack
         spacing={0.5}
         sx={{
+          mt: 1.4,
           minHeight: seatCard.actionsHeight,
           height: seatCard.actionsHeight,
           justifyContent: "flex-end",
@@ -261,6 +266,7 @@ const _LobbySeatCard = ({
                 disabled={isReadyLoading}
                 size="small"
                 color="success"
+                variant="contained"
                 onClick={onSetUnReady}
                 endIcon={
                   player.ready && match.options.satsPerPlayer > 0 && account ? (
@@ -293,16 +299,21 @@ const _LobbySeatCard = ({
               </Button>
             ) : null}
           </>
-        ) : match.me?.isOwner ? (
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            onClick={() => onKickPlayer(player.key)}
-          >
-            Quitar
-          </Button>
-        ) : null}
+        ) : (
+          <Stack spacing={0.5}>
+            {teamLabel}
+            {match.me?.isOwner ? (
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => onKickPlayer(player.key)}
+              >
+                Quitar
+              </Button>
+            ) : null}
+          </Stack>
+        )}
       </Stack>
     </Paper>
   );
