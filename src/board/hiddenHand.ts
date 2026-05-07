@@ -7,6 +7,8 @@ import {
 } from "./types";
 import { DEFAULT_HIDDEN_HAND_RADIAL_RULES } from "./tokens";
 
+const MAX_HIDDEN_CARDS = 3;
+
 const getHiddenHandSlots = (hiddenCardCount: number): number[] => {
   if (hiddenCardCount <= 1) {
     return [0];
@@ -18,6 +20,9 @@ const getHiddenHandSlots = (hiddenCardCount: number): number[] => {
 
   return [-1, 0, 1];
 };
+
+const clampHiddenCardCount = (hiddenCardCount: number) =>
+  Math.max(0, Math.min(MAX_HIDDEN_CARDS, Math.floor(hiddenCardCount)));
 
 export const buildOpponentHiddenHandLayout = ({
   geometry,
@@ -36,51 +41,37 @@ export const buildOpponentHiddenHandLayout = ({
   seatOffsetPx?: SeatOffsetVector;
   scale?: number;
 }): OpponentHiddenHandLayout => {
-  const safeHiddenCardCount = Math.max(0, Math.min(3, Math.floor(hiddenCardCount)));
-  const OVAL_NORMAL_RADIUS_X = 50;
-  const OVAL_NORMAL_RADIUS_Y = 40;
-  const seatVector = {
-    x: geometry.leftPercent - 50,
-    y: geometry.topPercent - 50,
-  };
-  const hasSeatVector = Math.abs(seatVector.x) > 0.0001 || Math.abs(seatVector.y) > 0.0001;
-  const fallbackInward = hasSeatVector
-    ? {
-        x: -(seatVector.x / (OVAL_NORMAL_RADIUS_X * OVAL_NORMAL_RADIUS_X)),
-        y: -(seatVector.y / (OVAL_NORMAL_RADIUS_Y * OVAL_NORMAL_RADIUS_Y)),
-      }
-    : { x: -geometry.cos, y: -geometry.sin };
-  const inwardMagnitude = Math.hypot(fallbackInward.x, fallbackInward.y) || 1;
+  const safeHiddenCardCount = clampHiddenCardCount(hiddenCardCount);
   const inward = {
-    x: fallbackInward.x / inwardMagnitude,
-    y: fallbackInward.y / inwardMagnitude,
+    x: -geometry.cos,
+    y: -geometry.sin,
   };
-  const baseFacingDeg = (Math.atan2(inward.y, inward.x) * 180) / Math.PI + 90;
-  const anchorScale = scale * profileRules.distanceScale;
-  const seatOffsetInwardProjectionPx = seatOffsetPx
+  const ruleScale = scale * profileRules.distanceScale;
+  const axialInsetPx = profileRules.axialInsetReductionPx * (1 - geometry.sideStrength);
+  const tableInsetPx = Math.max(0, profileRules.tableInsetPx - axialInsetPx) * ruleScale;
+  const seatOffsetInwardPx = seatOffsetPx
     ? seatOffsetPx.x * inward.x + seatOffsetPx.y * inward.y
     : 0;
-  const poleStrength = Math.pow(Math.abs(geometry.sin), 3);
-  const axialReductionPx = poleStrength * profileRules.axialInsetReductionPx * anchorScale;
-  const targetInsetPx = Math.max(0, profileRules.tableInsetPx * anchorScale - axialReductionPx);
-  const radialDistance = Math.max(0, targetInsetPx - seatOffsetInwardProjectionPx);
-  const minAvatarAndNameClearance =
-    avatarSizePx * 0.5 + profileRules.minClearancePx * anchorScale + nameBlockPx * 0.32;
+  const clearancePx =
+    avatarSizePx * 0.5 + nameBlockPx * 0.32 + profileRules.minClearancePx * ruleScale;
   const anchorDistance =
-    Math.max(radialDistance, minAvatarAndNameClearance) + profileRules.verticalLiftPx * anchorScale;
+    Math.max(0, Math.max(tableInsetPx - seatOffsetInwardPx, clearancePx)) +
+    profileRules.verticalLiftPx * ruleScale;
   const anchor = {
     x: inward.x * anchorDistance,
     y: inward.y * anchorDistance,
-    rotateDeg: baseFacingDeg,
+    rotateDeg: (Math.atan2(inward.y, inward.x) * 180) / Math.PI + 90,
     origin: profileRules.handOrigin,
   };
 
+  const hiddenHandSlots = getHiddenHandSlots(safeHiddenCardCount);
+  const outerSlot = Math.max(...hiddenHandSlots.map((slot) => Math.abs(slot)));
   const cards = safeHiddenCardCount
-    ? getHiddenHandSlots(safeHiddenCardCount).map((slot, index) => ({
+    ? hiddenHandSlots.map((slot, index) => ({
         x: slot * profileRules.fanSpacingPx * scale,
-        y: -Math.abs(slot) * profileRules.fanArcDepthPx * scale,
+        y: (Math.abs(slot) - outerSlot) * profileRules.fanArcDepthPx * scale,
         rotateDeg: slot * profileRules.fanSpreadDeg,
-        zIndex: 100 - Math.round(Math.abs(slot) * 10) + (safeHiddenCardCount - index),
+        zIndex: 100 + index,
       }))
     : [];
 
