@@ -118,66 +118,20 @@ const pointsKindLabel = (points: { buenas: number; malas: number }) =>
   points.buenas > 0 ? "Buenas" : "Malas";
 
 const MatchBoardScene = memo(() => {
-  const { state, score, seat, announcements, actions } = useMatchGameplay();
-  const {
-    match,
-    chatProps,
-    slots,
-    rounds,
-    isDesktopChat,
-    canSay,
-    pauseRequested,
-    me,
-    serverAheadTime,
-    hasCommandActions,
-    canInteractWithHand,
-  } = state;
-  const {
-    myTeamIdx,
-    myTeamPoints,
-    myTeamPointsLabel,
-    opponentTeamPoints,
-    opponentTeamPointsLabel,
-  } = score;
-  const { bottomLeaderSeatIndex, frontLeaderSeatIndex } = seat;
-  const {
-    latestAnnouncement,
-    previousAnnouncement,
-    thirdAnnouncement,
-    latestAnnouncementColor,
-    previousAnnouncementColor,
-    thirdAnnouncementColor,
-    animateAnnouncement,
-  } = announcements;
-  const { onPlayCard, sayCommand, pauseMatch, setRulesOpen, setAbandonOpen } = actions;
+  const { state } = useMatchGameplay();
+  const { match, chatProps, slots, isDesktopChat } = state;
   const boardLayout = useBoardLayout();
   const { getMatchSeatPresentation } = useBoardLayoutHelpers();
   const matchDock = boardLayout.match?.dock;
-  const sideChatDockBottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : undefined;
 
   return (
     <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
       <TrucoBoardLayout
         slots={slots}
-        topContent={
-          <MatchTopBar
-            myTeamIdx={myTeamIdx}
-            myPoints={myTeamPoints}
-            myPointsLabel={myTeamPointsLabel}
-            opponentPoints={opponentTeamPoints}
-            opponentPointsLabel={opponentTeamPointsLabel}
-            roundLabel={`Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`}
-            canSay={canSay}
-            pauseRequested={pauseRequested}
-            canAbandon={Boolean(me && !me.abandoned)}
-            onOpenRules={() => setRulesOpen(true)}
-            onTogglePause={() => pauseMatch(true)}
-            onOpenAbandon={() => setAbandonOpen(true)}
-          />
-        }
+        topContent={<MatchTopBar />}
         centerContent={
           <DevProfiler id="Match.TrickCenter">
-            <TrickCenter rounds={rounds} slots={slots} />
+            <TrickCenter />
           </DevProfiler>
         }
         renderSeat={(slot, index, geometry) => {
@@ -201,21 +155,9 @@ const MatchBoardScene = memo(() => {
             >
               <MatchSeatCard
                 player={slot.player}
-                isTurn={Boolean(
-                  slot.player.isTurn && !slot.player.disabled && !slot.player.abandoned,
-                )}
-                match={match}
-                serverAheadTime={serverAheadTime}
+                seatIndex={index}
                 seatGeometry={geometry}
                 seatPresentation={seatPresentation}
-                tablePoints={
-                  index === bottomLeaderSeatIndex
-                    ? myTeamPoints
-                    : index === frontLeaderSeatIndex
-                      ? opponentTeamPoints
-                      : undefined
-                }
-                tablePointsSide={index === frontLeaderSeatIndex ? "right" : "left"}
               />
             </Box>
           );
@@ -239,23 +181,7 @@ const MatchBoardScene = memo(() => {
       />
 
       <DevProfiler id="Match.BottomDock">
-        <MatchBottomDock
-          latestAnnouncement={latestAnnouncement}
-          previousAnnouncement={previousAnnouncement}
-          thirdAnnouncement={thirdAnnouncement}
-          latestAnnouncementColor={latestAnnouncementColor}
-          previousAnnouncementColor={previousAnnouncementColor}
-          thirdAnnouncementColor={thirdAnnouncementColor}
-          animateAnnouncement={animateAnnouncement}
-          me={me}
-          canSay={canSay}
-          hasCommandActions={hasCommandActions}
-          canInteractWithHand={canInteractWithHand}
-          onPlayCard={onPlayCard}
-          onSayCommand={sayCommand}
-          onOpenChat={!isDesktopChat ? () => chatProps.setActive(true) : undefined}
-          bottomOffsetOverride={sideChatDockBottomOffset}
-        />
+        <MatchBottomDock />
       </DevProfiler>
     </GameBoardSceneFrame>
   );

@@ -1,15 +1,13 @@
-import { Box } from "@mui/material";
-import { useMemo, useState } from "react";
-import { IPlayedCard, IPublicPlayer } from "trucoshi";
+import { Box, Typography } from "@mui/material";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { IChatMessage, IPlayedCard } from "trucoshi";
 import { GameCard } from "../card/GameCard";
-import { BoardSeatGeometry, useBoardLayout } from "../../board";
-import { buildAlternatingSlots } from "./TrucoBoardLayout";
+import { useBoardLayout } from "../../board";
+import { useMatchGameplay } from "./MatchGameplayContext";
+import { getMessageContent } from "../chat/ChatRoom";
+import { getTeamColor } from "../../utils/team";
 
-type TrickCenterProps = {
-  rounds: IPlayedCard[][];
-  slots: ReturnType<typeof buildAlternatingSlots<IPublicPlayer>>;
-  seatGeometries?: BoardSeatGeometry[];
-};
+const COMMAND_ANNOUNCEMENT_DURATION_MS = 3000;
 
 const getStableRotation = ({
   seed,
@@ -28,13 +26,7 @@ const getStableRotation = ({
   return normalized * (maxRotationOffsetDeg * 2) - maxRotationOffsetDeg;
 };
 
-const getStableJitter = ({
-  seed,
-  spread,
-}: {
-  seed: string;
-  spread: number;
-}) => {
+const getStableJitter = ({ seed, spread }: { seed: string; spread: number }) => {
   let hash = 0;
 
   for (let i = 0; i < seed.length; i += 1) {
@@ -42,7 +34,7 @@ const getStableJitter = ({
   }
 
   const xNorm = (((hash % 1000) + 1000) % 1000) / 1000;
-  const yNorm = ((((hash / 1000) | 0) % 1000) + 1000) % 1000 / 1000;
+  const yNorm = (((((hash / 1000) | 0) % 1000) + 1000) % 1000) / 1000;
 
   return {
     x: xNorm * spread * 2 - spread,
@@ -75,16 +67,62 @@ const getStackOffset = ({
   };
 };
 
-export const TrickCenter = ({
-  rounds,
-  slots,
-  seatGeometries,
-}: TrickCenterProps) => {
+export const TrickCenter = () => {
+  const {
+    announcements: { latestAnnouncement },
+    state: { rounds, slots, chatProps },
+  } = useMatchGameplay();
   const layout = useBoardLayout();
   const [openStackPlayerKey, setOpenStackPlayerKey] = useState<string | null>(null);
-  const geometries = seatGeometries || layout.seatGeometries;
+  const [visibleCommandAnnouncement, setVisibleCommandAnnouncement] = useState<IChatMessage | null>(
+    null,
+  );
+  const lastShownCommandIdRef = useRef<IChatMessage["id"] | null>(null);
+  const commandTimerRef = useRef<number | null>(null);
+  const geometries = layout.seatGeometries;
   const centerLayout = layout.centerStack;
   const playedCardWidth = layout.match?.dock.playedCardWidth || "clamp(4.0rem, 12vw, 4.6rem)";
+  const room = chatProps.useChatState?.[0];
+  const latestCommandAnnouncement =
+    [...(room?.messages || [])].reverse().find((message) => Boolean(message.command)) ||
+    (latestAnnouncement?.command ? latestAnnouncement : null);
+  const visibleCommandAnnouncementColor =
+    visibleCommandAnnouncement?.user?.key !== undefined
+      ? `${getTeamColor(Number(visibleCommandAnnouncement.user.key))}.light`
+      : "grey.100";
+
+  useEffect(() => {
+    if (!latestCommandAnnouncement?.id) {
+      return;
+    }
+
+    if (lastShownCommandIdRef.current === latestCommandAnnouncement.id) {
+      return;
+    }
+
+    lastShownCommandIdRef.current = latestCommandAnnouncement.id;
+    setVisibleCommandAnnouncement(latestCommandAnnouncement);
+
+    if (commandTimerRef.current) {
+      window.clearTimeout(commandTimerRef.current);
+    }
+
+    commandTimerRef.current = window.setTimeout(() => {
+      setVisibleCommandAnnouncement((current) =>
+        current?.id === latestCommandAnnouncement.id ? null : current,
+      );
+      commandTimerRef.current = null;
+    }, COMMAND_ANNOUNCEMENT_DURATION_MS);
+  }, [latestCommandAnnouncement]);
+
+  useEffect(
+    () => () => {
+      if (commandTimerRef.current) {
+        window.clearTimeout(commandTimerRef.current);
+      }
+    },
+    [],
+  );
 
   const slotByPlayer = useMemo(
     () =>
@@ -95,7 +133,7 @@ export const TrickCenter = ({
 
         return acc;
       }, {}),
-    [slots]
+    [slots],
   );
 
   const playOrder = useMemo(() => {
@@ -132,6 +170,31 @@ export const TrickCenter = ({
 
   return (
     <Box width="100%" height="100%" position="relative">
+      {visibleCommandAnnouncement ? (
+        <Box
+          position="absolute"
+          sx={{
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
+            zIndex: 260,
+          }}
+        >
+          <Typography
+            variant="body2"
+            fontWeight="bold"
+            fontSize="large"
+            color={visibleCommandAnnouncementColor}
+            sx={{
+              textShadow: "0 2px 10px rgba(0, 0, 0, 0.65)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {getMessageContent(visibleCommandAnnouncement)}
+          </Typography>
+        </Box>
+      ) : null}
       {slots.flatMap((slot) => {
         if (!slot.player) {
           return [];

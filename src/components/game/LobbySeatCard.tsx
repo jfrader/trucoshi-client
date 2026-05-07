@@ -1,6 +1,5 @@
 import { Box, Button, Paper, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { ILobbyOptions, IPublicMatch, IPublicPlayer } from "trucoshi";
-import { User } from "lightning-accounts";
+import { ILobbyOptions, IPublicPlayer } from "trucoshi";
 import { getTeamColor, getTeamName } from "../../utils/team";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { Sats } from "../../shared/Sats";
@@ -11,17 +10,10 @@ import { BURNT_CARD } from "trucoshi";
 import { useBoardLayout } from "../../board";
 import { TrucoBoardSlot } from "./TrucoBoardLayout";
 import { memo } from "react";
+import { useLobbyGameplay } from "./LobbyGameplayContext";
 
 type LobbySeatCardProps = {
   slot: TrucoBoardSlot<IPublicPlayer>;
-  match: IPublicMatch;
-  account: User | null;
-  isReadyLoading: boolean;
-  onJoinMatch: (teamIdx: 0 | 1) => void;
-  onAddBot: (teamIdx: 0 | 1) => void;
-  onSetReady: () => void;
-  onSetUnReady: () => void;
-  onKickPlayer: (key: string) => void;
 };
 
 const getTeamCount = (players: IPublicPlayer[], teamIdx: 0 | 1) =>
@@ -42,17 +34,11 @@ const canJoinTeam = ({
   return players.length < options.maxPlayers && teamCount < teamCap;
 };
 
-const _LobbySeatCard = ({
-  slot,
-  match,
-  account,
-  isReadyLoading,
-  onJoinMatch,
-  onAddBot,
-  onSetReady,
-  onSetUnReady,
-  onKickPlayer,
-}: LobbySeatCardProps) => {
+const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
+  const {
+    state: { match, account, isReadyLoading },
+    actions: { onJoinMatch, onAddBot, onSetReady, onSetUnReady, kickPlayer },
+  } = useLobbyGameplay();
   const layout = useBoardLayout();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
@@ -293,7 +279,7 @@ const _LobbySeatCard = ({
               <Button
                 color="error"
                 size="small"
-                onClick={() => match.me && onKickPlayer(match.me.key)}
+                onClick={() => match.me && kickPlayer(match.me.key)}
               >
                 Salir
               </Button>
@@ -307,7 +293,7 @@ const _LobbySeatCard = ({
                 variant="contained"
                 color="error"
                 size="small"
-                onClick={() => onKickPlayer(player.key)}
+                onClick={() => kickPlayer(player.key)}
               >
                 Quitar
               </Button>

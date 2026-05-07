@@ -43,15 +43,7 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
 const LobbyBoardScene = memo(() => {
   const {
     state: { match, chatProps, slots, isDesktopChat, account, isReadyLoading, sessionId },
-    actions: {
-      onJoinMatch,
-      onAddBot,
-      onSetReady,
-      onSetUnReady,
-      onStartMatch,
-      onOpenOptions,
-      kickPlayer,
-    },
+    actions: { onStartMatch, onOpenOptions },
   } = useLobbyGameplay();
 
   return (
@@ -122,19 +114,7 @@ const LobbyBoardScene = memo(() => {
               />
             </Paper>
           }
-          renderSeat={(slot) => (
-            <LobbySeatCard
-              slot={slot}
-              match={match}
-              account={account}
-              isReadyLoading={isReadyLoading}
-              onJoinMatch={onJoinMatch}
-              onAddBot={onAddBot}
-              onSetReady={onSetReady}
-              onSetUnReady={onSetUnReady}
-              onKickPlayer={kickPlayer}
-            />
-          )}
+          renderSeat={(slot) => <LobbySeatCard slot={slot} />}
           bottomContent={
             <Stack spacing={1} pb={{ xs: "3.7rem", sm: "3.4rem", md: "3.2rem" }}>
               {match.me?.isOwner ? (

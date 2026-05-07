@@ -1,51 +1,32 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import { ICard, IChatMessage, IPublicPlayer } from "trucoshi";
+import { ICard } from "trucoshi";
 import { getMessageContent } from "../chat/ChatRoom";
-import { ITrucoshiMatchActions } from "../../trucoshi/types";
 import { GameCard } from "../card/GameCard";
 import { CommandBar } from "./CommandBar";
 import { useBoardLayout, useMatchState } from "../../board";
 import { memo, useMemo } from "react";
+import { useMatchGameplay } from "./MatchGameplayContext";
 
-type MatchBottomDockProps = {
-  latestAnnouncement: IChatMessage | null;
-  previousAnnouncement: IChatMessage | null;
-  thirdAnnouncement: IChatMessage | null;
-  latestAnnouncementColor: string;
-  previousAnnouncementColor: string;
-  thirdAnnouncementColor: string;
-  animateAnnouncement: boolean;
-  me: IPublicPlayer | null;
-  canSay: boolean;
-  hasCommandActions: boolean;
-  canInteractWithHand: boolean;
-  onPlayCard: (card: ICard, cardIdx: number) => void;
-  onSayCommand: ITrucoshiMatchActions["sayCommand"];
-  onOpenChat?: () => void;
-  bottomOffsetOverride?: string;
-};
-
-const _MatchBottomDock = ({
-  latestAnnouncement,
-  previousAnnouncement,
-  thirdAnnouncement,
-  latestAnnouncementColor,
-  previousAnnouncementColor,
-  thirdAnnouncementColor,
-  animateAnnouncement,
-  me,
-  canSay,
-  hasCommandActions,
-  canInteractWithHand,
-  onPlayCard,
-  onSayCommand,
-  onOpenChat,
-  bottomOffsetOverride,
-}: MatchBottomDockProps) => {
+const _MatchBottomDock = () => {
+  const {
+    state: { chatProps, isDesktopChat, canSay, me, hasCommandActions, canInteractWithHand },
+    announcements: {
+      latestAnnouncement,
+      previousAnnouncement,
+      thirdAnnouncement,
+      latestAnnouncementColor,
+      previousAnnouncementColor,
+      thirdAnnouncementColor,
+      animateAnnouncement,
+    },
+    actions: { onPlayCard, sayCommand },
+  } = useMatchGameplay();
   const match = useMatchState();
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
+  const onOpenChat = !isDesktopChat ? () => chatProps.setActive(true) : undefined;
+  const bottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : dock?.dockBottomOffset;
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
   const hand = useMemo(
@@ -149,7 +130,7 @@ const _MatchBottomDock = ({
         position: "absolute",
         left: 0,
         right: 0,
-        bottom: bottomOffsetOverride || dock.dockBottomOffset,
+        bottom: bottomOffset,
         zIndex: theme.zIndex.fab,
         px: { xs: 0.35, sm: 0.6 },
         pointerEvents: "auto",
@@ -296,7 +277,7 @@ const _MatchBottomDock = ({
             <Box sx={{ height: "100%", flex: 1, minWidth: 0 }}>
               <CommandBar
                 canSay={canSay}
-                onSayCommand={onSayCommand}
+                onSayCommand={sayCommand}
                 player={me}
                 compact={dock.commandCompact}
                 showActions={showCommandActions}

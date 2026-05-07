@@ -15,16 +15,13 @@ import matchThree from "../../assets/points/matches/3.png";
 import matchFour from "../../assets/points/matches/4.png";
 import matchFive from "../../assets/points/matches/5.png";
 import { memo } from "react";
+import { useMatchGameplay } from "./MatchGameplayContext";
 
 type MatchSeatCardProps = {
   player: IPublicPlayer;
-  isTurn: boolean;
-  match: Parameters<typeof useTurnTimer>[2];
-  serverAheadTime: number;
+  seatIndex: number;
   seatGeometry: BoardSeatGeometry;
   seatPresentation: MatchSeatPresentation;
-  tablePoints?: number;
-  tablePointsSide?: "left" | "right";
 };
 
 const matchAssetByCount: Record<number, string> = {
@@ -51,16 +48,25 @@ const decomposeScoreToMatches = (score: number) => {
 
 const _MatchSeatCard = ({
   player,
-  isTurn,
-  match,
-  serverAheadTime,
+  seatIndex,
   seatGeometry,
   seatPresentation,
-  tablePoints,
-  tablePointsSide = "left",
 }: MatchSeatCardProps) => {
+  const {
+    state: { match, serverAheadTime },
+    score: { myTeamPoints, opponentTeamPoints },
+    seat: { bottomLeaderSeatIndex, frontLeaderSeatIndex },
+  } = useMatchGameplay();
   const theme = useTheme();
   const turnTimer = useTurnTimer(player, serverAheadTime, match);
+  const isTurn = Boolean(player.isTurn && !player.disabled && !player.abandoned);
+  const tablePoints =
+    seatIndex === bottomLeaderSeatIndex
+      ? myTeamPoints
+      : seatIndex === frontLeaderSeatIndex
+        ? opponentTeamPoints
+        : undefined;
+  const tablePointsSide = seatIndex === frontLeaderSeatIndex ? "right" : "left";
   const hiddenCards = Math.min(player.hand.length, 3);
   const avatarFrameSizePx = 56;
   const turnRingPaddingPx = 4;
@@ -254,7 +260,7 @@ const _MatchSeatCard = ({
         </Paper>
       </Box>
 
-      {hiddenCards > 0 && !player.abandoned ? (
+      {hiddenCards > 0 && !player.abandoned && !player.disabled ? (
         <Box
           sx={{
             position: "absolute",
@@ -367,11 +373,7 @@ export const MatchSeatCard = memo(
   _MatchSeatCard,
   (prev, next) =>
     prev.player === next.player &&
-    prev.isTurn === next.isTurn &&
-    prev.match === next.match &&
-    prev.serverAheadTime === next.serverAheadTime &&
+    prev.seatIndex === next.seatIndex &&
     prev.seatGeometry === next.seatGeometry &&
-    prev.tablePoints === next.tablePoints &&
-    prev.tablePointsSide === next.tablePointsSide &&
     sameSeatPresentation(prev.seatPresentation, next.seatPresentation)
 );

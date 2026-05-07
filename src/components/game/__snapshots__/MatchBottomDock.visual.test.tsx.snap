@@ -2,29 +2,29 @@
 
 exports[`MatchBottomDock visual guard > renders announcements, hand cards and command lane 1`] = `
 <div
-  class="MuiBox-root css-dqlr7q"
+  class="MuiBox-root css-tvub9t"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1wcyavn-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-110nfx-MuiPaper-root"
     >
       <div
         class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-rtowsh-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-m64nil-MuiTypography-root"
         >
           Envido
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-v4ymct-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1xh2i2i-MuiTypography-root"
         >
           Truco
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-qwet39-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1pp6dye-MuiTypography-root"
         >
           Quiero
         </p>
@@ -53,7 +53,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
       </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-qzslno-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
     >
       <div
         class="MuiBox-root css-8hnoxy"
@@ -130,36 +130,58 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
 
 exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidden hand placeholders 1`] = `
 <div
-  class="MuiBox-root css-dqlr7q"
+  class="MuiBox-root css-tvub9t"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1wcyavn-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-110nfx-MuiPaper-root"
     >
       <div
-        class="MuiBox-root css-ylpy5o"
+        class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-rehfki-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-z5xlh3-MuiTypography-root"
         >
           Anterior: sin datos
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-oj4cx6-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1bs1g1a-MuiTypography-root"
         >
           Anterior: sin datos
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-coc2i7-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-cuhsxa-MuiTypography-root"
         >
           Sin anuncios
         </p>
       </div>
+      <button
+        aria-label="Abrir chat"
+        class="MuiBox-root css-1w9hfqj"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1cesefj-MuiSvgIcon-root"
+          data-testid="ChatBubbleOutlineIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H6l-2 2V4h16z"
+          />
+        </svg>
+        <span
+          class="MuiBox-root css-0"
+        >
+          Chat
+        </span>
+      </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-qzslno-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
     >
       <div
         class="MuiBox-root css-8hnoxy"
@@ -190,7 +212,7 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
               <p
                 class="MuiTypography-root MuiTypography-body1 css-1sz6cep-MuiTypography-root"
               >
-                Modo espectador
+                Modo Espectador
               </p>
             </div>
           </div>

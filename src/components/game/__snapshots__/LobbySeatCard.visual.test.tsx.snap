@@ -5,10 +5,10 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
   class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
 >
   <div
-    class="MuiBox-root css-ketqhc"
+    class="MuiBox-root css-1w33tl2"
   >
     <p
-      class="MuiTypography-root MuiTypography-body1 css-y3iavu-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
     >
       Ellos
     </p>
@@ -38,18 +38,22 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
 
 exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-c0258a-MuiPaper-root"
 >
   <div
-    class="MuiBox-root css-ketqhc"
+    class="MuiBox-root css-1btro7y"
   >
     <div
-      class="MuiStack-root css-fcz5d9-MuiStack-root"
+      class="MuiStack-root css-yy042g-MuiStack-root"
     >
       <div
-        data-testid="user-avatar"
+        class="MuiBox-root css-o2jl3i"
       >
-        Player p2
+        <div
+          data-testid="user-avatar"
+        >
+          Player p2
+        </div>
       </div>
       <div
         class="MuiBox-root css-31l7gp"
@@ -61,7 +65,7 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
           Player p2
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-14iauk3-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1nt64wr-MuiTypography-root"
         >
           Esperando
         </p>
@@ -69,10 +73,10 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
     </div>
   </div>
   <div
-    class="MuiBox-root css-1bgpfc2"
+    class="MuiBox-root css-1fi2j6x"
   >
     <div
-      class="MuiStack-root css-nc4a4j-MuiStack-root"
+      class="MuiStack-root css-1wsqnrw-MuiStack-root"
     >
       <div
         class="MuiBox-root css-sjfr1j"
@@ -104,18 +108,27 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
     </div>
   </div>
   <div
-    class="MuiStack-root css-1tkf38c-MuiStack-root"
+    class="MuiStack-root css-1v91goq-MuiStack-root"
   >
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-mpa7qr-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
+    <div
+      class="MuiStack-root css-j3ygch-MuiStack-root"
     >
-      Quitar
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
-    </button>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
+      >
+        Ellos
+      </p>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-mpa7qr-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Quitar
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
   </div>
 </div>
 `;

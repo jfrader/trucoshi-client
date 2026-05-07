@@ -2,38 +2,18 @@ import { Box, IconButton, Menu, MenuItem, Paper, Typography } from "@mui/materia
 import { Settings } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { useBoardLayout } from "../../board";
+import { useMatchGameplay } from "./MatchGameplayContext";
 
-type MatchTopBarProps = {
-  myTeamIdx: 0 | 1;
-  myPoints: number;
-  myPointsLabel: string;
-  opponentPoints: number;
-  opponentPointsLabel: string;
-  roundLabel: string;
-  canSay: boolean;
-  pauseRequested: boolean;
-  canAbandon: boolean;
-  onOpenRules: () => void;
-  onTogglePause: () => void;
-  onOpenAbandon: () => void;
-};
-
-export const MatchTopBar = ({
-  myTeamIdx,
-  myPoints,
-  myPointsLabel,
-  opponentPoints,
-  opponentPointsLabel,
-  roundLabel,
-  canSay,
-  pauseRequested,
-  canAbandon,
-  onOpenRules,
-  onTogglePause,
-  onOpenAbandon,
-}: MatchTopBarProps) => {
+export const MatchTopBar = () => {
+  const {
+    state: { rounds, canSay, pauseRequested, me },
+    score: { myTeamIdx, myTeamPoints, myTeamPointsLabel, opponentTeamPoints, opponentTeamPointsLabel },
+    actions: { setRulesOpen, pauseMatch, setAbandonOpen },
+  } = useMatchGameplay();
   const layout = useBoardLayout();
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const canAbandon = Boolean(me && !me.abandoned);
+  const roundLabel = `Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`;
 
   const useWideGrid = useMemo(
     () => layout.profile === "desktop" || layout.profile === "tabletWide",
@@ -65,10 +45,10 @@ export const MatchTopBar = ({
             {myTeamIdx === 0 ? "Nosotros" : "Ellos"}
           </Typography>
           <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
-            {myPoints}
+            {myTeamPoints}
           </Typography>
           <Typography fontSize={{ xs: "0.64rem", sm: "0.6rem" }} lineHeight={1} color="grey.400" fontWeight={700}>
-            {myPointsLabel}
+            {myTeamPointsLabel}
           </Typography>
         </Paper>
 
@@ -93,7 +73,7 @@ export const MatchTopBar = ({
               {myTeamIdx === 0 ? "Ellos" : "Nosotros"}
             </Typography>
             <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
-              {opponentPoints}
+              {opponentTeamPoints}
             </Typography>
             <Typography
               fontSize={{ xs: "0.64rem", sm: "0.6rem" }}
@@ -101,7 +81,7 @@ export const MatchTopBar = ({
               color="grey.400"
               fontWeight={700}
             >
-              {opponentPointsLabel}
+              {opponentTeamPointsLabel}
             </Typography>
           </Paper>
 
@@ -127,7 +107,7 @@ export const MatchTopBar = ({
       >
         <MenuItem
           onClick={() => {
-            onOpenRules();
+            setRulesOpen(true);
             setMenuAnchor(null);
           }}
         >
@@ -136,7 +116,7 @@ export const MatchTopBar = ({
         <MenuItem
           disabled={!canSay || pauseRequested}
           onClick={() => {
-            onTogglePause();
+            pauseMatch(true);
             setMenuAnchor(null);
           }}
         >
@@ -145,7 +125,7 @@ export const MatchTopBar = ({
         {canAbandon ? (
           <MenuItem
             onClick={() => {
-              onOpenAbandon();
+              setAbandonOpen(true);
               setMenuAnchor(null);
             }}
           >
