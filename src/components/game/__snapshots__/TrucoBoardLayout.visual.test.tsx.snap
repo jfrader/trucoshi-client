@@ -2,7 +2,7 @@
 
 exports[`TrucoBoardLayout visual guard > renders shared board shell with seat population 1`] = `
 <div
-  class="MuiBox-root css-qhqc14"
+  class="MuiBox-root css-u3deep"
 >
   <div
     class="MuiBox-root css-19wwmka"

@@ -87,6 +87,13 @@ type TrucoshiUiTokens = {
     rulesPanel: Record<string, any>;
     waitingHostCard: Record<string, any>;
   };
+  queue: {
+    panel: Record<string, any>;
+    segment: Record<string, any>;
+    activeSegment: Record<string, any>;
+    statusPanel: Record<string, any>;
+    cancelButton: Record<string, any>;
+  };
   chatDrawer: {
     actionsPanelBorder: string;
     actionsPanelBackground: string;
@@ -297,6 +304,34 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     waitingHostCard: {
       bgcolor: "rgba(18, 27, 23, 0.84)",
       border: "1px solid rgba(255,255,255,0.1)",
+    },
+  },
+  queue: {
+    panel: {
+      borderRadius: "0.75rem",
+      background:
+        "linear-gradient(180deg, rgba(23,38,31,0.76), rgba(11,22,18,0.78))",
+      border: "1px solid rgba(255,255,255,0.1)",
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+    },
+    segment: {
+      color: "rgba(255,255,255,0.72)",
+      borderColor: "rgba(255,255,255,0.16)",
+      background: "rgba(8,16,13,0.34)",
+    },
+    activeSegment: {
+      color: "rgba(255,255,255,0.95)",
+      borderColor: "rgba(236,108,52,0.58)",
+      background: "linear-gradient(180deg, rgba(236,108,52,0.86), rgba(179,76,36,0.88))",
+    },
+    statusPanel: {
+      borderRadius: "0.62rem",
+      background: "rgba(0,0,0,0.22)",
+      border: "1px solid rgba(255,255,255,0.08)",
+    },
+    cancelButton: {
+      border: "1px solid rgba(255,255,255,0.14)",
+      background: "rgba(0,0,0,0.2)",
     },
   },
   chatDrawer: {

@@ -22,7 +22,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@trucoshi/prisma": ["./node_modules/trucoshi/prisma/client"],
+      "trucoshi": ["../trucoshi/dist/types"],
+      "trucoshi/dist/lib": ["../trucoshi/dist/lib"],
+      "trucoshi/dist/lib/*": ["../trucoshi/dist/lib/*"],
+      "trucoshi/prisma/client": ["../trucoshi/prisma/client"],
+      "@trucoshi/prisma": ["../trucoshi/prisma/client"],
       "crypto": ["./node_modules/crypto-browserify"]
     },
   },
