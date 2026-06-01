@@ -22,19 +22,6 @@ const versionPlugin = () => ({
 
 export default defineConfig({
   plugins: [react(), viteTsconfigPaths(), versionPlugin()],
-  resolve: {
-    alias: [
-      { find: /^trucoshi$/, replacement: resolve(process.cwd(), "../trucoshi/dist/types.js") },
-      {
-        find: /^trucoshi\/dist\/lib(.*)$/,
-        replacement: resolve(process.cwd(), "../trucoshi/dist/lib$1"),
-      },
-      {
-        find: /^trucoshi\/prisma\/client$/,
-        replacement: resolve(process.cwd(), "../trucoshi/prisma/client/index.js"),
-      },
-    ],
-  },
   server: {
     open: true,
     host: "localhost",

@@ -1,6 +1,12 @@
-import { UserStats } from "@trucoshi/prisma";
 import numeral from "numeral";
 
-export const getPlayerWinRatio = ({ win, loss }: Pick<UserStats, "win" | "loss">) => {
-  return numeral(win / (win + loss)).format("0.0");
+export type PlayerWinLossStats = {
+  win: number;
+  loss: number;
+};
+
+export const getPlayerWinRatio = ({ win, loss }: PlayerWinLossStats) => {
+  const total = win + loss;
+
+  return numeral(total ? win / total : 0).format("0.0");
 };

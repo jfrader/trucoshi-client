@@ -1,7 +1,6 @@
 import { ListItemText } from "@mui/material";
-import { UserStats } from "@trucoshi/prisma";
-import { getPlayerWinRatio } from "../../utils/player";
+import { getPlayerWinRatio, PlayerWinLossStats } from "../../utils/player";
 
-export const PlayerRatioListItemText = (props: Pick<UserStats, "win" | "loss">) => {
+export const PlayerRatioListItemText = (props: PlayerWinLossStats) => {
   return <ListItemText primary="Ratio de Victoria" secondary={getPlayerWinRatio(props)} />;
 };
