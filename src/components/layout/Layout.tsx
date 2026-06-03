@@ -5,6 +5,7 @@ import {
   Paper,
   ThemeProvider,
   styled,
+  useMediaQuery,
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { PropsWithChildren, useEffect } from "react";
@@ -17,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { Sidebar } from "./Sidebar";
+import { useTheme } from "@mui/material";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -49,6 +51,10 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const matchRoute = useRouteMatch("/match/:sessionId");
   const lobbyRoute = useRouteMatch("/lobby/:sessionId");
   const isGameSurface = Boolean(matchRoute || lobbyRoute);
+
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard, setSidebarOpen }] =
     useTrucoshi();
@@ -103,7 +109,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
               zIndex: theme.zIndex.drawer,
             })}
           >
-            <Topbar embedded compact />
+            <Topbar embedded compact={isMobile} />
             <Sidebar topOffset="0px" showEmbeddedTopbar />
           </Box>
         </ClickAwayListener>

@@ -47,39 +47,45 @@ export const Topbar = ({
           : undefined
       }
     >
-      <Stack direction="row" spacing={embedded ? 1 : 2} alignItems="center">
-        {compact ? (
-          <>
-            <VolumeControl />
-            <TomaMate />
-          </>
-        ) : (
-          <>
-            <Link to="/" lineHeight={4}>
-              <Typography height="26px" variant="h6">
-                <Box display={{ xs: "none", md: "inline-block" }}>
-                  <TrucoshiText height="26px" />
-                </Box>
-              </Typography>
-            </Link>
-            <Switch
-              size="small"
-              title="Dark Theme"
-              defaultChecked={Boolean(dark)}
-              onChange={() =>
-                setDark((current) => {
-                  return current ? "" : "true";
-                })
-              }
-            />
-            <VolumeControl />
-            <TomaMate />
-            <CardThemeToggle />
-          </>
-        )}
-      </Stack>
-      <Box flexGrow={1} pr={2} />
-      {compactContent}
+      {compact ? (
+        compactContent
+      ) : (
+        <>
+          <Stack direction="row" spacing={embedded ? 1 : 2} alignItems="center">
+            {embedded ? (
+              <>
+                <VolumeControl />
+                <TomaMate />
+              </>
+            ) : (
+              <>
+                <Link to="/" lineHeight={4}>
+                  <Typography height="26px" variant="h6">
+                    <Box display={{ xs: "none", md: "inline-block" }}>
+                      <TrucoshiText height="26px" />
+                    </Box>
+                  </Typography>
+                </Link>
+                <Switch
+                  size="small"
+                  title="Dark Theme"
+                  defaultChecked={Boolean(dark)}
+                  onChange={() =>
+                    setDark((current) => {
+                      return current ? "" : "true";
+                    })
+                  }
+                />
+                <VolumeControl />
+                <TomaMate />
+                <CardThemeToggle />
+              </>
+            )}
+          </Stack>
+          <Box flexGrow={1} pr={2} />
+          {compactContent}
+        </>
+      )}
     </Toolbar>
   );
 
