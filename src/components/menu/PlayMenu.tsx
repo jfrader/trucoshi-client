@@ -13,14 +13,22 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ITrucoshiStats } from "trucoshi";
-import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
-import SearchIcon from "@mui/icons-material/Search";
+import { MouseEvent, ReactNode, SyntheticEvent, useEffect, useState } from "react";
+import GamepadIcon from "@mui/icons-material/Gamepad";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
-import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
+import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
+import { useToast } from "../../hooks/useToast";
+
+const formatElapsedTime = (milliseconds: number) => {
+  const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
 
 export const OnlinePlayers = ({ stats, label }: { stats: ITrucoshiStats; label?: ReactNode }) => {
   if (!stats.onlinePlayers.length) {
@@ -45,35 +53,60 @@ export const PlayMenu = ({
   ...props
 }: BoxProps & { eyebrow?: boolean; onMenuClick?: (e: SyntheticEvent) => void }) => {
   const navigate = useNavigate();
-  const [{ account, stats }] = useTrucoshi();
+  const toast = useToast();
+  const [{ account, stats, activeMatches, queueReplayOptions }] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
-  const [maxPlayers, setMaxPlayers] = useState<2 | 4 | 6>(2);
-  const [waitForHumans, setWaitForHumans] = useState(false);
+  const [maxPlayers, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
+  const [playWithBots, setPlayWithBots] = useState(true);
   const [now, setNow] = useState(Date.now());
+  const queuedMatch = activeMatches.find((match) => match.createdFromQueue);
 
   useEffect(() => {
-    if (!status?.botFallbackAt) {
+    if (!isQueueing) {
       return;
     }
 
     const interval = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(interval);
-  }, [status?.botFallbackAt]);
+  }, [isQueueing]);
 
   const botFallbackRemaining = status?.botFallbackAt
     ? Math.max(Math.ceil((status.botFallbackAt - now) / 1000), 0)
     : null;
+  const elapsedText = status?.queuedAt
+    ? `Espera ${formatElapsedTime(now - status.queuedAt)}`
+    : null;
 
+  const statusMaxPlayers = status?.maxPlayers as MatchQueuePlayerCount | undefined;
   const statusText = status
-    ? `${status.queuedPlayers}/${status.requiredPlayers} jugadores`
+    ? statusMaxPlayers === 0
+      ? `${status.queuedPlayers} en cola`
+      : `${status.queuedPlayers}/${status.requiredPlayers} jugadores`
     : "Entrando a la cola";
-  const fallbackText = waitForHumans
-    ? "Esperando mesa humana"
-    : botFallbackRemaining === null
+  const fallbackText = playWithBots
+    ? botFallbackRemaining === null
       ? "Buscando rivales"
       : botFallbackRemaining > 0
         ? `Bots en ${botFallbackRemaining}s`
-        : "Preparando bots";
+        : "Preparando bots"
+    : "Buscando rivales";
+  const handlePlayClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (queuedMatch && !isQueueing) {
+      toast.info("Ya estás en una partida");
+      onMenuClick?.(event);
+      navigate(`/match/${queuedMatch.matchSessionId}`);
+      return;
+    }
+
+    joinQueue(queueReplayOptions || { maxPlayers, allowBots: playWithBots });
+  };
+  const playButtonLabel = isQueueing
+    ? "Buscando..."
+    : queuedMatch
+      ? "Volver a partida"
+      : queueReplayOptions
+        ? "Jugar de nuevo!"
+        : "Jugar!";
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" {...props}>
@@ -90,23 +123,16 @@ export const PlayMenu = ({
           <OnlinePlayers stats={stats} />
         </Stack>
       ) : null}
-      <FormGroup onClick={onMenuClick}>
-        <Stack
-          gap={1.25}
-          sx={(theme) => ({
-            ...theme.trucoshiUi.queue.panel,
-            p: 1.25,
-            mb: 1.5,
-          })}
-        >
+      <FormGroup>
+        <Stack gap={1.25} p={2} mb={2}>
           <ToggleButtonGroup
             exclusive
             fullWidth
             color="warning"
             disabled={isQueueing}
             value={maxPlayers}
-            onChange={(_, value: 2 | 4 | 6 | null) => {
-              if (value) {
+            onChange={(_, value: MatchQueuePlayerCount | null) => {
+              if (value !== null) {
                 setMaxPlayers(value);
               }
             }}
@@ -121,9 +147,18 @@ export const PlayMenu = ({
               "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
             })}
           >
-            <ToggleButton value={2}>1v1</ToggleButton>
-            <ToggleButton value={4}>2v2</ToggleButton>
-            <ToggleButton value={6}>3v3</ToggleButton>
+            <ToggleButton size="small" value={0}>
+              Todo
+            </ToggleButton>
+            <ToggleButton size="small" value={2}>
+              1v1
+            </ToggleButton>
+            <ToggleButton size="small" value={4}>
+              2v2
+            </ToggleButton>
+            <ToggleButton size="small" value={6}>
+              3v3
+            </ToggleButton>
           </ToggleButtonGroup>
           <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
             <FormControlLabel
@@ -131,14 +166,14 @@ export const PlayMenu = ({
               control={
                 <Checkbox
                   color="warning"
-                  checked={waitForHumans}
+                  checked={playWithBots}
                   disabled={isQueueing}
-                  onChange={(event) => setWaitForHumans(event.target.checked)}
+                  onChange={(event) => setPlayWithBots(event.target.checked)}
                 />
               }
               label={
                 <Typography variant="body2" color="text.secondary" noWrap>
-                  Esperar humanos
+                  Jugar con Bots
                 </Typography>
               }
             />
@@ -152,7 +187,7 @@ export const PlayMenu = ({
               noWrap
             >
               <GroupsIcon fontSize="inherit" />
-              {maxPlayers}
+              {maxPlayers || "Todo"}
             </Typography>
           </Stack>
           <Stack direction="row" gap={1} alignItems="center">
@@ -163,10 +198,12 @@ export const PlayMenu = ({
               size="large"
               variant="contained"
               disabled={isQueueing}
-              startIcon={isQueueing ? <CircularProgress color="inherit" size={18} /> : <SearchIcon />}
-              onClick={() => joinQueue({ maxPlayers, allowBots: !waitForHumans })}
+              startIcon={
+                isQueueing ? <CircularProgress color="inherit" size={18} /> : <GamepadIcon />
+              }
+              onClick={handlePlayClick}
             >
-              {isQueueing ? "Buscando..." : "Buscar partida"}
+              {playButtonLabel}
             </Button>
             {isQueueing ? (
               <Tooltip title="Cancelar cola">
@@ -197,9 +234,16 @@ export const PlayMenu = ({
                 py: 0.75,
               })}
             >
-              <Typography variant="body2" color="text.secondary" noWrap>
-                {statusText}
-              </Typography>
+              <Stack direction="row" gap={1} minWidth={0}>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  {statusText}
+                </Typography>
+                {elapsedText ? (
+                  <Typography variant="body2" color="text.disabled" noWrap>
+                    {elapsedText}
+                  </Typography>
+                ) : null}
+              </Stack>
               <Typography variant="body2" color="warning.light" noWrap>
                 {fallbackText}
               </Typography>
@@ -211,20 +255,22 @@ export const PlayMenu = ({
             sx={() => ({ px: 5, fontWeight: 800, fontSize: "large" })}
             color="warning"
             size="large"
-            onClick={() => navigate("/matches")}
+            onClick={onMenuClick}
+            component={Link}
+            to="/matches"
           >
             Partidas
           </Button>
         </Stack>
-        <Button color="primary" size="large" onClick={() => navigate("/ranking")}>
+        <Button color="primary" size="large" onClick={onMenuClick} component={Link} to="/ranking">
           Ranking
         </Button>
-        <Button color="inherit" size="large" onClick={() => navigate("/help")}>
+        <Button color="inherit" size="large" onClick={onMenuClick} component={Link} to="/help">
           Ayuda
         </Button>
         {account ? null : (
           <>
-            <Button size="large" color="info" onClick={() => navigate("/login")}>
+            <Button size="large" color="info" onClick={onMenuClick} component={Link} to="/login">
               Iniciar Sesion
             </Button>
           </>

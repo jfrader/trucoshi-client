@@ -4,10 +4,12 @@ import {
   ECommand,
   EMatchState,
   ICard,
+  IJoinQueueOptions,
   ILobbyOptions,
   IPublicMatch,
   IPublicMatchStats,
   IPublicPlayer,
+  IQueueStatus,
   ITrucoshiStats,
   IWaitingPlayCallback,
   IWaitingPlayData,
@@ -60,6 +62,9 @@ export interface ITrucoshiActions {
   setDark: Dispatch<SetStateAction<"" | "true">>;
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
   setActiveMatches(activeMatches: IPublicMatchInfo[]): void;
+  setQueueStatus: Dispatch<SetStateAction<IQueueStatus | null>>;
+  setQueueing: Dispatch<SetStateAction<boolean>>;
+  setQueueReplayOptions: Dispatch<SetStateAction<IJoinQueueOptions | null>>;
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
   sendUserId(id: string, callback?: (name: string) => void): void;
@@ -85,6 +90,9 @@ export interface ITrucoshiState {
   isLogged: boolean;
   publicMatches: Array<IPublicMatchInfo>;
   activeMatches: Array<IPublicMatchInfo>;
+  queueStatus: IQueueStatus | null;
+  isQueueing: boolean;
+  queueReplayOptions: IJoinQueueOptions | null;
   cardTheme: ICardTheme;
   cardsReady: boolean;
   cardsLoading: boolean;

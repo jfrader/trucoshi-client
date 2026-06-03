@@ -47,7 +47,7 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
       class="MuiStack-root css-yy042g-MuiStack-root"
     >
       <div
-        class="MuiBox-root css-o2jl3i"
+        class="MuiBox-root css-yeezip"
       >
         <div
           data-testid="user-avatar"

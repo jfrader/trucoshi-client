@@ -1,4 +1,11 @@
-import { Box, ClickAwayListener, CssBaseline, IconButton, Paper, ThemeProvider, styled } from "@mui/material";
+import {
+  Box,
+  ClickAwayListener,
+  CssBaseline,
+  Paper,
+  ThemeProvider,
+  styled,
+} from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { PropsWithChildren, useEffect } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
@@ -9,7 +16,6 @@ import { Topbar } from "./Topbar";
 import { useQuery } from "@tanstack/react-query";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
-import { Menu, Close } from "@mui/icons-material";
 import { Sidebar } from "./Sidebar";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
@@ -44,7 +50,8 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const lobbyRoute = useRouteMatch("/lobby/:sessionId");
   const isGameSurface = Boolean(matchRoute || lobbyRoute);
 
-  const [{ inspectedCard, cardsReady, cardTheme, dark, isSidebarOpen }, { inspectCard, setSidebarOpen }] = useTrucoshi();
+  const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard, setSidebarOpen }] =
+    useTrucoshi();
 
   const versionCheck = useQuery({
     queryKey: ["app-version-check"],
@@ -81,28 +88,22 @@ export const Layout = ({ children }: PropsWithChildren) => {
       theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
     >
       <CssBaseline />
-      {!isGameSurface ? <Topbar /> : null}
+      {!isGameSurface ? (
+        <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
+          <Topbar />
+        </ClickAwayListener>
+      ) : null}
       {isGameSurface ? (
         <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
           <Box
             sx={(theme) => ({
               position: "fixed",
-              top: "calc(env(safe-area-inset-top) + 0.35rem)",
-              right: 6,
+              top: 0,
+              right: 0,
               zIndex: theme.zIndex.drawer,
             })}
           >
-            <IconButton
-              title="Menu"
-              size="small"
-              onClick={() => setSidebarOpen((current) => !current)}
-              sx={{
-                bgcolor: "rgba(16, 27, 22, 0.9)",
-                border: "1px solid rgba(255,255,255,0.14)",
-              }}
-            >
-              {isSidebarOpen ? <Close /> : <Menu />}
-            </IconButton>
+            <Topbar embedded compact />
             <Sidebar topOffset="0px" showEmbeddedTopbar />
           </Box>
         </ClickAwayListener>

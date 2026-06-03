@@ -5,7 +5,9 @@ import {
   EClientEvent,
   EServerEvent,
   ICard,
+  IJoinQueueOptions,
   IPublicMatchInfo,
+  IQueueStatus,
   ServerToClientEvents,
   EMatchState,
   ITrucoshiStats,
@@ -45,6 +47,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [account, setAccount] = useState<User | null>(null);
   const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
   const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [queueStatus, setQueueStatus] = useState<IQueueStatus | null>(null);
+  const [isQueueing, setQueueing] = useState(false);
+  const [queueReplayOptions, setQueueReplayOptions] = useState<IJoinQueueOptions | null>(null);
   const [isLoadingAccount, setLoadingAccount] = useState(true);
   const [isConnected, setConnected] = useState<boolean>(false);
   const [isLogged, setLogged] = useState<boolean>(false);
@@ -157,6 +162,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           setLogged(false);
           setAccount(null);
           setActiveMatches([]);
+          setQueueStatus(null);
+          setQueueing(false);
+          setQueueReplayOptions(null);
           setTimeout(() => {
             setLoggingOut(false);
             setShouldConnect(true);
@@ -344,6 +352,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           isLogged,
           lastPong,
           activeMatches,
+          queueStatus,
+          isQueueing,
+          queueReplayOptions,
           serverAheadTime,
           cardTheme,
           cardsReady,
@@ -375,6 +386,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           sendPing: () => sendPing(socket),
           sendUserId,
           setActiveMatches,
+          setQueueStatus,
+          setQueueing,
+          setQueueReplayOptions,
           fetchPublicMatches,
           inspectCard: setInspectedCard,
           logout,

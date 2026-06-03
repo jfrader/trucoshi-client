@@ -16,6 +16,8 @@ import matchFour from "../../assets/points/matches/4.png";
 import matchFive from "../../assets/points/matches/5.png";
 import { memo } from "react";
 import { useMatchGameplay } from "./MatchGameplayContext";
+import { SeatAvatarBadges } from "./SeatAvatarBadges";
+import { SeatChatBubble, getSeatChatBubblePlacement } from "./SeatChatBubble";
 
 type MatchSeatCardProps = {
   player: IPublicPlayer;
@@ -53,7 +55,7 @@ const _MatchSeatCard = ({
   seatPresentation,
 }: MatchSeatCardProps) => {
   const {
-    state: { match, serverAheadTime },
+    state: { match, serverAheadTime, chatProps },
     score: { myTeamPoints, opponentTeamPoints },
     seat: { bottomLeaderSeatIndex, frontLeaderSeatIndex },
   } = useMatchGameplay();
@@ -73,6 +75,10 @@ const _MatchSeatCard = ({
   const avatarOrbitSizePx = avatarFrameSizePx + turnRingPaddingPx * 2;
   const playerNameBlockPx = 30;
   const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
+  const say = chatProps.useChatState?.[3] || null;
+  const chatRoom = chatProps.useChatState?.[0] || null;
+  const isForehand = player.idx === match.forehandIdx;
+  const chatBubblePlacement = getSeatChatBubblePlacement(seatGeometry);
 
   const hiddenHandLayout = buildOpponentHiddenHandLayout({
     geometry: seatGeometry,
@@ -232,7 +238,13 @@ const _MatchSeatCard = ({
                 zIndex: 3,
               }}
             />
+            <SeatAvatarBadges player={player} say={say} showForehand={isForehand} />
           </Paper>
+          <SeatChatBubble
+            player={player}
+            room={chatRoom}
+            placement={chatBubblePlacement}
+          />
         </Box>
 
         <Paper

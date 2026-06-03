@@ -11,6 +11,8 @@ import { useBoardLayout } from "../../board";
 import { TrucoBoardSlot } from "./TrucoBoardLayout";
 import { memo } from "react";
 import { useLobbyGameplay } from "./LobbyGameplayContext";
+import { SeatAvatarBadges } from "./SeatAvatarBadges";
+import { SeatChatBubble } from "./SeatChatBubble";
 
 type LobbySeatCardProps = {
   slot: TrucoBoardSlot<IPublicPlayer>;
@@ -36,7 +38,7 @@ const canJoinTeam = ({
 
 const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
   const {
-    state: { match, account, isReadyLoading },
+    state: { match, account, isReadyLoading, chatProps },
     actions: { onJoinMatch, onAddBot, onSetReady, onSetUnReady, kickPlayer },
   } = useLobbyGameplay();
   const layout = useBoardLayout();
@@ -170,6 +172,9 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
 
   const player = slot.player;
   const hiddenCardsCount = Math.min(player.hand.length || 3, 3);
+  const say = chatProps.useChatState?.[3] || null;
+  const chatRoom = chatProps.useChatState?.[0] || null;
+  const avatarSizePx = isDesktop ? 36 : 24;
 
   return (
     <Paper
@@ -189,12 +194,22 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
         }}
       >
         <Stack direction="row" alignItems="start" spacing={0.8}>
-          <Box position="absolute" left={-6} top={-5}>
+          <Box
+            position="absolute"
+            left={-6}
+            top={-5}
+            sx={{
+              width: avatarSizePx,
+              height: avatarSizePx,
+            }}
+          >
             <UserAvatar
               account={player}
               size={isDesktop ? "medium" : "small"}
               bgcolor={`${getTeamColor(player.teamIdx)}.main`}
             />
+            <SeatAvatarBadges player={player} say={say} showHost={player.isOwner} />
+            <SeatChatBubble player={player} room={chatRoom} compact />
           </Box>
           <Box minWidth={0}>
             <Typography

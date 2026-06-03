@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   EClientEvent,
@@ -10,21 +10,23 @@ import {
 import { useToast } from "../../hooks/useToast";
 import { useTrucoshi } from "./useTrucoshi";
 
+export type MatchQueuePlayerCount = 0 | IJoinQueueOptions["maxPlayers"];
+export type JoinMatchQueueOptions = Omit<IJoinQueueOptions, "maxPlayers"> & {
+  maxPlayers: MatchQueuePlayerCount;
+};
+
 export const useMatchQueue = () => {
-  const [{ isConnected }, , socket] = useTrucoshi();
+  const [
+    { isConnected, isQueueing, queueStatus: status },
+    { setQueueing, setQueueStatus, setQueueReplayOptions },
+    socket,
+  ] = useTrucoshi();
   const toast = useToast();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<IQueueStatus | null>(null);
-  const [isQueueing, setQueueing] = useState(false);
-  const isQueueingRef = useRef(false);
-
-  useEffect(() => {
-    isQueueingRef.current = isQueueing;
-  }, [isQueueing]);
 
   const leaveQueue = useCallback(() => {
-    if (!isQueueingRef.current) {
-      setStatus(null);
+    if (!isQueueing) {
+      setQueueStatus(null);
       setQueueing(false);
       return;
     }
@@ -34,46 +36,50 @@ export const useMatchQueue = () => {
         toast.error(error.message || "No se pudo salir de la cola");
       }
     });
-    isQueueingRef.current = false;
-    setStatus(null);
+    setQueueStatus(null);
     setQueueing(false);
-  }, [socket, toast]);
+  }, [isQueueing, setQueueStatus, setQueueing, socket, toast]);
 
   const joinQueue = useCallback(
-    (options: IJoinQueueOptions) => {
+    (options: JoinMatchQueueOptions) => {
       if (!isConnected) {
         toast.warning("Conectando con el servidor...");
         return;
       }
 
       setQueueing(true);
-      socket.emit(EClientEvent.JOIN_QUEUE, options, ({ success, status: nextStatus, error }) => {
-        if (!success) {
-          setQueueing(false);
-          setStatus(null);
-          toast.error(error?.message || "No se pudo entrar a la cola");
-          return;
-        }
+      setQueueReplayOptions(null);
+      socket.emit(
+        EClientEvent.JOIN_QUEUE,
+        options as IJoinQueueOptions,
+        ({ success, status: nextStatus, error }) => {
+          if (!success) {
+            setQueueing(false);
+            setQueueStatus(null);
+            toast.error(error?.message || "No se pudo entrar a la cola");
+            return;
+          }
 
-        setStatus(nextStatus || null);
-        setQueueing(Boolean(nextStatus));
-      });
+          setQueueStatus(nextStatus || null);
+          setQueueing(Boolean(nextStatus));
+        }
+      );
     },
-    [isConnected, socket, toast]
+    [isConnected, setQueueReplayOptions, setQueueStatus, setQueueing, socket, toast]
   );
 
   useEffect(() => {
     const handleQueueUpdate = (nextStatus: IQueueStatus) => {
-      setStatus((current) =>
+      setQueueStatus((current) =>
         !current || current.requestId === nextStatus.requestId ? nextStatus : current
       );
       setQueueing(true);
     };
 
     const handleMatchFound = (match: IQueueMatchFound) => {
-      isQueueingRef.current = false;
       setQueueing(false);
-      setStatus(null);
+      setQueueStatus(null);
+      setQueueReplayOptions(null);
       navigate(`/match/${match.matchSessionId}`);
     };
 
@@ -83,12 +89,8 @@ export const useMatchQueue = () => {
     return () => {
       socket.off(EServerEvent.QUEUE_UPDATE, handleQueueUpdate);
       socket.off(EServerEvent.QUEUE_MATCH_FOUND, handleMatchFound);
-      if (isQueueingRef.current) {
-        socket.emit(EClientEvent.LEAVE_QUEUE, () => {});
-        isQueueingRef.current = false;
-      }
     };
-  }, [navigate, socket]);
+  }, [navigate, setQueueReplayOptions, setQueueStatus, setQueueing, socket]);
 
   return {
     status,

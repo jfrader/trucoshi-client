@@ -5,22 +5,38 @@ import { renderWithTheme } from "../../test/renderWithTheme";
 const navigate = vi.fn();
 const joinQueue = vi.fn();
 const leaveQueue = vi.fn();
+const toastInfo = vi.fn();
 
 let queueState = {
   status: null as any,
   isQueueing: false,
 };
+let activeMatches: any[] = [];
+let queueReplayOptions: any = null;
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
   return {
     ...actual,
+    Link: ({ children, to, ...props }: any) => (
+      <a href={typeof to === "string" ? to : "#"} {...props}>
+        {children}
+      </a>
+    ),
     useNavigate: () => navigate,
   };
 });
 
 vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
-  useTrucoshi: () => [{ account: null, stats: { onlinePlayers: [] } }],
+  useTrucoshi: () => [
+    { account: null, stats: { onlinePlayers: [] }, activeMatches, queueReplayOptions },
+  ],
+}));
+
+vi.mock("../../hooks/useToast", () => ({
+  useToast: () => ({
+    info: toastInfo,
+  }),
 }));
 
 vi.mock("../../trucoshi/hooks/useMatchQueue", () => ({
@@ -36,26 +52,31 @@ describe("PlayMenu queue controls", () => {
     navigate.mockClear();
     joinQueue.mockClear();
     leaveQueue.mockClear();
+    toastInfo.mockClear();
+    activeMatches = [];
+    queueReplayOptions = null;
     queueState = {
       status: null,
       isQueueing: false,
     };
   });
 
-  it("starts a 1v1 queue with bots allowed by default", () => {
+  it("starts an any-size queue with bots enabled by default", () => {
     renderWithTheme(<PlayMenu />);
 
-    fireEvent.click(screen.getByRole("button", { name: /buscar partida/i }));
+    expect(screen.getByLabelText(/jugar con bots/i)).toBeChecked();
 
-    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 2, allowBots: true });
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: true });
   });
 
-  it("uses the selected team size and disables bots when waiting for humans", () => {
+  it("uses the selected team size and disables bots when unchecked", () => {
     renderWithTheme(<PlayMenu />);
 
     fireEvent.click(screen.getByRole("button", { name: "2v2" }));
-    fireEvent.click(screen.getByLabelText(/esperar humanos/i));
-    fireEvent.click(screen.getByRole("button", { name: /buscar partida/i }));
+    fireEvent.click(screen.getByLabelText(/jugar con bots/i));
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
   });
@@ -69,6 +90,7 @@ describe("PlayMenu queue controls", () => {
         queuedPlayers: 1,
         requiredPlayers: 2,
         position: 1,
+        queuedAt: Date.now() - 12_000,
         botFallbackAt: Date.now() + 5000,
       },
     };
@@ -76,10 +98,73 @@ describe("PlayMenu queue controls", () => {
     renderWithTheme(<PlayMenu />);
 
     expect(screen.getByText("1/2 jugadores")).toBeInTheDocument();
+    expect(screen.getByText("Espera 0:12")).toBeInTheDocument();
     expect(screen.getByText(/bots en/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /cancelar cola/i }));
 
     expect(leaveQueue).toHaveBeenCalled();
+  });
+
+  it("rejoins an existing queued match instead of queueing again", () => {
+    activeMatches = [
+      {
+        matchSessionId: "queue-match",
+        createdFromQueue: true,
+      },
+    ];
+
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
+
+    expect(toastInfo).toHaveBeenCalledWith("Ya estás en una partida");
+    expect(navigate).toHaveBeenCalledWith("/match/queue-match");
+    expect(joinQueue).not.toHaveBeenCalled();
+  });
+
+  it("ignores custom active matches for the queue button", () => {
+    activeMatches = [
+      {
+        matchSessionId: "custom-match",
+        createdFromQueue: false,
+      },
+    ];
+
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: true });
+    expect(navigate).not.toHaveBeenCalled();
+    expect(toastInfo).not.toHaveBeenCalled();
+  });
+
+  it("uses stored queue replay options for play again", () => {
+    queueReplayOptions = { maxPlayers: 4, allowBots: false };
+
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
+  });
+
+  it("prefers rejoining an active queued match over stored replay options", () => {
+    queueReplayOptions = { maxPlayers: 4, allowBots: false };
+    activeMatches = [
+      {
+        matchSessionId: "queue-match",
+        createdFromQueue: true,
+      },
+    ];
+
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
+
+    expect(toastInfo).toHaveBeenCalledWith("Ya estás en una partida");
+    expect(navigate).toHaveBeenCalledWith("/match/queue-match");
+    expect(joinQueue).not.toHaveBeenCalled();
   });
 });

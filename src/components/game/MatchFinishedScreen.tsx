@@ -13,6 +13,7 @@ import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMe } from "../../api/hooks/useMe";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
 
 export const MatchFinishedScreen = ({
   match,
@@ -27,7 +28,8 @@ export const MatchFinishedScreen = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [, , socket] = useTrucoshi();
+  const [, { setQueueReplayOptions }, socket] = useTrucoshi();
+  const { joinQueue } = useMatchQueue();
 
   const { refetch: refetchMe } = useMe();
 
@@ -42,9 +44,26 @@ export const MatchFinishedScreen = ({
     }
   }, [match.options.satsPerPlayer, refetchMe]);
 
+  useEffect(() => {
+    if (match.createdFromQueue && match.queueOptions) {
+      setQueueReplayOptions(match.queueOptions);
+    }
+  }, [match.createdFromQueue, match.queueOptions, setQueueReplayOptions]);
+
   const onExit = (fn: () => void) => () => {
     socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
     fn();
+  };
+
+  const handlePlayAgain = () => {
+    if (match.createdFromQueue && match.queueOptions) {
+      joinQueue(match.queueOptions);
+      socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
+      navigate("/");
+      return;
+    }
+
+    onPlayAgain();
   };
 
   const Actions = ({ children, ...props }: StackProps) => (
@@ -69,11 +88,21 @@ export const MatchFinishedScreen = ({
   }
 
   return (
-    <Container maxWidth="sm" sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
+      }}
+    >
       {iAmWinner ? <EmojiRain /> : null}
       <SocketBackdrop />
       <MatchBackdrop error={error} />
-      <Stack flexGrow={1} gap={1}>
+      <Stack flex={1} minHeight={0} gap={1}>
         <Typography
           display="flex"
           flexDirection="column"
@@ -117,18 +146,13 @@ export const MatchFinishedScreen = ({
           <MatchPoints match={match} prevHandPoints={match.previousHand?.points} />
         </Box>
         <Actions>
-          <Button color="success" onClick={onPlayAgain} variant="text">
+          <Button color="success" onClick={handlePlayAgain} variant="text">
             Jugar de nuevo!
           </Button>
         </Actions>
-        <ChatRoom
-          alwaysVisible
-          mb={4}
-          position="relative"
-          width="100%"
-          flexGrow={1}
-          {...chatProps}
-        />
+        <Box flex={1} minHeight={0} mb={2} overflow="hidden" position="relative" width="100%">
+          <ChatRoom alwaysVisible {...chatProps} />
+        </Box>
       </Stack>
     </Container>
   );

@@ -79,6 +79,18 @@ type TrucoshiUiTokens = {
     seatNameBadge: Record<string, any>;
     seatStatusDot: Record<string, any>;
   };
+  seatAvatarBadges: {
+    badge: Record<string, any>;
+    mateBadge: Record<string, any>;
+    roleBadge: Record<string, any>;
+    mateIcon: Record<string, any>;
+    manoIcon: Record<string, any>;
+    hostIcon: Record<string, any>;
+  };
+  seatChatBubble: {
+    bubble: Record<string, any>;
+    tail: Record<string, any>;
+  };
   lobby: {
     seatCard: Record<string, any>;
     topPlayersCard: Record<string, any>;
@@ -273,6 +285,61 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     seatStatusDot: {
       border: "2px solid rgba(17,24,20,0.95)",
       boxShadow: "0 0 0 1px rgba(255,255,255,0.08)",
+    },
+  },
+  seatAvatarBadges: {
+    badge: {
+      position: "absolute",
+      zIndex: 5,
+      width: "1.2rem",
+      height: "1.2rem",
+      borderRadius: "50%",
+      display: "grid",
+      placeItems: "center",
+      background: "rgba(10, 18, 15, 0.94)",
+      border: "1px solid rgba(255,255,255,0.22)",
+      boxShadow: "0 3px 7px rgba(0,0,0,0.38)",
+      pointerEvents: "auto",
+    },
+    mateBadge: {
+      left: "-0.42rem",
+      top: "-0.42rem",
+      background: "linear-gradient(160deg, rgba(42,104,68,0.98), rgba(17,46,34,0.98))",
+      borderColor: "rgba(136, 221, 157, 0.46)",
+    },
+    roleBadge: {
+      left: "-0.36rem",
+      bottom: "-0.36rem",
+    },
+    mateIcon: {
+      color: "#9df0ad",
+      fontSize: "0.84rem",
+    },
+    manoIcon: {
+      color: "#f4d38a",
+      fontSize: "0.78rem",
+    },
+    hostIcon: {
+      color: "#ffd25f",
+      fontSize: "0.78rem",
+    },
+  },
+  seatChatBubble: {
+    bubble: {
+      px: 0.82,
+      py: 0.46,
+      borderRadius: "0.72rem",
+      color: "rgba(255,255,255,0.96)",
+      background: "rgba(9, 17, 15, 0.94)",
+      border: "1px solid rgba(255,255,255,0.16)",
+      boxShadow: "0 8px 16px rgba(0,0,0,0.35)",
+      backdropFilter: "blur(8px)",
+    },
+    tail: {
+      width: "0.58rem",
+      height: "0.58rem",
+      background: "rgba(9, 17, 15, 0.94)",
+      border: "1px solid rgba(255,255,255,0.16)",
     },
   },
   lobby: {

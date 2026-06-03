@@ -3,10 +3,8 @@ import {
   BadgeProps,
   Box,
   List,
-  ListItem,
   ListItemAvatar,
   ListItemButton,
-  ListItemSecondaryAction,
   ListItemText,
   Tooltip,
   Typography,
@@ -55,10 +53,6 @@ export const MatchList = ({
       {matches.length ? (
         <Box pt={2}>
           <List dense={dense}>
-            <ListItem divider>
-              <ListItemAvatar>Host</ListItemAvatar>
-              <ListItemSecondaryAction>Jugadores</ListItemSecondaryAction>
-            </ListItem>
             {matches.map((info) => {
               const [state, color] = MATCH_STATE_MAP[info.state];
               const isStarted =
@@ -74,12 +68,13 @@ export const MatchList = ({
                       navigate(
                         isStarted
                           ? `/match/${info.matchSessionId}`
-                          : `/lobby/${info.matchSessionId}`
+                          : `/lobby/${info.matchSessionId}`,
                       )
                     }
                   >
                     <ListItemText>
-                      <p>{info.ownerId}</p>
+                      <b>{info.matchSessionId}</b>
+                      <div>{info.ownerId}</div>
                     </ListItemText>
                     <ListItemAvatar>
                       <Typography variant="subtitle1">
