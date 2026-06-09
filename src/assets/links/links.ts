@@ -9,7 +9,7 @@ export const GITHUB_LINK_FRAN = {
 export const GENERAL_LINKS = [
   {
     label: "donate",
-    to: "https://geyser.fund/project/trucoshi",
+    to: "https://jfrader.com/tips",
     Icon: Favorite,
   },
   {
