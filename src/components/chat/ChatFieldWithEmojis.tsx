@@ -21,7 +21,7 @@ import {
   useMemo,
 } from "react";
 import { debounce } from "lodash";
-import emojiData from "emoji-datasource/emoji.json";
+import emojiData from "emoji-datasource";
 import Picker, { EmojiStyle } from "emoji-picker-react";
 import {
   ChatFieldProps,
