@@ -13,6 +13,7 @@ let queueState = {
 };
 let activeMatches: any[] = [];
 let queueReplayOptions: any = null;
+let serverAheadTime = 0;
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
@@ -29,7 +30,13 @@ vi.mock("react-router-dom", async () => {
 
 vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
   useTrucoshi: () => [
-    { account: null, stats: { onlinePlayers: [] }, activeMatches, queueReplayOptions },
+    {
+      account: null,
+      stats: { onlinePlayers: [] },
+      activeMatches,
+      queueReplayOptions,
+      serverAheadTime,
+    },
   ],
 }));
 
@@ -55,6 +62,7 @@ describe("PlayMenu queue controls", () => {
     toastInfo.mockClear();
     activeMatches = [];
     queueReplayOptions = null;
+    serverAheadTime = 0;
     queueState = {
       status: null,
       isQueueing: false,
@@ -106,6 +114,28 @@ describe("PlayMenu queue controls", () => {
     expect(leaveQueue).toHaveBeenCalled();
   });
 
+  it("uses server-adjusted time for queued elapsed status", () => {
+    const localNow = Date.now();
+    serverAheadTime = -60_000;
+    queueState = {
+      isQueueing: true,
+      status: {
+        requestId: "queue-1",
+        maxPlayers: 2,
+        queuedPlayers: 1,
+        requiredPlayers: 2,
+        position: 1,
+        queuedAt: localNow + serverAheadTime,
+        botFallbackAt: localNow + serverAheadTime + 5000,
+      },
+    };
+
+    renderWithTheme(<PlayMenu />);
+
+    expect(screen.getByText("Espera 0:00")).toBeInTheDocument();
+    expect(screen.getByText(/bots en 5s/i)).toBeInTheDocument();
+  });
+
   it("rejoins an existing queued match instead of queueing again", () => {
     activeMatches = [
       {
@@ -145,9 +175,22 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
+    expect(screen.getByLabelText(/jugar con bots/i)).not.toBeChecked();
+
     fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
+  });
+
+  it("lets replay queue options be changed before playing again", () => {
+    queueReplayOptions = { maxPlayers: 4, allowBots: false };
+
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByLabelText(/jugar con bots/i));
+    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
   });
 
   it("prefers rejoining an active queued match over stored replay options", () => {

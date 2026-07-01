@@ -10,6 +10,8 @@ import {
   IPublicMatchStats,
   IPublicPlayer,
   IQueueStatus,
+  ITreasureOpenResult,
+  ITreasureStatus,
   ITrucoshiStats,
   IWaitingPlayCallback,
   IWaitingPlayData,
@@ -18,6 +20,8 @@ import {
 } from "trucoshi";
 import { IPublicMatchInfo } from "trucoshi";
 import { CardSources } from "./hooks/useCards";
+import { CardDisplayMode } from "./cards/cardSkinResolver";
+import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { Dispatch, SetStateAction } from "react";
 import { User } from "lightning-accounts";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
@@ -69,6 +73,12 @@ export interface ITrucoshiActions {
   sendPing(): void;
   sendUserId(id: string, callback?: (name: string) => void): void;
   setCardTheme(theme: ICardTheme): void;
+  fetchInventory(): void;
+  setDeckCardSkin(card: ICard, cardSkinId: CardSkinId | null): Promise<boolean>;
+  fetchTreasureStatus(): void;
+  openTreasureChest(chestId: number): Promise<boolean>;
+  devGrantTreasureChest(): Promise<boolean>;
+  setCardDisplayMode(mode: CardDisplayMode): void;
   inspectCard: Dispatch<SetStateAction<ICard | null>>;
   refetchMe: (
     options?: RefetchOptions | undefined
@@ -94,6 +104,14 @@ export interface ITrucoshiState {
   isQueueing: boolean;
   queueReplayOptions: IJoinQueueOptions | null;
   cardTheme: ICardTheme;
+  inventory: IInventoryCardGroup[];
+  equippedDeck: IEquippedDeck;
+  inventoryLoading: boolean;
+  treasureStatus: ITreasureStatus;
+  treasureLoading: boolean;
+  treasureOpening: boolean;
+  treasureResult: ITreasureOpenResult | null;
+  cardDisplayMode: CardDisplayMode;
   cardsReady: boolean;
   cardsLoading: boolean;
   inspectedCard: ICard | null;

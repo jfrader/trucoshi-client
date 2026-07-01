@@ -10,11 +10,15 @@ import {
   IQueueStatus,
   ServerToClientEvents,
   EMatchState,
+  ITreasureOpenResult,
+  ITreasureStatus,
   ITrucoshiStats,
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
 import { ICardTheme, ITrucoshiContext } from "./types";
+import { CardDisplayMode } from "./cards/cardSkinResolver";
+import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { useCards } from "./hooks/useCards";
 import { useMe } from "../api/hooks/useMe";
 import { useCookies } from "react-cookie";
@@ -34,6 +38,12 @@ const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
 export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "development";
 
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
+
+const emptyTreasureStatus: ITreasureStatus = {
+  progress: 0,
+  threshold: 3,
+  unopenedChests: [],
+};
 
 const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) => {
   socket.emit(EClientEvent.PING, Date.now());
@@ -56,6 +66,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [lastPong, setLastPong] = useState<number | null>(null);
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "default");
+  const [cardDisplayMode, setCardDisplayMode] = useStateStorage<CardDisplayMode>(
+    "cardDisplayMode",
+    "skins"
+  );
+  const [inventory, setInventory] = useState<IInventoryCardGroup[]>([]);
+  const [equippedDeck, setEquippedDeck] = useState<IEquippedDeck>({});
+  const [inventoryLoading, setInventoryLoading] = useState(false);
+  const [treasureStatus, setTreasureStatus] = useState<ITreasureStatus>(emptyTreasureStatus);
+  const [treasureLoading, setTreasureLoading] = useState(false);
+  const [treasureOpening, setTreasureOpening] = useState(false);
+  const [treasureResult, setTreasureResult] = useState<ITreasureOpenResult | null>(null);
   const [cards, cardsReady, cardsLoading] = useCards({ theme: cardTheme });
   const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -165,6 +186,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           setQueueStatus(null);
           setQueueing(false);
           setQueueReplayOptions(null);
+          setInventory([]);
+          setEquippedDeck({});
+          setInventoryLoading(false);
           setTimeout(() => {
             setLoggingOut(false);
             setShouldConnect(true);
@@ -330,6 +354,192 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     [socket]
   );
 
+  const fetchInventory = useCallback(() => {
+    if (!account?.id || !isConnected) {
+      setInventory([]);
+      setEquippedDeck({});
+      setInventoryLoading(false);
+      return;
+    }
+
+    setInventoryLoading(true);
+    socket.emit(EClientEvent.FETCH_INVENTORY, ({ success, inventory, equippedDeck, error }) => {
+      setInventoryLoading(false);
+
+      if (error) {
+        toast.error(error.message);
+      }
+
+      if (success) {
+        setInventory(inventory);
+        setEquippedDeck(equippedDeck);
+      }
+    });
+  }, [account?.id, isConnected, socket, toast]);
+
+  const setDeckCardSkin = useCallback(
+    (card: ICard, cardSkinId: CardSkinId | null) =>
+      new Promise<boolean>((resolve) => {
+        if (!account?.id || !isConnected) {
+          resolve(false);
+          return;
+        }
+
+        const previousInventory = inventory;
+        const previousDeck = equippedDeck;
+
+        const optimisticDeck = { ...equippedDeck };
+        if (cardSkinId) {
+          optimisticDeck[card] = cardSkinId;
+        } else {
+          delete optimisticDeck[card];
+        }
+
+        setEquippedDeck(optimisticDeck);
+        setInventory((current) =>
+          current.map((group) =>
+            group.card === card
+              ? {
+                  ...group,
+                  equippedCardSkinId: cardSkinId || undefined,
+                  skins: group.skins.map((skin) => ({
+                    ...skin,
+                    equipped: skin.id === cardSkinId,
+                  })),
+                }
+              : group
+          )
+        );
+
+        socket.emit(
+          EClientEvent.SET_DECK_CARD_SKIN,
+          card,
+          cardSkinId,
+          ({ success, inventory, equippedDeck, error }) => {
+            if (success) {
+              setInventory(inventory);
+              setEquippedDeck(equippedDeck);
+              resolve(true);
+              return;
+            }
+
+            setInventory(previousInventory);
+            setEquippedDeck(previousDeck);
+
+            if (error) {
+              toast.error(error.message);
+            }
+
+            resolve(false);
+          }
+        );
+      }),
+    [account?.id, equippedDeck, inventory, isConnected, socket, toast]
+  );
+
+  const fetchTreasureStatus = useCallback(() => {
+    if (!account?.id || !isConnected) {
+      setTreasureStatus(emptyTreasureStatus);
+      setTreasureLoading(false);
+      return;
+    }
+
+    setTreasureLoading(true);
+    socket.emit(EClientEvent.FETCH_TREASURE_STATUS, ({ success, treasureStatus, error }) => {
+      setTreasureLoading(false);
+
+      if (error) {
+        toast.error(error.message);
+      }
+
+      if (success) {
+        setTreasureStatus(treasureStatus);
+      }
+    });
+  }, [account?.id, isConnected, socket, toast]);
+
+  const openTreasureChest = useCallback(
+    (chestId: number) =>
+      new Promise<boolean>((resolve) => {
+        if (!account?.id || !isConnected) {
+          resolve(false);
+          return;
+        }
+
+        setTreasureOpening(true);
+        setTreasureResult(null);
+        socket.emit(
+          EClientEvent.OPEN_TREASURE_CHEST,
+          chestId,
+          ({ success, treasureStatus, treasureResult, inventory, equippedDeck, error }) => {
+            setTreasureOpening(false);
+
+            if (success) {
+              setTreasureStatus(treasureStatus);
+              setTreasureResult(treasureResult);
+              setInventory(inventory);
+              setEquippedDeck(equippedDeck);
+              resolve(true);
+              return;
+            }
+
+            if (error) {
+              toast.error(error.message);
+            }
+
+            resolve(false);
+          }
+        );
+      }),
+    [account?.id, isConnected, socket, toast]
+  );
+
+  const devGrantTreasureChest = useCallback(
+    () =>
+      new Promise<boolean>((resolve) => {
+        if (!account?.id || !isConnected) {
+          resolve(false);
+          return;
+        }
+
+        setTreasureLoading(true);
+        socket.emit(EClientEvent.DEV_GRANT_TREASURE_CHEST, ({ success, treasureStatus, error }) => {
+          setTreasureLoading(false);
+
+          if (success) {
+            setTreasureStatus(treasureStatus);
+            resolve(true);
+            return;
+          }
+
+          if (error) {
+            toast.error(error.message);
+          }
+
+          resolve(false);
+        });
+      }),
+    [account?.id, isConnected, socket, toast]
+  );
+
+  useEffect(() => {
+    if (account?.id && isConnected) {
+      fetchInventory();
+      fetchTreasureStatus();
+      return;
+    }
+
+    if (!account?.id) {
+      setInventory([]);
+      setEquippedDeck({});
+      setInventoryLoading(false);
+      setTreasureStatus(emptyTreasureStatus);
+      setTreasureLoading(false);
+      setTreasureOpening(false);
+      setTreasureResult(null);
+    }
+  }, [account?.id, fetchInventory, fetchTreasureStatus, isConnected]);
+
   useEffect(() => {
     if (is401(error)) {
       logout();
@@ -357,6 +567,14 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           queueReplayOptions,
           serverAheadTime,
           cardTheme,
+          inventory,
+          equippedDeck,
+          inventoryLoading,
+          treasureStatus,
+          treasureLoading,
+          treasureOpening,
+          treasureResult,
+          cardDisplayMode,
           cardsReady,
           cardsLoading,
           isSidebarOpen,
@@ -382,6 +600,12 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         dispatch: {
           setDark,
           setCardTheme,
+          fetchInventory,
+          setDeckCardSkin,
+          fetchTreasureStatus,
+          openTreasureChest,
+          devGrantTreasureChest,
+          setCardDisplayMode,
           setSidebarOpen,
           sendPing: () => sendPing(socket),
           sendUserId,

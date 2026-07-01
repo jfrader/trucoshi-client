@@ -7,6 +7,9 @@ const navigate = vi.fn();
 const socketEmit = vi.fn();
 const joinQueue = vi.fn();
 const setQueueReplayOptions = vi.fn();
+const fetchTreasureStatus = vi.fn();
+const openTreasureChest = vi.fn();
+const devGrantTreasureChest = vi.fn();
 const onPlayAgain = vi.fn();
 
 vi.mock("react-router-dom", async () => {
@@ -23,7 +26,20 @@ vi.mock("../../api/hooks/useMe", () => ({
 }));
 
 vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
-  useTrucoshi: () => [{}, { setQueueReplayOptions }, { emit: socketEmit }],
+  useTrucoshi: () => [
+    {
+      treasureStatus: {
+        progress: 2,
+        threshold: 3,
+        unopenedChests: [{ id: 7, earnedAt: "2026-07-01T00:00:00.000Z" }],
+      },
+      treasureLoading: false,
+      treasureOpening: false,
+      treasureResult: null,
+    },
+    { devGrantTreasureChest, fetchTreasureStatus, openTreasureChest, setQueueReplayOptions },
+    { emit: socketEmit },
+  ],
 }));
 
 vi.mock("../../trucoshi/hooks/useMatchQueue", () => ({
@@ -44,6 +60,24 @@ vi.mock("./MatchPoints", () => ({
 
 vi.mock("../chat/ChatRoom", () => ({
   ChatRoom: () => <div />,
+}));
+
+vi.mock("../card/GameCard", () => ({
+  GameCard: ({ card, cardSkinId, displayMode }: any) => (
+    <div
+      data-testid={`game-card-${card}`}
+      data-card-skin-id={cardSkinId || ""}
+      data-display-mode={displayMode}
+    />
+  ),
+  FlipGameCard: ({ card, cardSkinId, displayMode, flip }: any) => (
+    <div
+      data-testid={`flip-game-card-${card}`}
+      data-card-skin-id={cardSkinId || ""}
+      data-display-mode={displayMode}
+      data-flip={flip ? "true" : "false"}
+    />
+  ),
 }));
 
 vi.mock("../../shared/UserAvatar", () => ({
@@ -94,6 +128,9 @@ describe("MatchFinishedScreen play again", () => {
     socketEmit.mockClear();
     joinQueue.mockClear();
     setQueueReplayOptions.mockClear();
+    fetchTreasureStatus.mockClear();
+    openTreasureChest.mockClear();
+    devGrantTreasureChest.mockClear();
     onPlayAgain.mockClear();
   });
 
@@ -102,6 +139,7 @@ describe("MatchFinishedScreen play again", () => {
     renderFinishedScreen(buildFinishedMatch({ createdFromQueue: true, queueOptions }));
 
     expect(setQueueReplayOptions).toHaveBeenCalledWith(queueOptions);
+    expect(fetchTreasureStatus).toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
 
@@ -109,6 +147,15 @@ describe("MatchFinishedScreen play again", () => {
     expect(socketEmit).toHaveBeenCalledWith(EClientEvent.LEAVE_MATCH, "finished-match");
     expect(navigate).toHaveBeenCalledWith("/");
     expect(onPlayAgain).not.toHaveBeenCalled();
+  });
+
+  it("opens an available treasure chest from a queue-created match", () => {
+    const queueOptions = { maxPlayers: 2, allowBots: false };
+    renderFinishedScreen(buildFinishedMatch({ createdFromQueue: true, queueOptions }));
+
+    fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
+
+    expect(openTreasureChest).toHaveBeenCalledWith(7);
   });
 
   it("keeps custom play again behavior for custom matches", () => {

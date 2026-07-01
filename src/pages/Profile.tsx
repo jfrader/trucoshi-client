@@ -3,6 +3,7 @@ import {
   Close,
   EmojiEvents,
   SmartToy,
+  Style,
   VideogameAsset,
   VpnKey,
   X,
@@ -325,6 +326,17 @@ export const Profile = () => {
                   <ListItem divider>
                     <ListItemText primary="Nombre" secondary={profile.account.name} />
                   </ListItem>
+                  {isMyProfile ? (
+                    <ListItemButton onClick={() => navigate("/inventory")} divider>
+                      <ListItemText
+                        primary="Inventario"
+                        secondary="Arma el mazo que ven los demas"
+                      />
+                      <ListItemSecondaryAction>
+                        <Style />
+                      </ListItemSecondaryAction>
+                    </ListItemButton>
+                  ) : null}
                   {isMyProfile ? (
                     <>
                       {seedPhrase ? (

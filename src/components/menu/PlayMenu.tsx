@@ -54,7 +54,7 @@ export const PlayMenu = ({
 }: BoxProps & { eyebrow?: boolean; onMenuClick?: (e: SyntheticEvent) => void }) => {
   const navigate = useNavigate();
   const toast = useToast();
-  const [{ account, stats, activeMatches, queueReplayOptions }] = useTrucoshi();
+  const [{ account, stats, activeMatches, queueReplayOptions, serverAheadTime }] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
   const [maxPlayers, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(true);
@@ -66,15 +66,26 @@ export const PlayMenu = ({
       return;
     }
 
+    setNow(Date.now());
     const interval = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(interval);
   }, [isQueueing]);
 
+  useEffect(() => {
+    if (!queueReplayOptions) {
+      return;
+    }
+
+    setMaxPlayers(queueReplayOptions.maxPlayers);
+    setPlayWithBots(queueReplayOptions.allowBots);
+  }, [queueReplayOptions]);
+
+  const serverNow = now + serverAheadTime;
   const botFallbackRemaining = status?.botFallbackAt
-    ? Math.max(Math.ceil((status.botFallbackAt - now) / 1000), 0)
+    ? Math.max(Math.ceil((status.botFallbackAt - serverNow) / 1000), 0)
     : null;
   const elapsedText = status?.queuedAt
-    ? `Espera ${formatElapsedTime(now - status.queuedAt)}`
+    ? `Espera ${formatElapsedTime(serverNow - status.queuedAt)}`
     : null;
 
   const statusMaxPlayers = status?.maxPlayers as MatchQueuePlayerCount | undefined;
@@ -98,7 +109,7 @@ export const PlayMenu = ({
       return;
     }
 
-    joinQueue(queueReplayOptions || { maxPlayers, allowBots: playWithBots });
+    joinQueue({ maxPlayers, allowBots: playWithBots });
   };
   const playButtonLabel = isQueueing
     ? "Buscando..."

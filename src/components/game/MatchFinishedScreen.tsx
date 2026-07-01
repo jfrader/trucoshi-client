@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMe } from "../../api/hooks/useMe";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
+import { TreasureChestPanel } from "../treasure/TreasureChestPanel";
 
 export const MatchFinishedScreen = ({
   match,
@@ -28,7 +29,11 @@ export const MatchFinishedScreen = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [, { setQueueReplayOptions }, socket] = useTrucoshi();
+  const [
+    { treasureStatus, treasureLoading, treasureOpening, treasureResult },
+    { devGrantTreasureChest, fetchTreasureStatus, openTreasureChest, setQueueReplayOptions },
+    socket,
+  ] = useTrucoshi();
   const { joinQueue } = useMatchQueue();
 
   const { refetch: refetchMe } = useMe();
@@ -49,6 +54,12 @@ export const MatchFinishedScreen = ({
       setQueueReplayOptions(match.queueOptions);
     }
   }, [match.createdFromQueue, match.queueOptions, setQueueReplayOptions]);
+
+  useEffect(() => {
+    if (match.createdFromQueue && match.me) {
+      fetchTreasureStatus();
+    }
+  }, [fetchTreasureStatus, match.createdFromQueue, match.me]);
 
   const onExit = (fn: () => void) => () => {
     socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
@@ -150,6 +161,16 @@ export const MatchFinishedScreen = ({
             Jugar de nuevo!
           </Button>
         </Actions>
+        {match.createdFromQueue && match.me ? (
+          <TreasureChestPanel
+            status={treasureStatus}
+            result={treasureResult}
+            loading={treasureLoading}
+            opening={treasureOpening}
+            onOpenChest={openTreasureChest}
+            onDevGrantChest={devGrantTreasureChest}
+          />
+        ) : null}
         <Box flex={1} minHeight={0} mb={2} overflow="hidden" position="relative" width="100%">
           <ChatRoom alwaysVisible {...chatProps} />
         </Box>

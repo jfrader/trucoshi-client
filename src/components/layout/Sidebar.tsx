@@ -5,6 +5,9 @@ import { WalletMenu } from "../menu/WalletMenu";
 import { useNavigate } from "react-router-dom";
 import { MatchList } from "../game/MatchList";
 import { Topbar } from "./Topbar";
+import StyleIcon from "@mui/icons-material/Style";
+
+const SIDEBAR_WIDTH = { xs: "100vw", sm: "24rem", md: "26rem" };
 
 export const Sidebar = ({
   topOffset = "50px",
@@ -19,59 +22,123 @@ export const Sidebar = ({
   const onMenuClick = () => setSidebarOpen(false);
 
   return (
-    <Slide in={isSidebarOpen} direction="left">
-      <Card
-        sx={(theme) => ({
-          zIndex: theme.zIndex.drawer,
-          position: "fixed",
-          top: topOffset,
-          borderRadius: 0,
-          right: 0,
-          boxShadow: theme.shadows[6],
-          pt: showEmbeddedTopbar ? 0 : 1,
-          px: 0,
-          paddingBottom: "48px",
-          height: "100vh",
-          width: { xs: "100vw", sm: "24rem", md: "26rem" },
-          maxWidth: { xs: "100vw", sm: "24rem", md: "26rem" },
-        })}
-      >
-        <CardContent
-          sx={{
-            p: 0,
-            "&:last-child": { pb: 0 },
-            display: "flex",
-            direction: "column",
-            height: "100%",
-          }}
+    <>
+      {isSidebarOpen ? (
+        <Box
+          aria-hidden="true"
+          data-testid="sidebar-backdrop"
+          onClick={onMenuClick}
+          sx={(theme) => ({
+            position: "fixed",
+            inset: 0,
+            zIndex: theme.zIndex.drawer - 1,
+            background: "rgba(0, 0, 0, 0.34)",
+            WebkitTapHighlightColor: "transparent",
+          })}
+        />
+      ) : null}
+      <Slide in={isSidebarOpen} direction="left" mountOnEnter unmountOnExit>
+        <Card
+          aria-modal={isSidebarOpen ? "true" : undefined}
+          data-testid="sidebar-panel"
+          role="dialog"
+          sx={(theme) => ({
+            zIndex: theme.zIndex.drawer,
+            position: "fixed",
+            top: topOffset,
+            right: 0,
+            borderRadius: 0,
+            boxShadow: theme.shadows[6],
+            pt: showEmbeddedTopbar ? 0 : 1,
+            px: 0,
+            height: `calc(100dvh - ${topOffset})`,
+            maxHeight: `calc(100dvh - ${topOffset})`,
+            width: SIDEBAR_WIDTH,
+            maxWidth: SIDEBAR_WIDTH,
+            overflow: "hidden",
+          })}
         >
-          <Stack gap={3} height="100%" width="100%" px={showEmbeddedTopbar ? 1 : 1.5} pt={showEmbeddedTopbar ? 0.25 : 0}>
-            {showEmbeddedTopbar ? <Topbar embedded /> : null}
-            <WalletMenu />
-            <PlayMenu onMenuClick={onMenuClick} />
-            <Box flexGrow={1} />
-            {activeMatches.length ? (
-              <MatchList dense matches={activeMatches} title="Partidas activas" />
-            ) : null}
-            {account ? (
-              <Button fullWidth size="large" color="error" onClick={() => logout()}>
-                Cerrar Sesion
-              </Button>
-            ) : (
-              <Button
-                color="success"
-                fullWidth
-                onClick={() => {
-                  onMenuClick();
-                  navigate(`/register`);
+          <CardContent
+            sx={{
+              p: 0,
+              "&:last-child": { pb: 0 },
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              minHeight: 0,
+            }}
+          >
+            <Stack
+              gap={2.4}
+              width="100%"
+              px={showEmbeddedTopbar ? 1 : 1.5}
+              pt={showEmbeddedTopbar ? 0.25 : 0}
+              pb="calc(env(safe-area-inset-bottom) + 1rem)"
+              sx={{ height: "100%", minHeight: 0 }}
+            >
+              {showEmbeddedTopbar ? <Topbar embedded /> : null}
+              <Stack
+                data-testid="sidebar-scroll-area"
+                gap={2.4}
+                sx={{
+                  flex: "1 1 auto",
+                  minHeight: 0,
+                  overflowY: "auto",
+                  overscrollBehavior: "contain",
+                  pr: 0.25,
                 }}
               >
-                Registrarse
-              </Button>
-            )}
-          </Stack>
-        </CardContent>
-      </Card>
-    </Slide>
+                <WalletMenu />
+                <PlayMenu onMenuClick={onMenuClick} />
+                {activeMatches.length ? (
+                  <MatchList dense matches={activeMatches} title="Partidas activas" />
+                ) : null}
+              </Stack>
+              <Stack
+                data-testid="sidebar-bottom-actions"
+                gap={1}
+                sx={(theme) => ({
+                  flex: "0 0 auto",
+                  pt: 1,
+                  borderTop: `1px solid ${theme.palette.divider}`,
+                  background: theme.palette.background.paper,
+                })}
+              >
+                {account ? (
+                  <>
+                    <Button
+                      fullWidth
+                      size="large"
+                      color="warning"
+                      startIcon={<StyleIcon />}
+                      onClick={() => {
+                        onMenuClick();
+                        navigate("/inventory");
+                      }}
+                    >
+                      Inventario
+                    </Button>
+                    <Button fullWidth size="large" color="error" onClick={() => logout()}>
+                      Cerrar Sesion
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    color="success"
+                    fullWidth
+                    onClick={() => {
+                      onMenuClick();
+                      navigate(`/register`);
+                    }}
+                  >
+                    Registrarse
+                  </Button>
+                )}
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Slide>
+    </>
   );
 };

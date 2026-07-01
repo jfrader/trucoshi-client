@@ -1,6 +1,5 @@
 import {
   Box,
-  ClickAwayListener,
   CssBaseline,
   Paper,
   ThemeProvider,
@@ -56,8 +55,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [{ inspectedCard, cardsReady, cardTheme, dark }, { inspectCard, setSidebarOpen }] =
-    useTrucoshi();
+  const [{ inspectedCard, cardsReady, dark }, { inspectCard }] = useTrucoshi();
 
   const versionCheck = useQuery({
     queryKey: ["app-version-check"],
@@ -94,33 +92,50 @@ export const Layout = ({ children }: PropsWithChildren) => {
       theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
     >
       <CssBaseline />
-      {!isGameSurface ? (
-        <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
-          <Topbar />
-        </ClickAwayListener>
-      ) : null}
+      {!isGameSurface ? <Topbar /> : null}
       {isGameSurface ? (
-        <ClickAwayListener onClickAway={() => setSidebarOpen(false)}>
-          <Box
-            sx={(theme) => ({
-              position: "fixed",
-              top: 0,
-              right: 0,
-              zIndex: theme.zIndex.drawer,
-            })}
-          >
-            <Topbar embedded compact={isMobile} />
-            <Sidebar topOffset="0px" showEmbeddedTopbar />
-          </Box>
-        </ClickAwayListener>
+        <Box
+          sx={(theme) => ({
+            position: "fixed",
+            top: 0,
+            right: 0,
+            zIndex: theme.zIndex.drawer + 2,
+          })}
+        >
+          <Topbar embedded compact={isMobile} />
+        </Box>
       ) : null}
-      {!isGameSurface ? <Sidebar /> : null}
+      <Sidebar topOffset={isGameSurface ? "0px" : "50px"} showEmbeddedTopbar={isGameSurface} />
       <main style={{ position: "relative" }}>
         <Paper
           className="App"
-          sx={(theme) => ({ borderRadius: 0, background: theme.palette.background.default })}
+          sx={(theme) => ({
+            borderRadius: 0,
+            background: theme.palette.background.default,
+            ...(isGameSurface
+              ? {
+                  height: "100dvh",
+                  maxHeight: "100dvh",
+                  overflow: "hidden",
+                }
+              : null),
+          })}
         >
-          <Box className="App-header" display="flex" flexDirection="column">
+          <Box
+            className="App-header"
+            display="flex"
+            flexDirection="column"
+            sx={
+              isGameSurface
+                ? {
+                    height: "100dvh",
+                    maxHeight: "100dvh",
+                    minHeight: "100dvh",
+                    overflow: "hidden",
+                  }
+                : undefined
+            }
+          >
             <Box display="flex" flexDirection="column" minWidth="100%" flexGrow={1}>
               <LayoutContainer
                 className={isGameSurface ? "game-surface" : "app-surface"}
@@ -130,6 +145,9 @@ export const Layout = ({ children }: PropsWithChildren) => {
                 sx={
                   isGameSurface
                     ? (theme: Theme) => ({
+                        height: "100dvh",
+                        maxHeight: "100dvh",
+                        overflow: "hidden",
                         [theme.breakpoints.up("md")]: {
                           paddingTop: 0,
                         },
@@ -160,7 +178,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
         card={inspectedCard}
         cardsReady={cardsReady}
         inspectCard={inspectCard}
-        cardTheme={cardTheme}
       />
 
       <ConfirmationModal preventCloseOnBackdropClick {...modal} />

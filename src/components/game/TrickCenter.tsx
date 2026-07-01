@@ -280,7 +280,12 @@ export const TrickCenter = () => {
                     zIndex: isStackOpen ? 280 + index : 20 + zOrder,
                   }}
                 >
-                  <GameCard card={played.card} width={playedCardWidth} shadow disableButton />
+                  <GameCard
+                    card={played.card}
+                    cardSkinId={played.cardSkinId}
+                    width={playedCardWidth}
+                    shadow
+                  />
                 </Box>
               );
             })}

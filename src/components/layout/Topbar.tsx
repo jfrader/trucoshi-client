@@ -2,7 +2,7 @@ import { AppBar, Box, IconButton, Stack, Switch, Toolbar, Typography } from "@mu
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Link } from "../../shared/Link";
 import { TrucoshiText } from "../../shared/TrucoshiText";
-import { CardThemeToggle } from "../card/CardThemeToggle";
+import { CardDisplayModeToggle } from "../card/CardDisplayModeToggle";
 import { Close, Login, Menu } from "@mui/icons-material";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { VolumeControl } from "./VolumeControl";
@@ -56,6 +56,7 @@ export const Topbar = ({
               <>
                 <VolumeControl />
                 <TomaMate />
+                <CardDisplayModeToggle />
               </>
             ) : (
               <>
@@ -78,7 +79,7 @@ export const Topbar = ({
                 />
                 <VolumeControl />
                 <TomaMate />
-                <CardThemeToggle />
+                <CardDisplayModeToggle />
               </>
             )}
           </Stack>

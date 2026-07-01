@@ -22,6 +22,7 @@ import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
 import { PlayerRanking } from "./pages/PlayerRanking";
 import CustomSnackbar from "./shared/CustomSnackbar";
+import { InventoryPage } from "./components/inventory/InventoryPage";
 
 const AppRouter = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ const AppRouter = createBrowserRouter([
           {
             path: "profile/:accountId",
             element: <Profile />,
+          },
+          {
+            path: "inventory",
+            element: <InventoryPage />,
           },
           {
             path: "history/:matchId",

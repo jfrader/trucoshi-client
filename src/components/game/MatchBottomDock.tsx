@@ -109,6 +109,7 @@ const _MatchBottomDock = () => {
         >
           <GameCard
             card={card}
+            cardSkinByCard={me?.deckSkinByCard}
             width={dock.handCardWidth}
             shadow
             enableHover={canInteractWithHand}
@@ -118,7 +119,16 @@ const _MatchBottomDock = () => {
         </Box>
       );
     });
-  }, [canInteractWithHand, dock, fanRotations, hand, handCount, onPlayCard, showHandPanel]);
+  }, [
+    canInteractWithHand,
+    dock,
+    fanRotations,
+    hand,
+    handCount,
+    me?.deckSkinByCard,
+    onPlayCard,
+    showHandPanel,
+  ]);
 
   if (!dock) {
     return null;

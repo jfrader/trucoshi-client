@@ -34,7 +34,7 @@ export const Backdrop = ({
       sx={{
         zIndex: (theme) => (showChat ? theme.zIndex.appBar - 1 : theme.zIndex.drawer + 1),
         color: "text.primary",
-        maxHeight: "100vh",
+        maxHeight: "100dvh",
         backgroundColor: `rgb(0, 0, 0, ${opacity})`,
         overflow: "hidden",
         ...props.sx,

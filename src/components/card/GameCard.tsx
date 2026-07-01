@@ -3,6 +3,8 @@ import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard, SUITS_HUMAN_READABLE } from "t
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useCards } from "../../trucoshi/hooks/useCards";
 import { ICardTheme } from "../../trucoshi/types";
+import { CardDisplayMode, resolveCardImage } from "../../trucoshi/cards/cardSkinResolver";
+import { CardSkinId } from "../../trucoshi/cards/skinRegistry";
 import { ElementType, memo, MouseEventHandler, useCallback } from "react";
 
 const cardContainerSx = {
@@ -73,6 +75,9 @@ export type GameCardProps = {
   scale?: number;
   width?: string;
   theme?: ICardTheme;
+  cardSkinId?: CardSkinId;
+  cardSkinByCard?: Partial<Record<ICard, CardSkinId>>;
+  displayMode?: CardDisplayMode;
   request?: boolean;
   shadow?: boolean;
   as?: ElementType;
@@ -91,13 +96,18 @@ const _GameCard = ({
   disableButton,
   disabledMask = false,
   theme = "",
+  cardSkinId,
+  cardSkinByCard,
+  displayMode,
   ...buttonProps
 }: GameCardProps) => {
-  const [{ cardTheme, cards, cardsReady }, { inspectCard }] = useTrucoshi();
+  const [{ cardTheme, cards, cardsReady, cardDisplayMode }, { inspectCard }] = useTrucoshi();
   const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
 
   const usedTheme = theme || cardTheme;
   const themeReady = request ? reqReady : cardsReady;
+  const shouldUseLegacyTheme = Boolean(theme || request);
+  const effectiveDisplayMode = displayMode || cardDisplayMode || "skins";
 
   const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     (e) => {
@@ -116,10 +126,21 @@ const _GameCard = ({
   }, [card, disableDoubleClick, inspectCard]);
 
   const name = burn ? BURNT_CARD : card;
-  const imageSource = (request ? reqCards : cards)[name];
-  const showImage = Boolean(usedTheme && themeReady && imageSource);
-  const showThemeLoadingOverlay = Boolean(usedTheme && !themeReady);
-  const showMissingThemeAsset = Boolean(usedTheme && themeReady && !imageSource);
+  const imageSource = shouldUseLegacyTheme
+    ? (request ? reqCards : cards)[name]
+    : resolveCardImage({
+        card: name,
+        cardSkinId: name === card ? cardSkinId : undefined,
+        cardSkinByCard: name === card ? cardSkinByCard : undefined,
+        displayMode: effectiveDisplayMode,
+      });
+  const showImage = shouldUseLegacyTheme
+    ? Boolean(usedTheme && themeReady && imageSource)
+    : Boolean(imageSource);
+  const showThemeLoadingOverlay = Boolean(shouldUseLegacyTheme && usedTheme && !themeReady);
+  const showMissingThemeAsset = Boolean(
+    shouldUseLegacyTheme && usedTheme && themeReady && !imageSource
+  );
 
   const events: ButtonProps = disableButton
     ? { component: "div" }

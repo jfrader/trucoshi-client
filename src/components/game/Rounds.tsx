@@ -59,6 +59,7 @@ const concatCards = (
     card,
     key: `${card}-${player.idx}`,
     player,
+    cardSkinId: player.deckSkinByCard?.[card],
   }));
 };
 

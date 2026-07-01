@@ -3,14 +3,14 @@ import { PropsWithChildren, SetStateAction, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "../components/card/GameCard";
-import { CardThemeToggle } from "../components/card/CardThemeToggle";
+import { CardDisplayModeToggle } from "../components/card/CardDisplayModeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useSound } from "../sound/hooks/useSound";
 
 type Props = PropsWithChildren<
   Pick<ITrucoshiActions, "inspectCard"> &
-    Pick<ITrucoshiState, "cardsReady" | "cardTheme"> &
+    Pick<ITrucoshiState, "cardsReady"> &
     Omit<BackdropProps, "open"> & { card: ICard | null }
 >;
 
@@ -53,7 +53,7 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
           </Box>
         )}
         <Stack gap={2} alignItems="center" position="absolute" right="-1.8em" top="0">
-          <CardThemeToggle />
+          <CardDisplayModeToggle />
           <IconButton
             title={flip ? "Revelar" : "Ocultar"}
             onClick={(e) => {

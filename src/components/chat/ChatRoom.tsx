@@ -136,7 +136,7 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
   width: "17rem",
   zIndex: theme.zIndex.drawer,
   [theme.breakpoints.up("lg")]: {
-    height: "calc(100vh - 48px)",
+    height: "calc(100dvh - 48px)",
     width: "19.5rem",
   },
   transition: theme.transitions.create(["height"], {

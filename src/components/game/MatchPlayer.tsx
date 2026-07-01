@@ -62,6 +62,7 @@ const MatchPlayer = ({ match, player, say, canPlay, onPlayCard }: PlayerProps) =
                         enableHover
                         key={card + player.idx}
                         card={card as ICard}
+                        cardSkinByCard={player.deckSkinByCard}
                         onClick={() => {
                           if (player.commands.includes(EFlorCommand.FLOR)) {
                             return modal.onOpen({
@@ -77,7 +78,11 @@ const MatchPlayer = ({ match, player, say, canPlay, onPlayCard }: PlayerProps) =
                         }}
                       />
                     ) : (
-                      <GameCard key={idx} card={card as ICard} />
+                      <GameCard
+                        key={idx}
+                        card={card as ICard}
+                        cardSkinByCard={player.deckSkinByCard}
+                      />
                     )
                   )}
               </Box>

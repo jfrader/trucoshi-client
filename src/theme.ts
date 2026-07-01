@@ -56,6 +56,27 @@ type TrucoshiUiTokens = {
     envidoBestColor: string;
     actionColors: Record<string, string>;
   };
+  treasure: {
+    overlayBackground: string;
+    stageGlow: string;
+    chestShadow: string;
+    panelSurface: string;
+    panelBorder: string;
+    progressTrack: string;
+    progressFill: string;
+    rewardFrame: Record<string, any>;
+    actionButton: Record<string, any>;
+    secondaryButton: Record<string, any>;
+    rarityStyles: Record<string, Record<string, any>>;
+  };
+  inventory: {
+    surfaceFrame: Record<string, any>;
+    pageShell: Record<string, any>;
+    pageHeader: Record<string, any>;
+    displayTool: Record<string, any>;
+    cardLabel: Record<string, any>;
+    countBadge: Record<string, any>;
+  };
   match: {
     scoreCard: Record<string, any>;
     topBadge: Record<string, any>;
@@ -182,6 +203,118 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       achico: "#5b3b2a",
       paso: "#435260",
       mazo: "#5f2e24",
+    },
+  },
+  treasure: {
+    overlayBackground:
+      "radial-gradient(circle at 50% 34%, rgba(248, 184, 55, 0.22), transparent 28%), radial-gradient(circle at 50% 72%, rgba(20, 96, 72, 0.32), transparent 38%), linear-gradient(180deg, rgba(7, 13, 11, 0.96), rgba(1, 3, 3, 0.98))",
+    stageGlow:
+      "radial-gradient(circle at 50% 54%, rgba(255, 196, 68, 0.44), rgba(255, 196, 68, 0.16) 24%, transparent 58%)",
+    chestShadow: "drop-shadow(0 22px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,177,40,0.22))",
+    panelSurface:
+      "linear-gradient(155deg, rgba(33, 26, 17, 0.92), rgba(10, 22, 18, 0.86))",
+    panelBorder: "1px solid rgba(255,255,255,0.14)",
+    progressTrack: "rgba(255,255,255,0.08)",
+    progressFill: "linear-gradient(90deg, #d79a3e, #e4c46b)",
+    rewardFrame: {
+      borderRadius: "1rem",
+      background:
+        "linear-gradient(180deg, rgba(45, 29, 17, 0.92), rgba(12, 19, 16, 0.94))",
+      border: "1px solid rgba(255,255,255,0.18)",
+      boxShadow:
+        "0 16px 34px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08)",
+    },
+    actionButton: {
+      borderRadius: "999px",
+      px: 2.4,
+      py: 0.8,
+      fontWeight: 900,
+      boxShadow: "0 10px 22px rgba(0,0,0,0.35)",
+    },
+    secondaryButton: {
+      borderColor: "rgba(255,255,255,0.18)",
+      color: "rgba(255,255,255,0.68)",
+      fontWeight: 800,
+      "&:hover": {
+        borderColor: "rgba(255,255,255,0.28)",
+        backgroundColor: "rgba(255,255,255,0.05)",
+      },
+    },
+    rarityStyles: {
+      COMMON: {
+        color: "#f3e6bd",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05))",
+        border: "1px solid rgba(255,255,255,0.22)",
+        boxShadow: "0 0 14px rgba(255,255,255,0.08)",
+        textShadow: "0 0 8px rgba(255,255,255,0.26)",
+      },
+      RARE: {
+        color: "#9ff7a5",
+        background: "linear-gradient(180deg, rgba(92,220,102,0.24), rgba(30,111,49,0.12))",
+        border: "1px solid rgba(142,255,156,0.38)",
+        boxShadow: "0 0 18px rgba(94,255,111,0.18)",
+        textShadow: "0 0 10px rgba(130,255,142,0.5)",
+      },
+      EPIC: {
+        color: "#d8b4ff",
+        background: "linear-gradient(180deg, rgba(157,88,255,0.26), rgba(81,35,137,0.15))",
+        border: "1px solid rgba(218,183,255,0.42)",
+        boxShadow: "0 0 20px rgba(173,100,255,0.22)",
+        textShadow: "0 0 12px rgba(216,180,255,0.55)",
+      },
+      LEGENDARY: {
+        color: "#ffd35a",
+        background: "linear-gradient(180deg, rgba(255,196,62,0.32), rgba(124,70,15,0.18))",
+        border: "1px solid rgba(255,218,105,0.58)",
+        boxShadow: "0 0 24px rgba(255,193,55,0.36), inset 0 1px 0 rgba(255,255,255,0.2)",
+        textShadow: "0 0 14px rgba(255,213,79,0.8)",
+      },
+      PROMO: {
+        color: "#8ef7ff",
+        background: "linear-gradient(180deg, rgba(75,222,235,0.24), rgba(23,86,98,0.14))",
+        border: "1px solid rgba(142,247,255,0.44)",
+        boxShadow: "0 0 20px rgba(76,228,241,0.24)",
+        textShadow: "0 0 12px rgba(142,247,255,0.6)",
+      },
+    },
+  },
+  inventory: {
+    surfaceFrame: {
+      borderRadius: "1.2rem",
+      border: "1px solid rgba(255,255,255,0.1)",
+      boxShadow: "0 12px 24px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.06)",
+    },
+    pageShell: {
+      maxWidth: { xs: "100%", lg: "86rem", xl: "94rem" },
+      px: { xs: 1.35, sm: 2.25, lg: 3.5 },
+    },
+    pageHeader: {
+      px: { xs: 1.35, sm: 1.8, lg: 2.25 },
+      py: { xs: 1.25, sm: 1.6, lg: 1.85 },
+      borderRadius: "1.2rem",
+      background:
+        "linear-gradient(135deg, rgba(31, 61, 42, 0.68), rgba(10, 28, 21, 0.48))",
+    },
+    displayTool: {
+      width: 44,
+      height: 44,
+      borderRadius: "0.9rem",
+      backgroundColor: "rgba(255,255,255,0.07)",
+      border: "1px solid rgba(255,255,255,0.12)",
+      color: "warning.light",
+      "&:hover": {
+        backgroundColor: "rgba(255,255,255,0.12)",
+      },
+    },
+    cardLabel: {
+      fontSize: { xs: "1rem", sm: "1.08rem", lg: "1.18rem" },
+      lineHeight: 1.12,
+      textShadow: "0 1px 4px rgba(0,0,0,0.42)",
+    },
+    countBadge: {
+      fontSize: { xs: "1.05rem", sm: "1.14rem", lg: "1.24rem" },
+      lineHeight: 1,
+      textShadow: "0 2px 5px rgba(0,0,0,0.55)",
     },
   },
   match: {
