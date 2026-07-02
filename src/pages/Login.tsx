@@ -14,25 +14,30 @@ import {
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
+import { useMagicLinkLogin } from "../api/hooks/useMagicLinkLogin";
 import { useSeedLogin } from "../api/hooks/useSeedLogin";
 import { useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { TwitterButton } from "../shared/TwitterButton";
 import { useQueryClient } from "@tanstack/react-query";
+import { hasPendingRewardCode } from "../components/reward/rewardCodeStorage";
 
 export const Login = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [{ account }] = useTrucoshi();
 
-  const [loginType, setLoginType] = useState<"seed" | "email">("seed");
+  const [loginType, setLoginType] = useState<"email" | "password" | "seed">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
   const [formErrors, setErrors] = useState<Error[]>([]);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  const { login, isPending: isEmailPending } = useLogin();
+  const { login, isPending: isPasswordPending } = useLogin();
+  const { sendMagicLink, isPending: isMagicLinkPending } = useMagicLinkLogin();
   const { seedLogin, isPending: isSeedPending } = useSeedLogin();
+  const showRewardCodeAlert = !account && hasPendingRewardCode();
 
   useEffect(() => {
     if (account) {
@@ -51,6 +56,13 @@ export const Login = () => {
     return null;
   };
 
+  const validateEmail = () => {
+    if (!email) {
+      return new Error("Email es requerido");
+    }
+    return null;
+  };
+
   const validateEmailPassword = () => {
     if (!email || !password) {
       return new Error("Email y contraseña son requeridos");
@@ -60,6 +72,7 @@ export const Login = () => {
 
   const onSubmit = () => {
     setErrors([]);
+    setMagicLinkSent(false);
     if (loginType === "seed") {
       const error = validateSeed();
       if (error) {
@@ -76,7 +89,7 @@ export const Login = () => {
           onError: (e) => setErrors([e]),
         }
       );
-    } else {
+    } else if (loginType === "password") {
       const error = validateEmailPassword();
       if (error) {
         setErrors([error]);
@@ -85,10 +98,27 @@ export const Login = () => {
       login(
         { email: email.trim(), password: password.trim() },
         {
-          onSuccess: () => {
+          onSuccess: (response) => {
+            if ((response.data as { magicLinkSent?: boolean }).magicLinkSent) {
+              setMagicLinkSent(true);
+              return;
+            }
             queryClient.resetQueries({ queryKey: ["me"] });
             navigate("/");
           },
+          onError: (e) => setErrors([e]),
+        }
+      );
+    } else {
+      const error = validateEmail();
+      if (error) {
+        setErrors([error]);
+        return;
+      }
+      sendMagicLink(
+        { email: email.trim() },
+        {
+          onSuccess: () => setMagicLinkSent(true),
           onError: (e) => setErrors([e]),
         }
       );
@@ -109,11 +139,12 @@ export const Login = () => {
 
   const handleLoginTypeChange = (
     _: React.MouseEvent<HTMLElement>,
-    newLoginType: "seed" | "email"
+    newLoginType: "email" | "password" | "seed"
   ) => {
     if (newLoginType) {
       setLoginType(newLoginType);
       setErrors([]);
+      setMagicLinkSent(false);
       setEmail("");
       setPassword("");
       setSeedPhrase("");
@@ -131,6 +162,11 @@ export const Login = () => {
             }}
           >
             <Stack px={2} pt={2} gap={4}>
+              {showRewardCodeAlert ? (
+                <Alert severity="warning">
+                  Recibiste un cofre! Inicia sesion para reclamarlo o registrate!
+                </Alert>
+              ) : null}
               <ToggleButtonGroup
                 color="warning"
                 value={loginType}
@@ -138,14 +174,17 @@ export const Login = () => {
                 onChange={handleLoginTypeChange}
                 fullWidth
               >
-                <ToggleButton value="seed">
-                  <VpnKey sx={{ mr: 1 }} /> Frase de Semilla
-                </ToggleButton>
                 <ToggleButton value="email">
                   <Person sx={{ mr: 1 }} /> Email
                 </ToggleButton>
+                <ToggleButton value="password">
+                  <VpnKey sx={{ mr: 1 }} /> Contraseña
+                </ToggleButton>
+                <ToggleButton value="seed">
+                  <VpnKey sx={{ mr: 1 }} /> Frase de Semilla
+                </ToggleButton>
               </ToggleButtonGroup>
-              {loginType === "email" ? (
+              {loginType === "email" || loginType === "password" ? (
                 <>
                   <TextField
                     name="email"
@@ -159,16 +198,18 @@ export const Login = () => {
                     error={!!email && email.length < 3}
                     helperText={email && email.length < 3 ? "Email inválido" : ""}
                   />
-                  <TextField
-                    name="password"
-                    color="warning"
-                    label="Contraseña"
-                    autoComplete="current-password"
-                    onChange={onChangePassword}
-                    type="password"
-                    value={password}
-                    variant="outlined"
-                  />
+                  {loginType === "password" ? (
+                    <TextField
+                      name="password"
+                      color="warning"
+                      label="Contraseña"
+                      autoComplete="current-password"
+                      onChange={onChangePassword}
+                      type="password"
+                      value={password}
+                      variant="outlined"
+                    />
+                  ) : null}
                 </>
               ) : (
                 <TextField
@@ -188,17 +229,22 @@ export const Login = () => {
               )}
               <LoadingButton
                 type="submit"
-                isLoading={isEmailPending || isSeedPending}
+                isLoading={isMagicLinkPending || isPasswordPending || isSeedPending}
                 color="warning"
                 variant="outlined"
               >
-                Iniciar Sesión
+                {loginType === "email" ? "Enviar Link de Ingreso" : "Iniciar Sesión"}
               </LoadingButton>
-              {loginType === "email" && (
+              {loginType === "password" && (
                 <Button onClick={() => navigate("/forgot-password")} color="info">
                   ¿Olvidaste tu contraseña?
                 </Button>
               )}
+              {magicLinkSent ? (
+                <Alert severity="success">
+                  Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
+                </Alert>
+              ) : null}
               {formErrors.filter(Boolean).map((error) => (
                 <Alert key={error?.message} severity="error">
                   {error?.message}

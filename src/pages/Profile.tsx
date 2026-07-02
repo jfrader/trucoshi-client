@@ -135,6 +135,7 @@ export const Profile = () => {
   }
 
   const isMyProfile = Number(accountId) === me?.id;
+  const meHasPassword = Boolean((me as (typeof me & { hasPassword?: boolean }) | null)?.hasPassword);
 
   const win = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
@@ -178,22 +179,31 @@ export const Profile = () => {
       return;
     }
 
-    if (!me.email && !newPassword) {
-      setFormErrors(["Debes establecer una contraseña para el nuevo email"]);
+    const emailChanged = email.trim() !== (me.email || "");
+    const needsNewPassword = !me.email || (!!me.email && !meHasPassword && emailChanged);
+    const needsCurrentPassword = !!me.email && meHasPassword;
+
+    if (needsNewPassword && !newPassword) {
+      setFormErrors(["Debes establecer una contraseña para cambiar el email"]);
       return;
     }
 
-    const newPasswordError = !me.email ? validateNewPassword() : "";
+    const newPasswordError = needsNewPassword ? validateNewPassword() : "";
     if (newPasswordError) {
       setFormErrors([newPasswordError]);
+      return;
+    }
+
+    if (needsCurrentPassword && !currentPassword) {
+      setFormErrors(["La contraseña actual es requerida"]);
       return;
     }
 
     updateProfile(
       {
         email: email.trim(),
-        password: !me.email ? newPassword.trim() : undefined,
-        currentPassword: me.email ? currentPassword.trim() : undefined,
+        password: needsNewPassword ? newPassword.trim() : undefined,
+        currentPassword: needsCurrentPassword ? currentPassword.trim() : undefined,
       },
       {
         onSuccess: () => {
@@ -228,10 +238,15 @@ export const Profile = () => {
       return;
     }
 
+    if (meHasPassword && !currentPassword) {
+      setFormErrors(["La contraseña actual es requerida"]);
+      return;
+    }
+
     updateProfile(
       {
         password: password.trim(),
-        currentPassword: currentPassword.trim(),
+        currentPassword: meHasPassword ? currentPassword.trim() : undefined,
       },
       {
         onSuccess: () => {
@@ -416,7 +431,10 @@ export const Profile = () => {
                                   onChange={(e) => setEmail(e.target.value)}
                                 />
                               </Stack>
-                              {!me.email && (
+                              {(!me.email ||
+                                (!!me.email &&
+                                  !meHasPassword &&
+                                  email.trim() !== (me.email || ""))) && (
                                 <>
                                   <TextField
                                     name="newPassword"
@@ -446,7 +464,7 @@ export const Profile = () => {
                                   />
                                 </>
                               )}
-                              {me.email && (
+                              {me.email && meHasPassword && (
                                 <TextField
                                   name="currentPassword"
                                   type="password"
@@ -464,10 +482,14 @@ export const Profile = () => {
                                 variant="contained"
                                 size="small"
                                 disabled={Boolean(
-                                  isPendingUpdateProfile ||
+                                    isPendingUpdateProfile ||
                                     !email ||
-                                    (!me.email && !!validateNewPassword()) ||
-                                    (me.email && !currentPassword)
+                                    ((!me.email ||
+                                      (!!me.email &&
+                                        !meHasPassword &&
+                                        email.trim() !== (me.email || ""))) &&
+                                      !!validateNewPassword()) ||
+                                    (me.email && meHasPassword && !currentPassword)
                                 )}
                                 sx={{ alignSelf: "flex-end", mt: 1 }}
                               >
@@ -479,7 +501,10 @@ export const Profile = () => {
                       )}
                       {me.email && !editPassword ? (
                         <ListItemButton onClick={() => setEditPassword(true)} divider>
-                          <ListItemText primary="Contraseña" secondary="••••••••" />
+                          <ListItemText
+                            primary="Contraseña"
+                            secondary={meHasPassword ? "••••••••" : "Agregar contraseña"}
+                          />
                           <ListItemSecondaryAction>
                             <VpnKey />
                           </ListItemSecondaryAction>
@@ -528,22 +553,28 @@ export const Profile = () => {
                                 disabled={isPendingUpdateProfile}
                                 onChange={(e) => setPassword2(e.target.value)}
                               />
-                              <TextField
-                                name="currentPassword"
-                                type="password"
-                                value={currentPassword}
-                                size="small"
-                                label="Contraseña Actual"
-                                fullWidth
-                                disabled={isPendingUpdateProfile}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                              />
+                              {meHasPassword ? (
+                                <TextField
+                                  name="currentPassword"
+                                  type="password"
+                                  value={currentPassword}
+                                  size="small"
+                                  label="Contraseña Actual"
+                                  fullWidth
+                                  disabled={isPendingUpdateProfile}
+                                  onChange={(e) => setCurrentPassword(e.target.value)}
+                                />
+                              ) : null}
                               <Button
                                 type="submit"
                                 color="success"
                                 variant="contained"
                                 size="large"
-                                disabled={isPendingUpdateProfile || !!validatePassword()}
+                                disabled={
+                                  isPendingUpdateProfile ||
+                                  !!validatePassword() ||
+                                  (meHasPassword && !currentPassword)
+                                }
                                 sx={{ flexShrink: 0 }}
                               >
                                 Guardar

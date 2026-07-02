@@ -16,7 +16,7 @@ import {
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
-import { ICardTheme, ITrucoshiContext } from "./types";
+import { ICardTheme, IRewardCodeRedeemOutcome, ITrucoshiContext } from "./types";
 import { CardDisplayMode } from "./cards/cardSkinResolver";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { useCards } from "./hooks/useCards";
@@ -522,6 +522,38 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     [account?.id, isConnected, socket, toast]
   );
 
+  const redeemRewardCode = (code: string, options?: { silent?: boolean }) =>
+    new Promise<IRewardCodeRedeemOutcome>((resolve) => {
+      if (!account?.id || !isConnected) {
+        resolve({ success: false });
+        return;
+      }
+
+      setTreasureLoading(true);
+      socket.emit(
+        EClientEvent.REDEEM_REWARD_CODE,
+        code,
+        ({ success, treasureStatus, error }) => {
+          setTreasureLoading(false);
+
+          if (success) {
+            setTreasureStatus(treasureStatus);
+            if (!options?.silent) {
+              toast.success("Cofre agregado al inventario");
+            }
+            resolve({ success: true });
+            return;
+          }
+
+          if (error) {
+            toast.error(error.message);
+          }
+
+          resolve({ success: false, errorCode: error?.code });
+        }
+      );
+    });
+
   useEffect(() => {
     if (account?.id && isConnected) {
       fetchInventory();
@@ -605,6 +637,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           fetchTreasureStatus,
           openTreasureChest,
           devGrantTreasureChest,
+          redeemRewardCode,
           setCardDisplayMode,
           setSidebarOpen,
           sendPing: () => sendPing(socket),

@@ -2,7 +2,7 @@ import { Box, Button, ButtonBase, CircularProgress, Stack, Typography } from "@m
 import { CheckCircle, Lock, Style } from "@mui/icons-material";
 import { MouseEvent, TouchEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { CARDS_HUMAN_READABLE, ICard } from "trucoshi";
+import { CARDS_HUMAN_READABLE, ICard, ITreasureOpenResult } from "trucoshi";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../../shared/PageContainer";
 import { GameCard } from "../card/GameCard";
@@ -14,6 +14,7 @@ import {
   IInventoryCardGroup,
 } from "../../trucoshi/cards/skinRegistry";
 import { TreasureChestPanel } from "../treasure/TreasureChestPanel";
+import { useSound } from "../../sound/hooks/useSound";
 
 type StackChoice = {
   key: string;
@@ -201,7 +202,7 @@ const InventoryCardStack = ({
     index: number;
     selector?: boolean;
   }) => {
-    const selectedUnlockedSkin = choice.selected && !choice.defaultChoice;
+    const selectedUnlockedChoice = choice.selected && choice.unlocked;
     const disabled = saving || !choice.unlocked;
     const choiceWidth = selector ? OPEN_CARD_WIDTH : CARD_WIDTH;
     const choiceId = choice.defaultChoice ? "default" : index;
@@ -268,12 +269,14 @@ const InventoryCardStack = ({
           width={choiceWidth}
           shadow={choice.selected || selector}
         />
-        {selectedUnlockedSkin ? (
+        {selectedUnlockedChoice ? (
           <CheckCircle
             color="success"
+            data-position="left"
+            data-testid={`inventory-${selector ? "selector" : "stack"}-selected-${card}-${choiceId}`}
             sx={{
               position: "absolute",
-              right: selector ? -12 : -10,
+              left: selector ? -12 : -10,
               bottom: selector ? -12 : -10,
               fontSize: selector
                 ? { xs: "1.5rem", sm: "1.65rem" }
@@ -500,6 +503,7 @@ const InventoryCardTile = ({
 
 export const InventoryPage = () => {
   const navigate = useNavigate();
+  const { queue } = useSound();
   const [
     {
       account,
@@ -542,10 +546,27 @@ export const InventoryPage = () => {
     return acc;
   }, {});
 
+  const handleOpenCard = (card: ICard) => {
+    queue("menu0");
+    setOpenCard(card);
+  };
+
+  const handleCloseCard = () => {
+    if (openCard) {
+      queue("back");
+    }
+    setOpenCard(null);
+  };
+
   const selectSkin = async (card: ICard, cardSkinId: CardSkinId | null) => {
+    queue("play0");
     setSavingCard(card);
     await setDeckCardSkin(card, cardSkinId);
     setSavingCard(null);
+  };
+
+  const equipReward = (cardSkin: NonNullable<ITreasureOpenResult["cardSkin"]>) => {
+    return setDeckCardSkin(cardSkin.card, cardSkin.id);
   };
 
   return (
@@ -558,7 +579,7 @@ export const InventoryPage = () => {
       <Box
         data-testid="inventory-hover-overlay"
         data-active={openCard ? "true" : "false"}
-        onClick={() => setOpenCard(null)}
+        onClick={handleCloseCard}
         sx={(theme) => ({
           position: "fixed",
           inset: 0,
@@ -583,7 +604,7 @@ export const InventoryPage = () => {
           data-testid="inventory-top-row"
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) minmax(26rem, 0.92fr)" },
+            gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) minmax(26rem, 0.92fr)" },
             alignItems: "stretch",
             gap: { xs: 2.2, sm: 2.55, lg: 2 },
           }}
@@ -654,7 +675,7 @@ export const InventoryPage = () => {
             opening={treasureOpening}
             onOpenChest={openTreasureChest}
             onDevGrantChest={devGrantTreasureChest}
-            onEquipReward={(cardSkin) => setDeckCardSkin(cardSkin.card, cardSkin.id)}
+            onEquipReward={equipReward}
           />
         </Box>
 
@@ -666,8 +687,12 @@ export const InventoryPage = () => {
               group={inventoryByCard[card]}
               open={openCard === card}
               saving={savingCard === card}
-              onOpen={() => setOpenCard(card)}
-              onClose={() => setOpenCard((current) => (current === card ? null : current))}
+              onOpen={() => handleOpenCard(card)}
+              onClose={() => {
+                if (openCard === card) {
+                  handleCloseCard();
+                }
+              }}
               onSelect={selectSkin}
               onInspect={inspectCard}
             />

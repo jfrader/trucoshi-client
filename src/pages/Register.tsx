@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
-import { useRegister } from "../api/hooks/useRegister";
+import { useMagicLinkRegister } from "../api/hooks/useMagicLinkRegister";
 import { useRegisterWithSeed } from "../api/hooks/useRegisterWithSeed";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { TwitterButton } from "../shared/TwitterButton";
@@ -28,15 +28,14 @@ export const Register = () => {
   const [{ account }] = useTrucoshi();
 
   const [hydrated, setHydrated] = useState(false);
-  const [registerType, setRegisterType] = useState<"seed" | "email">("seed");
+  const [registerType, setRegisterType] = useState<"email" | "seed">("email");
   const [name, setName] = useState(search.get("name") || "");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
   const [formErrors, setErrors] = useState<Error[]>([]);
   const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  const { register, isPending: isRegisterPending } = useRegister();
+  const { registerWithMagicLink, isPending: isRegisterPending } = useMagicLinkRegister();
   const { registerWithSeed, isPending: isSeedPending } = useRegisterWithSeed();
 
   useEffect(() => setHydrated(true), []);
@@ -47,15 +46,12 @@ export const Register = () => {
     }
   }, [account, navigate]);
 
-  const validateEmailPassword = () => {
-    if (!email || !password || !password2) {
-      return new Error("Email y ambas contraseñas son requeridas");
+  const validateEmailRegistration = () => {
+    if (!name) {
+      return new Error("El nombre es requerido");
     }
-    if (password !== password2) {
-      return new Error("Las contraseñas no coinciden");
-    }
-    if (password.length < 8) {
-      return new Error("La contraseña debe tener al menos 8 caracteres");
+    if (!email) {
+      return new Error("Email es requerido");
     }
     return null;
   };
@@ -63,6 +59,7 @@ export const Register = () => {
   const onSubmit = () => {
     setErrors([]);
     setSeedPhrase(null);
+    setMagicLinkSent(false);
     if (registerType === "seed") {
       if (!name) {
         setErrors([new Error("El nombre es requerido")]);
@@ -79,15 +76,15 @@ export const Register = () => {
         }
       );
     } else {
-      const error = validateEmailPassword();
+      const error = validateEmailRegistration();
       if (error) {
         setErrors([error]);
         return;
       }
-      register(
-        { name, email, password },
+      registerWithMagicLink(
+        { name: name.trim(), email: email.trim() },
         {
-          onSuccess: () => navigate("/"),
+          onSuccess: () => setMagicLinkSent(true),
           onError: (e) => setErrors([e]),
         }
       );
@@ -109,26 +106,17 @@ export const Register = () => {
     setEmail(event.target.value);
   };
 
-  const onChangePassword = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
-
-  const onChangePassword2 = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword2(event.target.value);
-  };
-
   const handleRegisterTypeChange = (
     _: React.MouseEvent<HTMLElement>,
-    newRegisterType: "seed" | "email"
+    newRegisterType: "email" | "seed"
   ) => {
     if (newRegisterType) {
       setRegisterType(newRegisterType);
       setErrors([]);
       setSeedPhrase(null);
+      setMagicLinkSent(false);
       setName(search.get("name") || "");
       setEmail("");
-      setPassword("");
-      setPassword2("");
     }
   };
 
@@ -153,8 +141,8 @@ export const Register = () => {
                   onChange={handleRegisterTypeChange}
                   fullWidth
                 >
-                  <ToggleButton value="seed">Frase de Semilla</ToggleButton>
                   <ToggleButton value="email">Email</ToggleButton>
+                  <ToggleButton value="seed">Frase de Semilla</ToggleButton>
                 </ToggleButtonGroup>
                 <TextField
                   name="name"
@@ -173,48 +161,20 @@ export const Register = () => {
                   error={!!name && name.length > 16}
                   helperText={name && name.length > 16 ? "Máximo 16 caracteres" : ""}
                 />
-                {registerType === "email" && (
-                  <>
-                    <TextField
-                      name="email"
-                      color="warning"
-                      label="Email"
-                      autoComplete="email"
-                      onChange={onChangeEmail}
-                      type="email"
-                      value={email}
-                      variant="outlined"
-                      error={!!email && email.length < 3}
-                      helperText={email && email.length < 3 ? "Email inválido" : ""}
-                    />
-                    <TextField
-                      name="password"
-                      color="warning"
-                      label="Contraseña"
-                      autoComplete="new-password"
-                      onChange={onChangePassword}
-                      type="password"
-                      value={password}
-                      variant="outlined"
-                      error={password !== password2 && password2 !== ""}
-                      helperText={
-                        password !== password2 && password2 !== ""
-                          ? "Las contraseñas no coinciden"
-                          : ""
-                      }
-                    />
-                    <TextField
-                      name="password2"
-                      color="warning"
-                      label="Repetir Contraseña"
-                      autoComplete="new-password"
-                      onChange={onChangePassword2}
-                      type="password"
-                      value={password2}
-                      variant="outlined"
-                    />
-                  </>
-                )}
+                {registerType === "email" ? (
+                  <TextField
+                    name="email"
+                    color="warning"
+                    label="Email"
+                    autoComplete="email"
+                    onChange={onChangeEmail}
+                    type="email"
+                    value={email}
+                    variant="outlined"
+                    error={!!email && email.length < 3}
+                    helperText={email && email.length < 3 ? "Email inválido" : ""}
+                  />
+                ) : null}
                 <LoadingButton
                   type="submit"
                   isLoading={isRegisterPending || isSeedPending}
@@ -224,6 +184,11 @@ export const Register = () => {
                 >
                   Registrarse
                 </LoadingButton>
+                {magicLinkSent ? (
+                  <Alert severity="success">
+                    Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
+                  </Alert>
+                ) : null}
                 {formErrors.filter(Boolean).map((error) => (
                   <Alert
                     key={error?.message}

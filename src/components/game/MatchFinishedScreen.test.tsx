@@ -59,7 +59,7 @@ vi.mock("./MatchPoints", () => ({
 }));
 
 vi.mock("../chat/ChatRoom", () => ({
-  ChatRoom: () => <div />,
+  ChatRoom: () => <div data-testid="finished-match-chat" />,
 }));
 
 vi.mock("../card/GameCard", () => ({
@@ -104,6 +104,10 @@ const buildFinishedMatch = (overrides: any = {}) => ({
   matchSessionId: "finished-match",
   previousHand: null,
   me: { teamIdx: 0 },
+  players: [
+    { key: "p1", name: "Player 1", bot: false },
+    { key: "p2", name: "Player 2", bot: false },
+  ],
   winner: {
     id: 0,
     players: [{ key: "p1", name: "Player 1" }],
@@ -134,12 +138,23 @@ describe("MatchFinishedScreen play again", () => {
     onPlayAgain.mockClear();
   });
 
-  it("starts the original queue again for queue-created matches", () => {
+  it("starts the original queue again without showing treasure progress for bot queue matches", () => {
     const queueOptions = { maxPlayers: 0, allowBots: true };
-    renderFinishedScreen(buildFinishedMatch({ createdFromQueue: true, queueOptions }));
+    renderFinishedScreen(
+      buildFinishedMatch({
+        createdFromQueue: true,
+        queueOptions,
+        players: [
+          { key: "p1", name: "Player 1", bot: false },
+          { key: "p2", name: "Holdbot", bot: true },
+        ],
+      })
+    );
 
     expect(setQueueReplayOptions).toHaveBeenCalledWith(queueOptions);
-    expect(fetchTreasureStatus).toHaveBeenCalled();
+    expect(fetchTreasureStatus).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("treasure-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("finished-match-chat")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
 
@@ -153,9 +168,24 @@ describe("MatchFinishedScreen play again", () => {
     const queueOptions = { maxPlayers: 2, allowBots: false };
     renderFinishedScreen(buildFinishedMatch({ createdFromQueue: true, queueOptions }));
 
+    expect(fetchTreasureStatus).toHaveBeenCalled();
+    expect(screen.getByTestId("finished-match-chat")).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
 
     expect(openTreasureChest).toHaveBeenCalledWith(7);
+  });
+
+  it("can dismiss finished-match treasure progress to reveal chat", () => {
+    const queueOptions = { maxPlayers: 2, allowBots: false };
+    renderFinishedScreen(buildFinishedMatch({ createdFromQueue: true, queueOptions }));
+
+    expect(screen.getByTestId("treasure-panel")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /ocultar progreso de cofre/i }));
+
+    expect(screen.queryByTestId("treasure-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("finished-match-chat")).toBeInTheDocument();
   });
 
   it("keeps custom play again behavior for custom matches", () => {

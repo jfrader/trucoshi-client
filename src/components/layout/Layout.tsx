@@ -18,6 +18,7 @@ import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { Sidebar } from "./Sidebar";
 import { useTheme } from "@mui/material";
+import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -55,7 +56,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [{ inspectedCard, cardsReady, dark }, { inspectCard }] = useTrucoshi();
+  const [{ inspectedCard, cardsReady, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
 
   const versionCheck = useQuery({
     queryKey: ["app-version-check"],
@@ -93,7 +94,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
     >
       <CssBaseline />
       {!isGameSurface ? <Topbar /> : null}
-      {isGameSurface ? (
+      {isGameSurface && !isSidebarOpen ? (
         <Box
           sx={(theme) => ({
             position: "fixed",
@@ -106,6 +107,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         </Box>
       ) : null}
       <Sidebar topOffset={isGameSurface ? "0px" : "50px"} showEmbeddedTopbar={isGameSurface} />
+      <RewardCodeHandler />
       <main style={{ position: "relative" }}>
         <Paper
           className="App"

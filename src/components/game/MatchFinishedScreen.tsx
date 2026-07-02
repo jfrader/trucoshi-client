@@ -9,7 +9,7 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMe } from "../../api/hooks/useMe";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -37,6 +37,10 @@ export const MatchFinishedScreen = ({
   const { joinQueue } = useMatchQueue();
 
   const { refetch: refetchMe } = useMe();
+  const [treasurePanelDismissed, setTreasurePanelDismissed] = useState(false);
+  const hasBotPlayer = match.players?.some((player) => player.bot) || false;
+  const showTreasurePanel =
+    Boolean(match.createdFromQueue && match.me) && !hasBotPlayer && !treasurePanelDismissed;
 
   const iAmWinner = useMemo(
     () => match.me?.teamIdx === match.winner?.id || !match.me,
@@ -56,10 +60,10 @@ export const MatchFinishedScreen = ({
   }, [match.createdFromQueue, match.queueOptions, setQueueReplayOptions]);
 
   useEffect(() => {
-    if (match.createdFromQueue && match.me) {
+    if (showTreasurePanel) {
       fetchTreasureStatus();
     }
-  }, [fetchTreasureStatus, match.createdFromQueue, match.me]);
+  }, [fetchTreasureStatus, showTreasurePanel]);
 
   const onExit = (fn: () => void) => () => {
     socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
@@ -161,7 +165,7 @@ export const MatchFinishedScreen = ({
             Jugar de nuevo!
           </Button>
         </Actions>
-        {match.createdFromQueue && match.me ? (
+        {showTreasurePanel ? (
           <TreasureChestPanel
             status={treasureStatus}
             result={treasureResult}
@@ -169,6 +173,8 @@ export const MatchFinishedScreen = ({
             opening={treasureOpening}
             onOpenChest={openTreasureChest}
             onDevGrantChest={devGrantTreasureChest}
+            fillHeight={false}
+            onDismiss={() => setTreasurePanelDismissed(true)}
           />
         ) : null}
         <Box flex={1} minHeight={0} mb={2} overflow="hidden" position="relative" width="100%">

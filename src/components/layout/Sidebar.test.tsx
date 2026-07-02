@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   setSidebarOpen: vi.fn(),
   state: {
     isSidebarOpen: false,
-    account: { id: 1, name: "Player 0" },
+    account: { id: 1, name: "Player 0", role: "USER" },
     activeMatches: [],
   },
 }));
@@ -55,7 +55,7 @@ describe("Sidebar", () => {
     mocks.logout.mockClear();
     mocks.setSidebarOpen.mockClear();
     mocks.state.isSidebarOpen = false;
-    mocks.state.account = { id: 1, name: "Player 0" };
+    mocks.state.account = { id: 1, name: "Player 0", role: "USER" };
     mocks.state.activeMatches = [];
   });
 
@@ -71,6 +71,9 @@ describe("Sidebar", () => {
     renderSidebar();
 
     expect(screen.getByTestId("sidebar-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-backdrop")).toHaveStyle({ zIndex: "1201" });
+    expect(screen.getByTestId("sidebar-panel")).toHaveStyle({ zIndex: "1202" });
+
     fireEvent.click(screen.getByTestId("sidebar-backdrop"));
 
     expect(mocks.setSidebarOpen).toHaveBeenCalledWith(false);
@@ -83,5 +86,14 @@ describe("Sidebar", () => {
     expect(screen.getByTestId("sidebar-scroll-area")).toHaveTextContent("Play menu");
     expect(screen.getByTestId("sidebar-bottom-actions")).toHaveTextContent("Inventario");
     expect(screen.getByTestId("sidebar-bottom-actions")).toHaveTextContent("Cerrar Sesion");
+    expect(screen.getByTestId("sidebar-bottom-actions")).not.toHaveTextContent("Admin");
+  });
+
+  it("shows the admin action for admin accounts", () => {
+    mocks.state.isSidebarOpen = true;
+    mocks.state.account = { id: 1, name: "Admin", role: "ADMIN" };
+    renderSidebar();
+
+    expect(screen.getByTestId("sidebar-bottom-actions")).toHaveTextContent("Admin");
   });
 });

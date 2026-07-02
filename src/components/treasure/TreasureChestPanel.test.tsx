@@ -1,7 +1,17 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { ITreasureOpenResult, ITreasureStatus } from "trucoshi";
 import { renderWithTheme } from "../../test/renderWithTheme";
-import { TreasureChestPanel } from "./TreasureChestPanel";
+import { TreasureChestPanel, TreasureOpeningOverlay } from "./TreasureChestPanel";
+
+const soundMocks = vi.hoisted(() => ({
+  queue: vi.fn(),
+}));
+
+vi.mock("../../sound/hooks/useSound", () => ({
+  useSound: () => ({
+    queue: soundMocks.queue,
+  }),
+}));
 
 vi.mock("../card/GameCard", () => ({
   GameCard: ({ card, cardSkinId, displayMode, width }: any) => (
@@ -91,6 +101,10 @@ const finishChestAnimation = () => {
 };
 
 describe("TreasureChestPanel", () => {
+  beforeEach(() => {
+    soundMocks.queue.mockClear();
+  });
+
   afterEach(() => {
     vi.useRealTimers();
     document.body.style.overflow = "";
@@ -144,6 +158,7 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /equipar/i }));
 
     expect(onEquipReward).toHaveBeenCalledWith(skinResult.cardSkin);
+    expect(soundMocks.queue).toHaveBeenCalledWith("play0");
 
     await waitFor(() => {
       expect(screen.getByTestId("treasure-last-result")).not.toHaveTextContent("Repetida");
@@ -199,6 +214,8 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
 
     expect(onOpenChest).toHaveBeenCalledWith(11);
+    expect(soundMocks.queue).toHaveBeenCalledWith("menu1");
+    expect(soundMocks.queue).toHaveBeenCalledWith("shuffle");
     expect(screen.getByTestId("treasure-opening-overlay")).toBeInTheDocument();
     expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "0");
     expect(document.body.style.overflow).toBe("hidden");
@@ -214,7 +231,75 @@ describe("TreasureChestPanel", () => {
     expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "7");
   });
 
-  it("shows an inspect-scale face-down reward card emerging from the chest, then flips to inspect the skin", () => {
+  it("renders the promo overlay idle without advancing chest frames before the open click", () => {
+    vi.useFakeTimers();
+    const onStartOpen = vi.fn();
+
+    renderWithTheme(
+      <TreasureOpeningOverlay
+        open
+        opening={false}
+        result={null}
+        chestId={11}
+        started={false}
+        onStartOpen={onStartOpen}
+        onClose={vi.fn()}
+      />
+    );
+
+    expect(screen.getByTestId("treasure-opening-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "0");
+    expect(screen.getByRole("button", { name: /abrir cofre/i })).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(950);
+    });
+
+    expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "0");
+    expect(onStartOpen).not.toHaveBeenCalled();
+  });
+
+  it("starts the promo overlay animation after the chest button is clicked", () => {
+    vi.useFakeTimers();
+    const onStartOpen = vi.fn();
+    const { rerender } = renderWithTheme(
+      <TreasureOpeningOverlay
+        open
+        opening={false}
+        result={null}
+        chestId={11}
+        started={false}
+        onStartOpen={onStartOpen}
+        onClose={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
+
+    expect(onStartOpen).toHaveBeenCalled();
+    expect(soundMocks.queue).toHaveBeenCalledWith("menu1");
+
+    rerender(
+      <TreasureOpeningOverlay
+        open
+        opening
+        result={null}
+        chestId={11}
+        started
+        onStartOpen={onStartOpen}
+        onClose={vi.fn()}
+      />
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(180);
+    });
+
+    expect(soundMocks.queue).toHaveBeenCalledWith("shuffle");
+    expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "1");
+  });
+
+  it("shows an inspect-scale face-down reward card emerging from the chest, then flips automatically", () => {
     vi.useFakeTimers();
     const onOpenChest = vi.fn();
     const { rerender } = renderPanel({ onOpenChest });
@@ -235,19 +320,18 @@ describe("TreasureChestPanel", () => {
       vi.advanceTimersByTime(950);
     });
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("notification");
     let rewardPanel = screen.getByTestId("treasure-reward");
     let rewardCard = within(rewardPanel).getByTestId("treasure-reward-card");
     expect(rewardPanel).toHaveAttribute("data-emerged", "false");
     expect(rewardCard).toHaveAttribute("data-reveal-ready", "false");
     expect(rewardCard).toHaveAttribute("data-card-scale", "inspect");
 
-    fireEvent.click(rewardCard);
-    expect(rewardCard).toHaveAttribute("data-flipped", "false");
-
     act(() => {
       vi.advanceTimersByTime(100);
     });
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("winner");
     rewardPanel = screen.getByTestId("treasure-reward");
     rewardCard = within(rewardPanel).getByTestId("treasure-reward-card");
     expect(rewardPanel).toHaveAttribute("data-emerged", "true");
@@ -274,7 +358,15 @@ describe("TreasureChestPanel", () => {
     );
     expect(within(rewardCard).queryByRole("button", { name: /listo/i })).not.toBeInTheDocument();
 
-    fireEvent.click(rewardCard);
+    act(() => {
+      vi.advanceTimersByTime(999);
+    });
+
+    expect(rewardCard).toHaveAttribute("data-flipped", "false");
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
 
     expect(rewardCard).toHaveAttribute("data-flipped", "true");
     expect(screen.getByTestId("treasure-done-button")).toBeInTheDocument();
@@ -311,6 +403,8 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
     finishChestAnimation();
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("flawless");
+    expect(soundMocks.queue).not.toHaveBeenCalledWith("winner");
     expect(screen.getByTestId("treasure-reward")).toHaveTextContent("Repetida");
     expect(within(screen.getByTestId("treasure-reward-card")).getByTestId("game-card-1e")).toHaveAttribute(
       "data-card-skin-id",
@@ -333,6 +427,7 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
     finishChestAnimation();
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("back");
     expect(screen.getByTestId("treasure-empty-reward")).toHaveTextContent("Sin premio");
     expect(screen.getByTestId("treasure-empty-reward")).toHaveTextContent(
       "No hubo una skin disponible"

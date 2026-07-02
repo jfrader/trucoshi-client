@@ -37,7 +37,7 @@ import {
   IPublicMatch,
   IPublicPlayer,
 } from "trucoshi";
-import { getTeamColor, getTeamName } from "../../utils/team";
+import { getTeamColor, getTeamDisplayNameForPlayers } from "../../utils/team";
 import { bounce } from "../../assets/animations/bounce";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
@@ -120,11 +120,12 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
     () => ({
       useChatState,
       players: match?.players,
+      maxPlayers: match?.options.maxPlayers,
       active,
       setActive,
       latestMessage,
     }),
-    [active, latestMessage, match?.players, useChatState]
+    [active, latestMessage, match?.options.maxPlayers, match?.players, useChatState]
   );
 };
 
@@ -149,6 +150,7 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
 
 export const ChatRoom = ({
   players,
+  maxPlayers,
   useChatState,
   active,
   setActive,
@@ -220,7 +222,7 @@ export const ChatRoom = ({
         textAlign="left"
         flexDirection="column"
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer,
+          zIndex: (theme) => theme.zIndex.appBar,
           overflow: "hidden",
         }}
         {...boxProps}
@@ -245,6 +247,7 @@ export const ChatRoom = ({
               key={message.id}
               message={message}
               players={stablePlayers}
+              maxPlayers={maxPlayers}
               hideAuthor={hideAuthor}
             />
           ))}
@@ -298,15 +301,20 @@ export const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => 
 export const MessageAuthor = ({
   message,
   players = [],
+  maxPlayers,
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
+  maxPlayers?: IPublicMatch["options"]["maxPlayers"];
 }) => {
   const color = authorColor(message, players);
+  const teamIdx = Number(message.user.key) as 0 | 1;
 
   return (
     <Typography color={color} display="inline" variant="inherit">
-      {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.name + ": "}
+      {message.command
+        ? `${getTeamDisplayNameForPlayers(players, teamIdx, maxPlayers === 2)} `
+        : message.user.name + ": "}
     </Typography>
   );
 };
@@ -341,6 +349,7 @@ export const ChatMessage = ({
   message,
   children,
   players = [],
+  maxPlayers,
   animate = false,
   hideAuthor = false,
   Component = Slide,
@@ -349,6 +358,7 @@ export const ChatMessage = ({
   {
     message: IChatMessage;
     players?: Array<IPublicPlayer>;
+    maxPlayers?: IPublicMatch["options"]["maxPlayers"];
     animate?: boolean;
     hideAuthor?: boolean | null;
     Component?: FC<SlideProps | FadeProps>;
@@ -366,7 +376,7 @@ export const ChatMessage = ({
         {!hideAuthor && getAvatar(message, players)}
         <ListItemText sx={{ textAlign: "inherit" }}>
           {hideAuthor || message.system ? null : (
-            <MessageAuthor message={message} players={players} />
+            <MessageAuthor message={message} players={players} maxPlayers={maxPlayers} />
           )}
           <Typography
             color={messageColor(message, players)}
@@ -388,6 +398,7 @@ const MemoizedChatMessage = memo(
     prev.message.id === next.message.id &&
     prev.animate === next.animate &&
     prev.hideAuthor === next.hideAuthor &&
+    prev.maxPlayers === next.maxPlayers &&
     prev.players === next.players,
 );
 

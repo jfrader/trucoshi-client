@@ -15,6 +15,7 @@ import { Register } from "./pages/Register";
 import { ResetPassword } from "./pages/ResetPassword";
 import { VerifyEmail } from "./pages/VerifyEmail";
 import { ForgotPassword } from "./pages/ForgotPassword";
+import { MagicLink } from "./pages/MagicLink";
 import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
 import { SnackbarProvider } from "notistack";
@@ -23,6 +24,7 @@ import { PageLayout } from "./components/layout/PageLayout";
 import { PlayerRanking } from "./pages/PlayerRanking";
 import CustomSnackbar from "./shared/CustomSnackbar";
 import { InventoryPage } from "./components/inventory/InventoryPage";
+import { Admin } from "./pages/Admin";
 
 const AppRouter = createBrowserRouter([
   {
@@ -64,6 +66,10 @@ const AppRouter = createBrowserRouter([
             element: <VerifyEmail />,
           },
           {
+            path: "magic-link",
+            element: <MagicLink />,
+          },
+          {
             path: "matches",
             element: <SearchMatches />,
           },
@@ -86,6 +92,10 @@ const AppRouter = createBrowserRouter([
           {
             path: "inventory",
             element: <InventoryPage />,
+          },
+          {
+            path: "admin",
+            element: <Admin />,
           },
           {
             path: "history/:matchId",

@@ -10,10 +10,11 @@ import {
 } from "@mui/material";
 import { AutoAwesome, Close, EmojiEvents, Inventory2 } from "@mui/icons-material";
 import { BURNT_CARD, CARDS_HUMAN_READABLE, ITreasureOpenResult, ITreasureStatus } from "trucoshi";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GameCard } from "../card/GameCard";
 import chestSprite from "../../assets/treasure/chest-opening-spritesheet.png";
+import { useSound } from "../../sound/hooks/useSound";
 
 const rarityLabel: Record<string, string> = {
   COMMON: "Comun",
@@ -28,6 +29,7 @@ const CHEST_FRAME_PAUSE_MS = 180;
 const CHEST_FRAME_STEP_MS = 110;
 const CHEST_ANIMATION_MS = CHEST_FRAME_PAUSE_MS + CHEST_FRAME_STEP_MS * (CHEST_FRAME_COUNT - 1);
 const REWARD_RISE_MS = 520;
+const REWARD_AUTO_REVEAL_MS = 1000;
 const REWARD_CARD_WIDTH = "var(--treasure-reward-card-width)";
 
 type TreasureOpenHandler = (chestId: number) => Promise<boolean> | boolean | void;
@@ -58,6 +60,14 @@ const getResultDismissKey = (result: ITreasureOpenResult) =>
   `${result.chestId}:${result.cardSkin?.id || "empty"}:${result.granted ? "granted" : "not-granted"}:${
     result.duplicate ? "duplicate" : "unique"
   }`;
+
+const getRewardSound = (result: ITreasureOpenResult) => {
+  if (!result.cardSkin) {
+    return "back";
+  }
+
+  return result.duplicate ? "ceba_toma_mate" : "winner";
+};
 
 const TreasureRarityBadge = ({
   rarity,
@@ -283,26 +293,38 @@ const TreasureRewardCard = ({
   </ButtonBase>
 );
 
-const TreasureOpeningOverlay = ({
+export const TreasureOpeningOverlay = ({
   open,
   opening,
   result,
   chestId,
   onClose,
+  started = true,
+  onStartOpen,
 }: {
   open: boolean;
   opening: boolean;
   result: ITreasureOpenResult | null;
   chestId: number | null;
   onClose: () => void;
+  started?: boolean;
+  onStartOpen?: () => void;
 }) => {
+  const { queue } = useSound();
   const [frame, setFrame] = useState(0);
   const [chestOpen, setChestOpen] = useState(false);
   const [rewardPresented, setRewardPresented] = useState(false);
   const [rewardRevealed, setRewardRevealed] = useState(false);
+  const chestOpenSoundKey = useRef<string | null>(null);
+  const rewardSoundKey = useRef<string | null>(null);
+  const queueRef = useRef(queue);
   const sceneResult = result && result.chestId === chestId ? result : null;
-  const canShowReward = Boolean(sceneResult && chestOpen);
-  const showClose = Boolean(sceneResult || (!opening && !sceneResult));
+  const canShowReward = Boolean(started && sceneResult && chestOpen);
+  const showClose = Boolean(!started || sceneResult || (!opening && !sceneResult));
+
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
 
   useEffect(() => {
     if (!open) {
@@ -318,7 +340,11 @@ const TreasureOpeningOverlay = ({
   }, [open]);
 
   useEffect(() => {
-    if (!open) {
+    if (!open || !started) {
+      setFrame(0);
+      setChestOpen(false);
+      setRewardPresented(false);
+      setRewardRevealed(false);
       return;
     }
 
@@ -326,6 +352,8 @@ const TreasureOpeningOverlay = ({
     setChestOpen(false);
     setRewardPresented(false);
     setRewardRevealed(false);
+    chestOpenSoundKey.current = null;
+    rewardSoundKey.current = null;
 
     const timers = Array.from({ length: CHEST_FRAME_COUNT - 1 }, (_, index) =>
       window.setTimeout(
@@ -343,11 +371,17 @@ const TreasureOpeningOverlay = ({
     return () => {
       timers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, [open, chestId]);
+  }, [open, started, chestId]);
 
   useEffect(() => {
     if (!open || !canShowReward) {
       return;
+    }
+
+    const soundKey = `${sceneResult?.chestId}:${sceneResult?.cardSkin?.id || "empty"}`;
+    if (chestOpenSoundKey.current !== soundKey) {
+      chestOpenSoundKey.current = soundKey;
+      queueRef.current("play");
     }
 
     setRewardPresented(false);
@@ -362,9 +396,42 @@ const TreasureOpeningOverlay = ({
     };
   }, [canShowReward, open, sceneResult?.chestId, sceneResult?.cardSkin?.id]);
 
+  useEffect(() => {
+    if (!open || !rewardPresented || !sceneResult) {
+      return;
+    }
+
+    const soundKey = `${sceneResult.chestId}:${sceneResult.cardSkin?.id || "empty"}`;
+    if (rewardSoundKey.current === soundKey) {
+      return;
+    }
+
+    rewardSoundKey.current = soundKey;
+    queueRef.current(getRewardSound(sceneResult));
+  }, [open, rewardPresented, sceneResult]);
+
+  useEffect(() => {
+    if (!open || !rewardPresented || rewardRevealed || !sceneResult?.cardSkin) {
+      return;
+    }
+
+    const revealTimer = window.setTimeout(() => {
+      setRewardRevealed(true);
+    }, REWARD_AUTO_REVEAL_MS);
+
+    return () => {
+      window.clearTimeout(revealTimer);
+    };
+  }, [open, rewardPresented, rewardRevealed, sceneResult?.cardSkin]);
+
   if (!open || typeof document === "undefined") {
     return null;
   }
+
+  const handleStartOpen = () => {
+    queue("menu0");
+    onStartOpen?.();
+  };
 
   return createPortal(
     <Box
@@ -424,13 +491,13 @@ const TreasureOpeningOverlay = ({
           sx={(theme) => ({
             position: "absolute",
             left: "50%",
-            top: { xs: "8%", sm: "6%" },
+            top: !started ? "42%" : { xs: "8%", sm: "6%" },
             width: "min(92vw, 38rem)",
             aspectRatio: "1 / 1",
             background: theme.trucoshiUi.treasure.stageGlow,
             filter: "blur(12px)",
             opacity: canShowReward ? 0.7 : 0.86,
-            transform: "translate(-50%, 0)",
+            transform: !started ? "translate(-50%, -50%)" : "translate(-50%, 0)",
             pointerEvents: "none",
           })}
         />
@@ -441,19 +508,33 @@ const TreasureOpeningOverlay = ({
           sx={{
             position: "absolute",
             left: "50%",
-            top: { xs: "-0.6rem", sm: "-0.8rem" },
-            transform: canShowReward
-              ? "translateX(-50%) translateY(-5%) scale(0.74)"
-              : "translateX(-50%)",
+            top: !started ? "37%" : { xs: "-0.6rem", sm: "-0.8rem" },
+            transform: !started
+              ? "translate(-50%, -50%)"
+              : canShowReward
+                ? "translateX(-50%) translateY(-5%) scale(0.74)"
+                : "translateX(-50%)",
             opacity: canShowReward ? 0.82 : 1,
             zIndex: 4,
             transition: "opacity 260ms ease, transform 420ms cubic-bezier(.19,1,.22,1)",
             animation:
               frame < 2 && !chestOpen ? "treasureChestAnticipation 300ms ease-in-out 1" : "none",
             "@keyframes treasureChestAnticipation": {
-              "0%, 100%": { transform: "translateX(-50%) rotate(0deg)" },
-              "30%": { transform: "translateX(-50%) rotate(-2deg)" },
-              "65%": { transform: "translateX(-50%) rotate(2deg)" },
+              "0%, 100%": {
+                transform: !started
+                  ? "translate(-50%, -50%) rotate(0deg)"
+                  : "translateX(-50%) rotate(0deg)",
+              },
+              "30%": {
+                transform: !started
+                  ? "translate(-50%, -50%) rotate(-2deg)"
+                  : "translateX(-50%) rotate(-2deg)",
+              },
+              "65%": {
+                transform: !started
+                  ? "translate(-50%, -50%) rotate(2deg)"
+                  : "translateX(-50%) rotate(2deg)",
+              },
             },
           }}
         >
@@ -481,7 +562,36 @@ const TreasureOpeningOverlay = ({
           }}
         />
 
-        {canShowReward && sceneResult ? (
+        {!started ? (
+          <Stack
+            alignItems="center"
+            gap={1.25}
+            sx={{
+              position: "absolute",
+              left: "50%",
+              bottom: { xs: "4.25rem", sm: "4.75rem" },
+              transform: "translateX(-50%)",
+              zIndex: 5,
+              width: "min(86vw, 18rem)",
+            }}
+          >
+            <Button
+              color="warning"
+              data-testid="start-treasure-opening"
+              disabled={opening}
+              onClick={handleStartOpen}
+              size="large"
+              startIcon={
+                opening ? <CircularProgress size={17} color="inherit" /> : <EmojiEvents />
+              }
+              sx={(theme) => theme.trucoshiUi.treasure.actionButton}
+              variant="contained"
+              fullWidth
+            >
+              Abrir cofre
+            </Button>
+          </Stack>
+        ) : canShowReward && sceneResult ? (
           sceneResult.cardSkin ? (
             <Stack
               data-emerged={rewardPresented ? "true" : "false"}
@@ -593,6 +703,8 @@ export const TreasureChestPanel = ({
   onOpenChest,
   onDevGrantChest,
   onEquipReward,
+  fillHeight = true,
+  onDismiss,
 }: {
   status: ITreasureStatus;
   result: ITreasureOpenResult | null;
@@ -601,7 +713,10 @@ export const TreasureChestPanel = ({
   onOpenChest: TreasureOpenHandler;
   onDevGrantChest?: TreasureDevGrantHandler;
   onEquipReward?: TreasureEquipRewardHandler;
+  fillHeight?: boolean;
+  onDismiss?: () => void;
 }) => {
+  const { queue } = useSound();
   const nextChest = status.unopenedChests[0];
   const hasChest = Boolean(nextChest);
   const progress = Math.min(status.progress, status.threshold);
@@ -620,6 +735,7 @@ export const TreasureChestPanel = ({
 
     setActiveChestId(nextChest.id);
     setOverlayOpen(true);
+    queue("shuffle");
 
     try {
       const opened = await onOpenChest(nextChest.id);
@@ -646,6 +762,7 @@ export const TreasureChestPanel = ({
     }
 
     setEquipLoading(true);
+    queue("play0");
 
     try {
       const equipped = await onEquipReward(result.cardSkin);
@@ -675,11 +792,38 @@ export const TreasureChestPanel = ({
           ...theme.trucoshiUi.inventory.surfaceFrame,
           position: "relative",
           overflow: "hidden",
-          height: "100%",
+          height: fillHeight ? "100%" : "auto",
           p: { xs: 1.45, sm: 1.7 },
+          pr: onDismiss ? { xs: 5.3, sm: 5.7 } : undefined,
           background: theme.trucoshiUi.treasure.panelSurface,
         })}
       >
+        {onDismiss ? (
+          <IconButton
+            aria-label="Ocultar progreso de cofre"
+            data-testid="dismiss-treasure-panel"
+            onClick={onDismiss}
+            size="small"
+            sx={{
+              position: "absolute",
+              top: { xs: 7, sm: 9 },
+              right: { xs: 7, sm: 9 },
+              width: 30,
+              height: 30,
+              borderRadius: "0.45rem",
+              color: "text.secondary",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              zIndex: 2,
+              "&:hover": {
+                background: "rgba(255,255,255,0.11)",
+                color: "text.primary",
+              },
+            }}
+          >
+            <Close sx={{ fontSize: "1rem" }} />
+          </IconButton>
+        ) : null}
         <Stack data-testid="treasure-dock" gap={{ xs: 1.05, sm: 1.25 }}>
           <Box
             data-testid="treasure-progress-row"

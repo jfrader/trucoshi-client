@@ -3,6 +3,8 @@ import {
   ClientToServerEvents,
   ECommand,
   EMatchState,
+  GAME_ERROR,
+  IAdminDashboard,
   ICard,
   IJoinQueueOptions,
   ILobbyOptions,
@@ -78,6 +80,10 @@ export interface ITrucoshiActions {
   fetchTreasureStatus(): void;
   openTreasureChest(chestId: number): Promise<boolean>;
   devGrantTreasureChest(): Promise<boolean>;
+  redeemRewardCode(
+    code: string,
+    options?: IRewardCodeRedeemOptions
+  ): Promise<IRewardCodeRedeemOutcome>;
   setCardDisplayMode(mode: CardDisplayMode): void;
   inspectCard: Dispatch<SetStateAction<ICard | null>>;
   refetchMe: (
@@ -133,3 +139,14 @@ export const CardThemes = ["default", "argento", "trucoshi", "gnu", "criollo", "
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
 
 export type IWaitingPlayResolveFn = ((data: IWaitingPlayData) => void) | null;
+
+export interface IRewardCodeRedeemOutcome {
+  success: boolean;
+  errorCode?: GAME_ERROR | string;
+}
+
+export interface IRewardCodeRedeemOptions {
+  silent?: boolean;
+}
+
+export type { IAdminDashboard };

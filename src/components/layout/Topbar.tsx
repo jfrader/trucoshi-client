@@ -62,9 +62,7 @@ export const Topbar = ({
               <>
                 <Link to="/" lineHeight={4}>
                   <Typography height="26px" variant="h6">
-                    <Box display={{ xs: "none", md: "inline-block" }}>
                       <TrucoshiText height="26px" />
-                    </Box>
                   </Typography>
                 </Link>
                 <Switch

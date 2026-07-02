@@ -21,7 +21,6 @@ import GamepadIcon from "@mui/icons-material/Gamepad";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
-import { useToast } from "../../hooks/useToast";
 
 const formatElapsedTime = (milliseconds: number) => {
   const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
@@ -53,11 +52,10 @@ export const PlayMenu = ({
   ...props
 }: BoxProps & { eyebrow?: boolean; onMenuClick?: (e: SyntheticEvent) => void }) => {
   const navigate = useNavigate();
-  const toast = useToast();
   const [{ account, stats, activeMatches, queueReplayOptions, serverAheadTime }] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
   const [maxPlayers, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
-  const [playWithBots, setPlayWithBots] = useState(true);
+  const [playWithBots, setPlayWithBots] = useState(false);
   const [now, setNow] = useState(Date.now());
   const queuedMatch = activeMatches.find((match) => match.createdFromQueue);
 
@@ -103,7 +101,6 @@ export const PlayMenu = ({
     : "Buscando rivales";
   const handlePlayClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (queuedMatch && !isQueueing) {
-      toast.info("Ya estás en una partida");
       onMenuClick?.(event);
       navigate(`/match/${queuedMatch.matchSessionId}`);
       return;
@@ -136,71 +133,43 @@ export const PlayMenu = ({
       ) : null}
       <FormGroup>
         <Stack gap={1.25} p={2} mb={2}>
-          <ToggleButtonGroup
-            exclusive
-            fullWidth
-            color="warning"
-            disabled={isQueueing}
-            value={maxPlayers}
-            onChange={(_, value: MatchQueuePlayerCount | null) => {
-              if (value !== null) {
-                setMaxPlayers(value);
-              }
-            }}
-            sx={(theme) => ({
-              gap: 0.75,
-              "& .MuiToggleButtonGroup-grouped": {
-                ...theme.trucoshiUi.queue.segment,
-                borderRadius: "0.55rem !important",
-                minHeight: "2.5rem",
-                fontWeight: 800,
-              },
-              "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
-            })}
-          >
-            <ToggleButton size="small" value={0}>
-              Todo
-            </ToggleButton>
-            <ToggleButton size="small" value={2}>
-              1v1
-            </ToggleButton>
-            <ToggleButton size="small" value={4}>
-              2v2
-            </ToggleButton>
-            <ToggleButton size="small" value={6}>
-              3v3
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-            <FormControlLabel
-              sx={{ m: 0, minWidth: 0 }}
-              control={
-                <Checkbox
-                  color="warning"
-                  checked={playWithBots}
-                  disabled={isQueueing}
-                  onChange={(event) => setPlayWithBots(event.target.checked)}
-                />
-              }
-              label={
-                <Typography variant="body2" color="text.secondary" noWrap>
-                  Jugar con Bots
-                </Typography>
-              }
-            />
-            <Typography
-              display="flex"
-              alignItems="center"
-              gap={0.5}
-              variant="caption"
-              color="text.disabled"
-              textTransform="uppercase"
-              noWrap
+          {queuedMatch ? null : (
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              color="warning"
+              disabled={isQueueing}
+              value={maxPlayers}
+              onChange={(_, value: MatchQueuePlayerCount | null) => {
+                if (value !== null) {
+                  setMaxPlayers(value);
+                }
+              }}
+              sx={(theme) => ({
+                gap: 0.75,
+                "& .MuiToggleButtonGroup-grouped": {
+                  ...theme.trucoshiUi.queue.segment,
+                  borderRadius: "0.55rem !important",
+                  minHeight: "2.5rem",
+                  fontWeight: 800,
+                },
+                "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
+              })}
             >
-              <GroupsIcon fontSize="inherit" />
-              {maxPlayers || "Todo"}
-            </Typography>
-          </Stack>
+              <ToggleButton size="small" value={0}>
+                Todo
+              </ToggleButton>
+              <ToggleButton size="small" value={2}>
+                1v1
+              </ToggleButton>
+              <ToggleButton size="small" value={4}>
+                2v2
+              </ToggleButton>
+              <ToggleButton size="small" value={6}>
+                3v3
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
           <Stack direction="row" gap={1} alignItems="center">
             <Button
               fullWidth
@@ -234,6 +203,38 @@ export const PlayMenu = ({
               </Tooltip>
             ) : null}
           </Stack>
+          {queuedMatch ? null : (
+            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
+              <FormControlLabel
+                sx={{ m: 0, minWidth: 0 }}
+                control={
+                  <Checkbox
+                    color="warning"
+                    checked={playWithBots}
+                    disabled={isQueueing}
+                    onChange={(event) => setPlayWithBots(event.target.checked)}
+                  />
+                }
+                label={
+                  <Typography variant="body2" color="text.secondary" noWrap>
+                    Completar con Bots
+                  </Typography>
+                }
+              />
+              <Typography
+                display="flex"
+                alignItems="center"
+                gap={0.5}
+                variant="caption"
+                color="text.disabled"
+                textTransform="uppercase"
+                noWrap
+              >
+                <GroupsIcon fontSize="inherit" />
+                {maxPlayers || "Todo"}
+              </Typography>
+            </Stack>
+          )}
           {isQueueing ? (
             <Stack
               direction="row"

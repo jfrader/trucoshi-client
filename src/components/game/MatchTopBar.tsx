@@ -3,10 +3,11 @@ import { Settings } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { useBoardLayout } from "../../board";
 import { useMatchGameplay } from "./MatchGameplayContext";
+import { getTeamDisplayName } from "../../utils/team";
 
 export const MatchTopBar = () => {
   const {
-    state: { rounds, canSay, pauseRequested, me },
+    state: { match, rounds, canSay, pauseRequested, me },
     score: { myTeamIdx, myTeamPoints, myTeamPointsLabel, opponentTeamPoints, opponentTeamPointsLabel },
     actions: { setRulesOpen, pauseMatch, setAbandonOpen },
   } = useMatchGameplay();
@@ -14,6 +15,9 @@ export const MatchTopBar = () => {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const canAbandon = Boolean(me && !me.abandoned);
   const roundLabel = `Ronda ${Math.min(Math.max(rounds.length, 1), 3)} / 3`;
+  const opponentTeamIdx = myTeamIdx === 0 ? 1 : 0;
+  const myTeamLabel = getTeamDisplayName(match, myTeamIdx);
+  const opponentTeamLabel = getTeamDisplayName(match, opponentTeamIdx);
 
   const useWideGrid = useMemo(
     () => layout.profile === "desktop" || layout.profile === "tabletWide",
@@ -42,7 +46,7 @@ export const MatchTopBar = () => {
           })}
         >
           <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
-            {myTeamIdx === 0 ? "Nosotros" : "Ellos"}
+            {myTeamLabel}
           </Typography>
           <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
             {myTeamPoints}
@@ -70,7 +74,7 @@ export const MatchTopBar = () => {
             })}
           >
             <Typography fontSize={{ xs: "0.82rem", sm: "0.78rem" }} color="grey.300" fontWeight={600}>
-              {myTeamIdx === 0 ? "Ellos" : "Nosotros"}
+              {opponentTeamLabel}
             </Typography>
             <Typography fontSize={{ xs: "2.08rem", sm: "1.82rem" }} lineHeight={1} fontWeight={900} color="warning.light">
               {opponentTeamPoints}

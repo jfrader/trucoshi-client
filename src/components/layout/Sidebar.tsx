@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { MatchList } from "../game/MatchList";
 import { Topbar } from "./Topbar";
 import StyleIcon from "@mui/icons-material/Style";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 const SIDEBAR_WIDTH = { xs: "100vw", sm: "24rem", md: "26rem" };
 
@@ -31,7 +32,7 @@ export const Sidebar = ({
           sx={(theme) => ({
             position: "fixed",
             inset: 0,
-            zIndex: theme.zIndex.drawer - 1,
+            zIndex: theme.zIndex.drawer + 1,
             background: "rgba(0, 0, 0, 0.34)",
             WebkitTapHighlightColor: "transparent",
           })}
@@ -43,7 +44,7 @@ export const Sidebar = ({
           data-testid="sidebar-panel"
           role="dialog"
           sx={(theme) => ({
-            zIndex: theme.zIndex.drawer,
+            zIndex: theme.zIndex.drawer + 2,
             position: "fixed",
             top: topOffset,
             right: 0,
@@ -106,6 +107,20 @@ export const Sidebar = ({
               >
                 {account ? (
                   <>
+                    {account.role === "ADMIN" ? (
+                      <Button
+                        fullWidth
+                        size="large"
+                        color="warning"
+                        startIcon={<AdminPanelSettingsIcon />}
+                        onClick={() => {
+                          onMenuClick();
+                          navigate("/admin");
+                        }}
+                      >
+                        Admin
+                      </Button>
+                    ) : null}
                     <Button
                       fullWidth
                       size="large"

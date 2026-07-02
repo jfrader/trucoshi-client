@@ -13,6 +13,9 @@ const inspectCard = vi.fn();
 const fetchTreasureStatus = vi.fn();
 const openTreasureChest = vi.fn();
 const devGrantTreasureChest = vi.fn();
+const soundMocks = vi.hoisted(() => ({
+  queue: vi.fn(),
+}));
 
 let inventory: IInventoryCardGroup[] = [];
 let account: any = { id: 1, name: "Player 0" };
@@ -53,6 +56,12 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
       setCardDisplayMode,
     },
   ],
+}));
+
+vi.mock("../../sound/hooks/useSound", () => ({
+  useSound: () => ({
+    queue: soundMocks.queue,
+  }),
 }));
 
 vi.mock("../card/GameCard", () => ({
@@ -114,6 +123,7 @@ describe("InventoryPage stack selector", () => {
     fetchTreasureStatus.mockClear();
     openTreasureChest.mockClear();
     devGrantTreasureChest.mockClear();
+    soundMocks.queue.mockClear();
     account = { id: 1, name: "Player 0" };
     treasureResult = null;
     inventory = [
@@ -143,6 +153,10 @@ describe("InventoryPage stack selector", () => {
       "data-card-width",
       "var(--inventory-card-width)"
     );
+    expect(screen.getByTestId("inventory-stack-selected-1e-default")).toHaveAttribute(
+      "data-position",
+      "left"
+    );
     expect(screen.getAllByTestId("game-card-1e")[0]).toHaveAttribute(
       "data-width",
       "var(--inventory-card-width)"
@@ -159,6 +173,7 @@ describe("InventoryPage stack selector", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
 
     expect(openTreasureChest).toHaveBeenCalledWith(3);
+    expect(soundMocks.queue).toHaveBeenCalledWith("menu1");
   });
 
   it("equips the latest treasure skin from inventory", async () => {
@@ -177,6 +192,7 @@ describe("InventoryPage stack selector", () => {
     await waitFor(() => {
       expect(setDeckCardSkin).toHaveBeenCalledWith("1e", "argentino/1e_argentino_001");
     });
+    expect(soundMocks.queue).toHaveBeenCalledWith("play0");
   });
 
   it("opens the stack with an overlay, equips a clicked skin, and waits for accept to close", async () => {
@@ -184,6 +200,7 @@ describe("InventoryPage stack selector", () => {
 
     fireEvent.click(screen.getByTestId("inventory-stack-choice-1e-default"));
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("menu0");
     expect(screen.getByTestId("inventory-stack-1e")).toHaveAttribute("data-open", "true");
     expect(screen.getByTestId("inventory-stack-choice-1e-default")).toHaveAttribute(
       "data-selected",
@@ -207,6 +224,10 @@ describe("InventoryPage stack selector", () => {
       "data-card-width",
       "var(--inventory-open-card-width)"
     );
+    expect(screen.getByTestId("inventory-selector-selected-1e-default")).toHaveAttribute(
+      "data-position",
+      "left"
+    );
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "true");
 
     fireEvent.click(screen.getByTestId("inventory-selector-choice-1e-default"));
@@ -218,12 +239,14 @@ describe("InventoryPage stack selector", () => {
     await waitFor(() => {
       expect(setDeckCardSkin).toHaveBeenCalledWith("1e", "argentino/1e_argentino_001");
     });
+    expect(soundMocks.queue).toHaveBeenCalledWith("play0");
 
     expect(screen.getByTestId("inventory-skin-selector-1e")).toBeInTheDocument();
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "true");
 
     fireEvent.click(screen.getByTestId("inventory-skin-selector-accept-1e"));
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("back");
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "false");
     expect(screen.queryByTestId("inventory-skin-selector-1e")).not.toBeInTheDocument();
   });
@@ -250,6 +273,7 @@ describe("InventoryPage stack selector", () => {
     await waitFor(() => {
       expect(setDeckCardSkin).toHaveBeenCalledWith("1e", null);
     });
+    expect(soundMocks.queue).toHaveBeenCalledWith("play0");
 
     expect(screen.getByTestId("inventory-skin-selector-1e")).toBeInTheDocument();
   });
@@ -295,6 +319,7 @@ describe("InventoryPage stack selector", () => {
 
     fireEvent.click(screen.getByTestId("inventory-hover-overlay"));
 
+    expect(soundMocks.queue).toHaveBeenCalledWith("back");
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "false");
     expect(screen.queryByTestId("inventory-skin-selector-1e")).not.toBeInTheDocument();
   });

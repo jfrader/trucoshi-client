@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { IHandPoints, IPublicMatch } from "trucoshi";
 import { TeamTag } from "./TeamTag";
 import { ChatButton } from "../chat/ChatRoom";
-import { getTeamColor } from "../../utils/team";
+import { getTeamColor, getTeamDisplayName } from "../../utils/team";
 
 export const MatchPoints = ({
   match,
@@ -25,7 +25,7 @@ export const MatchPoints = ({
     <Container pt={1} display="flex" flexDirection="row" {...boxProps}>
       {match.teams.map((team, i) => (
         <Box key={i} px={2}>
-          <TeamTag teamIdx={i} />
+          <TeamTag teamIdx={i} label={getTeamDisplayName(match, i as 0 | 1)} />
           {team.points.buenas ? (
             <Typography>
               {team.points.buenas} <span>buenas</span>
