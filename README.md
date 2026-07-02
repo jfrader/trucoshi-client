@@ -32,7 +32,7 @@ Edit `.env` file to point to your trucoshi instance
 
 # Donations
 
-Donate Bitcoin at [geyser.fund/project/trucoshi](https://geyser.fund/project/trucoshi)
+Donate Bitcoin at [jfrader.com/tips](https://jfrader.com/tips)
 
 # License
 
