@@ -197,10 +197,12 @@ const InventoryCardStack = ({
     choice,
     index,
     selector = false,
+    check = false,
   }: {
     choice: StackChoice;
     index: number;
     selector?: boolean;
+    check?: boolean;
   }) => {
     const selectedUnlockedChoice = choice.selected && choice.unlocked;
     const disabled = saving || !choice.unlocked;
@@ -269,7 +271,7 @@ const InventoryCardStack = ({
           width={choiceWidth}
           shadow={choice.selected || selector}
         />
-        {selectedUnlockedChoice ? (
+        {check && selectedUnlockedChoice ? (
           <CheckCircle
             color="success"
             data-position="left"
@@ -332,7 +334,7 @@ const InventoryCardStack = ({
               }}
             >
               {choices.map((choice, index) =>
-                renderChoiceButton({ choice, index, selector: true }),
+                renderChoiceButton({ choice, index, selector: true, check: true }),
               )}
             </Box>
             <Button

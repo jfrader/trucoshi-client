@@ -11,7 +11,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
 import { useMagicLinkLogin } from "../api/hooks/useMagicLinkLogin";
@@ -27,7 +27,8 @@ export const Login = () => {
   const navigate = useNavigate();
   const [{ account }] = useTrucoshi();
 
-  const [loginType, setLoginType] = useState<"email" | "password" | "seed">("email");
+  const [loginType, setLoginType] = useState<"email" | "seed">("email");
+  const [emailLoginMethod, setEmailLoginMethod] = useState<"link" | "password">("link");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [seedPhrase, setSeedPhrase] = useState("");
@@ -89,7 +90,7 @@ export const Login = () => {
           onError: (e) => setErrors([e]),
         }
       );
-    } else if (loginType === "password") {
+    } else if (emailLoginMethod === "password") {
       const error = validateEmailPassword();
       if (error) {
         setErrors([error]);
@@ -137,17 +138,24 @@ export const Login = () => {
     setSeedPhrase(event.target.value);
   };
 
-  const handleLoginTypeChange = (
-    _: React.MouseEvent<HTMLElement>,
-    newLoginType: "email" | "password" | "seed"
-  ) => {
+  const handleLoginTypeChange = (_: MouseEvent<HTMLElement>, newLoginType: "email" | "seed") => {
     if (newLoginType) {
       setLoginType(newLoginType);
+      setEmailLoginMethod("link");
       setErrors([]);
       setMagicLinkSent(false);
       setEmail("");
       setPassword("");
       setSeedPhrase("");
+    }
+  };
+
+  const handleEmailLoginMethodChange = (newEmailLoginMethod: "link" | "password") => {
+    setEmailLoginMethod(newEmailLoginMethod);
+    setErrors([]);
+    setMagicLinkSent(false);
+    if (newEmailLoginMethod === "link") {
+      setPassword("");
     }
   };
 
@@ -177,14 +185,11 @@ export const Login = () => {
                 <ToggleButton value="email">
                   <Person sx={{ mr: 1 }} /> Email
                 </ToggleButton>
-                <ToggleButton value="password">
-                  <VpnKey sx={{ mr: 1 }} /> Contraseña
-                </ToggleButton>
                 <ToggleButton value="seed">
                   <VpnKey sx={{ mr: 1 }} /> Frase de Semilla
                 </ToggleButton>
               </ToggleButtonGroup>
-              {loginType === "email" || loginType === "password" ? (
+              {loginType === "email" ? (
                 <>
                   <TextField
                     name="email"
@@ -198,7 +203,7 @@ export const Login = () => {
                     error={!!email && email.length < 3}
                     helperText={email && email.length < 3 ? "Email inválido" : ""}
                   />
-                  {loginType === "password" ? (
+                  {emailLoginMethod === "password" ? (
                     <TextField
                       name="password"
                       color="warning"
@@ -233,13 +238,26 @@ export const Login = () => {
                 color="warning"
                 variant="outlined"
               >
-                {loginType === "email" ? "Enviar Link de Ingreso" : "Iniciar Sesión"}
+                {loginType === "email" && emailLoginMethod === "link"
+                  ? "Enviar Link de Ingreso"
+                  : "Iniciar Sesión"}
               </LoadingButton>
-              {loginType === "password" && (
-                <Button onClick={() => navigate("/forgot-password")} color="info">
-                  ¿Olvidaste tu contraseña?
-                </Button>
-              )}
+              {loginType === "email" ? (
+                emailLoginMethod === "password" ? (
+                  <>
+                    <Button onClick={() => handleEmailLoginMethodChange("link")} color="info">
+                      Usar link de ingreso
+                    </Button>
+                    <Button onClick={() => navigate("/forgot-password")} color="info">
+                      ¿Olvidaste tu contraseña?
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => handleEmailLoginMethodChange("password")} color="info">
+                    Usar contraseña
+                  </Button>
+                )
+              ) : null}
               {magicLinkSent ? (
                 <Alert severity="success">
                   Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
