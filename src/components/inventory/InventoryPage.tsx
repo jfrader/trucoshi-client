@@ -389,7 +389,7 @@ const InventoryCardStack = ({
       >
         {choices
           .slice(0, previewCount + 1)
-          .map((choice, index) => renderChoiceButton({ choice, index, check: true }))}
+          .map((choice, index) => renderChoiceButton({ choice, index, check: false }))}
         {saving ? (
           <CircularProgress
             size={24}
@@ -432,7 +432,6 @@ const InventoryCardTile = ({
   const cardLabel = getCardLabel(card);
   const choices = getStackChoices(group);
   const hasVariants = choices.length > 1;
-  const hasEquippedSkin = Boolean(group?.equippedCardSkinId);
   const skinCount = group?.skins.length || 0;
 
   return (
@@ -493,9 +492,6 @@ const InventoryCardTile = ({
         minWidth={0}
         mt={0.25}
       >
-        {hasEquippedSkin ? (
-          <CheckCircle color="success" sx={{ fontSize: { xs: "1.1rem", sm: "1.18rem" } }} />
-        ) : null}
         <Typography
           variant="body1"
           fontWeight={900}
