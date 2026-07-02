@@ -1,4 +1,5 @@
 import { Button, Stack } from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import { Modal, ModalProps } from "./Modal";
 import { ReactNode } from "react";
 
@@ -8,9 +9,13 @@ export type ConfirmationModalProps = ModalProps<ConfirmationModalState> & Props;
 
 export type ConfirmationModalState<T = any> = {
   acceptLabel?: string;
+  acceptButtonProps?: Omit<ButtonProps, "children">;
   title?: string;
   body?: ReactNode;
   onConfirm?: (...p: any[]) => any;
+  onSecondary?: (...p: any[]) => any;
+  secondaryButtonProps?: Omit<ButtonProps, "children">;
+  secondaryLabel?: string;
 } & T;
 
 export const ConfirmationModal = ({
@@ -19,7 +24,16 @@ export const ConfirmationModal = ({
   isLoading = false,
   ...props
 }: ConfirmationModalProps) => {
-  const { title = "Estas seguro?", acceptLabel = "Aceptar", onConfirm, body } = props.state;
+  const {
+    title = "Estas seguro?",
+    acceptLabel = "Aceptar",
+    acceptButtonProps,
+    onConfirm,
+    onSecondary,
+    secondaryButtonProps,
+    secondaryLabel,
+    body,
+  } = props.state;
   return (
     <Modal
       maxWidth="xs"
@@ -36,10 +50,30 @@ export const ConfirmationModal = ({
           }}
         >
           <Stack direction="row" gap={2} width="100%">
-            <Button type="submit" color="primary" disabled={isLoading} form={formId}>
+            <Button
+              type="submit"
+              color="primary"
+              disabled={isLoading}
+              form={formId}
+              {...acceptButtonProps}
+            >
               {acceptLabel}
             </Button>
+            {secondaryLabel ? (
+              <Button
+                type="button"
+                variant="text"
+                disabled={isLoading}
+                onClick={() => {
+                  onSecondary?.();
+                }}
+                {...secondaryButtonProps}
+              >
+                {secondaryLabel}
+              </Button>
+            ) : null}
             <Button
+              type="button"
               variant="text"
               color="error"
               disabled={isLoading}

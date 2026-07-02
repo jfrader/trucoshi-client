@@ -10,7 +10,6 @@ import {
 import { PropsWithChildren, SetStateAction, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { FlipGameCard } from "../components/card/GameCard";
-import { CardDisplayModeToggle } from "../components/card/CardDisplayModeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useSound } from "../sound/hooks/useSound";

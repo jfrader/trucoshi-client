@@ -445,15 +445,29 @@ const _Match = () => {
         confirmation.onOpen({
           title: "Atencion",
           body: "Si jugas esta carta vas a perder tu flor!",
-          acceptLabel: "Jugar de todas formas",
-          onConfirm: () => playCard(cardIdx, card),
+          acceptLabel: "Cantar Flor",
+          acceptButtonProps: { variant: "contained" },
+          secondaryLabel: "Jugar de todas formas",
+          secondaryButtonProps: {
+            size: "small",
+            color: "inherit",
+            sx: { alignSelf: "center", fontSize: "0.75rem", textTransform: "none" },
+          },
+          onConfirm: () => {
+            confirmation.onClose();
+            sayCommand(EFlorCommand.FLOR);
+          },
+          onSecondary: () => {
+            confirmation.onClose();
+            playCard(cardIdx, card);
+          },
         });
         return;
       }
 
       playCard(cardIdx, card);
     },
-    [confirmation, me, playCard],
+    [confirmation, me, playCard, sayCommand],
   );
 
   const shouldRedirectToLobby = Boolean(
