@@ -5,8 +5,14 @@ import {
   Chip,
   CircularProgress,
   Divider,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -22,10 +28,11 @@ import {
   OpenInNew,
   Redeem,
   Refresh,
+  Save,
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { EClientEvent, IAdminDashboard } from "trucoshi";
+import { EClientEvent, IAdminDashboard, NoticeBannerSeverity } from "trucoshi";
 import { PageContainer } from "../shared/PageContainer";
 import { useToast } from "../hooks/useToast";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
@@ -34,6 +41,7 @@ const emptyDashboard: IAdminDashboard = {
   onlineAccounts: [],
   liveGames: [],
   rewardCodes: [],
+  noticeBanner: null,
 };
 
 const formatDateTime = (value?: string | null) => {
@@ -51,6 +59,12 @@ export const Admin = () => {
   const [creating, setCreating] = useState(false);
   const [note, setNote] = useState("");
   const [createdLink, setCreatedLink] = useState("");
+  const [noticeSaving, setNoticeSaving] = useState(false);
+  const [noticeActive, setNoticeActive] = useState(false);
+  const [noticeText, setNoticeText] = useState("");
+  const [noticeSeverity, setNoticeSeverity] = useState<NoticeBannerSeverity>("info");
+  const [noticeButtonText, setNoticeButtonText] = useState("");
+  const [noticeButtonHref, setNoticeButtonHref] = useState("");
 
   const isAdmin = account?.role === "ADMIN";
 
@@ -77,6 +91,15 @@ export const Admin = () => {
   useEffect(() => {
     fetchDashboard();
   }, [account?.id, isConnected, isAdmin, socket]);
+
+  useEffect(() => {
+    const noticeBanner = dashboard.noticeBanner;
+    setNoticeActive(Boolean(noticeBanner?.active));
+    setNoticeText(noticeBanner?.text || "");
+    setNoticeSeverity(noticeBanner?.severity || "info");
+    setNoticeButtonText(noticeBanner?.buttonText || "");
+    setNoticeButtonHref(noticeBanner?.buttonHref || "");
+  }, [dashboard.noticeBanner]);
 
   const createRewardCode = () => {
     if (!isAdmin || !isConnected || creating) {
@@ -119,6 +142,37 @@ export const Admin = () => {
     navigator.clipboard.writeText(createdLink).then(() => {
       toast.success("Link copiado");
     });
+  };
+
+  const saveNoticeBanner = (active = noticeActive) => {
+    if (!isAdmin || !isConnected || noticeSaving) {
+      return;
+    }
+
+    setNoticeSaving(true);
+    socket.emit(
+      EClientEvent.ADMIN_SET_NOTICE_BANNER,
+      {
+        active,
+        text: active ? noticeText.trim() : "",
+        severity: noticeSeverity,
+        buttonText: active ? noticeButtonText.trim() || null : null,
+        buttonHref: active ? noticeButtonHref.trim() || null : null,
+      },
+      ({ success, noticeBanner, error }) => {
+        setNoticeSaving(false);
+
+        if (success) {
+          setDashboard((current) => ({ ...current, noticeBanner }));
+          toast.success(active ? "Aviso actualizado" : "Aviso oculto");
+          return;
+        }
+
+        if (error) {
+          toast.error(error.message);
+        }
+      }
+    );
   };
 
   if (!isAdmin) {
@@ -196,6 +250,96 @@ export const Admin = () => {
                 </Button>
               </Stack>
             ) : null}
+          </Stack>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 1 }}>
+          <Stack gap={2}>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              gap={1.5}
+              alignItems={{ xs: "stretch", md: "center" }}
+              justifyContent="space-between"
+            >
+              <Typography fontWeight={900} textTransform="uppercase" variant="subtitle2">
+                Notice banner
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={noticeActive}
+                    color="warning"
+                    onChange={(event) => setNoticeActive(event.target.checked)}
+                  />
+                }
+                label={noticeActive ? "Activo" : "Inactivo"}
+                sx={{ m: 0 }}
+              />
+            </Stack>
+            <TextField
+              fullWidth
+              inputProps={{ maxLength: 240 }}
+              label="Texto"
+              multiline
+              minRows={2}
+              onChange={(event) => setNoticeText(event.target.value)}
+              size="small"
+              value={noticeText}
+            />
+            <Stack direction={{ xs: "column", md: "row" }} gap={1.5}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="notice-severity-label">Severidad</InputLabel>
+                <Select
+                  label="Severidad"
+                  labelId="notice-severity-label"
+                  onChange={(event) =>
+                    setNoticeSeverity(event.target.value as NoticeBannerSeverity)
+                  }
+                  value={noticeSeverity}
+                >
+                  <MenuItem value="info">Info</MenuItem>
+                  <MenuItem value="warning">Warning</MenuItem>
+                  <MenuItem value="error">Error</MenuItem>
+                  <MenuItem value="success">Success</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                inputProps={{ maxLength: 48 }}
+                label="Texto boton"
+                onChange={(event) => setNoticeButtonText(event.target.value)}
+                size="small"
+                value={noticeButtonText}
+              />
+              <TextField
+                fullWidth
+                label="Link boton"
+                onChange={(event) => setNoticeButtonHref(event.target.value)}
+                size="small"
+                value={noticeButtonHref}
+              />
+            </Stack>
+            <Stack direction={{ xs: "column", md: "row" }} gap={1}>
+              <Button
+                color="warning"
+                disabled={noticeSaving || !isConnected}
+                onClick={() => saveNoticeBanner()}
+                startIcon={
+                  noticeSaving ? <CircularProgress color="inherit" size={16} /> : <Save />
+                }
+                variant="contained"
+              >
+                Guardar aviso
+              </Button>
+              <Button
+                color="inherit"
+                disabled={noticeSaving || !isConnected}
+                onClick={() => saveNoticeBanner(false)}
+                variant="outlined"
+              >
+                Ocultar aviso
+              </Button>
+            </Stack>
           </Stack>
         </Paper>
 

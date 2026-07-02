@@ -14,6 +14,7 @@ import {
   EServerEvent,
   ICard,
   IJoinQueueOptions,
+  IPublicNoticeBanner,
   IPublicMatchInfo,
   IQueueStatus,
   ServerToClientEvents,
@@ -92,6 +93,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
+  const [noticeBanner, setNoticeBanner] = useState<IPublicNoticeBanner | null>(null);
   const [, , removeCookie] = useCookies([getCookieName("identity")]);
 
   const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
@@ -212,6 +214,11 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setConnected(true);
       sendPing(socket);
       socket.emit(EClientEvent.JOIN_ROOM, "stats");
+      socket.emit(EClientEvent.FETCH_NOTICE_BANNER, ({ success, noticeBanner }) => {
+        if (success) {
+          setNoticeBanner(noticeBanner);
+        }
+      });
       timer.current && clearInterval(timer.current);
     });
 
@@ -242,6 +249,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     });
 
     socket.on(EServerEvent.UPDATE_STATS, (updated) => setStats(updated));
+    socket.on(EServerEvent.UPDATE_NOTICE_BANNER, (updated) => setNoticeBanner(updated));
 
     socket.on(EServerEvent.SET_SESSION, ({ session, account }, serverVersion, newActiveMatches) => {
       if (account) {
@@ -313,6 +321,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.PONG);
       socket.off(EServerEvent.REFRESH_IDENTITY);
       socket.off(EServerEvent.UPDATE_STATS);
+      socket.off(EServerEvent.UPDATE_NOTICE_BANNER);
       timer.current && clearInterval(timer.current);
     };
   }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me, queryClient]);
@@ -597,6 +606,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         socket,
         state: {
           stats,
+          noticeBanner,
           dark,
           account,
           version,

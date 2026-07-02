@@ -38,6 +38,17 @@ const dashboard: IAdminDashboard = {
       note: "launch",
     },
   ],
+  noticeBanner: {
+    id: 8,
+    text: "Mantenimiento esta noche",
+    severity: "warning",
+    buttonText: "Leer mas",
+    buttonHref: "/help",
+    active: true,
+    updatedByAccountId: 1,
+    createdAt: "2026-07-01T11:00:00.000Z",
+    updatedAt: "2026-07-01T11:30:00.000Z",
+  },
 };
 
 const mocks = vi.hoisted(() => ({
@@ -98,6 +109,33 @@ describe("Admin page", () => {
           },
         });
       }
+
+      if (event === EClientEvent.ADMIN_SET_NOTICE_BANNER) {
+        args[1]({
+          success: true,
+          noticeBanner: {
+            id: 9,
+            text: args[0].text,
+            severity: args[0].severity,
+            buttonText: args[0].buttonText,
+            buttonHref: args[0].buttonHref,
+            active: args[0].active,
+            updatedByAccountId: 1,
+            createdAt: "2026-07-01T12:40:00.000Z",
+            updatedAt: "2026-07-01T12:40:00.000Z",
+          },
+          publicNoticeBanner: args[0].active
+            ? {
+                id: 9,
+                text: args[0].text,
+                severity: args[0].severity,
+                buttonText: args[0].buttonText,
+                buttonHref: args[0].buttonHref,
+                updatedAt: "2026-07-01T12:40:00.000Z",
+              }
+            : null,
+        });
+      }
     });
   });
 
@@ -116,6 +154,7 @@ describe("Admin page", () => {
     expect(await screen.findAllByText("Player 2")).toHaveLength(2);
     expect(screen.getByText("match-1")).toBeInTheDocument();
     expect(screen.getByText("ABC...123")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Mantenimiento esta noche")).toBeInTheDocument();
   });
 
   it("creates a chest reward code", async () => {
@@ -129,5 +168,49 @@ describe("Admin page", () => {
     });
     expect(await screen.findByText("NEW...345")).toBeInTheDocument();
     expect(mocks.toastSuccess).toHaveBeenCalledWith("Codigo creado");
+  });
+
+  it("saves the notice banner", async () => {
+    renderAdmin();
+
+    fireEvent.change(await screen.findByLabelText("Texto"), {
+      target: { value: "Corte programado" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /guardar aviso/i }));
+
+    await waitFor(() => {
+      expect(mocks.emit).toHaveBeenCalledWith(
+        EClientEvent.ADMIN_SET_NOTICE_BANNER,
+        expect.objectContaining({
+          active: true,
+          text: "Corte programado",
+          severity: "warning",
+          buttonText: "Leer mas",
+          buttonHref: "/help",
+        }),
+        expect.any(Function)
+      );
+    });
+    expect(mocks.toastSuccess).toHaveBeenCalledWith("Aviso actualizado");
+  });
+
+  it("hides the notice banner", async () => {
+    renderAdmin();
+
+    fireEvent.click(await screen.findByRole("button", { name: /ocultar aviso/i }));
+
+    await waitFor(() => {
+      expect(mocks.emit).toHaveBeenCalledWith(
+        EClientEvent.ADMIN_SET_NOTICE_BANNER,
+        expect.objectContaining({
+          active: false,
+          text: "",
+          buttonText: null,
+          buttonHref: null,
+        }),
+        expect.any(Function)
+      );
+    });
+    expect(mocks.toastSuccess).toHaveBeenCalledWith("Aviso oculto");
   });
 });

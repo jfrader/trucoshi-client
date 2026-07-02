@@ -10,6 +10,7 @@ import {
   ILobbyOptions,
   IPublicMatch,
   IPublicMatchStats,
+  IPublicNoticeBanner,
   IPublicPlayer,
   IQueueStatus,
   ITreasureOpenResult,
@@ -125,6 +126,7 @@ export interface ITrucoshiState {
   cards: CardSources;
   isSidebarOpen: boolean;
   stats: ITrucoshiStats;
+  noticeBanner: IPublicNoticeBanner | null;
 }
 
 export interface ITrucoshiContext {

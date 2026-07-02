@@ -21,6 +21,7 @@ import GamepadIcon from "@mui/icons-material/Gamepad";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
+import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 
 const formatElapsedTime = (milliseconds: number) => {
   const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
@@ -49,8 +50,13 @@ export const OnlinePlayers = ({ stats, label }: { stats: ITrucoshiStats; label?:
 export const PlayMenu = ({
   onMenuClick,
   eyebrow,
+  showNoticeBanner,
   ...props
-}: BoxProps & { eyebrow?: boolean; onMenuClick?: (e: SyntheticEvent) => void }) => {
+}: BoxProps & {
+  eyebrow?: boolean;
+  showNoticeBanner?: boolean;
+  onMenuClick?: (e: SyntheticEvent) => void;
+}) => {
   const navigate = useNavigate();
   const [{ account, stats, activeMatches, queueReplayOptions, serverAheadTime }] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
@@ -197,6 +203,9 @@ export const PlayMenu = ({
               </Tooltip>
             ) : null}
           </Stack>
+          {showNoticeBanner ? (
+            <NoticeBannerSlot dismissible={false} ignoreDismissal />
+          ) : null}
           {queuedMatch ? null : (
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
               <FormControlLabel

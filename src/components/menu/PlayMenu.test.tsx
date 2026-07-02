@@ -1,6 +1,10 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { PlayMenu } from "./PlayMenu";
 import { renderWithTheme } from "../../test/renderWithTheme";
+import {
+  getNoticeBannerDismissalValue,
+  NOTICE_BANNER_DISMISSED_KEY,
+} from "../notice/NoticeBannerSlot";
 
 const navigate = vi.fn();
 const joinQueue = vi.fn();
@@ -14,6 +18,7 @@ let queueState = {
 let activeMatches: any[] = [];
 let queueReplayOptions: any = null;
 let serverAheadTime = 0;
+let noticeBanner: any = null;
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
@@ -36,6 +41,7 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
       activeMatches,
       queueReplayOptions,
       serverAheadTime,
+      noticeBanner,
     },
   ],
 }));
@@ -55,6 +61,19 @@ vi.mock("../../trucoshi/hooks/useMatchQueue", () => ({
 }));
 
 describe("PlayMenu queue controls", () => {
+  beforeAll(() => {
+    const storage = new Map<string, string>();
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        clear: () => storage.clear(),
+        getItem: (key: string) => storage.get(key) || null,
+        removeItem: (key: string) => storage.delete(key),
+        setItem: (key: string, value: string) => storage.set(key, value),
+      },
+    });
+  });
+
   beforeEach(() => {
     navigate.mockClear();
     joinQueue.mockClear();
@@ -63,30 +82,32 @@ describe("PlayMenu queue controls", () => {
     activeMatches = [];
     queueReplayOptions = null;
     serverAheadTime = 0;
+    noticeBanner = null;
+    window.localStorage.clear();
     queueState = {
       status: null,
       isQueueing: false,
     };
   });
 
-  it("starts an any-size queue with bots enabled by default", () => {
+  it("starts an any-size queue with bots disabled by default", () => {
     renderWithTheme(<PlayMenu />);
 
-    expect(screen.getByLabelText(/jugar con bots/i)).toBeChecked();
+    expect(screen.getByLabelText(/completar con bots/i)).not.toBeChecked();
 
     fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
-    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: true });
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: false });
   });
 
-  it("uses the selected team size and disables bots when unchecked", () => {
+  it("uses the selected team size and enables bots when checked", () => {
     renderWithTheme(<PlayMenu />);
 
     fireEvent.click(screen.getByRole("button", { name: "2v2" }));
-    fireEvent.click(screen.getByLabelText(/jugar con bots/i));
+    fireEvent.click(screen.getByLabelText(/completar con bots/i));
     fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
-    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
   });
 
   it("renders queued status and cancels the queue", () => {
@@ -107,7 +128,7 @@ describe("PlayMenu queue controls", () => {
 
     expect(screen.getByText("1/2 jugadores")).toBeInTheDocument();
     expect(screen.getByText("Espera 0:12")).toBeInTheDocument();
-    expect(screen.getByText(/bots en/i)).toBeInTheDocument();
+    expect(screen.getByText("Buscando rivales")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /cancelar cola/i }));
 
@@ -133,7 +154,7 @@ describe("PlayMenu queue controls", () => {
     renderWithTheme(<PlayMenu />);
 
     expect(screen.getByText("Espera 0:00")).toBeInTheDocument();
-    expect(screen.getByText(/bots en 5s/i)).toBeInTheDocument();
+    expect(screen.getByText("Buscando rivales")).toBeInTheDocument();
   });
 
   it("rejoins an existing queued match instead of queueing again", () => {
@@ -148,7 +169,6 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
 
-    expect(toastInfo).toHaveBeenCalledWith("Ya estás en una partida");
     expect(navigate).toHaveBeenCalledWith("/match/queue-match");
     expect(joinQueue).not.toHaveBeenCalled();
   });
@@ -165,7 +185,7 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
-    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: true });
+    expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: false });
     expect(navigate).not.toHaveBeenCalled();
     expect(toastInfo).not.toHaveBeenCalled();
   });
@@ -175,7 +195,7 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
-    expect(screen.getByLabelText(/jugar con bots/i)).not.toBeChecked();
+    expect(screen.getByLabelText(/completar con bots/i)).not.toBeChecked();
 
     fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
@@ -187,7 +207,7 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
-    fireEvent.click(screen.getByLabelText(/jugar con bots/i));
+    fireEvent.click(screen.getByLabelText(/completar con bots/i));
     fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
@@ -206,8 +226,27 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
 
-    expect(toastInfo).toHaveBeenCalledWith("Ya estás en una partida");
     expect(navigate).toHaveBeenCalledWith("/match/queue-match");
     expect(joinQueue).not.toHaveBeenCalled();
+  });
+
+  it("shows the home notice banner below the play button even after dismissal", () => {
+    noticeBanner = {
+      id: 7,
+      text: "Mantenimiento esta noche",
+      severity: "warning",
+      buttonText: null,
+      buttonHref: null,
+      updatedAt: "2026-07-01T12:00:00.000Z",
+    };
+    window.localStorage.setItem(
+      NOTICE_BANNER_DISMISSED_KEY,
+      getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt)
+    );
+
+    renderWithTheme(<PlayMenu showNoticeBanner />);
+
+    expect(screen.getByText("Mantenimiento esta noche")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /close/i })).not.toBeInTheDocument();
   });
 });

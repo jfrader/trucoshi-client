@@ -20,6 +20,7 @@ import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { Sidebar } from "./Sidebar";
 import { useTheme } from "@mui/material";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
+import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -160,6 +161,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
                 minWidth="100%"
                 flexGrow={1}
               >
+                {!isGameSurface ? <NoticeBannerSlot /> : null}
                 <Box
                   minWidth="100%"
                   minHeight="20vh"

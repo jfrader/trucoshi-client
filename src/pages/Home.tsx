@@ -32,7 +32,7 @@ export const Home = () => {
             <Slide in direction="right">
               <Card>
                 <CardContent>
-                  <PlayMenu eyebrow />
+                  <PlayMenu eyebrow showNoticeBanner />
                 </CardContent>
               </Card>
             </Slide>
