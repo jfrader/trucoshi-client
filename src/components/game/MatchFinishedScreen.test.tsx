@@ -156,7 +156,7 @@ describe("MatchFinishedScreen play again", () => {
     expect(screen.queryByTestId("treasure-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("finished-match-chat")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(joinQueue).toHaveBeenCalledWith(queueOptions);
     expect(socketEmit).toHaveBeenCalledWith(EClientEvent.LEAVE_MATCH, "finished-match");
@@ -191,7 +191,7 @@ describe("MatchFinishedScreen play again", () => {
   it("keeps custom play again behavior for custom matches", () => {
     renderFinishedScreen(buildFinishedMatch());
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(onPlayAgain).toHaveBeenCalled();
     expect(joinQueue).not.toHaveBeenCalled();

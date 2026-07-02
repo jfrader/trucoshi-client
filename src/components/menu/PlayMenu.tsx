@@ -108,13 +108,7 @@ export const PlayMenu = ({
 
     joinQueue({ maxPlayers, allowBots: playWithBots });
   };
-  const playButtonLabel = isQueueing
-    ? "Buscando..."
-    : queuedMatch
-      ? "Volver a partida"
-      : queueReplayOptions
-        ? "Jugar de nuevo!"
-        : "Jugar!";
+  const playButtonLabel = isQueueing ? "Buscando..." : queuedMatch ? "Volver a partida" : "Jugar!";
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" {...props}>

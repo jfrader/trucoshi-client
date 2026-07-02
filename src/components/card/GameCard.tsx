@@ -4,8 +4,9 @@ import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useCards } from "../../trucoshi/hooks/useCards";
 import { ICardTheme } from "../../trucoshi/types";
 import { CardDisplayMode, resolveCardImage } from "../../trucoshi/cards/cardSkinResolver";
+import { resolveInspectionCardSkinId } from "../../trucoshi/cards/cardInspection";
 import { CardSkinId } from "../../trucoshi/cards/skinRegistry";
-import { ElementType, memo, MouseEventHandler, useCallback } from "react";
+import { ElementType, memo, MouseEventHandler } from "react";
 
 const cardContainerSx = {
   position: "relative",
@@ -108,24 +109,36 @@ const _GameCard = ({
   const themeReady = request ? reqReady : cardsReady;
   const shouldUseLegacyTheme = Boolean(theme || request);
   const effectiveDisplayMode = displayMode || cardDisplayMode || "skins";
-
-  const onClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    (e) => {
-      e.preventDefault();
-      if (e.type !== "click" || e.button === 2) {
-        inspectCard(card || BURNT_CARD);
-      }
-    },
-    [card, inspectCard]
-  );
-
-  const onDoubleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
-    if (!disableDoubleClick) {
-      inspectCard(card || BURNT_CARD);
-    }
-  }, [card, disableDoubleClick, inspectCard]);
-
   const name = burn ? BURNT_CARD : card;
+  const inspectedCardSkinId =
+    name === card
+      ? resolveInspectionCardSkinId({
+          card,
+          cardSkinId,
+          cardSkinByCard,
+        })
+      : undefined;
+  const inspectRenderedCard = () => {
+    inspectCard({
+      card: card || BURNT_CARD,
+      cardSkinId: inspectedCardSkinId,
+      displayMode,
+    });
+  };
+
+  const onClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    if (e.type !== "click" || e.button === 2) {
+      inspectRenderedCard();
+    }
+  };
+
+  const onDoubleClick: MouseEventHandler<HTMLButtonElement> = () => {
+    if (!disableDoubleClick) {
+      inspectRenderedCard();
+    }
+  };
+
   const imageSource = shouldUseLegacyTheme
     ? (request ? reqCards : cards)[name]
     : resolveCardImage({

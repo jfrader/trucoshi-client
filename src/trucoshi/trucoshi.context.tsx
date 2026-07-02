@@ -1,4 +1,12 @@
-import { useState, useCallback, useEffect, PropsWithChildren, useMemo, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  PropsWithChildren,
+  useMemo,
+  useRef,
+  SetStateAction,
+} from "react";
 import { io, Socket } from "socket.io-client";
 import {
   ClientToServerEvents,
@@ -18,6 +26,7 @@ import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
 import { ICardTheme, IRewardCodeRedeemOutcome, ITrucoshiContext } from "./types";
 import { CardDisplayMode } from "./cards/cardSkinResolver";
+import { CardInspectionInput, normalizeCardInspection } from "./cards/cardInspection";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { useCards } from "./hooks/useCards";
 import { useMe } from "../api/hooks/useMe";
@@ -78,7 +87,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [treasureOpening, setTreasureOpening] = useState(false);
   const [treasureResult, setTreasureResult] = useState<ITreasureOpenResult | null>(null);
   const [cards, cardsReady, cardsLoading] = useCards({ theme: cardTheme });
-  const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
+  const [inspectedCard, setInspectedCard] = useState(normalizeCardInspection(null));
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [version, setVersion] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
@@ -578,6 +587,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     }
   }, [error, logout]);
 
+  const inspectCard = useCallback((input: SetStateAction<CardInspectionInput>) => {
+    setInspectedCard((current) => normalizeCardInspection(input, current));
+  }, []);
+
   return (
     <TrucoshiContext.Provider
       value={{
@@ -647,7 +660,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           setQueueing,
           setQueueReplayOptions,
           fetchPublicMatches,
-          inspectCard: setInspectedCard,
+          inspectCard,
           logout,
           refetchMe,
         },

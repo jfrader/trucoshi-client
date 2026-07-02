@@ -1,8 +1,9 @@
-import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import { AutoAwesome, EmojiSymbols, Style } from "@mui/icons-material";
 import { useState } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CardDisplayMode } from "../../trucoshi/cards/cardSkinResolver";
+import { Link } from "react-router-dom";
 
 const DISPLAY_MODE_OPTIONS: Array<{
   value: CardDisplayMode;
@@ -16,7 +17,7 @@ const DISPLAY_MODE_OPTIONS: Array<{
 ];
 
 export const CardDisplayModeToggle = () => {
-  const [{ cardDisplayMode }, { setCardDisplayMode }] = useTrucoshi();
+  const [{ account, cardDisplayMode }, { setCardDisplayMode }] = useTrucoshi();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const selected =
     DISPLAY_MODE_OPTIONS.find((option) => option.value === cardDisplayMode) ||
@@ -75,6 +76,17 @@ export const CardDisplayModeToggle = () => {
             </MenuItem>
           );
         })}
+        {account ? (
+          <>
+            <Divider />
+            <MenuItem component={Link} to="/inventory" onClick={() => setAnchorEl(null)}>
+              <ListItemIcon>
+                <Style fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Ver tus Skins</ListItemText>
+            </MenuItem>
+          </>
+        ) : null}
       </Menu>
     </>
   );

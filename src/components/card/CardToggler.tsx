@@ -1,13 +1,13 @@
-import { Badge, Box, BoxProps, CircularProgress, IconButton, Stack } from "@mui/material";
+import { Box, BoxProps, CircularProgress, IconButton, Stack } from "@mui/material";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
-import { Refresh, Style, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useSound } from "../../sound/hooks/useSound";
 import { Deck } from "trucoshi/dist/lib";
-import { Link } from "react-router-dom";
+import { InventoryButton } from "./InventoryButton";
 
 const deck = Deck();
 deck.random.secret = Math.random().toString();
@@ -17,7 +17,7 @@ deck.shuffle(0);
 
 export const CardToggler = (props: BoxProps) => {
   const { queue } = useSound();
-  const [{ cardsLoading, isLogged, treasureStatus }] = useTrucoshi();
+  const [{ cardsLoading, equippedDeck }] = useTrucoshi();
   const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.takeThree());
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
@@ -67,7 +67,14 @@ export const CardToggler = (props: BoxProps) => {
               cards={randomCards.length}
               i={i}
             >
-              <FlipGameCard width="3.3rem" shadow flip={flip} zoom card={card as ICard} />
+              <FlipGameCard
+                width="3.3rem"
+                shadow
+                flip={flip}
+                zoom
+                card={card as ICard}
+                cardSkinByCard={equippedDeck}
+              />
             </HandCardContainer>
           );
         })}
@@ -110,13 +117,7 @@ export const CardToggler = (props: BoxProps) => {
         >
           {flip ? <Visibility /> : <VisibilityOff />}
         </IconButton>
-        {isLogged && (
-          <IconButton component={Link} to="/inventory" title="Inventario" color="warning">
-            <Badge color="error" badgeContent={String(treasureStatus.unopenedChests.length)}>
-              <Style />
-            </Badge>
-          </IconButton>
-        )}
+        <InventoryButton />
       </Stack>
 
       <CircularProgress

@@ -177,7 +177,7 @@ describe("PlayMenu queue controls", () => {
 
     expect(screen.getByLabelText(/jugar con bots/i)).not.toBeChecked();
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
   });
@@ -188,7 +188,7 @@ describe("PlayMenu queue controls", () => {
     renderWithTheme(<PlayMenu />);
 
     fireEvent.click(screen.getByLabelText(/jugar con bots/i));
-    fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
+    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
   });

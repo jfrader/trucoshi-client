@@ -23,6 +23,7 @@ import {
 import { IPublicMatchInfo } from "trucoshi";
 import { CardSources } from "./hooks/useCards";
 import { CardDisplayMode } from "./cards/cardSkinResolver";
+import { CardInspectionInput, IInspectedCard } from "./cards/cardInspection";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { Dispatch, SetStateAction } from "react";
 import { User } from "lightning-accounts";
@@ -85,7 +86,7 @@ export interface ITrucoshiActions {
     options?: IRewardCodeRedeemOptions
   ): Promise<IRewardCodeRedeemOutcome>;
   setCardDisplayMode(mode: CardDisplayMode): void;
-  inspectCard: Dispatch<SetStateAction<ICard | null>>;
+  inspectCard: Dispatch<SetStateAction<CardInspectionInput>>;
   refetchMe: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<AxiosResponse<User, any>, AxiosError<unknown, any>>>;
@@ -120,7 +121,7 @@ export interface ITrucoshiState {
   cardDisplayMode: CardDisplayMode;
   cardsReady: boolean;
   cardsLoading: boolean;
-  inspectedCard: ICard | null;
+  inspectedCard: IInspectedCard | null;
   cards: CardSources;
   isSidebarOpen: boolean;
   stats: ITrucoshiStats;

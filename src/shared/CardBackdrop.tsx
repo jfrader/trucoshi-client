@@ -1,17 +1,28 @@
-import { BackdropProps, Box, CircularProgress, IconButton, Stack, styled } from "@mui/material";
+import {
+  BackdropProps,
+  Box,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Stack,
+  styled,
+} from "@mui/material";
 import { PropsWithChildren, SetStateAction, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
-import { ICard } from "trucoshi";
 import { FlipGameCard } from "../components/card/GameCard";
 import { CardDisplayModeToggle } from "../components/card/CardDisplayModeToggle";
 import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useSound } from "../sound/hooks/useSound";
+import { InventoryButton } from "../components/card/InventoryButton";
+import { IInspectedCard } from "../trucoshi/cards/cardInspection";
+import { ResultCardLabel } from "../components/treasure/TreasureChestPanel.styles";
+import { CARDS_HUMAN_READABLE } from "trucoshi";
 
 type Props = PropsWithChildren<
   Pick<ITrucoshiActions, "inspectCard"> &
     Pick<ITrucoshiState, "cardsReady"> &
-    Omit<BackdropProps, "open"> & { card: ICard | null }
+    Omit<BackdropProps, "open"> & { card: IInspectedCard | null }
 >;
 
 const StyledBackdrop = styled(Backdrop)({});
@@ -46,14 +57,23 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
         onClick={(e) => e.stopPropagation()}
       >
         {cardsReady ? (
-          <FlipGameCard card={card} width="17em" flip={flip} />
+          <FlipGameCard
+            card={card.card}
+            width="17em"
+            flip={flip}
+            cardSkinId={card.cardSkinId}
+            displayMode={card.displayMode}
+          />
         ) : (
           <Box width="17em">
             <CircularProgress />
           </Box>
         )}
         <Stack gap={2} alignItems="center" position="absolute" right="-1.8em" top="0">
-          <CardDisplayModeToggle />
+          <ResultCardLabel summarySize="compact">
+            {card && CARDS_HUMAN_READABLE[card.card]}
+          </ResultCardLabel>
+          <Divider />
           <IconButton
             title={flip ? "Revelar" : "Ocultar"}
             onClick={(e) => {
@@ -64,6 +84,7 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
           >
             {flip ? <Visibility /> : <VisibilityOff />}
           </IconButton>
+          <InventoryButton />
         </Stack>
       </Box>
     </StyledBackdrop>

@@ -6,7 +6,7 @@ import { CARDS_HUMAN_READABLE, ICard, ITreasureOpenResult } from "trucoshi";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../../shared/PageContainer";
 import { GameCard } from "../card/GameCard";
-import { CardDisplayModeToggle } from "../card/CardDisplayModeToggle";
+import { CardInspectionInput } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import {
   CardSkinId,
@@ -113,7 +113,7 @@ const InventoryCardStack = ({
   onOpen: () => void;
   onClose: () => void;
   onSelect: (card: ICard, cardSkinId: CardSkinId | null) => void;
-  onInspect: (card: ICard) => void;
+  onInspect: (card: CardInspectionInput) => void;
 }) => {
   const choices = getStackChoices(group);
   const hasVariants = choices.length > 1;
@@ -156,16 +156,24 @@ const InventoryCardStack = ({
     onSelect(card, choice.cardSkinId);
   };
 
-  const handleChoiceDoubleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onInspect(card);
+  const inspectChoice = (choice: StackChoice) => {
+    onInspect({
+      card,
+      cardSkinId: choice.cardSkinId || undefined,
+      displayMode: choice.defaultChoice ? "default" : "skins",
+    });
   };
 
-  const handleChoiceContextMenu = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleChoiceDoubleClick = (event: MouseEvent<HTMLButtonElement>, choice: StackChoice) => {
     event.preventDefault();
     event.stopPropagation();
-    onInspect(card);
+    inspectChoice(choice);
+  };
+
+  const handleChoiceContextMenu = (event: MouseEvent<HTMLButtonElement>, choice: StackChoice) => {
+    event.preventDefault();
+    event.stopPropagation();
+    inspectChoice(choice);
   };
 
   const handleChoiceTouchStart = (event: TouchEvent<HTMLButtonElement>, choice: StackChoice) => {
@@ -182,7 +190,7 @@ const InventoryCardStack = ({
 
     longTouchTimer.current = setTimeout(() => {
       longTouchTriggered.current = true;
-      onInspect(card);
+      inspectChoice(choice);
     }, LONG_TOUCH_MS);
   };
 
@@ -223,8 +231,8 @@ const InventoryCardStack = ({
         data-stack-index={index}
         disabled={disabled}
         onClick={(event) => handleChoiceClick(event, choice)}
-        onContextMenu={handleChoiceContextMenu}
-        onDoubleClick={handleChoiceDoubleClick}
+        onContextMenu={(event) => handleChoiceContextMenu(event, choice)}
+        onDoubleClick={(event) => handleChoiceDoubleClick(event, choice)}
         onTouchStart={(event) => handleChoiceTouchStart(event, choice)}
         onTouchEnd={clearLongTouch}
         onTouchCancel={clearLongTouch}
@@ -381,7 +389,7 @@ const InventoryCardStack = ({
       >
         {choices
           .slice(0, previewCount + 1)
-          .map((choice, index) => renderChoiceButton({ choice, index }))}
+          .map((choice, index) => renderChoiceButton({ choice, index, check: true }))}
         {saving ? (
           <CircularProgress
             size={24}
@@ -419,7 +427,7 @@ const InventoryCardTile = ({
   onOpen: () => void;
   onClose: () => void;
   onSelect: (card: ICard, cardSkinId: CardSkinId | null) => void;
-  onInspect: (card: ICard) => void;
+  onInspect: (card: CardInspectionInput) => void;
 }) => {
   const cardLabel = getCardLabel(card);
   const choices = getStackChoices(group);
@@ -511,7 +519,6 @@ export const InventoryPage = () => {
       account,
       isAccountPending,
       inventory,
-      inventoryLoading,
       treasureStatus,
       treasureLoading,
       treasureOpening,
@@ -535,7 +542,7 @@ export const InventoryPage = () => {
     }
 
     if (!account) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
 
@@ -612,6 +619,7 @@ export const InventoryPage = () => {
           }}
         >
           <Stack
+            position="relative"
             data-testid="inventory-game-header"
             direction="row"
             alignItems="center"
@@ -626,6 +634,9 @@ export const InventoryPage = () => {
             <Box
               sx={{
                 display: "grid",
+                position: "absolute",
+                left: "1rem",
+                top: "1rem",
                 placeItems: "center",
                 width: { xs: 42, sm: 48 },
                 height: { xs: 42, sm: 48 },
@@ -657,16 +668,6 @@ export const InventoryPage = () => {
               >
                 Las cartas que ven los demas cuando jugas.
               </Typography>
-            </Stack>
-            <Stack direction="row" alignItems="center" gap={1} flexShrink={0}>
-              {inventoryLoading ? <CircularProgress size={28} color="warning" /> : null}
-              <Box
-                sx={(theme) => ({
-                  "& .MuiIconButton-root": theme.trucoshiUi.inventory.displayTool,
-                })}
-              >
-                <CardDisplayModeToggle />
-              </Box>
             </Stack>
           </Stack>
 

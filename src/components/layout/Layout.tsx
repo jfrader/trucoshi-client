@@ -11,6 +11,7 @@ import { PropsWithChildren, useEffect } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
 import { themes } from "../../theme";
 import { CardBackdrop } from "../../shared/CardBackdrop";
+import { getInspectedCardKey } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
 import { useQuery } from "@tanstack/react-query";
@@ -176,7 +177,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
       </main>
 
       <CardBackdrop
-        key={inspectedCard}
+        key={getInspectedCardKey(inspectedCard)}
         card={inspectedCard}
         cardsReady={cardsReady}
         inspectCard={inspectCard}

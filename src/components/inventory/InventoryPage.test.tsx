@@ -330,16 +330,23 @@ describe("InventoryPage stack selector", () => {
 
     const defaultChoice = screen.getByTestId("inventory-stack-choice-1e-default");
     fireEvent.contextMenu(defaultChoice);
-    expect(inspectCard).toHaveBeenCalledWith("1e");
+    expect(inspectCard).toHaveBeenCalledWith(
+      expect.objectContaining({ card: "1e", displayMode: "default" }),
+    );
 
     fireEvent.doubleClick(defaultChoice);
-    expect(inspectCard).toHaveBeenCalledWith("1e");
+    expect(inspectCard).toHaveBeenCalledWith(
+      expect.objectContaining({ card: "1e", displayMode: "default" }),
+    );
 
     fireEvent.touchStart(defaultChoice);
     vi.advanceTimersByTime(560);
     fireEvent.touchEnd(defaultChoice);
 
     expect(inspectCard).toHaveBeenCalledTimes(3);
+    expect(inspectCard).toHaveBeenLastCalledWith(
+      expect.objectContaining({ card: "1e", displayMode: "default" }),
+    );
     vi.useRealTimers();
   });
 });
