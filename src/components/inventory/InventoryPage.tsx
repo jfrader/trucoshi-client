@@ -556,7 +556,7 @@ export const InventoryPage = () => {
   }, {});
 
   const handleOpenCard = (card: ICard) => {
-    queue("menu0");
+    queue("miss1");
     setOpenCard(card);
   };
 
