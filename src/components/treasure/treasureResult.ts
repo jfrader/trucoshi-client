@@ -36,5 +36,5 @@ export const getRewardSound = (result: ITreasureOpenResult) => {
     return "back";
   }
 
-  return result.duplicate ? "flawless" : "winner";
+  return result.duplicate ? "ceba_toma_mate" : "winner";
 };

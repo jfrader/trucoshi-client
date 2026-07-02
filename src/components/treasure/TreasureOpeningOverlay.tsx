@@ -115,12 +115,6 @@ const useRewardPresentation = ({
       return;
     }
 
-    const soundKey = `${sceneResult?.chestId}:${sceneResult?.cardSkin?.id || "empty"}`;
-    if (chestOpenSoundKey.current !== soundKey) {
-      chestOpenSoundKey.current = soundKey;
-      queueRef.current("notification");
-    }
-
     setRewardPresented(false);
     setRewardRevealed(false);
 
@@ -337,7 +331,6 @@ export const TreasureOpeningOverlay = ({
   }
 
   const handleStartOpen = () => {
-    queue("menu1");
     onStartOpen?.();
   };
 
