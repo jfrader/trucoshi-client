@@ -9,6 +9,7 @@ import {
 } from "trucoshi";
 import { useToast } from "../../hooks/useToast";
 import { useTrucoshi } from "./useTrucoshi";
+import { useSound } from "../../sound/hooks/useSound";
 
 export type MatchQueuePlayerCount = 0 | IJoinQueueOptions["maxPlayers"];
 export type JoinMatchQueueOptions = Omit<IJoinQueueOptions, "maxPlayers"> & {
@@ -21,6 +22,7 @@ export const useMatchQueue = () => {
     { setQueueing, setQueueStatus, setQueueReplayOptions },
     socket,
   ] = useTrucoshi();
+  const sound = useSound();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -62,21 +64,22 @@ export const useMatchQueue = () => {
 
           setQueueStatus(nextStatus || null);
           setQueueing(Boolean(nextStatus));
-        }
+        },
       );
     },
-    [isConnected, setQueueReplayOptions, setQueueStatus, setQueueing, socket, toast]
+    [isConnected, setQueueReplayOptions, setQueueStatus, setQueueing, socket, toast],
   );
 
   useEffect(() => {
     const handleQueueUpdate = (nextStatus: IQueueStatus) => {
       setQueueStatus((current) =>
-        !current || current.requestId === nextStatus.requestId ? nextStatus : current
+        !current || current.requestId === nextStatus.requestId ? nextStatus : current,
       );
       setQueueing(true);
     };
 
     const handleMatchFound = (match: IQueueMatchFound) => {
+      sound.queue("shuffle");
       setQueueing(false);
       setQueueStatus(null);
       setQueueReplayOptions(null);
