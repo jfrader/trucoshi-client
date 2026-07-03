@@ -1,26 +1,18 @@
-import {
-  Box,
-  CssBaseline,
-  Paper,
-  ThemeProvider,
-  styled,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, CssBaseline, Paper, ThemeProvider, styled, useMediaQuery } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
 import { themes } from "../../theme";
 import { CardBackdrop } from "../../shared/CardBackdrop";
 import { getInspectedCardKey } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
-import { useQuery } from "@tanstack/react-query";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
-import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { Sidebar } from "./Sidebar";
 import { useTheme } from "@mui/material";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
+import { useVersionReload } from "../../hooks/useVersionReload";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -46,49 +38,16 @@ const LayoutContainer = styled(Box)(({ theme }) => [
   },
 ]);
 
-const VERSION_CHECK_TIME = 1000 * 5 * 60;
-
 export const Layout = ({ children }: PropsWithChildren) => {
-  const modal = useConfirmationModal();
+  const theme = useTheme();
   const matchRoute = useRouteMatch("/match/:sessionId");
   const lobbyRoute = useRouteMatch("/lobby/:sessionId");
   const isGameSurface = Boolean(matchRoute || lobbyRoute);
-
-  const theme = useTheme();
-
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const { modal } = useVersionReload({ currentVersion: import.meta.env.VITE_APP_VERSION });
+
   const [{ inspectedCard, cardsReady, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
-
-  const versionCheck = useQuery({
-    queryKey: ["app-version-check"],
-    queryFn: async () => {
-      const res = await fetch("/version.json");
-      return res.json();
-    },
-    enabled: import.meta.env.MODE === "production",
-    refetchInterval: VERSION_CHECK_TIME,
-    gcTime: 0,
-    staleTime: 0,
-  });
-
-  useEffect(() => {
-    if (
-      versionCheck.data &&
-      versionCheck.data.version.trim() !== import.meta.env.VITE_APP_VERSION
-    ) {
-      modal.onOpen({
-        onConfirm: () => {
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-        },
-        acceptLabel: "Recargar",
-        title: "Una nueva version esta disponible!",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [versionCheck.data, versionCheck.isFetching]);
 
   return (
     <ThemeProvider
