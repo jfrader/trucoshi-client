@@ -36,7 +36,10 @@ export const useMatchQueue = () => {
     socket.emit(EClientEvent.LEAVE_QUEUE, ({ error }) => {
       if (error) {
         toast.error(error.message || "No se pudo salir de la cola");
+        return;
       }
+
+      sound.queue("menu0");
     });
     setQueueStatus(null);
     setQueueing(false);
@@ -61,6 +64,8 @@ export const useMatchQueue = () => {
             toast.error(error?.message || "No se pudo entrar a la cola");
             return;
           }
+
+          sound.queue("menu1");
 
           setQueueStatus(nextStatus || null);
           setQueueing(Boolean(nextStatus));
