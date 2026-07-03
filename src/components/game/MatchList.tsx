@@ -1,3 +1,4 @@
+import { AddBox, VideogameAsset } from "@mui/icons-material";
 import {
   Badge,
   BadgeProps,
@@ -6,6 +7,7 @@ import {
   ListItemAvatar,
   ListItemButton,
   ListItemText,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -61,9 +63,17 @@ export const MatchList = ({
                 <Tooltip
                   key={info.matchSessionId}
                   placement="right"
-                  title={<Typography color={color}>{state}</Typography>}
+                  title={
+                    <Stack>
+                      <Typography fontSize="small" color={color}>{state}</Typography>
+                      <Typography fontSize="small" >
+                        {info.createdFromQueue ? "Ranked" : "Custom"}
+                      </Typography>
+                    </Stack>
+                  }
                 >
                   <ListItemButton
+                    sx={{ background: "transparent", borderBottom: "none" }}
                     onClick={() =>
                       navigate(
                         isStarted
@@ -72,6 +82,13 @@ export const MatchList = ({
                       )
                     }
                   >
+                    <ListItemAvatar>
+                      {info.createdFromQueue ? (
+                        <VideogameAsset fontSize="small" />
+                      ) : (
+                        <AddBox fontSize="small" />
+                      )}
+                    </ListItemAvatar>
                     <ListItemText>
                       <b>{info.matchSessionId}</b>
                       <div>{info.ownerId}</div>

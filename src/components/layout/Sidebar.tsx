@@ -7,6 +7,9 @@ import { MatchList } from "../game/MatchList";
 import { Topbar } from "./Topbar";
 import StyleIcon from "@mui/icons-material/Style";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import { TrucoshiText } from "../../shared/TrucoshiText";
+import { Link } from "../../shared/Link";
+import { Typography } from "@mui/material";
 
 const SIDEBAR_WIDTH = { xs: "100vw", sm: "24rem", md: "26rem" };
 
@@ -90,19 +93,28 @@ export const Sidebar = ({
                 }}
               >
                 <WalletMenu />
-                <PlayMenu onMenuClick={onMenuClick} />
+                <Stack alignItems="center">
+                  <Link to="/" lineHeight={4}>
+                    <Typography height="26px" variant="h6">
+                      <TrucoshiText height="26px" />
+                    </Typography>
+                  </Link>
+                </Stack>
+                <PlayMenu smallPlayButton onMenuClick={onMenuClick} />
                 {activeMatches.length ? (
-                  <MatchList dense matches={activeMatches} title="Partidas activas" />
+                  <Card sx={(theme) => ({ mx: 2, ...theme.trucoshiUi.treasure.rewardFrame })}>
+                    <CardContent>
+                      <MatchList dense matches={activeMatches} title="Partidas activas" />
+                    </CardContent>
+                  </Card>
                 ) : null}
               </Stack>
               <Stack
                 data-testid="sidebar-bottom-actions"
                 gap={1}
-                sx={(theme) => ({
+                sx={() => ({
                   flex: "0 0 auto",
-                  pt: 1,
-                  borderTop: `1px solid ${theme.palette.divider}`,
-                  background: theme.palette.background.paper,
+                  py: 1,
                 })}
               >
                 {account ? (
@@ -138,16 +150,18 @@ export const Sidebar = ({
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    color="success"
-                    fullWidth
-                    onClick={() => {
-                      onMenuClick();
-                      navigate(`/register`);
-                    }}
-                  >
-                    Registrarse
-                  </Button>
+                  <Stack alignItems="center">
+                    <Button
+                      color="success"
+                      variant="contained"
+                      onClick={() => {
+                        onMenuClick();
+                        navigate(`/register`);
+                      }}
+                    >
+                      Registrarse
+                    </Button>
+                  </Stack>
                 )}
               </Stack>
             </Stack>

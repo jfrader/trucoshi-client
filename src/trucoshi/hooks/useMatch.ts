@@ -347,7 +347,11 @@ export const useMatch = (
 
   const leaveMatch = useCallback(() => {
     if (matchId && matchState.match) {
-      socket.emit(EClientEvent.LEAVE_MATCH, matchId);
+      socket.emit(EClientEvent.LEAVE_MATCH, matchId, ({ activeMatches }) => {
+        if (activeMatches) {
+          context.dispatch.setActiveMatches(activeMatches)
+        }
+      });
     }
   }, [matchId, matchState.match, socket]);
 

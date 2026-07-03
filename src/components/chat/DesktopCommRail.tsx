@@ -9,7 +9,7 @@ type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
 };
 
-const RailRoot = styled(Paper)(() => ({
+const RailRoot = styled(Paper)(({ theme }) => ({
   position: "relative",
   height: "100%",
   minHeight: 0,
@@ -17,6 +17,7 @@ const RailRoot = styled(Paper)(() => ({
   display: "flex",
   flexDirection: "column",
   backdropFilter: "blur(1px)",
+  borderRight: theme.trucoshiUi.chatDrawer.railHeaderBorderBottom,
 }));
 
 const RailHeader = styled(Stack)(({ theme }) => ({
@@ -55,7 +56,13 @@ export const DesktopCommRail = ({ chatProps }: Props) => {
         </Tabs>
       </RailHeader>
 
-      <Box position="relative" minHeight={0} flex={1} overflow="hidden">
+      <Box
+        className="ChatRoom_container"
+        position="relative"
+        minHeight={0}
+        flex={1}
+        overflow="hidden"
+      >
         {tab === "debug" ? (
           <RailDebugPanel />
         ) : (

@@ -16,12 +16,13 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ITrucoshiStats } from "trucoshi";
-import { MouseEvent, ReactNode, SyntheticEvent, useEffect, useState } from "react";
-import GamepadIcon from "@mui/icons-material/Gamepad";
+import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
+import { PlayButton } from "./PlayButton";
+import { KeyboardBackspace } from "@mui/icons-material";
 
 const formatElapsedTime = (milliseconds: number) => {
   const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
@@ -50,17 +51,19 @@ export const OnlinePlayers = ({ stats, label }: { stats: ITrucoshiStats; label?:
 export const PlayMenu = ({
   onMenuClick,
   eyebrow,
+  smallPlayButton,
   showNoticeBanner,
   ...props
 }: BoxProps & {
   eyebrow?: boolean;
   showNoticeBanner?: boolean;
+  smallPlayButton?: boolean;
   onMenuClick?: (e: SyntheticEvent) => void;
 }) => {
   const navigate = useNavigate();
   const [{ account, stats, activeMatches, queueReplayOptions, serverAheadTime }] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
-  const [maxPlayers, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
+  const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
   const [now, setNow] = useState(Date.now());
   const queuedMatch = activeMatches.find((match) => match.createdFromQueue);
@@ -105,16 +108,29 @@ export const PlayMenu = ({
         ? `Bots en ${botFallbackRemaining}s`
         : "Preparando bots"
     : "Buscando rivales";
-  const handlePlayClick = (event: MouseEvent<HTMLButtonElement>) => {
+
+  const handlePlay = ({
+    maxPlayers,
+    allowBots,
+  }: {
+    maxPlayers: MatchQueuePlayerCount;
+    allowBots: boolean;
+  }) => {
     if (queuedMatch && !isQueueing) {
-      onMenuClick?.(event);
       navigate(`/match/${queuedMatch.matchSessionId}`);
       return;
     }
 
-    joinQueue({ maxPlayers, allowBots: playWithBots });
+    joinQueue({ maxPlayers, allowBots });
   };
-  const playButtonLabel = isQueueing ? "Buscando..." : queuedMatch ? "Volver a partida" : "Jugar!";
+
+  const handlePlayClick = (event: SyntheticEvent) => {
+    if (queuedMatch && !isQueueing) {
+      onMenuClick?.(event);
+    }
+
+    handlePlay({ maxPlayers: maxPlayerCount, allowBots: playWithBots });
+  };
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" {...props}>
@@ -132,17 +148,26 @@ export const PlayMenu = ({
         </Stack>
       ) : null}
       <FormGroup>
-        <Stack gap={1.25} p={2} mb={2}>
+        <Stack gap={1.25} p={2} mb={1}>
           {queuedMatch ? null : (
             <ToggleButtonGroup
               exclusive
               fullWidth
               color="warning"
-              disabled={isQueueing}
-              value={maxPlayers}
+              value={maxPlayerCount}
               onChange={(_, value: MatchQueuePlayerCount | null) => {
                 if (value !== null) {
                   setMaxPlayers(value);
+
+                  if (isQueueing) {
+                    leaveQueue();
+                    requestAnimationFrame(() => {
+                      handlePlay({
+                        maxPlayers: value,
+                        allowBots: playWithBots,
+                      });
+                    });
+                  }
                 }
               }}
               sx={(theme) => ({
@@ -170,42 +195,7 @@ export const PlayMenu = ({
               </ToggleButton>
             </ToggleButtonGroup>
           )}
-          <Stack direction="row" gap={1} alignItems="center">
-            <Button
-              fullWidth
-              sx={() => ({ px: 2, fontWeight: 800, minHeight: "2.75rem" })}
-              color="warning"
-              size="large"
-              variant="contained"
-              disabled={isQueueing}
-              startIcon={
-                isQueueing ? <CircularProgress color="inherit" size={18} /> : <GamepadIcon />
-              }
-              onClick={handlePlayClick}
-            >
-              {playButtonLabel}
-            </Button>
-            {isQueueing ? (
-              <Tooltip title="Cancelar cola">
-                <IconButton
-                  aria-label="Cancelar cola"
-                  color="inherit"
-                  onClick={leaveQueue}
-                  sx={(theme) => ({
-                    ...theme.trucoshiUi.queue.cancelButton,
-                    width: "2.75rem",
-                    height: "2.75rem",
-                    flex: "0 0 auto",
-                  })}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </Tooltip>
-            ) : null}
-          </Stack>
-          {showNoticeBanner ? (
-            <NoticeBannerSlot dismissible={false} ignoreDismissal />
-          ) : null}
+
           {queuedMatch ? null : (
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
               <FormControlLabel
@@ -214,8 +204,19 @@ export const PlayMenu = ({
                   <Checkbox
                     color="warning"
                     checked={playWithBots}
-                    disabled={isQueueing}
-                    onChange={(event) => setPlayWithBots(event.target.checked)}
+                    onChange={(event) => {
+                      setPlayWithBots(event.target.checked);
+
+                      if (isQueueing) {
+                        leaveQueue();
+                        requestAnimationFrame(() => {
+                          handlePlay({
+                            maxPlayers: maxPlayerCount,
+                            allowBots: event.target.checked,
+                          });
+                        });
+                      }
+                    }}
                   />
                 }
                 label={
@@ -234,10 +235,57 @@ export const PlayMenu = ({
                 noWrap
               >
                 <GroupsIcon fontSize="inherit" />
-                {maxPlayers || "Todo"}
+                {maxPlayerCount || "Todo"}
               </Typography>
             </Stack>
           )}
+          <Stack
+            flexWrap="wrap"
+            direction="row"
+            gap={2}
+            alignItems="center"
+            justifyContent="center"
+          >
+            {queuedMatch ? (
+              <Button
+                startIcon={<KeyboardBackspace />}
+                size="large"
+                onClick={handlePlayClick}
+                variant="contained"
+                color="warning"
+              >
+                Volver a la partida
+              </Button>
+            ) : (
+              <PlayButton
+                maxHeight={smallPlayButton ? "78px" : undefined}
+                onClick={handlePlayClick}
+                disabled={isQueueing}
+              />
+            )}
+            <Tooltip title="Cancelar cola">
+              <Box position="absolute" visibility={isQueueing ? "visible" : "hidden"}>
+                <CircularProgress
+                  color="inherit"
+                  size="2.75rem"
+                  sx={{ mr: 1, position: "absolute" }}
+                />
+                <IconButton
+                  aria-label="Cancelar cola"
+                  color="inherit"
+                  onClick={leaveQueue}
+                  sx={(theme) => ({
+                    ...theme.trucoshiUi.queue.cancelButton,
+                    width: "2.75rem",
+                    height: "2.75rem",
+                  })}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </Tooltip>
+          </Stack>
+          {showNoticeBanner ? <NoticeBannerSlot dismissible={false} ignoreDismissal /> : null}
           {isQueueing ? (
             <Stack
               direction="row"
@@ -266,15 +314,8 @@ export const PlayMenu = ({
           ) : null}
         </Stack>
         <Stack direction="row" justifyContent="center">
-          <Button
-            sx={() => ({ px: 5, fontWeight: 800, fontSize: "large" })}
-            color="warning"
-            size="large"
-            onClick={onMenuClick}
-            component={Link}
-            to="/matches"
-          >
-            Partidas
+          <Button color="warning" size="large" onClick={onMenuClick} component={Link} to="/matches">
+            Crear / Buscar partida
           </Button>
         </Stack>
         <Button color="primary" size="large" onClick={onMenuClick} component={Link} to="/ranking">
