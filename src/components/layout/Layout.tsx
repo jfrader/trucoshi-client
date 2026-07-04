@@ -1,4 +1,13 @@
-import { Box, CssBaseline, Paper, ThemeProvider, styled, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  Paper,
+  Stack,
+  ThemeProvider,
+  Typography,
+  styled,
+  useMediaQuery,
+} from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import { PropsWithChildren } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
@@ -13,6 +22,8 @@ import { useTheme } from "@mui/material";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 import { useVersionReload } from "../../hooks/useVersionReload";
+import { Backdrop } from "../../shared/Backdrop";
+import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -48,6 +59,8 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const { modal } = useVersionReload({ currentVersion: import.meta.env.VITE_APP_VERSION });
 
   const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
+
+  const matchQueue = useMatchQueue();
 
   return (
     <ThemeProvider
@@ -143,6 +156,21 @@ export const Layout = ({ children }: PropsWithChildren) => {
         displayMode={cardDisplayMode}
         inspectCard={inspectCard}
       />
+
+      <Backdrop
+        hideLogo
+        message="¡Partida Encontrada!"
+        opacity={0.85}
+        showChat
+        open={!matchQueue.matchFound}
+      >
+        <Stack gap={1.75} justifyContent="center" alignItems="center" direction="row">
+          <Typography variant="h5">El juego inicia en...</Typography>
+          <Typography variant="h3" fontWeight="bold" color="success.main">
+            {matchQueue.waitSeconds}
+          </Typography>
+        </Stack>
+      </Backdrop>
 
       <ConfirmationModal preventCloseOnBackdropClick {...modal} />
     </ThemeProvider>

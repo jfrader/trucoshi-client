@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   EClientEvent,
@@ -16,6 +16,8 @@ export type JoinMatchQueueOptions = Omit<IJoinQueueOptions, "maxPlayers"> & {
   maxPlayers: MatchQueuePlayerCount;
 };
 
+const WAIT_BEFORE_START_SECONDS = 3
+
 export const useMatchQueue = () => {
   const [
     { isConnected, isQueueing, queueStatus: status },
@@ -25,6 +27,9 @@ export const useMatchQueue = () => {
   const sound = useSound();
   const toast = useToast();
   const navigate = useNavigate();
+
+  const [matchFound, setMatchFound] = useState(false);
+  const [waitSeconds, setWaitSeconds] = useState(0);
 
   const leaveQueue = useCallback(() => {
     if (!isQueueing) {
@@ -84,11 +89,28 @@ export const useMatchQueue = () => {
     };
 
     const handleMatchFound = (match: IQueueMatchFound) => {
-      sound.queue("shuffle");
-      setQueueing(false);
-      setQueueStatus(null);
-      setQueueReplayOptions(null);
-      navigate(`/match/${match.matchSessionId}`);
+      setMatchFound(true);
+      sound.queue("menu0");
+      setWaitSeconds(WAIT_BEFORE_START_SECONDS);
+
+      const interval = setInterval(() => {
+        setWaitSeconds((c) => c - 1);
+      }, 1000);
+
+      const timer = setTimeout(() => {
+        clearTimeout(interval);
+        setQueueing(false);
+        setQueueStatus(null);
+        setQueueReplayOptions(null);
+        sound.queue("shuffle");
+        setMatchFound(false);
+        navigate(`/match/${match.matchSessionId}`);
+      }, 1000 * WAIT_BEFORE_START_SECONDS );
+
+      return () => {
+        clearTimeout(interval);
+        clearTimeout(timer);
+      };
     };
 
     socket.on(EServerEvent.QUEUE_UPDATE, handleQueueUpdate);
@@ -102,6 +124,8 @@ export const useMatchQueue = () => {
 
   return {
     status,
+    matchFound,
+    waitSeconds,
     isQueueing,
     joinQueue,
     leaveQueue,
