@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ITreasureOpenResult } from "trucoshi";
 import { IInventoryCardGroup, IInventoryCardSkin } from "../../trucoshi/cards/skinRegistry";
@@ -16,10 +16,16 @@ const devGrantTreasureChest = vi.fn();
 const soundMocks = vi.hoisted(() => ({
   queue: vi.fn(),
 }));
+const cardImageMocks = vi.hoisted(() => ({
+  ready: true,
+  choiceImagesReady: true,
+  preloadCardImageSources: vi.fn(() => Promise.resolve()),
+}));
 
 let inventory: IInventoryCardGroup[] = [];
 let account: any = { id: 1, name: "Player 0" };
 let treasureResult: ITreasureOpenResult | null = null;
+let inventoryLoading = false;
 
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
@@ -35,7 +41,7 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
       account,
       isAccountPending: false,
       inventory,
-      inventoryLoading: false,
+      inventoryLoading,
       treasureStatus: {
         progress: 1,
         threshold: 3,
@@ -61,6 +67,26 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
 vi.mock("../../sound/hooks/useSound", () => ({
   useSound: () => ({
     queue: soundMocks.queue,
+  }),
+}));
+
+vi.mock("../../trucoshi/cards/cardImageLoader", () => ({
+  getCardImageRequestSources: ({ card, cardSkinId, displayMode }: any) => [
+    `${displayMode || "skins"}-${card}-${cardSkinId || "default"}`,
+  ],
+  getCardImageSource: ({ card, cardSkinId, displayMode }: any) =>
+    `${displayMode || "skins"}-${card}-${cardSkinId || "default"}`,
+  getInventoryCardImageSources: () => ["inventory-source"],
+  getReadyCardImageSource: ({ card, cardSkinId, displayMode }: any) =>
+    cardImageMocks.choiceImagesReady
+      ? `${displayMode || "skins"}-${card}-${cardSkinId || "default"}`
+      : undefined,
+  isCardImageSourceComplete: () => cardImageMocks.choiceImagesReady,
+  isCardImageSourceReady: () => cardImageMocks.choiceImagesReady,
+  preloadCardImageSources: cardImageMocks.preloadCardImageSources,
+  useCardImagePreload: () => ({
+    ready: cardImageMocks.ready,
+    loading: !cardImageMocks.ready,
   }),
 }));
 
@@ -124,8 +150,13 @@ describe("InventoryPage stack selector", () => {
     openTreasureChest.mockClear();
     devGrantTreasureChest.mockClear();
     soundMocks.queue.mockClear();
+    cardImageMocks.ready = true;
+    cardImageMocks.choiceImagesReady = true;
+    cardImageMocks.preloadCardImageSources.mockReset();
+    cardImageMocks.preloadCardImageSources.mockResolvedValue(undefined);
     account = { id: 1, name: "Player 0" };
     treasureResult = null;
+    inventoryLoading = false;
     inventory = [
       {
         card: "1e",
@@ -153,10 +184,6 @@ describe("InventoryPage stack selector", () => {
       "data-card-width",
       "var(--inventory-card-width)"
     );
-    expect(screen.getByTestId("inventory-stack-selected-1e-default")).toHaveAttribute(
-      "data-position",
-      "left"
-    );
     expect(screen.getAllByTestId("game-card-1e")[0]).toHaveAttribute(
       "data-width",
       "var(--inventory-card-width)"
@@ -165,6 +192,15 @@ describe("InventoryPage stack selector", () => {
     expect(screen.queryByTestId("inventory-skin-count-3c")).not.toBeInTheDocument();
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "false");
     expect(screen.getByTestId("treasure-panel")).toHaveTextContent("Cofre listo");
+  });
+
+  it("shows card skeletons while inventory or skin images are loading", () => {
+    cardImageMocks.ready = false;
+
+    renderInventory();
+
+    expect(screen.getByTestId("inventory-card-skeleton-1e")).toBeInTheDocument();
+    expect(screen.queryByTestId("inventory-stack-1e")).not.toBeInTheDocument();
   });
 
   it("opens a saved treasure chest from inventory", () => {
@@ -200,7 +236,7 @@ describe("InventoryPage stack selector", () => {
 
     fireEvent.click(screen.getByTestId("inventory-stack-choice-1e-default"));
 
-    expect(soundMocks.queue).toHaveBeenCalledWith("menu0");
+    expect(soundMocks.queue).toHaveBeenCalledWith("miss1");
     expect(screen.getByTestId("inventory-stack-1e")).toHaveAttribute("data-open", "true");
     expect(screen.getByTestId("inventory-stack-choice-1e-default")).toHaveAttribute(
       "data-selected",
@@ -249,6 +285,33 @@ describe("InventoryPage stack selector", () => {
     expect(soundMocks.queue).toHaveBeenCalledWith("back");
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "false");
     expect(screen.queryByTestId("inventory-skin-selector-1e")).not.toBeInTheDocument();
+  });
+
+  it("waits for the exact selector card images before mounting the selector", async () => {
+    let resolvePreload: () => void = () => undefined;
+    cardImageMocks.choiceImagesReady = false;
+    cardImageMocks.preloadCardImageSources.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolvePreload = resolve;
+        }),
+    );
+
+    renderInventory();
+
+    fireEvent.click(screen.getByTestId("inventory-stack-choice-1e-default"));
+
+    expect(soundMocks.queue).toHaveBeenCalledWith("miss1");
+    expect(screen.getByTestId("inventory-stack-1e")).toHaveAttribute("data-open", "false");
+    expect(screen.queryByTestId("inventory-skin-selector-1e")).not.toBeInTheDocument();
+
+    await act(async () => {
+      cardImageMocks.choiceImagesReady = true;
+      resolvePreload();
+    });
+
+    expect(screen.getByTestId("inventory-stack-1e")).toHaveAttribute("data-open", "true");
+    expect(screen.getByTestId("inventory-skin-selector-1e")).toBeInTheDocument();
   });
 
   it("clears an equipped skin by selecting the default card", async () => {

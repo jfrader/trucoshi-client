@@ -1,26 +1,38 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard, SUITS_HUMAN_READABLE } from "trucoshi";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { useCards } from "../../trucoshi/hooks/useCards";
-import { ICardTheme } from "../../trucoshi/types";
-import { CardDisplayMode, resolveCardImage } from "../../trucoshi/cards/cardSkinResolver";
+import { CardDisplayMode } from "../../trucoshi/cards/cardSkinResolver";
 import { resolveInspectionCardSkinId } from "../../trucoshi/cards/cardInspection";
 import { CardSkinId } from "../../trucoshi/cards/skinRegistry";
 import { ElementType, memo, MouseEventHandler } from "react";
+import {
+  getCardImageRequestSources,
+  getReadyCardImageSource,
+  useCardImagePreload,
+} from "../../trucoshi/cards/cardImageLoader";
 
 const cardContainerSx = {
   position: "relative",
+  display: "inline-block",
   lineHeight: 1,
   perspective: "28em",
 };
 
+const flipContainerSx = (width: string) => ({
+  ...cardContainerSx,
+  width,
+  height: `calc(${width} * 1.48)`,
+});
+
 const flipWrapperSx = {
+  position: "relative",
+  width: "100%",
+  height: "100%",
   lineHeight: 1,
   letterSpacing: 0,
   pr: "2px",
   transition: "transform 0.3s",
   transformStyle: "preserve-3d",
-  backfaceVisibility: "hidden",
 };
 
 const flipWrapperFlippedSx = {
@@ -31,6 +43,7 @@ const flipWrapperFlippedSx = {
 const frontCardSx = {
   lineHeight: 1,
   position: "absolute",
+  inset: 0,
   backfaceVisibility: "hidden",
 };
 
@@ -75,11 +88,13 @@ export type GameCardProps = {
   zoom?: boolean;
   scale?: number;
   width?: string;
-  theme?: ICardTheme;
   cardSkinId?: CardSkinId;
   cardSkinByCard?: Partial<Record<ICard, CardSkinId>>;
+  fallbackCardSkinId?: CardSkinId;
   displayMode?: CardDisplayMode;
-  request?: boolean;
+  inspectCardValue?: ICard;
+  inspectCardSkinId?: CardSkinId;
+  inspectFlip?: boolean;
   shadow?: boolean;
   as?: ElementType;
 } & ButtonProps;
@@ -89,40 +104,59 @@ const _GameCard = ({
   disableDoubleClick = false,
   enableHover = false,
   burn = false,
-  request = false,
   zoom = false,
   scale = 1.75,
   shadow = false,
   width = "4.4em",
   disableButton,
   disabledMask = false,
-  theme = "",
   cardSkinId,
   cardSkinByCard,
+  fallbackCardSkinId,
   displayMode,
+  inspectCardValue,
+  inspectCardSkinId,
+  inspectFlip,
   ...buttonProps
 }: GameCardProps) => {
-  const [{ cardTheme, cards, cardsReady, cardDisplayMode }, { inspectCard }] = useTrucoshi();
-  const [reqCards, reqReady] = useCards({ theme, disabled: !request, cards: [card] });
+  const [{ cardDisplayImagesReady = true, cardDisplayMode }, { inspectCard }] = useTrucoshi();
 
-  const usedTheme = theme || cardTheme;
-  const themeReady = request ? reqReady : cardsReady;
-  const shouldUseLegacyTheme = Boolean(theme || request);
+  const usesGlobalDisplayMode = !displayMode;
   const effectiveDisplayMode = displayMode || cardDisplayMode || "skins";
+  const renderDisplayMode =
+    usesGlobalDisplayMode && effectiveDisplayMode !== "emoji" && !cardDisplayImagesReady
+      ? "emoji"
+      : effectiveDisplayMode;
   const name = burn ? BURNT_CARD : card;
+  const inspectionCard = inspectCardValue || card || BURNT_CARD;
   const inspectedCardSkinId =
-    name === card
-      ? resolveInspectionCardSkinId({
-          card,
+    inspectionCard !== BURNT_CARD
+      ? inspectCardSkinId ||
+        resolveInspectionCardSkinId({
+          card: inspectionCard,
           cardSkinId,
           cardSkinByCard,
         })
       : undefined;
+  const imageRequest = {
+    card: name,
+    cardSkinId: name === card ? cardSkinId : undefined,
+    cardSkinByCard: name === card ? cardSkinByCard : undefined,
+    displayMode: renderDisplayMode,
+    fallbackCardSkinId: name === card ? fallbackCardSkinId : undefined,
+  };
+
+  useCardImagePreload(
+    getCardImageRequestSources(imageRequest),
+    renderDisplayMode === "emoji",
+  );
+
   const inspectRenderedCard = () => {
     inspectCard({
-      card: card || BURNT_CARD,
+      card: inspectionCard,
       cardSkinId: inspectedCardSkinId,
       displayMode,
+      flip: inspectFlip,
     });
   };
 
@@ -139,21 +173,8 @@ const _GameCard = ({
     }
   };
 
-  const imageSource = shouldUseLegacyTheme
-    ? (request ? reqCards : cards)[name]
-    : resolveCardImage({
-        card: name,
-        cardSkinId: name === card ? cardSkinId : undefined,
-        cardSkinByCard: name === card ? cardSkinByCard : undefined,
-        displayMode: effectiveDisplayMode,
-      });
-  const showImage = shouldUseLegacyTheme
-    ? Boolean(usedTheme && themeReady && imageSource)
-    : Boolean(imageSource);
-  const showThemeLoadingOverlay = Boolean(shouldUseLegacyTheme && usedTheme && !themeReady);
-  const showMissingThemeAsset = Boolean(
-    shouldUseLegacyTheme && usedTheme && themeReady && !imageSource
-  );
+  const imageSource = getReadyCardImageSource(imageRequest);
+  const showImage = Boolean(imageSource);
 
   const events: ButtonProps = disableButton
     ? { component: "div" }
@@ -227,53 +248,45 @@ const _GameCard = ({
         <Box>{humanCard || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
         <Box sx={suitBottomSx}>{suit}</Box>
       </Box>
-      {showThemeLoadingOverlay ? (
-        <Box
-          sx={(theme) => ({
-            position: "absolute",
-            inset: 0,
-            borderRadius: "inherit",
-            background:
-              `linear-gradient(110deg, transparent 16%, ${theme.palette.action.hover} 42%, transparent 68%)`,
-            animation: "cardThemeLoadingShimmer 1.15s linear infinite",
-            boxShadow: `inset 0 0 0 1px ${theme.palette.action.selected}`,
-            pointerEvents: "none",
-            "@keyframes cardThemeLoadingShimmer": {
-              "0%": { transform: "translateX(-115%)" },
-              "100%": { transform: "translateX(115%)" },
-            },
-          })}
-        />
-      ) : null}
-      {showMissingThemeAsset ? (
-        <Box
-          sx={(theme) => ({
-            position: "absolute",
-            inset: 0,
-            borderRadius: "inherit",
-            boxShadow: `inset 0 0 0 2px ${theme.palette.error.main}`,
-            pointerEvents: "none",
-          })}
-        />
-      ) : null}
     </GameCardButton>
   );
 };
 
 export type FlipGameCardProps = { flip?: boolean } & GameCardProps;
 
-const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
-  <Box sx={cardContainerSx}>
-    <Box sx={flip ? flipWrapperFlippedSx : flipWrapperSx}>
-      <Box sx={frontCardSx}>
-        <GameCard {...props} />
-      </Box>
-      <Box sx={backCardSx}>
-        <GameCard {...props} card={BURNT_CARD} />
+const _FlipGameCard = ({ flip = false, width = "4.4em", ...props }: FlipGameCardProps) => {
+  const inspectedBackCardSkinId =
+    props.card !== BURNT_CARD
+      ? resolveInspectionCardSkinId({
+          card: props.card,
+          cardSkinId: props.cardSkinId,
+          cardSkinByCard: props.cardSkinByCard,
+        })
+      : undefined;
+
+  return (
+    <Box sx={flipContainerSx(width)}>
+      <Box sx={flip ? flipWrapperFlippedSx : flipWrapperSx}>
+        <Box sx={{ ...frontCardSx, pointerEvents: flip ? "none" : "auto" }}>
+          <GameCard {...props} width={width} />
+        </Box>
+        <Box sx={{ ...backCardSx, pointerEvents: flip ? "auto" : "none" }}>
+          <GameCard
+            {...props}
+            width={width}
+            card={BURNT_CARD}
+            cardSkinId={undefined}
+            cardSkinByCard={undefined}
+            fallbackCardSkinId={undefined}
+            inspectCardValue={props.card}
+            inspectCardSkinId={inspectedBackCardSkinId}
+            inspectFlip
+          />
+        </Box>
       </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 const GameCardButton = styled(Button, {
   shouldForwardProp: (prop) =>

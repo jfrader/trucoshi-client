@@ -25,11 +25,10 @@ import {
 } from "trucoshi";
 import useStateStorage from "../hooks/useStateStorage";
 import { createContext } from "react";
-import { ICardTheme, IRewardCodeRedeemOutcome, ITrucoshiContext } from "./types";
+import { IRewardCodeRedeemOutcome, ITrucoshiContext } from "./types";
 import { CardDisplayMode } from "./cards/cardSkinResolver";
 import { CardInspectionInput, normalizeCardInspection } from "./cards/cardInspection";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
-import { useCards } from "./hooks/useCards";
 import { useMe } from "../api/hooks/useMe";
 import { useCookies } from "react-cookie";
 import { User } from "lightning-accounts";
@@ -42,6 +41,11 @@ import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { getCookieName, getIdentityCookie } from "../utils/cookie";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
+import {
+  getDeckCardImageSources,
+  getDefaultCardImageSources,
+  useCardImagePreload,
+} from "./cards/cardImageLoader";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
@@ -75,7 +79,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [isLogged, setLogged] = useState<boolean>(false);
   const [lastPong, setLastPong] = useState<number | null>(null);
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
-  const [cardTheme, setCardTheme] = useStateStorage<ICardTheme>("cardtheme", "default");
   const [cardDisplayMode, setCardDisplayMode] = useStateStorage<CardDisplayMode>(
     "cardDisplayMode",
     "skins"
@@ -87,7 +90,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [treasureLoading, setTreasureLoading] = useState(false);
   const [treasureOpening, setTreasureOpening] = useState(false);
   const [treasureResult, setTreasureResult] = useState<ITreasureOpenResult | null>(null);
-  const [cards, cardsReady, cardsLoading] = useCards({ theme: cardTheme });
   const [inspectedCard, setInspectedCard] = useState(normalizeCardInspection(null));
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [version, setVersion] = useState("");
@@ -104,6 +106,17 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const timer = useRef<NodeJS.Timer | null>(null);
+
+  const appCardImageSources =
+    cardDisplayMode === "emoji"
+      ? []
+      : [
+          ...getDefaultCardImageSources(),
+          ...(cardDisplayMode === "skins" ? getDeckCardImageSources(equippedDeck) : []),
+        ];
+
+  const appCardImages = useCardImagePreload(appCardImageSources, cardDisplayMode === "emoji");
+  const cardDisplayImagesReady = cardDisplayMode === "emoji" || appCardImages.ready;
 
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
@@ -621,7 +634,6 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           isQueueing,
           queueReplayOptions,
           serverAheadTime,
-          cardTheme,
           inventory,
           equippedDeck,
           inventoryLoading,
@@ -630,8 +642,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           treasureOpening,
           treasureResult,
           cardDisplayMode,
-          cardsReady,
-          cardsLoading,
+          cardDisplayImagesReady,
           isSidebarOpen,
           inspectedCard,
           isLoggingIn: isLoadingAccount || isPendingLogin,
@@ -650,11 +661,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
               isPendingUpdateProfile,
             ]
           ),
-          cards,
         },
         dispatch: {
           setDark,
-          setCardTheme,
           fetchInventory,
           setDeckCardSkin,
           fetchTreasureStatus,

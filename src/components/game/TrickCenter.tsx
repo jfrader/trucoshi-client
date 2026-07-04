@@ -6,6 +6,7 @@ import { useBoardLayout } from "../../board";
 import { useMatchGameplay } from "./MatchGameplayContext";
 import { getMessageContent } from "../chat/ChatRoom";
 import { getTeamColor } from "../../utils/team";
+import { useMatchCardSkins } from "./MatchCardSkinsContext";
 
 const COMMAND_ANNOUNCEMENT_DURATION_MS = 3000;
 
@@ -73,6 +74,7 @@ export const TrickCenter = () => {
     state: { rounds, slots, chatProps },
   } = useMatchGameplay();
   const layout = useBoardLayout();
+  const { getFallbackCardSkinId } = useMatchCardSkins();
   const [openStackPlayerKey, setOpenStackPlayerKey] = useState<string | null>(null);
   const [visibleCommandAnnouncement, setVisibleCommandAnnouncement] = useState<IChatMessage | null>(
     null,
@@ -283,6 +285,11 @@ export const TrickCenter = () => {
                   <GameCard
                     card={played.card}
                     cardSkinId={played.cardSkinId}
+                    fallbackCardSkinId={getFallbackCardSkinId(
+                      "isMe" in played.player ? played.player.isMe : undefined,
+                      played.card,
+                      played.cardSkinId,
+                    )}
                     width={playedCardWidth}
                     shadow
                   />

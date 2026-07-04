@@ -13,11 +13,10 @@ const bellySize = 21;
 
 export const TomaMate = () => {
   const { queue } = useSound();
-  const [{ cardTheme }, { setCardTheme }, socket] = useTrucoshi();
+  const [, , socket] = useTrucoshi();
   const [shake, setShake] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [belly, setBelly] = useState(0);
-  const isArgento = cardTheme === "argento";
 
   const match = useMatch("/match/:sessionId");
   const lobby = useMatch("/lobby/:sessionId");
@@ -27,11 +26,11 @@ export const TomaMate = () => {
       <AnimatedButton
         shake={shake}
         size="small"
-        color={isArgento ? "primary" : shake ? "success" : "default"}
-        title={isArgento ? "Cartas argentas activadas" : "Toma mate"}
+        color={shake ? "success" : "default"}
+        title="Toma mate"
         disabled={disabled}
         onClick={() => {
-          if (isArgento || shake) {
+          if (shake) {
             return;
           }
 
@@ -51,12 +50,7 @@ export const TomaMate = () => {
             }
             if (status === "finished") {
               setShake(false);
-              setBelly((c) => {
-                if (c >= bellySize - 1) {
-                  setCardTheme("argento");
-                }
-                return c + 1;
-              });
+              setBelly((c) => Math.min(c + 1, bellySize));
             }
           });
         }}

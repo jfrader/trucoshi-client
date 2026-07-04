@@ -9,7 +9,7 @@ import {
 const mocks = vi.hoisted(() => ({
   inspectCard: vi.fn(),
   state: {
-    cardsReady: true,
+    cardDisplayMode: "skins",
     dark: "true",
     inspectedCard: null,
     isSidebarOpen: false,

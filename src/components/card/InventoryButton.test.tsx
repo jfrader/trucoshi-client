@@ -6,6 +6,11 @@ import { CardDisplayModeToggle } from "./CardDisplayModeToggle";
 import { CardToggler } from "./CardToggler";
 import { InventoryButton } from "./InventoryButton";
 import { CardBackdrop } from "../../shared/CardBackdrop";
+import {
+  markCardImageSourceReadyForTest,
+  resetCardImageCacheForTest,
+} from "../../trucoshi/cards/cardImageLoader";
+import { resolveDefaultCardImage, resolveSkinImage } from "../../trucoshi/cards/cardSkinResolver";
 
 const mocks = vi.hoisted(() => ({
   queue: vi.fn(),
@@ -14,8 +19,6 @@ const mocks = vi.hoisted(() => ({
   state: {
     account: { id: 1, name: "Player 0" },
     cardDisplayMode: "skins",
-    cardsLoading: false,
-    cardsReady: true,
     equippedDeck: {
       "1e": "argentino/1e_argentino_001",
     },
@@ -70,6 +73,7 @@ beforeEach(() => {
     threshold: 3,
     unopenedChests: [{ id: 4, earnedAt: "2026-07-01T00:00:00.000Z" }],
   };
+  resetCardImageCacheForTest();
 });
 
 describe("InventoryButton", () => {
@@ -146,6 +150,9 @@ describe("selected card skins", () => {
   });
 
   it("passes equipped skins and shows inventory access in CardBackdrop", () => {
+    markCardImageSourceReadyForTest(resolveSkinImage("argentino/1e_argentino_002"));
+    markCardImageSourceReadyForTest(resolveDefaultCardImage("1e"));
+
     renderInRouter(
       <CardBackdrop
         card={{
@@ -153,7 +160,6 @@ describe("selected card skins", () => {
           cardSkinId: "argentino/1e_argentino_002",
           displayMode: "skins",
         }}
-        cardsReady
         inspectCard={mocks.inspectCard}
       />,
     );

@@ -47,7 +47,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
   const { modal } = useVersionReload({ currentVersion: import.meta.env.VITE_APP_VERSION });
 
-  const [{ inspectedCard, cardsReady, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
+  const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
 
   return (
     <ThemeProvider
@@ -140,7 +140,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
       <CardBackdrop
         key={getInspectedCardKey(inspectedCard)}
         card={inspectedCard}
-        cardsReady={cardsReady}
+        displayMode={cardDisplayMode}
         inspectCard={inspectCard}
       />
 

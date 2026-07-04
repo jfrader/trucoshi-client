@@ -6,6 +6,7 @@ export type IInspectedCard = {
   card: ICard;
   cardSkinId?: CardSkinId;
   displayMode?: CardDisplayMode;
+  flip?: boolean;
 };
 
 export type CardInspectionInput = ICard | IInspectedCard | null;
@@ -46,5 +47,6 @@ export const getInspectedCardKey = (inspectedCard: IInspectedCard | null) => {
     inspectedCard.card,
     inspectedCard.cardSkinId || "default",
     inspectedCard.displayMode || "auto",
+    inspectedCard.flip ? "back" : "front",
   ].join(":");
 };

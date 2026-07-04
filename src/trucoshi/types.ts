@@ -22,7 +22,6 @@ import {
   ServerToClientEvents,
 } from "trucoshi";
 import { IPublicMatchInfo } from "trucoshi";
-import { CardSources } from "./hooks/useCards";
 import { CardDisplayMode } from "./cards/cardSkinResolver";
 import { CardInspectionInput, IInspectedCard } from "./cards/cardInspection";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
@@ -76,7 +75,6 @@ export interface ITrucoshiActions {
   fetchPublicMatches(filters?: { state?: Array<EMatchState> }): void;
   sendPing(): void;
   sendUserId(id: string, callback?: (name: string) => void): void;
-  setCardTheme(theme: ICardTheme): void;
   fetchInventory(): void;
   setDeckCardSkin(card: ICard, cardSkinId: CardSkinId | null): Promise<boolean>;
   fetchTreasureStatus(): void;
@@ -111,7 +109,6 @@ export interface ITrucoshiState {
   queueStatus: IQueueStatus | null;
   isQueueing: boolean;
   queueReplayOptions: IJoinQueueOptions | null;
-  cardTheme: ICardTheme;
   inventory: IInventoryCardGroup[];
   equippedDeck: IEquippedDeck;
   inventoryLoading: boolean;
@@ -120,10 +117,8 @@ export interface ITrucoshiState {
   treasureOpening: boolean;
   treasureResult: ITreasureOpenResult | null;
   cardDisplayMode: CardDisplayMode;
-  cardsReady: boolean;
-  cardsLoading: boolean;
+  cardDisplayImagesReady: boolean;
   inspectedCard: IInspectedCard | null;
-  cards: CardSources;
   isSidebarOpen: boolean;
   stats: ITrucoshiStats;
   noticeBanner: IPublicNoticeBanner | null;
@@ -134,10 +129,6 @@ export interface ITrucoshiContext {
   dispatch: ITrucoshiActions;
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 }
-
-export type ICardTheme = "default" | "argento" | "trucoshi" | "gnu" | "criollo" | "";
-
-export const CardThemes = ["default", "argento", "trucoshi", "gnu", "criollo", ""];
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
 

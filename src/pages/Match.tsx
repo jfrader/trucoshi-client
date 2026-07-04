@@ -51,6 +51,7 @@ import { MatchBottomDock } from "../components/game/MatchBottomDock";
 import { DevProfiler } from "../utils/devProfiler";
 import { MatchGameplayProvider, useMatchGameplay } from "../components/game/MatchGameplayContext";
 import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
+import { MatchCardSkinsProvider } from "../components/game/MatchCardSkinsContext";
 
 const spectatorTooltipSx = (theme: any) => ({
   position: "fixed",
@@ -213,7 +214,7 @@ const MatchMobileCommDrawer = memo(() => {
 MatchMobileCommDrawer.displayName = "MatchMobileCommDrawer";
 
 const _Match = () => {
-  const [{ serverAheadTime }, , , hydrated] = useTrucoshi();
+  const [{ serverAheadTime, cardDisplayMode }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
   const [unpauseAt, setUnpauseAt] = useState<number | null>(null);
@@ -624,8 +625,15 @@ const _Match = () => {
                 setAbandonOpen,
               }}
             >
-              <MatchBoardScene />
-              <MatchMobileCommDrawer />
+              <MatchCardSkinsProvider
+                displayMode={cardDisplayMode}
+                match={match}
+                me={me}
+                rounds={rounds}
+              >
+                <MatchBoardScene />
+                <MatchMobileCommDrawer />
+              </MatchCardSkinsProvider>
             </MatchGameplayProvider>
           ) : (
             <FloatingProgress />

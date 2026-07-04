@@ -1,4 +1,12 @@
-import { Box, Button, ButtonBase, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonBase,
+  CircularProgress,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { CheckCircle, Lock, Style } from "@mui/icons-material";
 import { MouseEvent, TouchEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -15,6 +23,16 @@ import {
 } from "../../trucoshi/cards/skinRegistry";
 import { TreasureChestPanel } from "../treasure/TreasureChestPanel";
 import { useSound } from "../../sound/hooks/useSound";
+import {
+  getCardImageRequestSources,
+  getCardImageSource,
+  getInventoryCardImageSources,
+  getReadyCardImageSource,
+  isCardImageSourceComplete,
+  isCardImageSourceReady,
+  preloadCardImageSources,
+  useCardImagePreload,
+} from "../../trucoshi/cards/cardImageLoader";
 
 type StackChoice = {
   key: string;
@@ -31,11 +49,15 @@ const LONG_TOUCH_MS = 550;
 
 const gridSx = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))",
-  columnGap: { xs: 1.45, sm: 2.15, md: 2.65 },
-  rowGap: { xs: 1.85, sm: 2.55, md: 3.1 },
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(min(100%, 11rem), 1fr))",
+    md: "repeat(4, minmax(min(100%, 11rem), 1fr))",
+  },
+  columnGap: 2,
+  rowGap: { xs: 1.85, sm: 2.5 },
   alignItems: "stretch",
   overflow: "visible",
+  pt: 3,
 };
 
 const getCardLabel = (card: ICard) => CARDS_HUMAN_READABLE[card] || card;
@@ -74,6 +96,29 @@ const getStackChoices = (group?: IInventoryCardGroup): StackChoice[] => {
   return orderStackChoices(choices);
 };
 
+const getChoiceImageRequest = (card: ICard, choice: StackChoice) => ({
+  card,
+  cardSkinId: choice.cardSkinId || undefined,
+  displayMode: choice.defaultChoice ? ("default" as const) : ("skins" as const),
+});
+
+const getChoiceImageSources = (card: ICard, choices: StackChoice[]) =>
+  choices.flatMap((choice) => getCardImageRequestSources(getChoiceImageRequest(card, choice)));
+
+const isChoiceImageReady = (card: ICard, choice: StackChoice) => {
+  const request = getChoiceImageRequest(card, choice);
+  const primarySource = getCardImageSource(request);
+
+  if (isCardImageSourceReady(primarySource)) {
+    return true;
+  }
+
+  return isCardImageSourceComplete(primarySource) && Boolean(getReadyCardImageSource(request));
+};
+
+const areChoiceImagesReady = (card: ICard, choices: StackChoice[]) =>
+  choices.every((choice) => isChoiceImageReady(card, choice));
+
 const getPreviewChoiceTransform = (index: number) => {
   const x = index * 9;
   const y = index * -6;
@@ -96,10 +141,44 @@ const getSelectorChoicePosition = (index: number, total: number) => {
   };
 };
 
+const InventoryCardSkeleton = ({ card }: { card: ICard }) => (
+  <Box
+    data-testid={`inventory-card-skeleton-${card}`}
+    sx={(theme) => ({
+      position: "relative",
+      minHeight: "calc(var(--inventory-card-width) * 1.48 + 4rem)",
+      borderRadius: 1,
+      p: { xs: 1.05, sm: 1.2 },
+      overflow: "hidden",
+      background: "transparent",
+      border: "none",
+      ...theme.trucoshiUi.inventory.surfaceFrame,
+    })}
+  >
+    <Box
+      sx={{
+        position: "relative",
+        height: "calc(var(--inventory-card-width) * 1.48 + 1.9rem)",
+        display: "grid",
+        placeItems: "center",
+      }}
+    >
+      <Skeleton
+        variant="rounded"
+        width="var(--inventory-card-width)"
+        height="calc(var(--inventory-card-width) * 1.48)"
+        sx={{ borderRadius: "calc(var(--inventory-card-width) / 13)" }}
+      />
+    </Box>
+    <Skeleton width="54%" height="1.4rem" sx={{ mx: "auto", mt: 0.25 }} />
+  </Box>
+);
+
 const InventoryCardStack = ({
   card,
   group,
   open,
+  opening,
   saving,
   onOpen,
   onClose,
@@ -109,6 +188,7 @@ const InventoryCardStack = ({
   card: ICard;
   group?: IInventoryCardGroup;
   open: boolean;
+  opening: boolean;
   saving: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -140,7 +220,7 @@ const InventoryCardStack = ({
       return;
     }
 
-    if (event.detail > 1 || saving || !choice.unlocked) {
+    if (event.detail > 1 || opening || saving || !choice.unlocked) {
       return;
     }
 
@@ -177,7 +257,7 @@ const InventoryCardStack = ({
   };
 
   const handleChoiceTouchStart = (event: TouchEvent<HTMLButtonElement>, choice: StackChoice) => {
-    if (saving || !choice.unlocked) {
+    if (opening || saving || !choice.unlocked) {
       return;
     }
 
@@ -213,7 +293,7 @@ const InventoryCardStack = ({
     check?: boolean;
   }) => {
     const selectedUnlockedChoice = choice.selected && choice.unlocked;
-    const disabled = saving || !choice.unlocked;
+    const disabled = opening || saving || !choice.unlocked;
     const choiceWidth = selector ? OPEN_CARD_WIDTH : CARD_WIDTH;
     const choiceId = choice.defaultChoice ? "default" : index;
     const selectorPosition = selector ? getSelectorChoicePosition(index, choices.length) : null;
@@ -251,7 +331,7 @@ const InventoryCardStack = ({
             duration: theme.transitions.duration.short,
           }),
           zIndex: selector ? selectorLayer : 80 - index,
-          filter: disabled && !saving ? "grayscale(0.75)" : "none",
+          filter: disabled && !opening && !saving ? "grayscale(0.75)" : "none",
           "&:focus-visible": {
             outline: `2px solid ${theme.palette.warning.main}`,
             outlineOffset: 3,
@@ -390,7 +470,7 @@ const InventoryCardStack = ({
         {choices
           .slice(0, previewCount + 1)
           .map((choice, index) => renderChoiceButton({ choice, index, check: false }))}
-        {saving ? (
+        {opening || saving ? (
           <CircularProgress
             size={24}
             color="warning"
@@ -414,6 +494,7 @@ const InventoryCardTile = ({
   card,
   group,
   open,
+  opening,
   saving,
   onOpen,
   onClose,
@@ -423,6 +504,7 @@ const InventoryCardTile = ({
   card: ICard;
   group?: IInventoryCardGroup;
   open: boolean;
+  opening: boolean;
   saving: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -432,7 +514,7 @@ const InventoryCardTile = ({
   const cardLabel = getCardLabel(card);
   const choices = getStackChoices(group);
   const hasVariants = choices.length > 1;
-  const skinCount = group?.skins.length || 0;
+  const skinCount = choices.filter((c) => c.unlocked).length - 1; // Minus default skin;
 
   return (
     <Box
@@ -460,6 +542,7 @@ const InventoryCardTile = ({
         card={card}
         group={group}
         open={open}
+        opening={opening}
         saving={saving}
         onOpen={onOpen}
         onClose={onClose}
@@ -477,7 +560,7 @@ const InventoryCardTile = ({
             ...theme.trucoshiUi.inventory.countBadge,
             position: "absolute",
             top: { xs: 9, sm: 10 },
-            left: { xs: 11, sm: 13 },
+            left: "10%",
             zIndex: open ? 1 : 4,
           })}
         >
@@ -515,6 +598,7 @@ export const InventoryPage = () => {
       account,
       isAccountPending,
       inventory,
+      inventoryLoading,
       treasureStatus,
       treasureLoading,
       treasureOpening,
@@ -530,7 +614,10 @@ export const InventoryPage = () => {
     },
   ] = useTrucoshi();
   const [openCard, setOpenCard] = useState<ICard | null>(null);
+  const [openingCard, setOpeningCard] = useState<ICard | null>(null);
   const [savingCard, setSavingCard] = useState<ICard | null>(null);
+  const openingRequestId = useRef(0);
+  const inventoryImages = useCardImagePreload(getInventoryCardImageSources());
 
   useEffect(() => {
     if (isAccountPending) {
@@ -552,14 +639,36 @@ export const InventoryPage = () => {
   }, {});
 
   const handleOpenCard = (card: ICard) => {
+    const choices = getStackChoices(inventoryByCard[card]);
+
     queue("miss1");
-    setOpenCard(card);
+
+    if (areChoiceImagesReady(card, choices)) {
+      setOpeningCard(null);
+      setOpenCard(card);
+      return;
+    }
+
+    const requestId = openingRequestId.current + 1;
+    openingRequestId.current = requestId;
+    setOpeningCard(card);
+
+    preloadCardImageSources(getChoiceImageSources(card, choices)).then(() => {
+      if (openingRequestId.current !== requestId) {
+        return;
+      }
+
+      setOpeningCard(null);
+      setOpenCard(card);
+    });
   };
 
   const handleCloseCard = () => {
     if (openCard) {
       queue("back");
     }
+    openingRequestId.current += 1;
+    setOpeningCard(null);
     setOpenCard(null);
   };
 
@@ -679,23 +788,26 @@ export const InventoryPage = () => {
         </Box>
 
         <Box data-testid="inventory-grid" sx={gridSx}>
-          {INVENTORY_CARDS.map((card) => (
-            <InventoryCardTile
-              key={card}
-              card={card}
-              group={inventoryByCard[card]}
-              open={openCard === card}
-              saving={savingCard === card}
-              onOpen={() => handleOpenCard(card)}
-              onClose={() => {
-                if (openCard === card) {
-                  handleCloseCard();
-                }
-              }}
-              onSelect={selectSkin}
-              onInspect={inspectCard}
-            />
-          ))}
+          {inventoryLoading || !inventoryImages.ready
+            ? INVENTORY_CARDS.map((card) => <InventoryCardSkeleton key={card} card={card} />)
+            : INVENTORY_CARDS.map((card) => (
+                <InventoryCardTile
+                  key={card}
+                  card={card}
+                  group={inventoryByCard[card]}
+                  open={openCard === card}
+                  opening={openingCard === card}
+                  saving={savingCard === card}
+                  onOpen={() => handleOpenCard(card)}
+                  onClose={() => {
+                    if (openCard === card) {
+                      handleCloseCard();
+                    }
+                  }}
+                  onSelect={selectSkin}
+                  onInspect={inspectCard}
+                />
+              ))}
         </Box>
       </Stack>
     </PageContainer>

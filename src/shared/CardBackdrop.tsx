@@ -10,25 +10,43 @@ import {
 import { PropsWithChildren, SetStateAction, useEffect, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { FlipGameCard } from "../components/card/GameCard";
-import { ITrucoshiActions, ITrucoshiState } from "../trucoshi/types";
+import { ITrucoshiActions } from "../trucoshi/types";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useSound } from "../sound/hooks/useSound";
 import { InventoryButton } from "../components/card/InventoryButton";
 import { IInspectedCard } from "../trucoshi/cards/cardInspection";
 import { ResultCardLabel } from "../components/treasure/TreasureChestPanel.styles";
 import { CARDS_HUMAN_READABLE } from "trucoshi";
+import {
+  getCardImageRequestSources,
+  useCardImagePreload,
+} from "../trucoshi/cards/cardImageLoader";
+import { CardDisplayMode } from "../trucoshi/cards/cardSkinResolver";
 
 type Props = PropsWithChildren<
   Pick<ITrucoshiActions, "inspectCard"> &
-    Pick<ITrucoshiState, "cardsReady"> &
-    Omit<BackdropProps, "open"> & { card: IInspectedCard | null }
+    Omit<BackdropProps, "open"> & {
+      card: IInspectedCard | null;
+      displayMode?: CardDisplayMode;
+    }
 >;
 
 const StyledBackdrop = styled(Backdrop)({});
 
-export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props) => {
+export const CardBackdrop = ({ card, displayMode = "skins", inspectCard, ...props }: Props) => {
   const { queue } = useSound();
-  const [flip, _setFlip] = useState(false);
+  const [flip, _setFlip] = useState(() => Boolean(card?.flip));
+  const effectiveDisplayMode = card?.displayMode || displayMode;
+  const preload = useCardImagePreload(
+    card
+      ? getCardImageRequestSources({
+          card: card.card,
+          cardSkinId: card.cardSkinId,
+          displayMode: effectiveDisplayMode,
+        })
+      : [],
+    !card || effectiveDisplayMode === "emoji",
+  );
 
   const setFlip = (v: SetStateAction<boolean>) => {
     const rndSound = Math.round(Math.random() * 2);
@@ -39,7 +57,7 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
   useEffect(() => {
     const rndSound = Math.round(Math.random() * 2);
     queue("play" + rndSound);
-    _setFlip(false);
+    _setFlip(Boolean(card?.flip));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -55,13 +73,13 @@ export const CardBackdrop = ({ card, cardsReady, inspectCard, ...props }: Props)
         minHeight="15em"
         onClick={(e) => e.stopPropagation()}
       >
-        {cardsReady ? (
+        {effectiveDisplayMode === "emoji" || preload.ready ? (
           <FlipGameCard
             card={card.card}
             width="17em"
             flip={flip}
             cardSkinId={card.cardSkinId}
-            displayMode={card.displayMode}
+            displayMode={effectiveDisplayMode}
           />
         ) : (
           <Box width="17em">
