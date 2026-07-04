@@ -33,6 +33,7 @@ const flipWrapperSx = {
   pr: "2px",
   transition: "transform 0.3s",
   transformStyle: "preserve-3d",
+  backfaceVisibility: "hidden",
 };
 
 const flipWrapperFlippedSx = {
@@ -43,7 +44,6 @@ const flipWrapperFlippedSx = {
 const frontCardSx = {
   lineHeight: 1,
   position: "absolute",
-  inset: 0,
   backfaceVisibility: "hidden",
 };
 
