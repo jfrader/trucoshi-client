@@ -737,8 +737,8 @@ export const InventoryPage = () => {
             })}
           >
             <Box
+              display={{ xs: "none", sm: "grid" }}
               sx={{
-                display: "grid",
                 position: "absolute",
                 left: "1rem",
                 top: "1rem",
