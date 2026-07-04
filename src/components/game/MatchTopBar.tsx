@@ -20,7 +20,7 @@ export const MatchTopBar = () => {
   const opponentTeamLabel = getTeamDisplayName(match, opponentTeamIdx);
 
   const useWideGrid = useMemo(
-    () => layout.profile === "desktop" || layout.profile === "tabletWide",
+    () => layout.profile === "desktop" || layout.profile === "tabletWide" || layout.profile === "tablet",
     [layout.profile]
   );
 
@@ -29,9 +29,9 @@ export const MatchTopBar = () => {
       <Box
         sx={{
           width: useWideGrid ? "100%" : "auto",
-          maxWidth: useWideGrid ? "37rem" : "fit-content",
+          maxWidth: useWideGrid ? "35rem" : "fit-content",
           margin: "0 auto",
-          px: useWideGrid ? { xs: 0.35, sm: 0.5 } : 0,
+          px: useWideGrid ? { xs: 0.35, sm: 8, md: 2 } : 0,
           display: "grid",
           gridTemplateColumns: useWideGrid ? "1fr auto 1fr" : "auto auto auto",
           alignItems: "start",

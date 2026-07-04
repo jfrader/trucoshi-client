@@ -29,9 +29,16 @@ const _GameBoardSceneFrame = ({ chatProps, isDesktopChat, children }: GameBoardS
     {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
     <Box position="relative" minWidth={0} minHeight={0}>
       {children}
-      <Box zIndex={(theme) => theme.zIndex.drawer} position="absolute" left={10} top={12}>
+      <Box
+        zIndex={(theme) => theme.zIndex.drawer}
+        position="absolute"
+        maxWidth={{ xs: "4rem", sm: "5rem", md: "6rem" }}
+        width={{ xs: "4rem", sm: "5rem", md: "6rem" }}
+        left={10}
+        top={12}
+      >
         <Link to="/">
-          <TrucoshiText width="80rem" />
+          <TrucoshiText />
         </Link>
       </Box>
     </Box>
