@@ -60,7 +60,7 @@ export const Topbar = ({
               </>
             ) : (
               <>
-                <TrucoshiResponsiveLogoLink size="26px" />
+                <TrucoshiResponsiveLogoLink />
                 <Switch
                   size="small"
                   title="Dark Theme"
