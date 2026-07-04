@@ -17,7 +17,6 @@ const RailRoot = styled(Paper)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   backdropFilter: "blur(1px)",
-  borderRight: theme.trucoshiUi.chatDrawer.railHeaderBorderBottom,
 }));
 
 const RailHeader = styled(Stack)(({ theme }) => ({

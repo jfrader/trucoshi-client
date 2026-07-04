@@ -3,6 +3,8 @@ import { memo } from "react";
 import type { ReactNode } from "react";
 import { DesktopCommRail } from "../chat/DesktopCommRail";
 import type { useChatRoom } from "../chat/ChatRoom";
+import { TrucoshiText } from "../../shared/TrucoshiText";
+import { Link } from "../../shared/Link";
 
 type GameBoardSceneFrameProps = {
   chatProps: ReturnType<typeof useChatRoom>;
@@ -27,6 +29,11 @@ const _GameBoardSceneFrame = ({ chatProps, isDesktopChat, children }: GameBoardS
     {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
     <Box position="relative" minWidth={0} minHeight={0}>
       {children}
+      <Box zIndex={(theme) => theme.zIndex.drawer} position="absolute" left={10} top={12}>
+        <Link to="/">
+          <TrucoshiText width="80rem" />
+        </Link>
+      </Box>
     </Box>
   </Box>
 );

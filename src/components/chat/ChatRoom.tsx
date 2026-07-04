@@ -62,9 +62,7 @@ type Props = BoxProps & {
 const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
 
 const getPlayersSignature = (players: IPublicPlayer[] | undefined) =>
-  (players || [])
-    .map((player) => `${player.key}:${player.name}:${player.teamIdx}`)
-    .join("|");
+  (players || []).map((player) => `${player.key}:${player.name}:${player.teamIdx}`).join("|");
 
 const useStableChatPlayers = (players: IPublicPlayer[] | undefined) => {
   const previousPlayersRef = useRef<IPublicPlayer[] | undefined>(players);
@@ -125,7 +123,7 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
       setActive,
       latestMessage,
     }),
-    [active, latestMessage, match?.options.maxPlayers, match?.players, useChatState]
+    [active, latestMessage, match?.options.maxPlayers, match?.players, useChatState],
   );
 };
 
@@ -189,24 +187,22 @@ export const ChatRoom = ({
         const prevMessage = index > 0 ? filteredMessages[index - 1] : null;
         const isConsecutive = Boolean(
           prevMessage &&
-            prevMessage.user.key === message.user.key &&
-            !message.system &&
-            !message.card &&
-            !message.command &&
-            !prevMessage.card &&
-            !prevMessage.command &&
-            message.date * 1000 - prevMessage.date * 1000 <= MESSAGE_GROUPING_THRESHOLD
+          prevMessage.user.key === message.user.key &&
+          !message.system &&
+          !message.card &&
+          !message.command &&
+          !prevMessage.card &&
+          !prevMessage.command &&
+          message.date * 1000 - prevMessage.date * 1000 <= MESSAGE_GROUPING_THRESHOLD,
         );
 
         return { message, hideAuthor: isConsecutive };
       }),
-    [filteredMessages]
+    [filteredMessages],
   );
 
   return (
-    <ClickAwayListener
-      onClickAway={active && !alwaysVisible ? () => setActive(false) : () => {}}
-    >
+    <ClickAwayListener onClickAway={active && !alwaysVisible ? () => setActive(false) : () => {}}>
       <ChatBox
         active={Number(alwaysVisible || active)}
         onClick={onActivate}
@@ -221,10 +217,10 @@ export const ChatRoom = ({
         display="flex"
         textAlign="left"
         flexDirection="column"
-        sx={{
-          zIndex: (theme) => theme.zIndex.appBar,
+        sx={(theme) => ({
+          zIndex: theme.zIndex.appBar,
           overflow: "hidden",
-        }}
+        })}
         {...boxProps}
       >
         <List
@@ -233,7 +229,7 @@ export const ChatRoom = ({
           sx={(theme) => ({
             justifyContent: "flex-end",
             m: 0,
-            background: theme.palette.background.paper,
+            ...theme.trucoshiUi.chatDrawer.chatMessages,
             overflowY: "auto",
             width: "100%",
             flex: 1,

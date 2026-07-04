@@ -25,7 +25,7 @@ export const buttonGroupProps: ButtonGroupProps = {
   fullWidth: true,
   component: "div",
   sx: (theme: Theme) => ({
-    background: theme.palette.background.paper,
+    background: theme.trucoshiUi.chatDrawer.railBackground,
     display: "flex",
     alignItems: "center",
   }),
@@ -47,5 +47,8 @@ export const textFieldProps: TextFieldProps = {
   size: "small",
   "aria-autocomplete": "none",
   autoComplete: "off",
-  sx: { flexGrow: 1 },
+  sx: (theme: Theme) => ({
+    background: theme.trucoshiUi.chatDrawer.actionButtonBackground,
+    flexGrow: 1,
+  }),
 };

@@ -128,6 +128,7 @@ type TrucoshiUiTokens = {
     cancelButton: Record<string, any>;
   };
   chatDrawer: {
+    chatMessages: Record<string, any>;
     actionsPanelBorder: string;
     actionsPanelBackground: string;
     actionsPanelShadow: string;
@@ -210,19 +211,17 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       "radial-gradient(circle at 50% 34%, rgba(248, 184, 55, 0.22), transparent 28%), radial-gradient(circle at 50% 72%, rgba(20, 96, 72, 0.32), transparent 38%), linear-gradient(180deg, rgba(7, 13, 11, 0.96), rgba(1, 3, 3, 0.98))",
     stageGlow:
       "radial-gradient(circle at 50% 54%, rgba(255, 196, 68, 0.44), rgba(255, 196, 68, 0.16) 24%, transparent 58%)",
-    chestShadow: "drop-shadow(0 22px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,177,40,0.22))",
-    panelSurface:
-      "linear-gradient(155deg, rgba(33, 26, 17, 0.92), rgba(10, 22, 18, 0.86))",
+    chestShadow:
+      "drop-shadow(0 22px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(255,177,40,0.22))",
+    panelSurface: "linear-gradient(155deg, rgba(33, 26, 17, 0.92), rgba(10, 22, 18, 0.86))",
     panelBorder: "1px solid rgba(255,255,255,0.14)",
     progressTrack: "rgba(255,255,255,0.08)",
     progressFill: "linear-gradient(90deg, #d79a3e, #e4c46b)",
     rewardFrame: {
       borderRadius: "1rem",
-      background:
-        "linear-gradient(180deg, rgba(45, 29, 17, 0.92), rgba(12, 19, 16, 0.94))",
+      background: "linear-gradient(180deg, rgba(45, 29, 17, 0.92), rgba(12, 19, 16, 0.94))",
       border: "1px solid rgba(255,255,255,0.18)",
-      boxShadow:
-        "0 16px 34px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08)",
+      boxShadow: "0 16px 34px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08)",
     },
     actionButton: {
       borderRadius: "999px",
@@ -292,8 +291,7 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       px: { xs: 1.35, sm: 1.8, lg: 2.25 },
       py: { xs: 1.25, sm: 1.6, lg: 1.85 },
       borderRadius: "1.2rem",
-      background:
-        "linear-gradient(135deg, rgba(31, 61, 42, 0.68), rgba(10, 28, 21, 0.48))",
+      background: "linear-gradient(135deg, rgba(31, 61, 42, 0.68), rgba(10, 28, 21, 0.48))",
     },
     displayTool: {
       width: 44,
@@ -387,14 +385,12 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       opacity: 0.9,
     },
     dockCommandLane: {
-      background:
-        "linear-gradient(180deg, rgba(44,27,18,0.92) 0%, rgba(31,20,13,0.96) 100%)",
+      background: "linear-gradient(180deg, rgba(44,27,18,0.92) 0%, rgba(31,20,13,0.96) 100%)",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
     },
     dockChatButton: {
       border: "1px solid rgba(255,255,255,0.2)",
-      background:
-        "linear-gradient(165deg, rgba(56,56,50,0.97), rgba(34,33,31,0.98))",
+      background: "linear-gradient(165deg, rgba(56,56,50,0.97), rgba(34,33,31,0.98))",
       boxShadow: "0 6px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
       color: "rgba(255,255,255,0.92)",
     },
@@ -485,8 +481,7 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
     },
     topPlayersCard: {
-      background:
-        "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
+      background: "linear-gradient(170deg, rgba(17, 43, 35, 0.86), rgba(6, 25, 20, 0.86))",
       border: "1px solid rgba(255,255,255,0.14)",
     },
     topSessionCard: {
@@ -509,8 +504,7 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
   queue: {
     panel: {
       borderRadius: "0.75rem",
-      background:
-        "linear-gradient(180deg, rgba(23,38,31,0.76), rgba(11,22,18,0.78))",
+      background: "linear-gradient(180deg, rgba(23,38,31,0.76), rgba(11,22,18,0.78))",
       border: "1px solid rgba(255,255,255,0.1)",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
     },
@@ -535,19 +529,20 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     },
   },
   chatDrawer: {
+    chatMessages:   {
+      background: "linear-gradient(180deg, rgba(45, 29, 17, 0.92), rgba(12, 19, 16, 0.94))",
+    },
     actionsPanelBorder: "1px solid rgba(255,255,255,0.12)",
     actionsPanelBackground:
       "linear-gradient(180deg, rgba(92,58,34,0.95), rgba(63,39,24,0.98) 40%, rgba(42,27,17,0.98))",
     actionsPanelShadow: "0 8px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
     actionButtonBorder: "1px solid rgba(255,255,255,0.2)",
-    actionButtonBackground:
-      "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
+    actionButtonBackground: "linear-gradient(165deg, rgba(52,52,48,0.97), rgba(31,30,28,0.97))",
     actionButtonShadow: "0 6px 12px rgba(0,0,0,0.35)",
     announcementPanelBorder: "1px solid rgba(255,255,255,0.12)",
     announcementPanelBackground: "rgba(9,16,14,0.94)",
     announcementPanelShadow: "0 10px 26px rgba(0,0,0,0.4)",
-    drawerPanelBackground:
-      "linear-gradient(180deg, rgba(17,24,22,0.98), rgba(9,14,13,0.99))",
+    drawerPanelBackground: "linear-gradient(180deg, rgba(17,24,22,0.98), rgba(9,14,13,0.99))",
     drawerPanelBorderTop: "1px solid rgba(255,255,255,0.12)",
     railWidth: "19.5rem",
     railBorder: "1px solid rgba(255,255,255,0.14)",
