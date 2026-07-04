@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CardDisplayMode } from "../../trucoshi/cards/cardSkinResolver";
 import { Link } from "react-router-dom";
+import { FlipGameCard } from "./GameCard";
 
 const DISPLAY_MODE_OPTIONS: Array<{
   value: CardDisplayMode;
@@ -22,7 +23,6 @@ export const CardDisplayModeToggle = () => {
   const selected =
     DISPLAY_MODE_OPTIONS.find((option) => option.value === cardDisplayMode) ||
     DISPLAY_MODE_OPTIONS[0];
-  const SelectedIcon = selected.icon;
 
   return (
     <>
@@ -44,7 +44,7 @@ export const CardDisplayModeToggle = () => {
         aria-expanded={anchorEl ? "true" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        <SelectedIcon fontSize="small" />
+        <FlipGameCard disableButton flip={!anchorEl} card="1e" width="1.4em" />
       </Button>
       <Menu
         id="card-display-mode-menu"
@@ -66,7 +66,6 @@ export const CardDisplayModeToggle = () => {
               selected={option.value === cardDisplayMode}
               onClick={() => {
                 setCardDisplayMode(option.value);
-                setAnchorEl(null);
               }}
             >
               <ListItemIcon>

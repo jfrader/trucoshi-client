@@ -161,7 +161,7 @@ export const PlayMenu = ({
         </Stack>
       ) : null}
       <FormGroup>
-        <Stack gap={1.25} p={2} mb={1}>
+        <Stack gap={1.25} p={2} mb={1} maxWidth="100%">
           {queuedMatch ? null : (
             <ToggleButtonGroup
               exclusive
@@ -190,6 +190,7 @@ export const PlayMenu = ({
                   borderRadius: "0.55rem !important",
                   minHeight: "2.5rem",
                   fontWeight: 800,
+                  minWidth: 0,
                 },
                 "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
               })}

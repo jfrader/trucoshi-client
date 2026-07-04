@@ -90,10 +90,11 @@ export const Sidebar = ({
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                   pr: 0.25,
+                  pt: 1
                 }}
               >
                 <WalletMenu />
-                <Stack alignItems="center">
+                <Stack pt={1} alignItems="center">
                   <Link to="/" lineHeight={4}>
                     <Typography height="26px" variant="h6">
                       <TrucoshiText height="26px" />

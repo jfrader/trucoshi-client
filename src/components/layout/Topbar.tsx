@@ -1,12 +1,12 @@
-import { AppBar, Box, IconButton, Stack, Switch, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, IconButton, Stack, Switch, Toolbar } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Link } from "../../shared/Link";
-import { TrucoshiText } from "../../shared/TrucoshiText";
 import { CardDisplayModeToggle } from "../card/CardDisplayModeToggle";
 import { Close, Login, Menu } from "@mui/icons-material";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { VolumeControl } from "./VolumeControl";
 import { TomaMate } from "./TomaMate";
+import { TrucoshiResponsiveLogoLink } from "../../shared/TrucoshiResponsiveLogoLink";
 
 export const Topbar = ({
   embedded = false,
@@ -60,11 +60,7 @@ export const Topbar = ({
               </>
             ) : (
               <>
-                <Link to="/" lineHeight={4}>
-                  <Typography height="26px" variant="h6">
-                      <TrucoshiText height="26px" />
-                  </Typography>
-                </Link>
+                <TrucoshiResponsiveLogoLink size="26px" />
                 <Switch
                   size="small"
                   title="Dark Theme"
