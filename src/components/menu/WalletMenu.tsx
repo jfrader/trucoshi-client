@@ -91,7 +91,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
                     toast.error(e.message);
                     setDepositOpen(false);
                   },
-                }
+                },
               );
               setTimeout(() => inputRef.current?.blur());
             }}
@@ -151,7 +151,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
                 setTimeout(() => inputRef.current?.focus());
               }}
             >
-              Retirar
+              Retirar Balance
             </Button>
           </FormGroup>
         </Collapse>
@@ -170,7 +170,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
                     resetWithdraw();
                     setWithdrawInvoice(null);
                   },
-                }
+                },
               );
               setTimeout(() => inputRef.current?.blur());
             }}
@@ -187,7 +187,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
               <TextField
                 size="small"
                 variant="outlined"
-                label="Retirar"
+                label="Retirar balance"
                 name="invoice"
                 autoComplete="off"
                 color="warning"

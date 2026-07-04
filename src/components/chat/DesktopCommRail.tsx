@@ -9,7 +9,7 @@ type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
 };
 
-const RailRoot = styled(Paper)(({ theme }) => ({
+const RailRoot = styled(Paper)(() => ({
   position: "relative",
   height: "100%",
   minHeight: 0,
