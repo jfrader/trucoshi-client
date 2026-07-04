@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ITrucoshiStats } from "trucoshi";
 import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
@@ -60,8 +60,13 @@ export const PlayMenu = ({
   smallPlayButton?: boolean;
   onMenuClick?: (e: SyntheticEvent) => void;
 }) => {
+  const isInMatch = useMatch("/match/:id");
+  const isInHome = useMatch("/");
   const navigate = useNavigate();
-  const [{ account, stats, activeMatches, queueReplayOptions, serverAheadTime }] = useTrucoshi();
+  const [
+    { account, stats, activeMatches, queueReplayOptions, serverAheadTime },
+    { setSidebarOpen },
+  ] = useTrucoshi();
   const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
   const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
@@ -119,6 +124,14 @@ export const PlayMenu = ({
     if (queuedMatch && !isQueueing) {
       navigate(`/match/${queuedMatch.matchSessionId}`);
       return;
+    }
+
+    if (isInMatch) {
+      navigate("/");
+    }
+
+    if (isInMatch || isInHome) {
+      setSidebarOpen(false);
     }
 
     joinQueue({ maxPlayers, allowBots });

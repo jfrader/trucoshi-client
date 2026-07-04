@@ -94,15 +94,16 @@ export const useMatchQueue = () => {
       setWaitSeconds(WAIT_BEFORE_START_SECONDS);
 
       const interval = setInterval(() => {
+        sound.queue("back");
         setWaitSeconds((c) => c - 1);
       }, 1000);
 
       const timer = setTimeout(() => {
+        sound.queue("shuffle");
         clearTimeout(interval);
         setQueueing(false);
         setQueueStatus(null);
         setQueueReplayOptions(null);
-        sound.queue("shuffle");
         setMatchFound(false);
         navigate(`/match/${match.matchSessionId}`);
       }, 1000 * WAIT_BEFORE_START_SECONDS );
