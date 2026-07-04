@@ -34,7 +34,7 @@ const _GameBoardSceneFrame = ({ chatProps, isDesktopChat, children }: GameBoardS
         left={10}
         top={12}
       >
-        <TrucoshiResponsiveLogoLink size={28} />
+        <TrucoshiResponsiveLogoLink />
       </Box>
     </Box>
   </Box>
