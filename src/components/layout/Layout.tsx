@@ -162,7 +162,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         message="¡Partida Encontrada!"
         opacity={0.85}
         showChat
-        open={!matchQueue.matchFound}
+        open={matchQueue.matchFound}
       >
         <Stack gap={1.75} justifyContent="center" alignItems="center" direction="row">
           <Typography variant="h5">El juego inicia en...</Typography>
