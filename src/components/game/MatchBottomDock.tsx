@@ -26,7 +26,7 @@ const _MatchBottomDock = () => {
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
   const onOpenChat = !isDesktopChat ? () => chatProps.setActive(true) : undefined;
-  const bottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : dock?.dockBottomOffset;
+  const bottomOffset = "env(safe-area-inset-bottom)";
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
   const hand = useMemo(
@@ -142,7 +142,7 @@ const _MatchBottomDock = () => {
         right: 0,
         bottom: bottomOffset,
         zIndex: theme.zIndex.fab,
-        px: { xs: 0.35, sm: 0.6 },
+        px: { xs: 0, sm: 0.35, md: 0.4, lg: 1 },
         pointerEvents: "auto",
       })}
     >

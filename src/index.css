@@ -1,6 +1,7 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: #243728 #161516;
+  -webkit-tap-highlight-color: transparent;
 }
 
 *::-webkit-scrollbar {
@@ -9,20 +10,19 @@
 }
 
 *::-webkit-scrollbar-track {
-  background: #243728; 
+  background: #243728;
   border-radius: 8px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #243728; 
+  background-color: #243728;
   border-radius: 8px;
-  border: 2px solid #243728; 
+  border: 2px solid #243728;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #161516; 
+  background-color: #161516;
 }
-
 
 body {
   overflow-x: hidden;
