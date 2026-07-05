@@ -18,7 +18,7 @@ const DISPLAY_MODE_OPTIONS: Array<{
 ];
 
 export const CardDisplayModeToggle = () => {
-  const [{ account, cardDisplayMode }, { setCardDisplayMode }] = useTrucoshi();
+  const [{ account, cardDisplayMode, equippedDeck }, { setCardDisplayMode }] = useTrucoshi();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const selected =
     DISPLAY_MODE_OPTIONS.find((option) => option.value === cardDisplayMode) ||
@@ -44,7 +44,13 @@ export const CardDisplayModeToggle = () => {
         aria-expanded={anchorEl ? "true" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        <FlipGameCard disableButton flip={!anchorEl} card="1e" width="1.4em" />
+        <FlipGameCard
+          cardSkinByCard={{ "1e": equippedDeck["1e"] }}
+          disableButton
+          flip={!anchorEl}
+          card="1e"
+          width="1.4em"
+        />
       </Button>
       <Menu
         id="card-display-mode-menu"
