@@ -13,10 +13,16 @@ const INITIAL_TIMER = {
 export const useTurnTimer = (
   player: IPublicPlayer | null,
   serverAheadTime: number,
-  match: IPublicMatch | null
+  match: IPublicMatch | null,
 ) => {
   const { queue } = useSound();
   const [turnTimer, setTurnTimer] = useState<TurnTimer>(INITIAL_TIMER);
+
+  const queueMe = (key: string) => {
+    if (player?.isMe) {
+      queue(key);
+    }
+  };
 
   useEffect(() => {
     if (!player || !player.isTurn || !match) {
@@ -46,10 +52,15 @@ export const useTurnTimer = (
           queue("mate");
           newTimer.alert = true;
         } else if (!prev.isExtension && newTimer.isExtension) {
+          queueMe("deal");
           queue("ceba_toma_mate");
           newTimer.alert = true;
         } else if (prev.progress > 25 && newTimer.progress < 25) {
+          queueMe("menu1");
           queue("deal");
+          newTimer.alert = true;
+        }  else if (prev.progress > 10 && newTimer.progress < 10) {
+          queueMe("deal");
           newTimer.alert = true;
         }
 

@@ -120,6 +120,10 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
         return;
       }
 
+      if (notificationPermission === "default") {
+        void requestNotifications();
+      }
+
       setQueueing(true);
       setQueueReplayOptions(null);
       socket.emit(
@@ -140,7 +144,17 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
         },
       );
     },
-    [isConnected, setQueueReplayOptions, setQueueStatus, setQueueing, socket, sound, toast],
+    [
+      isConnected,
+      notificationPermission,
+      requestNotifications,
+      setQueueReplayOptions,
+      setQueueStatus,
+      setQueueing,
+      socket,
+      sound,
+      toast,
+    ],
   );
 
   const confirmQueueMatch = useCallback(() => {

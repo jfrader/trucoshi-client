@@ -7,6 +7,7 @@ export const PlayButton = ({ ...props }: BoxProps & { disabled?: boolean }) => {
   return (
     <Box
       role="button"
+      aria-label="Jugar"
       className={`PlayButton ${props.disabled ? "PlayButton--disabled" : ""}`}
       {...props}
     >

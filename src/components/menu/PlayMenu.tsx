@@ -23,7 +23,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 import { PlayButton } from "./PlayButton";
-import { KeyboardBackspace, NotificationsActive, NotificationsOff } from "@mui/icons-material";
+import { KeyboardBackspace } from "@mui/icons-material";
 
 const QueueModeToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   ...theme.trucoshiUi.queue.segmentGroup,
@@ -87,10 +87,8 @@ export const PlayMenu = ({
   const {
     status,
     isQueueing,
-    notificationPermission,
     joinQueue,
     leaveQueue,
-    requestNotifications,
   } = useMatchQueue();
   const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
@@ -263,30 +261,6 @@ export const PlayMenu = ({
                 <GroupsIcon fontSize="inherit" />
                 {maxPlayerCount || "Todo"}
               </Typography>
-            </Stack>
-          )}
-          {queuedMatch || notificationPermission === "unsupported" ? null : (
-            <Stack direction="row" justifyContent="center">
-              <Button
-                color={notificationPermission === "granted" ? "success" : "inherit"}
-                disabled={notificationPermission === "granted"}
-                onClick={requestNotifications}
-                size="small"
-                startIcon={
-                  notificationPermission === "denied" ? (
-                    <NotificationsOff fontSize="small" />
-                  ) : (
-                    <NotificationsActive fontSize="small" />
-                  )
-                }
-                variant="text"
-              >
-                {notificationPermission === "granted"
-                  ? "Notificaciones activadas"
-                  : notificationPermission === "denied"
-                    ? "Notificaciones bloqueadas"
-                    : "Activar notificaciones"}
-              </Button>
             </Stack>
           )}
           <Stack

@@ -111,6 +111,18 @@ describe("PlayMenu queue controls", () => {
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: false });
   });
 
+  it("does not render a standalone notification prompt", () => {
+    queueState = {
+      status: null,
+      isQueueing: false,
+      notificationPermission: "default",
+    };
+
+    renderWithTheme(<PlayMenu />);
+
+    expect(screen.queryByRole("button", { name: /notificaciones/i })).not.toBeInTheDocument();
+  });
+
   it("uses the selected team size and enables bots when checked", () => {
     renderWithTheme(<PlayMenu />);
 
@@ -180,7 +192,7 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
-    fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
+    fireEvent.click(screen.getByRole("button", { name: /volver a la partida/i }));
 
     expect(navigate).toHaveBeenCalledWith("/match/queue-match");
     expect(joinQueue).not.toHaveBeenCalled();
@@ -237,7 +249,7 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
-    fireEvent.click(screen.getByRole("button", { name: /volver a partida/i }));
+    fireEvent.click(screen.getByRole("button", { name: /volver a la partida/i }));
 
     expect(navigate).toHaveBeenCalledWith("/match/queue-match");
     expect(joinQueue).not.toHaveBeenCalled();
