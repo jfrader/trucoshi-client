@@ -52,14 +52,14 @@ export const useTurnTimer = (
           queue("mate");
           newTimer.alert = true;
         } else if (!prev.isExtension && newTimer.isExtension) {
-          queueMe("deal");
+          queueMe("menu1");
           queue("ceba_toma_mate");
           newTimer.alert = true;
         } else if (prev.progress > 25 && newTimer.progress < 25) {
           queueMe("menu1");
           queue("deal");
           newTimer.alert = true;
-        }  else if (prev.progress > 10 && newTimer.progress < 10) {
+        }  else if (prev.isExtension && prev.progress > 10 && newTimer.progress < 10) {
           queueMe("deal");
           newTimer.alert = true;
         }
