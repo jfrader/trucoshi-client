@@ -26,6 +26,7 @@ type Props = {
   variant?: "announcement" | "chatEmotes";
   compact?: boolean;
   showLauncher?: boolean;
+  showNoticeBanner?: boolean;
 };
 
 const DrawerContainer = styled(Box)(({ theme }) => ({
@@ -122,6 +123,7 @@ export const CommDrawer = ({
   variant = "announcement",
   compact = false,
   showLauncher = true,
+  showNoticeBanner = false,
 }: Props) => {
   const [tab, setTab] = useState<CommTabName>(() => (variant === "chatEmotes" ? "chat" : "all"));
 
@@ -256,7 +258,12 @@ export const CommDrawer = ({
           {tab === "debug" ? (
             <DrawerDebugPanel />
           ) : (
-            <ChatRoom alwaysVisible {...chatProps} messageFilter={FILTER_BY_TAB[tab]} />
+            <ChatRoom
+              alwaysVisible
+              {...chatProps}
+              messageFilter={FILTER_BY_TAB[tab]}
+              showNoticeBanner={showNoticeBanner}
+            />
           )}
         </Box>
       </Drawer>

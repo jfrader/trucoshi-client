@@ -9,6 +9,7 @@ import {
 const mocks = vi.hoisted(() => ({
   inspectCard: vi.fn(),
   state: {
+    account: { id: "account-1" },
     cardDisplayMode: "skins",
     dark: "true",
     inspectedCard: null,
@@ -35,6 +36,18 @@ vi.mock("../../shared/ConfirmationModal", () => ({
 
 vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
   useTrucoshi: () => [mocks.state, { inspectCard: mocks.inspectCard }],
+}));
+
+vi.mock("../../trucoshi/hooks/useMatchQueue", () => ({
+  useMatchQueue: () => ({
+    confirmQueueMatch: vi.fn(),
+    declineQueueMatch: vi.fn(),
+    isQueueReadyConfirmed: false,
+    isQueueStarting: false,
+    matchFound: false,
+    queueProposal: null,
+    waitSeconds: 0,
+  }),
 }));
 
 vi.mock("../reward/RewardCodeHandler", () => ({
@@ -92,6 +105,7 @@ describe("Layout game topbar", () => {
 
   beforeEach(() => {
     mocks.inspectCard.mockClear();
+    mocks.state.account = { id: "account-1" };
     mocks.state.isSidebarOpen = false;
     mocks.state.noticeBanner = null;
     window.localStorage.clear();

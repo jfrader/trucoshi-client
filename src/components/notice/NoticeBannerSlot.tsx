@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { NoticeBanner } from "./NoticeBanner";
+import { NoticeBanner, NoticeBannerProps } from "./NoticeBanner";
+import { hasPendingRewardCode } from "../reward/rewardCodeStorage";
 
 export const NOTICE_BANNER_DISMISSED_KEY = "trucoshi:noticeBannerDismissed";
+export const TREASURE_BANNER_DISMISSED_KEY = "trucoshi:treasureBannerDismissed";
+const TREASURE_BANNER_DISMISSAL_TTL_MS = 24 * 60 * 60 * 1000;
+type TreasureBannerType = "guest" | "treasure";
+type TreasureBannerDismissal = {
+  type: TreasureBannerType;
+  dismissedAt: number;
+};
 
 export const getNoticeBannerDismissalValue = (id: number, updatedAt: string) =>
   `${id}:${updatedAt}`;
@@ -18,6 +26,54 @@ const setStoredDismissalValue = (value: string) => {
   }
 };
 
+const getStoredTreasureBannerDismissal = (): TreasureBannerDismissal | null => {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return null;
+  }
+
+  const storedValue = window.localStorage.getItem(TREASURE_BANNER_DISMISSED_KEY);
+  if (!storedValue) {
+    return null;
+  }
+
+  try {
+    const parsedValue = JSON.parse(storedValue) as Partial<TreasureBannerDismissal>;
+    if (
+      (parsedValue.type === "guest" || parsedValue.type === "treasure") &&
+      typeof parsedValue.dismissedAt === "number"
+    ) {
+      return parsedValue as TreasureBannerDismissal;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
+const setStoredTreasureBannerDismissal = (type: TreasureBannerType) => {
+  const dismissal: TreasureBannerDismissal = {
+    type,
+    dismissedAt: Date.now(),
+  };
+
+  if (typeof window !== "undefined" && window.localStorage) {
+    window.localStorage.setItem(TREASURE_BANNER_DISMISSED_KEY, JSON.stringify(dismissal));
+  }
+
+  return dismissal;
+};
+
+const isTreasureBannerDismissed = (
+  dismissal: TreasureBannerDismissal | null,
+  type: TreasureBannerType,
+) =>
+  Boolean(
+    dismissal &&
+    dismissal.type === type &&
+    Date.now() - dismissal.dismissedAt < TREASURE_BANNER_DISMISSAL_TTL_MS,
+  );
+
 export const NoticeBannerSlot = ({
   dismissible = true,
   ignoreDismissal = false,
@@ -28,14 +84,10 @@ export const NoticeBannerSlot = ({
   const [{ noticeBanner }] = useTrucoshi();
   const dismissalValue = useMemo(
     () =>
-      noticeBanner
-        ? getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt)
-        : "",
-    [noticeBanner]
+      noticeBanner ? getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt) : "",
+    [noticeBanner],
   );
-  const [dismissedValue, setDismissedValue] = useState(() =>
-    getStoredDismissalValue()
-  );
+  const [dismissedValue, setDismissedValue] = useState(() => getStoredDismissalValue());
 
   useEffect(() => {
     setDismissedValue(getStoredDismissalValue());
@@ -55,6 +107,45 @@ export const NoticeBannerSlot = ({
       onClose={() => {
         setStoredDismissalValue(dismissalValue);
         setDismissedValue(dismissalValue);
+      }}
+    />
+  );
+};
+
+export const TreasureBannerSlot = () => {
+  const [{ account }] = useTrucoshi();
+  const showRewardCodeAlert = !account && hasPendingRewardCode();
+  const bannerType: TreasureBannerType = showRewardCodeAlert ? "treasure" : "guest";
+  const [dismissal, setDismissal] = useState(() => getStoredTreasureBannerDismissal());
+  const hidden = isTreasureBannerDismissed(dismissal, bannerType);
+
+  const banner: NoticeBannerProps = {
+    hidden,
+    buttonHref: "/login",
+    buttonText: "Login / Registro en 1 click",
+    severity: "info",
+    dismissible: true,
+  };
+
+  const treasureBanner: NoticeBannerProps = {
+    text: "Recibiste un cofre! Inicia sesion o registrate para reclamarlo!",
+    ...banner,
+  };
+
+  const guestBanner: NoticeBannerProps = {
+    text: "Estas jugando como invitado, crea una cuenta para ganar cartas nuevas y subir en el ranking!",
+    ...banner,
+  };
+
+  if (account) {
+    return null;
+  }
+
+  return (
+    <NoticeBanner
+      {...(showRewardCodeAlert ? treasureBanner : guestBanner)}
+      onClose={() => {
+        setDismissal(setStoredTreasureBannerDismissal(bannerType));
       }}
     />
   );

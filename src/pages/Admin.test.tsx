@@ -173,10 +173,11 @@ describe("Admin page", () => {
   it("saves the notice banner", async () => {
     renderAdmin();
 
+    fireEvent.click(await screen.findByRole("checkbox", { name: /activo/i }));
     fireEvent.change(await screen.findByLabelText("Texto"), {
       target: { value: "Corte programado" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /guardar aviso/i }));
+    fireEvent.click(screen.getByRole("button", { name: /guardar y activar/i }));
 
     await waitFor(() => {
       expect(mocks.emit).toHaveBeenCalledWith(
@@ -204,9 +205,9 @@ describe("Admin page", () => {
         EClientEvent.ADMIN_SET_NOTICE_BANNER,
         expect.objectContaining({
           active: false,
-          text: "",
-          buttonText: null,
-          buttonHref: null,
+          text: "Mantenimiento esta noche",
+          buttonText: "Leer mas",
+          buttonHref: "/help",
         }),
         expect.any(Function)
       );

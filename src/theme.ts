@@ -1,4 +1,4 @@
-import { createTheme, ThemeOptions } from "@mui/material";
+import { alpha, createTheme, ThemeOptions } from "@mui/material";
 import createPalette, { PaletteColorOptions } from "@mui/material/styles/createPalette";
 import { BURNT_CARD } from "trucoshi";
 
@@ -617,7 +617,7 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     },
   },
   chatDrawer: {
-    chatMessages:   {
+    chatMessages: {
       background: "linear-gradient(180deg, rgba(45, 29, 17, 0.92), rgba(12, 19, 16, 0.94))",
     },
     actionsPanelBorder: "1px solid rgba(255,255,255,0.12)",
@@ -818,6 +818,17 @@ const base = {
       },
     },
     MuiButton: {
+      styleOverrides: {
+        contained: ({ ownerState, theme }) => {
+          return {
+            background:
+              ownerState.color === "inherit"
+                ? undefined
+                : alpha((theme.palette[ownerState.color || "primary"] as any).main, 0.4),
+          };
+        },
+      },
+
       variants: [
         {
           props: { variant: "card" },

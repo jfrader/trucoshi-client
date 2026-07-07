@@ -8,10 +8,16 @@ import { TrucoshiResponsiveLogoLink } from "../../shared/TrucoshiResponsiveLogoL
 type GameBoardSceneFrameProps = {
   chatProps: ReturnType<typeof useChatRoom>;
   isDesktopChat: boolean;
+  showNoticeBannerInChat?: boolean;
   children: ReactNode;
 };
 
-const _GameBoardSceneFrame = ({ chatProps, isDesktopChat, children }: GameBoardSceneFrameProps) => (
+const _GameBoardSceneFrame = ({
+  chatProps,
+  isDesktopChat,
+  showNoticeBannerInChat = false,
+  children,
+}: GameBoardSceneFrameProps) => (
   <Box
     sx={(theme) => ({
       height: "100%",
@@ -25,7 +31,9 @@ const _GameBoardSceneFrame = ({ chatProps, isDesktopChat, children }: GameBoardS
       boxSizing: "border-box",
     })}
   >
-    {isDesktopChat ? <DesktopCommRail chatProps={chatProps} /> : null}
+    {isDesktopChat ? (
+      <DesktopCommRail chatProps={chatProps} showNoticeBanner={showNoticeBannerInChat} />
+    ) : null}
     <Box position="relative" minWidth={0} minHeight={0}>
       {children}
       <Box

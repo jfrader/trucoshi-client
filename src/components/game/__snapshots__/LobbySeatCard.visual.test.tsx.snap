@@ -20,7 +20,7 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
     class="MuiStack-root css-1tkf38c-MuiStack-root"
   >
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-z2d7rg-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-1ak3sdw-MuiButtonBase-root-MuiButton-root"
       tabindex="0"
       type="button"
     >
@@ -119,7 +119,7 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
         Ellos
       </p>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-mpa7qr-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-1b8berl-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >

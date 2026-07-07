@@ -5072,6 +5072,63 @@ lightning-accounts@6.3.0:
     winston "^3.8.2"
     xss-filters "^1.2.7"
 
+lightning-accounts@6.4.0:
+  version "6.4.0"
+  resolved "https://registry.npmjs.org/lightning-accounts/-/lightning-accounts-6.4.0.tgz#29e8e72f6376d3aa290f9bd8df67b4c313b327c3"
+  integrity sha512-pJaIKu83K7V8VGGIUC1xofKMEWubQOegtdixDPugVedaSacgxhYBINwCRJTcR4y53hSPbFRMuH0HeNzyh48hhQ==
+  dependencies:
+    "@openapi-contrib/json-schema-to-openapi-schema" "^4.3.1"
+    "@prisma/client" "^6.12.0"
+    "@types/bcryptjs" "^3.0.0"
+    "@types/cookie-parser" "^1.4.6"
+    "@types/express-session" "^1.17.10"
+    "@types/joi" "^17.2.3"
+    "@types/js-yaml" "^4.0.9"
+    "@types/json-schema" "^7.0.15"
+    "@types/nodemailer" "^6.4.7"
+    "@types/swagger-jsdoc" "^6.0.1"
+    "@types/swagger2openapi" "^7.0.4"
+    axios "^1.13.6"
+    bcryptjs "^3.0.2"
+    compression "^1.7.4"
+    cookie-parser "^1.4.6"
+    cors "^2.8.5"
+    cross-env "^10.0.0"
+    dotenv "^16.0.3"
+    dotenv-cli "^7.3.0"
+    express "^5.2.1"
+    express-rate-limit "^8.3.1"
+    express-session "^1.18.0"
+    form-data "^4.0.0"
+    helmet "^8.1.0"
+    http-status "^2.1.0"
+    joi "^18.0.0"
+    js-yaml "^4.1.1"
+    lightning "^10.27.5"
+    moment "^2.29.4"
+    morgan "^1.10.0"
+    nodemailer "^7.0.13"
+    nostr-tools "^2.7.2"
+    openapi-types "^12.1.3"
+    passport "^0.7.0"
+    passport-cookie "^1.0.9"
+    passport-custom "^1.1.1"
+    passport-jwt "^4.0.0"
+    passport-oauth1 "^1.3.0"
+    passport-oauth2 "^1.8.0"
+    passport-strategy "^1.0.0"
+    prisma "^6.12.0"
+    prisma-json-schema-generator "^5.1.1"
+    rimraf "^6.1.3"
+    swagger-jsdoc "^6.2.8"
+    swagger-typescript-api "^13.6.3"
+    swagger-ui-express "^5.0.1"
+    swagger2openapi "^7.0.8"
+    ts-node "^10.9.2"
+    typescript "^5.9.2"
+    winston "^3.8.2"
+    xss-filters "^1.2.7"
+
 lightning@^10.27.5:
   version "10.27.5"
   resolved "https://registry.npmjs.org/lightning/-/lightning-10.27.5.tgz#9d07b0171c7aff867892f8c69cdd055fda88af22"
@@ -7155,10 +7212,10 @@ triple-beam@^1.3.0:
   resolved "https://registry.npmjs.org/triple-beam/-/triple-beam-1.4.1.tgz"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
 
-trucoshi@12.1.0:
-  version "12.1.0"
-  resolved "https://registry.npmjs.org/trucoshi/-/trucoshi-12.1.0.tgz#b69add020014f21d7b899604763e6cecbbbc8ee0"
-  integrity sha512-nIbZ0GRv2+lnc3uiS8rkj6YC+3BhKec42mHr7txWBiyIBwrpzaykvucuz/FKaH94dPpLmrSHvkJFMeckWB5W1w==
+trucoshi@12.1.1:
+  version "12.1.1"
+  resolved "https://registry.npmjs.org/trucoshi/-/trucoshi-12.1.1.tgz#8f238441acf9a5c9997197740b2e8ca2d17530cb"
+  integrity sha512-3kGtlHHenimZw2cUIp6tRwLrp8sGSxZ7MukspWKdfJIu2cj0DhVG/VWaYjHm9H5sq+RSoJZ7JxSzXN7o70Zk1Q==
   dependencies:
     "@prisma/client" "^6.19.2"
     "@socket.io/redis-adapter" "8.3.0"

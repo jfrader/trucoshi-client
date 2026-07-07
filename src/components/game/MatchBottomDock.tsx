@@ -59,11 +59,11 @@ const _MatchBottomDock = () => {
     [latestAnnouncement],
   );
   const previousAnnouncementText = useMemo(
-    () => (previousAnnouncement ? getMessageContent(previousAnnouncement) : "Anterior: sin datos"),
+    () => (previousAnnouncement ? getMessageContent(previousAnnouncement) : "-"),
     [previousAnnouncement],
   );
   const thirdAnnouncementText = useMemo(
-    () => (thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "Anterior: sin datos"),
+    () => (thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "-"),
     [thirdAnnouncement],
   );
   const statusLabel = useMemo(() => {

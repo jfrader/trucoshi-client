@@ -171,8 +171,8 @@ export const Login = () => {
             >
               <Stack px={2} pt={2} gap={4}>
                 {showRewardCodeAlert ? (
-                  <Alert severity="warning">
-                    Recibiste un cofre! Inicia sesion para reclamarlo o registrate!
+                  <Alert severity="info">
+                    Ingresa tu email y entra al link para registrarte
                   </Alert>
                 ) : null}
                 <ToggleButtonGroup
@@ -236,7 +236,7 @@ export const Login = () => {
                   type="submit"
                   isLoading={isMagicLinkPending || isPasswordPending || isSeedPending}
                   color="warning"
-                  variant="outlined"
+                  variant="contained"
                 >
                   {loginType === "email" && emailLoginMethod === "link"
                     ? "Enviar Link de Ingreso"
@@ -260,7 +260,8 @@ export const Login = () => {
                 ) : null}
                 {magicLinkSent ? (
                   <Alert severity="success">
-                    Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
+                    Te enviamos un link para ingresar. Si es tu primera vez, vamos a crear tu
+                    cuenta. Revisa tu bandeja de entrada o spam.
                   </Alert>
                 ) : null}
                 {formErrors.filter(Boolean).map((error) => (

@@ -126,7 +126,7 @@ const MatchBoardScene = memo(() => {
   const matchDock = boardLayout.match?.dock;
 
   return (
-    <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
+    <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat} showNoticeBannerInChat>
       <TrucoBoardLayout
         slots={slots}
         topContent={<MatchTopBar />}
@@ -207,6 +207,7 @@ const MatchMobileCommDrawer = memo(() => {
       bottomOffset="env(safe-area-inset-bottom)"
       compact={boardLayout.profile === "phoneWide"}
       showLauncher={false}
+      showNoticeBanner
     />
   );
 });

@@ -22,10 +22,12 @@ const markdownSx = {
 const rulebookByLanguage = {
   es: {
     title: "Reglas",
+    cardRankingTitle: "Ranking visual de cartas",
     markdown: spanishRules,
   },
   en: {
     title: "Rules",
+    cardRankingTitle: "Visual card ranking",
     markdown: englishRules,
   },
 } as const;
@@ -58,7 +60,7 @@ export const Rulebook = () => {
               }}
               dangerouslySetInnerHTML={{ __html: renderMarkdown(beforeRanking) }}
             />
-            <CardRanking compact  />
+            <CardRanking compact title={rulebook.cardRankingTitle} />
             {afterRanking ? (
               <Box
                 data-testid="rulebook-content-after-ranking"

@@ -2,6 +2,7 @@ import {
   Box,
   CssBaseline,
   Paper,
+  Stack,
   ThemeProvider,
   styled,
   useMediaQuery,
@@ -17,7 +18,7 @@ import { Topbar } from "./Topbar";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Sidebar } from "./Sidebar";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
-import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
+import { NoticeBannerSlot, TreasureBannerSlot } from "../notice/NoticeBannerSlot";
 import { useVersionReload } from "../../hooks/useVersionReload";
 import { QueueMatchOverlay } from "./QueueMatchOverlay";
 
@@ -133,7 +134,13 @@ export const Layout = ({ children }: PropsWithChildren) => {
                 className={isGameSurface ? "game-surface" : "app-surface"}
                 gameSurface={isGameSurface}
               >
-                {!isGameSurface ? <NoticeBannerSlot /> : null}
+                {!isGameSurface ? (
+                  <Stack position="sticky" width="100vw" left={0}>
+                    <NoticeBannerSlot />
+                    <TreasureBannerSlot />
+                  </Stack>
+                ) : null}
+
                 <Box
                   minWidth="100%"
                   minHeight="20vh"

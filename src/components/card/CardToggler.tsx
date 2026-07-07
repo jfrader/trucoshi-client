@@ -119,7 +119,6 @@ export const CardToggler = (props: BoxProps) => {
         </IconButton>
         <InventoryButton />
       </Stack>
-
     </Box>
   );
 };

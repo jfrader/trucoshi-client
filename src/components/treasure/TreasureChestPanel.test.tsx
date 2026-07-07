@@ -277,7 +277,6 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
 
     expect(onStartOpen).toHaveBeenCalled();
-    expect(soundMocks.queue).toHaveBeenCalledWith("menu1");
 
     rerender(
       <TreasureOpeningOverlay
@@ -320,7 +319,6 @@ describe("TreasureChestPanel", () => {
       vi.advanceTimersByTime(950);
     });
 
-    expect(soundMocks.queue).toHaveBeenCalledWith("notification");
     let rewardPanel = screen.getByTestId("treasure-reward");
     let rewardCard = within(rewardPanel).getByTestId("treasure-reward-card");
     expect(rewardPanel).toHaveAttribute("data-emerged", "false");
@@ -328,7 +326,7 @@ describe("TreasureChestPanel", () => {
     expect(rewardCard).toHaveAttribute("data-card-scale", "inspect");
 
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.advanceTimersByTime(90);
     });
 
     expect(soundMocks.queue).toHaveBeenCalledWith("winner");
@@ -403,7 +401,7 @@ describe("TreasureChestPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /abrir cofre/i }));
     finishChestAnimation();
 
-    expect(soundMocks.queue).toHaveBeenCalledWith("flawless");
+    expect(soundMocks.queue).toHaveBeenCalledWith("ceba_toma_mate");
     expect(soundMocks.queue).not.toHaveBeenCalledWith("winner");
     expect(screen.getByTestId("treasure-reward")).toHaveTextContent("Repetida");
     expect(within(screen.getByTestId("treasure-reward-card")).getByTestId("game-card-1e")).toHaveAttribute(

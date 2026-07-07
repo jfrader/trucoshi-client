@@ -40,7 +40,9 @@ const QueueCancelProgress = styled(CircularProgress)(
 
 const QueueStatusPanel = styled(Stack)(({ theme }) => theme.trucoshiUi.queue.statusPanel);
 
-const QueueOptionLabel = styled(FormControlLabel)(({ theme }) => theme.trucoshiUi.queue.optionLabel);
+const QueueOptionLabel = styled(FormControlLabel)(
+  ({ theme }) => theme.trucoshiUi.queue.optionLabel,
+);
 
 const formatElapsedTime = (milliseconds: number) => {
   const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
@@ -85,12 +87,7 @@ export const PlayMenu = ({
     { account, stats, activeMatches, queueReplayOptions, serverAheadTime },
     { setSidebarOpen },
   ] = useTrucoshi();
-  const {
-    status,
-    isQueueing,
-    joinQueue,
-    leaveQueue,
-  } = useMatchQueue();
+  const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
   const [, { createTutorialMatch }] = useTrucoshiMatch();
   const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
@@ -292,6 +289,7 @@ export const PlayMenu = ({
                 onClick={handlePlayClick}
                 variant="contained"
                 color="warning"
+                fullWidth
               >
                 Volver a la partida
               </Button>
@@ -305,11 +303,7 @@ export const PlayMenu = ({
             <Tooltip title="Cancelar cola">
               <Box position="absolute" visibility={isQueueing ? "visible" : "hidden"}>
                 <QueueCancelProgress color="inherit" size="2.75rem" />
-                <QueueCancelButton
-                  aria-label="Cancelar cola"
-                  color="inherit"
-                  onClick={leaveQueue}
-                >
+                <QueueCancelButton aria-label="Cancelar cola" color="inherit" onClick={leaveQueue}>
                   <CloseIcon />
                 </QueueCancelButton>
               </Box>
@@ -339,26 +333,33 @@ export const PlayMenu = ({
             Crear / Buscar partida
           </Button>
         </Stack>
-        <Button color="primary" size="large" onClick={onMenuClick} component={Link} to="/ranking">
+        <Button color="secondary" size="large" onClick={onMenuClick} component={Link} to="/ranking">
           Ranking
         </Button>
-        <Button color="inherit" size="large" onClick={onMenuClick} component={Link} to="/help">
-          Ayuda
-        </Button>
         <Button
-          color="warning"
+          color="primary"
           size="large"
           disabled={isTutorialLoading}
           onClick={handleTutorialClick}
         >
           Aprende a jugar
         </Button>
+        <Button color="inherit" size="large" onClick={onMenuClick} component={Link} to="/help">
+          Ayuda
+        </Button>
         {account ? null : (
-          <>
-            <Button size="large" color="info" onClick={onMenuClick} component={Link} to="/login">
+          <Stack pt={3} direction="row" justifyContent="center">
+            <Button
+              variant="contained"
+              size="large"
+              color="info"
+              onClick={onMenuClick}
+              component={Link}
+              to="/login"
+            >
               Iniciar Sesion
             </Button>
-          </>
+          </Stack>
         )}
       </FormGroup>
     </Box>

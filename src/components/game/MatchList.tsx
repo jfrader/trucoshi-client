@@ -65,8 +65,10 @@ export const MatchList = ({
                   placement="right"
                   title={
                     <Stack>
-                      <Typography fontSize="small" color={color}>{state}</Typography>
-                      <Typography fontSize="small" >
+                      <Typography fontSize="small" color={color}>
+                        {state}
+                      </Typography>
+                      <Typography fontSize="small">
                         {info.createdFromQueue ? "Ranked" : "Custom"}
                       </Typography>
                     </Stack>
@@ -90,8 +92,8 @@ export const MatchList = ({
                       )}
                     </ListItemAvatar>
                     <ListItemText>
-                      <b>{info.matchSessionId}</b>
-                      <div>{info.ownerId}</div>
+                      <b>{info.isTutorial ? "Tutorial" : info.matchSessionId}</b>
+                      <div>{info.isTutorial ? "Aprendiendo a jugar" : info.ownerId}</div>
                     </ListItemText>
                     <ListItemAvatar>
                       <Typography variant="subtitle1">

@@ -2,11 +2,11 @@ import {
   Backdrop as MuiBackdrop,
   BackdropProps,
   Box,
-  CircularProgress,
   Typography,
 } from "@mui/material";
 import { PropsWithChildren } from "react";
 import { TrucoshiText } from "./TrucoshiText";
+import { TrucoshiProgress } from "./TrucoshiProgress";
 
 export type TrucoshiBackdropProps<T extends Record<string, any> = Record<string, any>> =
   PropsWithChildren<
@@ -51,7 +51,7 @@ export const Backdrop = ({
         {message ? <Typography variant="h4">{message}</Typography> : null}
         {loading ? (
           <Box mt={1}>
-            <CircularProgress color="primary" />
+            <TrucoshiProgress />
           </Box>
         ) : null}
         <Box>{children}</Box>

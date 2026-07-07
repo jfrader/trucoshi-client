@@ -16,15 +16,24 @@ export const Home = () => {
     );
   }
 
+  const WelcomeContent = (
+    <Slide in direction="right">
+      <Card>
+        <CardContent>
+          <WelcomeMenu />
+        </CardContent>
+      </Card>
+    </Slide>
+  );
+
   return (
     <>
       <Container maxWidth="xl" sx={{ width: { xs: "100vw", sm: "100%" } }}>
         <Stack
-          flexGrow={1}
           gap={3}
           pt={3}
           direction={{ xs: "column", md: "row" }}
-          alignItems="start"
+          alignItems="stretch"
           justifyContent="center"
           width="100%"
         >
@@ -36,24 +45,27 @@ export const Home = () => {
                 </CardContent>
               </Card>
             </Slide>
-            <Slide in direction="right">
-              <Card>
-                <CardContent>
-                  <WelcomeMenu />
-                </CardContent>
-              </Card>
-            </Slide>
+            {activeMatches.length ? null : WelcomeContent}
           </Stack>
           {activeMatches.length ? (
-            <Slide in direction="left">
-              <Stack flexGrow={1} gap={2} width="100%" maxWidth={{ md: "sm" }}>
-                <Card>
-                  <CardContent>
-                    <MatchList dense matches={activeMatches} title="Partidas activas" />
-                  </CardContent>
-                </Card>
-              </Stack>
-            </Slide>
+            <Stack
+              flexGrow={1}
+              gap={3}
+              justifyContent="start"
+              width="100%"
+              maxWidth={{ md: "sm" }}
+            >
+              {WelcomeContent}
+              <Slide in direction="left">
+                <Stack flexGrow={1} gap={2} width="100%" maxWidth={{ md: "sm" }}>
+                  <Card sx={{ flexGrow: 1 }}>
+                    <CardContent>
+                      <MatchList dense matches={activeMatches} title="Partidas activas" />
+                    </CardContent>
+                  </Card>
+                </Stack>
+              </Slide>
+            </Stack>
           ) : null}
         </Stack>
       </Container>

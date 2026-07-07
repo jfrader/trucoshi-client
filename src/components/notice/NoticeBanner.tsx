@@ -90,14 +90,12 @@ export const NoticeBanner = ({
             href={displayButtonHref}
             sx={{
               color: "inherit",
-              flex: "0 0 auto",
               fontSize: "0.78rem",
               fontWeight: 800,
               minWidth: 0,
               px: 0.75,
               py: 0,
               textDecoration: "underline",
-              whiteSpace: "nowrap",
             }}
             variant="text"
           >
@@ -111,7 +109,6 @@ export const NoticeBanner = ({
             onClick={onClose}
             size="small"
             sx={{
-              flex: "0 0 auto",
               ml: hasButton ? 0 : "auto",
               p: 0.25,
             }}

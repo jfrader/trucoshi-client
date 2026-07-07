@@ -9,6 +9,7 @@ import {
   IconButton,
   Paper,
   Stack,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -18,7 +19,7 @@ import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { useChatRoom } from "../components/chat/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
-import { Settings } from "@mui/icons-material";
+import { ContentCopy, Settings } from "@mui/icons-material";
 import { GameOptions } from "../components/game/GameOptions";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
@@ -31,6 +32,7 @@ import { LobbySeatCard } from "../components/game/LobbySeatCard";
 import { DevProfiler } from "../utils/devProfiler";
 import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
 import { LobbyGameplayProvider, useLobbyGameplay } from "../components/game/LobbyGameplayContext";
+import { useToast } from "../hooks/useToast";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -40,14 +42,68 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "flor",
 ];
 
+const copyTextToClipboard = async (text: string) => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  if (window.navigator.clipboard?.writeText) {
+    try {
+      await window.navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall back below for browsers that expose clipboard but reject the call.
+    }
+  }
+
+  const textarea = window.document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  window.document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    return window.document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    window.document.body.removeChild(textarea);
+  }
+};
+
 const LobbyBoardScene = memo(() => {
   const {
     state: { match, chatProps, slots, isDesktopChat, account, isReadyLoading, sessionId },
     actions: { onStartMatch, onOpenOptions },
   } = useLobbyGameplay();
+  const showNoticeBannerInChat = !match.createdFromQueue;
+  const toast = useToast();
+
+  const copyLobbyUrl = () => {
+    if (!sessionId || typeof window === "undefined") {
+      toast.warning("No se pudo copiar el link");
+      return;
+    }
+
+    copyTextToClipboard(`${window.location.origin}/lobby/${sessionId}`).then((copied) => {
+      if (copied) {
+        toast.success("Link de sala copiado");
+      } else {
+        toast.error("No se pudo copiar el link");
+      }
+    });
+  };
 
   return (
-    <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
+    <GameBoardSceneFrame
+      chatProps={chatProps}
+      isDesktopChat={isDesktopChat}
+      showNoticeBannerInChat={showNoticeBannerInChat}
+    >
       <DevProfiler id="Lobby.Board">
         <TrucoBoardLayout
           slots={slots}
@@ -77,9 +133,25 @@ const LobbyBoardScene = memo(() => {
                   borderRadius: "0.9rem",
                 })}
               >
-                <Typography color="common.white" fontWeight={700} fontSize="1rem">
-                  Sala {sessionId}
-                </Typography>
+                <Stack direction="row" alignItems="center" spacing={0.75}>
+                  <Typography color="common.white" fontWeight={700} fontSize="1rem">
+                    Sala {sessionId}
+                  </Typography>
+                  <Tooltip title="Copiar link de sala">
+                    <IconButton
+                      aria-label="Copiar link de sala"
+                      color="inherit"
+                      onClick={copyLobbyUrl}
+                      size="small"
+                      sx={{
+                        color: "common.white",
+                        p: 0.25,
+                      }}
+                    >
+                      <ContentCopy sx={{ fontSize: "1rem" }} />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Paper>
 
               <IconButton
@@ -280,7 +352,9 @@ export const Lobby = () => {
               }}
             >
               <LobbyBoardScene />
-              {!isDesktopChat ? <CommDrawer chatProps={chatRoom} /> : null}
+              {!isDesktopChat ? (
+                <CommDrawer chatProps={chatRoom} showNoticeBanner={!match.createdFromQueue} />
+              ) : null}
             </LobbyGameplayProvider>
           ) : (
             <FloatingProgress />

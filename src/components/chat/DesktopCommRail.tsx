@@ -7,6 +7,7 @@ import { IS_DEBUG } from "../../config/debug";
 
 type Props = {
   chatProps: ReturnType<typeof useChatRoom>;
+  showNoticeBanner?: boolean;
 };
 
 const RailRoot = styled(Paper)(() => ({
@@ -25,7 +26,7 @@ const RailHeader = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(0.8, 1, 0),
 }));
 
-export const DesktopCommRail = ({ chatProps }: Props) => {
+export const DesktopCommRail = ({ chatProps, showNoticeBanner }: Props) => {
   const [tab, setTab] = useState<CommTabName>("all");
 
   const messageFilter = useMemo(() => FILTER_BY_TAB[tab], [tab]);
@@ -65,7 +66,12 @@ export const DesktopCommRail = ({ chatProps }: Props) => {
         {tab === "debug" ? (
           <RailDebugPanel />
         ) : (
-          <ChatRoom alwaysVisible {...chatProps} messageFilter={messageFilter} />
+          <ChatRoom
+            alwaysVisible
+            {...chatProps}
+            messageFilter={messageFilter}
+            showNoticeBanner={showNoticeBanner}
+          />
         )}
       </Box>
     </RailRoot>

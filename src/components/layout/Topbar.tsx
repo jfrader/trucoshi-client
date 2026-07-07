@@ -1,12 +1,11 @@
 import { AppBar, Box, IconButton, Stack, Switch, Toolbar } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { Link } from "../../shared/Link";
 import { CardDisplayModeToggle } from "../card/CardDisplayModeToggle";
-import { Close, Login, Menu } from "@mui/icons-material";
-import { UserAvatar } from "../../shared/UserAvatar";
+import { Close, Menu } from "@mui/icons-material";
 import { VolumeControl } from "./VolumeControl";
 import { TomaMate } from "./TomaMate";
 import { TrucoshiResponsiveLogoLink } from "../../shared/TrucoshiResponsiveLogoLink";
+import { ProfileIconButton } from "./ProfileIconButton";
 
 export const Topbar = ({
   embedded = false,
@@ -15,22 +14,11 @@ export const Topbar = ({
   embedded?: boolean;
   compact?: boolean;
 }) => {
-  const [{ isSidebarOpen, account, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
+  const [{ isSidebarOpen, dark }, { setSidebarOpen, setDark }] = useTrucoshi();
 
   const compactContent = (
     <Stack direction="row" spacing={embedded ? 1 : 2} alignItems="center">
-      {account ? (
-        <Link to="/profile">
-          <Stack direction="row" fontSize="small" gap={1} alignItems="center">
-            <UserAvatar size="small" account={account} />
-            <Box display={embedded ? "none" : { xs: "none", sm: "inline" }}>{account.name}</Box>
-          </Stack>
-        </Link>
-      ) : (
-        <IconButton component={Link} title="Iniciar Sesion" to="/login">
-          <Login fontSize="small" />
-        </IconButton>
-      )}
+      <ProfileIconButton textNameSm={!embedded} />
       <IconButton title="Menu" size="small" onClick={() => setSidebarOpen((current) => !current)}>
         {isSidebarOpen ? <Close /> : <Menu />}
       </IconButton>

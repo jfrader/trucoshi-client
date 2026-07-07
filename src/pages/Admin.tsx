@@ -130,7 +130,7 @@ export const Admin = () => {
         if (error) {
           toast.error(error.message);
         }
-      }
+      },
     );
   };
 
@@ -154,10 +154,10 @@ export const Admin = () => {
       EClientEvent.ADMIN_SET_NOTICE_BANNER,
       {
         active,
-        text: active ? noticeText.trim() : "",
+        text: noticeText.trim(),
         severity: noticeSeverity,
-        buttonText: active ? noticeButtonText.trim() || null : null,
-        buttonHref: active ? noticeButtonHref.trim() || null : null,
+        buttonText: noticeButtonText.trim() || null,
+        buttonHref: noticeButtonHref.trim() || null,
       },
       ({ success, noticeBanner, error }) => {
         setNoticeSaving(false);
@@ -171,7 +171,7 @@ export const Admin = () => {
         if (error) {
           toast.error(error.message);
         }
-      }
+      },
     );
   };
 
@@ -216,9 +216,7 @@ export const Admin = () => {
                 color="warning"
                 disabled={creating || !isConnected}
                 onClick={createRewardCode}
-                startIcon={
-                  creating ? <CircularProgress color="inherit" size={16} /> : <Redeem />
-                }
+                startIcon={creating ? <CircularProgress color="inherit" size={16} /> : <Redeem />}
                 variant="contained"
                 sx={{ minWidth: { xs: "100%", md: "12rem" } }}
               >
@@ -241,11 +239,7 @@ export const Admin = () => {
                 >
                   {createdLink}
                 </Typography>
-                <Button
-                  onClick={copyCreatedLink}
-                  startIcon={<ContentCopy />}
-                  variant="outlined"
-                >
+                <Button onClick={copyCreatedLink} startIcon={<ContentCopy />} variant="outlined">
                   Copiar
                 </Button>
               </Stack>
@@ -255,27 +249,9 @@ export const Admin = () => {
 
         <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 1 }}>
           <Stack gap={2}>
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              gap={1.5}
-              alignItems={{ xs: "stretch", md: "center" }}
-              justifyContent="space-between"
-            >
-              <Typography fontWeight={900} textTransform="uppercase" variant="subtitle2">
-                Notice banner
-              </Typography>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={noticeActive}
-                    color="warning"
-                    onChange={(event) => setNoticeActive(event.target.checked)}
-                  />
-                }
-                label={noticeActive ? "Activo" : "Inactivo"}
-                sx={{ m: 0 }}
-              />
-            </Stack>
+            <Typography fontWeight={900} textTransform="uppercase" variant="subtitle2">
+              Notice banner
+            </Typography>
             <TextField
               fullWidth
               inputProps={{ maxLength: 240 }}
@@ -320,16 +296,25 @@ export const Admin = () => {
               />
             </Stack>
             <Stack direction={{ xs: "column", md: "row" }} gap={1}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={noticeActive}
+                    color="warning"
+                    onChange={(event) => setNoticeActive(event.target.checked)}
+                  />
+                }
+                label={noticeActive ? "Activo" : "Inactivo"}
+                sx={{ m: 0 }}
+              />
               <Button
                 color="warning"
                 disabled={noticeSaving || !isConnected}
-                onClick={() => saveNoticeBanner()}
-                startIcon={
-                  noticeSaving ? <CircularProgress color="inherit" size={16} /> : <Save />
-                }
+                onClick={() => saveNoticeBanner(true)}
+                startIcon={noticeSaving ? <CircularProgress color="inherit" size={16} /> : <Save />}
                 variant="contained"
               >
-                Guardar aviso
+                Guardar y activar
               </Button>
               <Button
                 color="inherit"

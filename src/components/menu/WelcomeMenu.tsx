@@ -4,6 +4,7 @@ import { ChangeEvent, useState } from "react";
 import { Box, BoxProps, Button, FormGroup, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "../../shared/LoadingButton";
 import { Sats } from "../../shared/Sats";
+import { ProfileIconButton } from "../layout/ProfileIconButton";
 
 export const WelcomeMenu = ({ ...props }: BoxProps) => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
             </Typography>
             <Sats amount={account.wallet?.balanceInSats || 0} />
           </Box>
-        ) : null}
+        ) : <ProfileIconButton />}
       </Stack>
       <form
         onSubmit={(e) => {

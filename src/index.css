@@ -71,6 +71,15 @@ body {
   }
 }
 
+@media (min-width: 1024px) and (min-height: 900px) {
+  html:has(.app-surface) {
+    font-size: 19px;
+  }
+  html:has(.game-surface) {
+    font-size: 19px;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

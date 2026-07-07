@@ -44,6 +44,7 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import EmojiConvertor from "emoji-js";
 import ChatField from "./ChatField";
+import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 
 const ChatFieldWithEmojis = lazy(() => import("./ChatFieldWithEmojis"));
 
@@ -57,6 +58,7 @@ type Props = BoxProps & {
   alwaysVisible?: boolean;
   messageFilter?: (message: IChatMessage) => boolean;
   hideInput?: boolean;
+  showNoticeBanner?: boolean;
 } & ReturnType<typeof useChatRoom>;
 
 const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
@@ -156,6 +158,7 @@ export const ChatRoom = ({
   alwaysVisible,
   messageFilter,
   hideInput,
+  showNoticeBanner,
   ...boxProps
 }: Props) => {
   const [room, chat, isLoading] = useChatState;
@@ -170,9 +173,13 @@ export const ChatRoom = ({
 
   useLayoutEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTo({
-        top: listRef.current.scrollHeight,
-      });
+      if (listRef.current.scrollTo) {
+        listRef.current.scrollTo({
+          top: listRef.current.scrollHeight,
+        });
+      } else {
+        listRef.current.scrollTop = listRef.current.scrollHeight;
+      }
     }
   }, [filteredMessages.length]);
 
@@ -237,6 +244,11 @@ export const ChatRoom = ({
             borderRadius: 0,
           })}
         >
+          {showNoticeBanner ? (
+            <ListItem disableGutters disablePadding sx={{ display: "block" }}>
+              <NoticeBannerSlot dismissible={false} ignoreDismissal />
+            </ListItem>
+          ) : null}
           {messagesWithAuthorVisibility?.map(({ message, hideAuthor }) => (
             <MemoizedChatMessage
               animate={message.id === latestMessage?.id}

@@ -9,6 +9,10 @@ const mocks = vi.hoisted(() => ({
   state: {
     account: null as any,
   },
+  login: vi.fn(),
+  sendMagicLink: vi.fn(),
+  seedLogin: vi.fn(),
+  resetQueries: vi.fn(),
 }));
 
 vi.mock("../trucoshi/hooks/useTrucoshi", () => ({
@@ -17,28 +21,28 @@ vi.mock("../trucoshi/hooks/useTrucoshi", () => ({
 
 vi.mock("../api/hooks/useLogin", () => ({
   useLogin: () => ({
-    login: vi.fn(),
+    login: mocks.login,
     isPending: false,
   }),
 }));
 
 vi.mock("../api/hooks/useMagicLinkLogin", () => ({
   useMagicLinkLogin: () => ({
-    sendMagicLink: vi.fn(),
+    sendMagicLink: mocks.sendMagicLink,
     isPending: false,
   }),
 }));
 
 vi.mock("../api/hooks/useSeedLogin", () => ({
   useSeedLogin: () => ({
-    seedLogin: vi.fn(),
+    seedLogin: mocks.seedLogin,
     isPending: false,
   }),
 }));
 
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({
-    resetQueries: vi.fn(),
+    resetQueries: mocks.resetQueries,
   }),
 }));
 
@@ -64,6 +68,10 @@ describe("Login", () => {
 
     window.localStorage.clear();
     mocks.state.account = null;
+    mocks.login.mockReset();
+    mocks.sendMagicLink.mockReset();
+    mocks.seedLogin.mockReset();
+    mocks.resetQueries.mockReset();
   });
 
   it("shows the treasure promo alert when a reward code is pending", () => {
@@ -72,7 +80,7 @@ describe("Login", () => {
     renderLogin();
 
     expect(
-      screen.getByText("Recibiste un cofre! Inicia sesion para reclamarlo o registrate!")
+      screen.getByText("Ingresa tu email y entra al link para registrarte")
     ).toBeInTheDocument();
   });
 
@@ -80,7 +88,7 @@ describe("Login", () => {
     renderLogin();
 
     expect(
-      screen.queryByText("Recibiste un cofre! Inicia sesion para reclamarlo o registrate!")
+      screen.queryByText("Ingresa tu email y entra al link para registrarte")
     ).not.toBeInTheDocument();
   });
 
@@ -91,8 +99,27 @@ describe("Login", () => {
     expect(screen.getByRole("button", { name: /^frase de semilla$/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^contraseña$/i })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /enviar link de ingreso/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /enviar link de ingreso/i })
+    ).toBeInTheDocument();
     expect(screen.queryByLabelText("Contraseña")).not.toBeInTheDocument();
+  });
+
+  it("sends magic link login from the default form and explains first-time users are registered", () => {
+    mocks.sendMagicLink.mockImplementation((_payload, options) => options.onSuccess());
+    renderLogin();
+
+    userEvent.type(screen.getByLabelText("Email"), "new@example.com");
+    userEvent.click(screen.getByRole("button", { name: /enviar link de ingreso/i }));
+
+    expect(mocks.sendMagicLink).toHaveBeenCalledWith(
+      { email: "new@example.com" },
+      expect.objectContaining({
+        onError: expect.any(Function),
+        onSuccess: expect.any(Function),
+      })
+    );
+    expect(screen.getByText(/si es tu primera vez, vamos a crear tu cuenta/i)).toBeInTheDocument();
   });
 
   it("allows password login inside the email tab", () => {
