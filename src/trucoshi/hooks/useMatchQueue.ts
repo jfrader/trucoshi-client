@@ -231,12 +231,15 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
         }
       }, 1000);
 
-      countdownTimer.current = setTimeout(() => {
-        clearCountdownTimers();
-        setQueueProposal(null);
-        setStartingAt(null);
-        navigate(`/match/${starting.matchSessionId}`);
-      }, Math.max(starting.startsAt - (Date.now() + serverAheadTime), 0));
+      countdownTimer.current = setTimeout(
+        () => {
+          clearCountdownTimers();
+          setQueueProposal(null);
+          setStartingAt(null);
+          navigate(`/match/${starting.matchSessionId}`);
+        },
+        Math.max(starting.startsAt - (Date.now() + serverAheadTime), 2000),
+      );
     };
 
     const handleCancelled = (cancelled: IQueueMatchCancelled) => {
