@@ -68,13 +68,12 @@ export const MatchEntryOverlay = () => {
       role="status"
     >
       <OverlayContent>
-        <Box sx={theme.trucoshiUi.match.entryOverlay.logo}>
-          <TrucoshiText style={{ display: "block", height: "auto", width: "100%" }} />
-        </Box>
-        <Stack gap={0.7} alignItems="center">
-          <Typography sx={theme.trucoshiUi.match.entryOverlay.title}>Preparando partida</Typography>
+        <Stack gap={2} alignItems="center">
+          <Box sx={theme.trucoshiUi.match.entryOverlay.logo}>
+            <TrucoshiText style={{ display: "block", height: "auto", width: "100%" }} />
+          </Box>
           <Typography sx={theme.trucoshiUi.match.entryOverlay.subtitle} variant="body2">
-            Entrando a la mesa
+            Preparando partida
           </Typography>
         </Stack>
         <ProgressTrack aria-hidden="true">

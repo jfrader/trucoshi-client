@@ -341,11 +341,11 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
   },
   match: {
     entryOverlay: {
-      holdMs: 2000,
-      fadeMs: 320,
+      holdMs: 1200,
+      fadeMs: 300,
       root: {
         background:
-          "radial-gradient(circle at 50% 28%, rgba(221, 151, 68, 0.16), transparent 28%), radial-gradient(circle at 50% 72%, rgba(15, 92, 70, 0.34), transparent 42%), linear-gradient(180deg, rgba(4, 12, 10, 0.98), rgba(1, 5, 4, 0.97))",
+          "radial-gradient(circle at 50% 28%, rgba(221, 151, 68, 0.2), transparent 28%), radial-gradient(circle at 50% 72%, rgba(15, 92, 70, 0.4), transparent 42%), linear-gradient(180deg, rgba(4, 12, 10, 1), rgba(1, 5, 4, 0.98))",
         color: "rgba(255,255,255,0.94)",
       },
       content: {
