@@ -44,6 +44,7 @@ export interface ITrucoshiMatchActions {
   startMatch(cb: (success: boolean) => void): void;
   leaveMatch(): void;
   createMatch(callback: ICallbackMatchUpdate): void;
+  createTutorialMatch(callback: ICallbackMatchUpdate): void;
   joinMatch(sessionId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1): void;
   addBot(sessionId: string, cb: (success: boolean) => void, teamIdx?: 0 | 1): void;
   setReady(sessionId: string, ready: boolean, cb: (success: boolean) => void): void;

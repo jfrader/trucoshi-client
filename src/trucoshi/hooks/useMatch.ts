@@ -179,6 +179,35 @@ export const useMatch = (
     [socket, dispatch, toast]
   );
 
+  const createTutorialMatch = useCallback(
+    (callback: ICallbackMatchUpdate) => {
+      (socket as any).emit(
+        "CREATE_TUTORIAL_MATCH",
+        undefined,
+        ({ match, activeMatches, error }: any) => {
+          if (activeMatches) {
+            dispatch.setActiveMatches(activeMatches);
+          }
+          if (error) {
+            toast.error(error.message);
+          }
+          if (match) {
+            setMatchState((prev) => ({
+              ...prev,
+              match,
+              me: match.players.find((player: any) => player.isMe) || null,
+              turnPlayer: match.players.find((player: any) => player.isTurn) || null,
+              error: null,
+            }));
+            return callback(null, match);
+          }
+          callback(error || new Error("No se pudo crear el tutorial"));
+        },
+      );
+    },
+    [socket, dispatch, toast],
+  );
+
   const emitReady = useCallback(
     (matchSessionId: string, ready: boolean, cb: (success: boolean) => void) => {
       socket.emit(
@@ -327,7 +356,7 @@ export const useMatch = (
 
   const playCard = useCallback(
     (cardIdx: number, card: ICard) => {
-      if (matchState.match && matchState.turnCallback) {
+      if (matchState.match && !matchState.match.tutorial?.inputLocked && matchState.turnCallback) {
         matchState.turnCallback({ cardIdx, card });
         setMatchState((prev) => ({ ...prev, turnCallback: null }));
       }
@@ -337,7 +366,7 @@ export const useMatch = (
 
   const sayCommand = useCallback(
     (command: ESayCommand) => {
-      if (matchState.match && matchState.sayCallback) {
+      if (matchState.match && !matchState.match.tutorial?.inputLocked && matchState.sayCallback) {
         matchState.sayCallback({ command });
         setMatchState((prev) => ({ ...prev, sayCallback: null }));
       }
@@ -496,6 +525,7 @@ export const useMatch = (
       setOptions,
       startMatch,
       createMatch,
+      createTutorialMatch,
       leaveMatch,
       kickPlayer,
       pauseMatch,

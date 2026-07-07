@@ -14,7 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { Link, useMatch, useNavigate } from "react-router-dom";
+import { Link, useMatch as useRouteMatch, useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ITrucoshiStats } from "trucoshi";
 import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
@@ -24,6 +24,7 @@ import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMa
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 import { PlayButton } from "./PlayButton";
 import { KeyboardBackspace } from "@mui/icons-material";
+import { useMatch as useTrucoshiMatch } from "../../trucoshi/hooks/useMatch";
 
 const QueueModeToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   ...theme.trucoshiUi.queue.segmentGroup,
@@ -77,8 +78,8 @@ export const PlayMenu = ({
   smallPlayButton?: boolean;
   onMenuClick?: (e: SyntheticEvent) => void;
 }) => {
-  const isInMatch = useMatch("/match/:id");
-  const isInHome = useMatch("/");
+  const isInMatch = useRouteMatch("/match/:id");
+  const isInHome = useRouteMatch("/");
   const navigate = useNavigate();
   const [
     { account, stats, activeMatches, queueReplayOptions, serverAheadTime },
@@ -90,8 +91,10 @@ export const PlayMenu = ({
     joinQueue,
     leaveQueue,
   } = useMatchQueue();
+  const [, { createTutorialMatch }] = useTrucoshiMatch();
   const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
+  const [isTutorialLoading, setTutorialLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
   const queuedMatch = activeMatches.find((match) => match.createdFromQueue);
 
@@ -165,6 +168,18 @@ export const PlayMenu = ({
     }
 
     handlePlay({ maxPlayers: maxPlayerCount, allowBots: playWithBots });
+  };
+
+  const handleTutorialClick = (event: SyntheticEvent) => {
+    onMenuClick?.(event);
+    setTutorialLoading(true);
+    createTutorialMatch((error, match) => {
+      setTutorialLoading(false);
+      if (error || !match) {
+        return;
+      }
+      navigate(`/match/${match.matchSessionId}`);
+    });
   };
 
   return (
@@ -329,6 +344,14 @@ export const PlayMenu = ({
         </Button>
         <Button color="inherit" size="large" onClick={onMenuClick} component={Link} to="/help">
           Ayuda
+        </Button>
+        <Button
+          color="warning"
+          size="large"
+          disabled={isTutorialLoading}
+          onClick={handleTutorialClick}
+        >
+          Aprende a jugar
         </Button>
         {account ? null : (
           <>

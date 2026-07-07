@@ -274,6 +274,9 @@ export const ChatRoom = ({
 };
 
 export const messageColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+  if ((message as { tutorial?: boolean }).tutorial) {
+    return "grey.900";
+  }
   if (message.card) {
     return players.reduce((prev, player) => {
       return player.key === message.user.key ? getTeamColor(player.teamIdx) : prev;
@@ -286,6 +289,9 @@ export const messageColor = (message: IChatMessage, players: IPublicPlayer[]) =>
 };
 
 export const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => {
+  if ((message as { tutorial?: boolean }).tutorial) {
+    return "warning.dark";
+  }
   if (message.command) {
     return getTeamColor(Number(message.user.key));
   }
@@ -360,14 +366,27 @@ export const ChatMessage = ({
     Component?: FC<SlideProps | FadeProps>;
   } & Partial<SlideProps | FadeProps>
 >) => {
+  const isTutorial = Boolean((message as { tutorial?: boolean }).tutorial);
+
   return (
     <Component in={true} direction="right" mountOnEnter unmountOnExit {...props}>
       <ListItem
-        sx={{
+        sx={(theme) => ({
           textAlign: "inherit",
           animation: animate ? `0.6s ${bounce} ${message.command ? 4 : 1}` : "",
           py: hideAuthor ? 0 : "0.05em",
-        }}
+          ...(isTutorial
+            ? {
+                mx: 0.75,
+                my: 0.4,
+                width: "auto",
+                borderRadius: 1,
+                bgcolor: "rgba(255,255,255,0.94)",
+                borderLeft: `4px solid ${theme.palette.warning.main}`,
+                boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+              }
+            : {}),
+        })}
       >
         {!hideAuthor && getAvatar(message, players)}
         <ListItemText sx={{ textAlign: "inherit" }}>
@@ -378,7 +397,19 @@ export const ChatMessage = ({
             color={messageColor(message, players)}
             display="inline"
             variant="inherit"
-            sx={{ wordWrap: "break-word", pl: hideAuthor ? 3 : undefined }}
+            sx={{
+              wordWrap: "break-word",
+              pl: hideAuthor ? 3 : undefined,
+              ...(isTutorial
+                ? {
+                    display: "block",
+                    fontSize: "0.95rem",
+                    fontWeight: 700,
+                    lineHeight: 1.32,
+                    whiteSpace: "pre-wrap",
+                  }
+                : {}),
+            }}
           >
             {children ? children : <MessageContent>{message}</MessageContent>}
           </Typography>

@@ -37,12 +37,12 @@ export const HELP_LINKS = [
   },
   {
     label: "Como jugar Truco",
-    to: "https://www.nhfournier.es/como-jugar/truco/",
+    to: "/help/rules/es",
     Icon: Flag,
   },
   {
     label: "How to play Truco (english)",
-    to: "https://www.nhfournier.es/en/como-jugar/truco/",
+    to: "/help/rules/en",
     Icon: Flag,
   },
 ];

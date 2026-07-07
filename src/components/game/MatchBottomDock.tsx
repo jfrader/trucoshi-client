@@ -1,12 +1,21 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import { ICard } from "trucoshi";
+import { ICard, IChatMessage } from "trucoshi";
 import { getMessageContent } from "../chat/ChatRoom";
 import { GameCard } from "../card/GameCard";
 import { CommandBar } from "./CommandBar";
 import { useBoardLayout, useMatchState } from "../../board";
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useMatchGameplay } from "./MatchGameplayContext";
+
+const isUnreadChatCandidate = (message: IChatMessage) =>
+  Boolean(
+    message.content?.trim() &&
+      !message.system &&
+      !message.hidden &&
+      !message.command &&
+      !message.card,
+  );
 
 const _MatchBottomDock = () => {
   const {
@@ -26,6 +35,13 @@ const _MatchBottomDock = () => {
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
   const onOpenChat = !isDesktopChat ? () => chatProps.setActive(true) : undefined;
+  const room = chatProps.useChatState[0];
+  const latestUnreadCandidate = useMemo(
+    () => [...(room?.messages || [])].reverse().find(isUnreadChatCandidate) || null,
+    [room?.messages],
+  );
+  const latestSeenChatMessageIdRef = useRef<IChatMessage["id"] | null>(null);
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const bottomOffset = "env(safe-area-inset-bottom)";
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
@@ -75,6 +91,39 @@ const _MatchBottomDock = () => {
   }, [match?.handState, me]);
 
   const showCommandActions = Boolean(me && hasCommandActions && !isUnavailable);
+
+  useEffect(() => {
+    if (isDesktopChat) {
+      return;
+    }
+
+    if (chatProps.active) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate?.id || null;
+      setHasUnreadChat(false);
+      return;
+    }
+
+    if (!latestUnreadCandidate?.id) {
+      return;
+    }
+
+    if (!latestSeenChatMessageIdRef.current) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate.id;
+      return;
+    }
+
+    if (latestSeenChatMessageIdRef.current !== latestUnreadCandidate.id) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate.id;
+      setHasUnreadChat(true);
+    }
+  }, [chatProps.active, isDesktopChat, latestUnreadCandidate]);
+
+  const handleOpenChat = () => {
+    latestSeenChatMessageIdRef.current = latestUnreadCandidate?.id || null;
+    setHasUnreadChat(false);
+    chatProps.setActive(true);
+  };
+
   const handCardsNode = useMemo(() => {
     if (!dock) {
       return null;
@@ -197,7 +246,7 @@ const _MatchBottomDock = () => {
             <Box
               component="button"
               type="button"
-              onClick={onOpenChat}
+              onClick={handleOpenChat}
               aria-label="Abrir chat"
               sx={(theme) => ({
                 ...theme.trucoshiUi.match.dockChatButton,
@@ -225,6 +274,22 @@ const _MatchBottomDock = () => {
                 },
               })}
             >
+              {hasUnreadChat ? (
+                <Box
+                  data-testid="mobile-chat-unread-dot"
+                  sx={{
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    bgcolor: "warning.main",
+                    border: "2px solid rgba(20,18,14,0.94)",
+                    boxShadow: "0 0 0 2px rgba(255,189,74,0.24)",
+                  }}
+                />
+              ) : null}
               <ChatBubbleOutlineIcon sx={{ fontSize: "1.06rem" }} />
               <Box component="span">Chat</Box>
             </Box>

@@ -15,6 +15,15 @@ type SeatChatBubbleProps = {
 
 const DEFAULT_MAX_CHARACTERS = 64;
 const DEFAULT_DURATION_MS = 3600;
+const TUTORIAL_MAX_CHARACTERS = 180;
+const TUTORIAL_DURATION_MS = 9000;
+const BUBBLE_TRANSITION_GAP_MS = 500;
+
+const isTutorialChatMessage = (message: IChatMessage | null | undefined) =>
+  Boolean((message as { tutorial?: boolean } | null | undefined)?.tutorial);
+
+const getTutorialContext = (message: IChatMessage | null | undefined) =>
+  (message as { tutorialContext?: string } | null | undefined)?.tutorialContext || null;
 
 export const getSeatChatBubblePlacement = ({
   cos,
@@ -135,9 +144,12 @@ export const SeatChatBubble = ({
   compact,
 }: SeatChatBubbleProps) => {
   const [visibleMessage, setVisibleMessage] = useState<IChatMessage | null>(null);
+  const [, setQueuedMessages] = useState<IChatMessage[]>([]);
   const initializedRef = useRef(false);
   const latestSeenIdRef = useRef<IChatMessage["id"] | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isCoolingDownRef = useRef(false);
   const latestMessage = getLatestRegularChatMessage(room, player.key);
   const placementSx = getPlacementSx(placement);
 
@@ -146,9 +158,15 @@ export const SeatChatBubble = ({
       return;
     }
 
+    const isTutorial = isTutorialChatMessage(latestMessage);
+
     if (!initializedRef.current) {
       initializedRef.current = true;
       latestSeenIdRef.current = latestMessage.id;
+      if (!isTutorial) {
+        return;
+      }
+      setVisibleMessage(latestMessage);
       return;
     }
 
@@ -157,22 +175,76 @@ export const SeatChatBubble = ({
     }
 
     latestSeenIdRef.current = latestMessage.id;
-    setVisibleMessage(latestMessage);
+    if (
+      isTutorial &&
+      isTutorialChatMessage(visibleMessage) &&
+      getTutorialContext(latestMessage) &&
+      getTutorialContext(latestMessage) !== getTutorialContext(visibleMessage)
+    ) {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      if (gapTimerRef.current) {
+        clearTimeout(gapTimerRef.current);
+        gapTimerRef.current = null;
+      }
+      isCoolingDownRef.current = false;
+      setQueuedMessages([]);
+      setVisibleMessage(latestMessage);
+      return;
+    }
+    if (visibleMessage || isCoolingDownRef.current) {
+      setQueuedMessages((current) =>
+        current.some((message) => message.id === latestMessage.id)
+          ? current
+          : [...current, latestMessage],
+      );
+      return;
+    }
 
+    setVisibleMessage(latestMessage);
+  }, [latestMessage, visibleMessage]);
+
+  useEffect(() => {
+    if (!visibleMessage) {
+      return;
+    }
+
+    const isTutorial = isTutorialChatMessage(visibleMessage);
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
-
+    if (gapTimerRef.current) {
+      clearTimeout(gapTimerRef.current);
+      gapTimerRef.current = null;
+    }
+    isCoolingDownRef.current = false;
     timerRef.current = setTimeout(() => {
-      setVisibleMessage((current) => (current?.id === latestMessage.id ? null : current));
+      setVisibleMessage((current) => (current?.id === visibleMessage.id ? null : current));
       timerRef.current = null;
-    }, durationMs);
-  }, [durationMs, latestMessage]);
+      isCoolingDownRef.current = true;
+      gapTimerRef.current = setTimeout(() => {
+        setQueuedMessages((current) => {
+          const [nextMessage, ...rest] = current;
+          setVisibleMessage(nextMessage || null);
+          if (!nextMessage) {
+            isCoolingDownRef.current = false;
+          }
+          return rest;
+        });
+        gapTimerRef.current = null;
+      }, BUBBLE_TRANSITION_GAP_MS);
+    }, isTutorial ? Math.max(durationMs, TUTORIAL_DURATION_MS) : durationMs);
+  }, [durationMs, visibleMessage]);
 
   useEffect(
     () => () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
+      }
+      if (gapTimerRef.current) {
+        clearTimeout(gapTimerRef.current);
       }
     },
     [],
@@ -183,7 +255,11 @@ export const SeatChatBubble = ({
   }
 
   const fullText = visibleMessage.content.replace(/\s+/g, " ").trim();
-  const displayText = normalizeBubbleText(fullText, maxCharacters);
+  const isTutorial = isTutorialChatMessage(visibleMessage);
+  const displayText = normalizeBubbleText(
+    fullText,
+    isTutorial ? TUTORIAL_MAX_CHARACTERS : maxCharacters,
+  );
 
   return (
     <Box
@@ -191,15 +267,19 @@ export const SeatChatBubble = ({
       aria-label={`${player.name}: ${displayText}`}
       title={fullText}
       sx={(theme) => ({
+        ml: 1,
         position: "absolute",
         zIndex: theme.zIndex.tooltip,
-        maxWidth: compact ? "8rem" : "min(12rem, 52vw)",
+        width: isTutorial ? "min(26rem, calc(100vw - 1.35rem))" : undefined,
+        maxWidth: isTutorial ? "calc(100vw - 1.35rem)" : compact ? "8rem" : "min(12rem, 52vw)",
         pointerEvents: "none",
         animation: "seatChatBubbleIn 160ms ease-out",
         ...theme.trucoshiUi.seatChatBubble.bubble,
+        ...(isTutorial ? theme.trucoshiUi.seatChatBubble.tutorialBubble : {}),
         ...placementSx.bubble,
         [theme.breakpoints.up("sm")]: {
-          maxWidth: compact ? "9rem" : "13.5rem",
+          width: isTutorial ? "26rem" : undefined,
+          maxWidth: isTutorial ? "min(26rem, calc(100vw - 2rem))" : compact ? "9rem" : "13.5rem",
         },
         "&::after": {
           content: '""',
@@ -207,6 +287,7 @@ export const SeatChatBubble = ({
           display: "block",
           zIndex: -1,
           ...theme.trucoshiUi.seatChatBubble.tail,
+          ...(isTutorial ? theme.trucoshiUi.seatChatBubble.tutorialTail : {}),
           ...placementSx.tail,
         },
         "@keyframes seatChatBubbleIn": {
@@ -225,11 +306,11 @@ export const SeatChatBubble = ({
           display: "block",
           minWidth: 0,
           overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          fontSize: compact ? "0.72rem" : "0.78rem",
-          fontWeight: 700,
-          lineHeight: 1.15,
+          textOverflow: isTutorial ? "clip" : "ellipsis",
+          whiteSpace: isTutorial ? "normal" : "nowrap",
+          fontSize: isTutorial ? "0.98rem" : compact ? "0.72rem" : "0.78rem",
+          fontWeight: isTutorial ? 800 : 700,
+          lineHeight: isTutorial ? 1.24 : 1.15,
         }}
       >
         {displayText}

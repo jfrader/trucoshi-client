@@ -111,6 +111,8 @@ type TrucoshiUiTokens = {
   seatChatBubble: {
     bubble: Record<string, any>;
     tail: Record<string, any>;
+    tutorialBubble: Record<string, any>;
+    tutorialTail: Record<string, any>;
   };
   lobby: {
     seatCard: Record<string, any>;
@@ -480,6 +482,19 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       height: "0.58rem",
       background: "rgba(9, 17, 15, 0.94)",
       border: "1px solid rgba(255,255,255,0.16)",
+    },
+    tutorialBubble: {
+      px: 1.05,
+      py: 0.72,
+      color: "#1f1a14",
+      background: "rgba(255,255,255,0.96)",
+      border: "1px solid rgba(255,255,255,0.8)",
+      boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
+      backdropFilter: "blur(10px)",
+    },
+    tutorialTail: {
+      background: "rgba(255,255,255,0.96)",
+      border: "1px solid rgba(255,255,255,0.8)",
     },
   },
   lobby: {

@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Divider,
   Stack,
   TextField,
   ToggleButton,
@@ -88,7 +87,7 @@ export const Login = () => {
             navigate("/");
           },
           onError: (e) => setErrors([e]),
-        }
+        },
       );
     } else if (emailLoginMethod === "password") {
       const error = validateEmailPassword();
@@ -108,7 +107,7 @@ export const Login = () => {
             navigate("/");
           },
           onError: (e) => setErrors([e]),
-        }
+        },
       );
     } else {
       const error = validateEmail();
@@ -121,7 +120,7 @@ export const Login = () => {
         {
           onSuccess: () => setMagicLinkSent(true),
           onError: (e) => setErrors([e]),
-        }
+        },
       );
     }
   };
@@ -161,122 +160,129 @@ export const Login = () => {
 
   return (
     <PageContainer title="Iniciar Sesión" icon={<Person fontSize="large" />}>
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onSubmit();
-            }}
-          >
-            <Stack px={2} pt={2} gap={4}>
-              {showRewardCodeAlert ? (
-                <Alert severity="warning">
-                  Recibiste un cofre! Inicia sesion para reclamarlo o registrate!
-                </Alert>
-              ) : null}
-              <ToggleButtonGroup
-                color="warning"
-                value={loginType}
-                exclusive
-                onChange={handleLoginTypeChange}
-                fullWidth
-              >
-                <ToggleButton value="email">
-                  <Person sx={{ mr: 1 }} /> Email
-                </ToggleButton>
-                <ToggleButton value="seed">
-                  <VpnKey sx={{ mr: 1 }} /> Frase de Semilla
-                </ToggleButton>
-              </ToggleButtonGroup>
-              {loginType === "email" ? (
-                <>
-                  <TextField
-                    name="email"
-                    color="warning"
-                    label="Email"
-                    autoComplete="email"
-                    onChange={onChangeEmail}
-                    type="email"
-                    value={email}
-                    variant="outlined"
-                    error={!!email && email.length < 3}
-                    helperText={email && email.length < 3 ? "Email inválido" : ""}
-                  />
-                  {emailLoginMethod === "password" ? (
-                    <TextField
-                      name="password"
-                      color="warning"
-                      label="Contraseña"
-                      autoComplete="current-password"
-                      onChange={onChangePassword}
-                      type="password"
-                      value={password}
-                      variant="outlined"
-                    />
-                  ) : null}
-                </>
-              ) : (
-                <TextField
-                  name="seedPhrase"
+      <Stack gap={4}>
+        <Card>
+          <CardContent>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onSubmit();
+              }}
+            >
+              <Stack px={2} pt={2} gap={4}>
+                {showRewardCodeAlert ? (
+                  <Alert severity="warning">
+                    Recibiste un cofre! Inicia sesion para reclamarlo o registrate!
+                  </Alert>
+                ) : null}
+                <ToggleButtonGroup
                   color="warning"
-                  label="Frase de Semilla"
-                  autoComplete="current-password"
-                  onChange={onChangeSeedPhrase}
-                  value={seedPhrase}
-                  variant="outlined"
-                  error={!!seedPhrase && !!validateSeed()}
-                  helperText={
-                    (seedPhrase && validateSeed()?.message) ||
-                    "Inicia sesion con tu frase semilla: ej. 'bici auto casa rancho palacio'"
-                  }
-                />
-              )}
-              <LoadingButton
-                type="submit"
-                isLoading={isMagicLinkPending || isPasswordPending || isSeedPending}
-                color="warning"
-                variant="outlined"
-              >
-                {loginType === "email" && emailLoginMethod === "link"
-                  ? "Enviar Link de Ingreso"
-                  : "Iniciar Sesión"}
-              </LoadingButton>
-              {loginType === "email" ? (
-                emailLoginMethod === "password" ? (
+                  value={loginType}
+                  exclusive
+                  onChange={handleLoginTypeChange}
+                  fullWidth
+                >
+                  <ToggleButton value="email">
+                    <Person sx={{ mr: 1 }} /> Email
+                  </ToggleButton>
+                  <ToggleButton value="seed">
+                    <VpnKey sx={{ mr: 1 }} /> Frase de Semilla
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                {loginType === "email" ? (
                   <>
-                    <Button onClick={() => handleEmailLoginMethodChange("link")} color="info">
-                      Usar link de ingreso
-                    </Button>
-                    <Button onClick={() => navigate("/forgot-password")} color="info">
-                      ¿Olvidaste tu contraseña?
-                    </Button>
+                    <TextField
+                      name="email"
+                      color="warning"
+                      label="Email"
+                      autoComplete="email"
+                      onChange={onChangeEmail}
+                      type="email"
+                      value={email}
+                      variant="outlined"
+                      error={!!email && email.length < 3}
+                      helperText={email && email.length < 3 ? "Email inválido" : ""}
+                    />
+                    {emailLoginMethod === "password" ? (
+                      <TextField
+                        name="password"
+                        color="warning"
+                        label="Contraseña"
+                        autoComplete="current-password"
+                        onChange={onChangePassword}
+                        type="password"
+                        value={password}
+                        variant="outlined"
+                      />
+                    ) : null}
                   </>
                 ) : (
-                  <Button onClick={() => handleEmailLoginMethodChange("password")} color="info">
-                    Usar contraseña
-                  </Button>
-                )
-              ) : null}
-              {magicLinkSent ? (
-                <Alert severity="success">
-                  Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
-                </Alert>
-              ) : null}
-              {formErrors.filter(Boolean).map((error) => (
-                <Alert key={error?.message} severity="error">
-                  {error?.message}
-                </Alert>
-              ))}
-              <Divider />
+                  <TextField
+                    name="seedPhrase"
+                    color="warning"
+                    label="Frase de Semilla"
+                    autoComplete="current-password"
+                    onChange={onChangeSeedPhrase}
+                    value={seedPhrase}
+                    variant="outlined"
+                    error={!!seedPhrase && !!validateSeed()}
+                    helperText={
+                      (seedPhrase && validateSeed()?.message) ||
+                      "Inicia sesion con tu frase semilla: ej. 'bici auto casa rancho palacio'"
+                    }
+                  />
+                )}
+                <LoadingButton
+                  type="submit"
+                  isLoading={isMagicLinkPending || isPasswordPending || isSeedPending}
+                  color="warning"
+                  variant="outlined"
+                >
+                  {loginType === "email" && emailLoginMethod === "link"
+                    ? "Enviar Link de Ingreso"
+                    : "Iniciar Sesión"}
+                </LoadingButton>
+                {loginType === "email" ? (
+                  emailLoginMethod === "password" ? (
+                    <>
+                      <Button onClick={() => handleEmailLoginMethodChange("link")} color="info">
+                        Usar link de ingreso
+                      </Button>
+                      <Button onClick={() => navigate("/forgot-password")} color="info">
+                        ¿Olvidaste tu contraseña?
+                      </Button>
+                    </>
+                  ) : (
+                    <Button onClick={() => handleEmailLoginMethodChange("password")} color="info">
+                      Usar contraseña
+                    </Button>
+                  )
+                ) : null}
+                {magicLinkSent ? (
+                  <Alert severity="success">
+                    Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
+                  </Alert>
+                ) : null}
+                {formErrors.filter(Boolean).map((error) => (
+                  <Alert key={error?.message} severity="error">
+                    {error?.message}
+                  </Alert>
+                ))}
+              </Stack>
+            </form>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <Stack gap={4} px={2} pt={2}>
               <TwitterButton />
-              <Button onClick={() => navigate("/register")} color="success">
+              <Button variant="contained" onClick={() => navigate("/register")} color="success">
                 Registrarse
               </Button>
             </Stack>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Stack>
     </PageContainer>
   );
 };

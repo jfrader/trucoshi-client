@@ -8,6 +8,7 @@ import { Match } from "./pages/Match";
 import { SearchMatches } from "./pages/SearchMatches";
 import { Home } from "./pages/Home";
 import { Help } from "./pages/Help";
+import { Rulebook } from "./pages/Rulebook";
 import { SoundProvider } from "./sound/sound.context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Login } from "./pages/Login";
@@ -76,6 +77,10 @@ const AppRouter = createBrowserRouter([
           {
             path: "help",
             element: <Help />,
+          },
+          {
+            path: "help/rules/:lang",
+            element: <Rulebook />,
           },
           {
             path: "ranking",

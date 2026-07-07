@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Divider,
   Stack,
   TextField,
   ToggleButton,
@@ -73,7 +72,7 @@ export const Register = () => {
             setErrors([new Error("Anota y guarda tu frase semilla, no se puede recuperar")]);
           },
           onError: (e) => setErrors([e]),
-        }
+        },
       );
     } else {
       const error = validateEmailRegistration();
@@ -86,7 +85,7 @@ export const Register = () => {
         {
           onSuccess: () => setMagicLinkSent(true),
           onError: (e) => setErrors([e]),
-        }
+        },
       );
     }
   };
@@ -108,7 +107,7 @@ export const Register = () => {
 
   const handleRegisterTypeChange = (
     _: React.MouseEvent<HTMLElement>,
-    newRegisterType: "email" | "seed"
+    newRegisterType: "email" | "seed",
   ) => {
     if (newRegisterType) {
       setRegisterType(newRegisterType);
@@ -122,92 +121,99 @@ export const Register = () => {
 
   return (
     <PageContainer title="Registrarse" icon={<Person fontSize="large" />}>
-      <Card>
-        <CardContent>
-          {seedPhrase ? (
-            <SeedDisplay seedPhrase={seedPhrase} errors={formErrors} onConfirm={onConfirmSeed} />
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                onSubmit();
-              }}
-            >
-              <Stack gap={4} px={2} pt={2}>
-                <ToggleButtonGroup
-                  color="warning"
-                  value={registerType}
-                  exclusive
-                  onChange={handleRegisterTypeChange}
-                  fullWidth
-                >
-                  <ToggleButton value="email">Email</ToggleButton>
-                  <ToggleButton value="seed">Frase de Semilla</ToggleButton>
-                </ToggleButtonGroup>
-                <TextField
-                  name="name"
-                  color="warning"
-                  label="Nombre"
-                  onChange={onChangeName}
-                  autoComplete="off"
-                  inputRef={(node) => {
-                    if (!hydrated && node && !search.get("name")) {
-                      node.focus();
-                    }
-                  }}
-                  type="text"
-                  value={name}
-                  variant="outlined"
-                  error={!!name && name.length > 16}
-                  helperText={name && name.length > 16 ? "Máximo 16 caracteres" : ""}
-                />
-                {registerType === "email" ? (
-                  <TextField
-                    name="email"
+      <Stack gap={4}>
+        <Card>
+          <CardContent>
+            {seedPhrase ? (
+              <SeedDisplay seedPhrase={seedPhrase} errors={formErrors} onConfirm={onConfirmSeed} />
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onSubmit();
+                }}
+              >
+                <Stack gap={4} px={2} pt={2}>
+                  <ToggleButtonGroup
                     color="warning"
-                    label="Email"
-                    autoComplete="email"
-                    onChange={onChangeEmail}
-                    type="email"
-                    value={email}
-                    variant="outlined"
-                    error={!!email && email.length < 3}
-                    helperText={email && email.length < 3 ? "Email inválido" : ""}
-                  />
-                ) : null}
-                <LoadingButton
-                  type="submit"
-                  isLoading={isRegisterPending || isSeedPending}
-                  color="warning"
-                  variant="outlined"
-                  disabled={!!seedPhrase}
-                >
-                  Registrarse
-                </LoadingButton>
-                {magicLinkSent ? (
-                  <Alert severity="success">
-                    Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
-                  </Alert>
-                ) : null}
-                {formErrors.filter(Boolean).map((error) => (
-                  <Alert
-                    key={error?.message}
-                    severity={error?.message.includes("Anota y guarda") ? "warning" : "error"}
-                    sx={{ fontSize: "1.1rem", fontWeight: "medium" }}
+                    value={registerType}
+                    exclusive
+                    onChange={handleRegisterTypeChange}
+                    fullWidth
                   >
-                    {error?.message}
-                  </Alert>
-                ))}
-                <Divider />
-                <TwitterButton />
-                <Button onClick={() => navigate("/login")} color="success">
-                  Iniciar Sesión
-                </Button>
-              </Stack>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+                    <ToggleButton value="email">Email</ToggleButton>
+                    <ToggleButton value="seed">Frase de Semilla</ToggleButton>
+                  </ToggleButtonGroup>
+                  <TextField
+                    name="name"
+                    color="warning"
+                    label="Nombre"
+                    onChange={onChangeName}
+                    autoComplete="off"
+                    inputRef={(node) => {
+                      if (!hydrated && node && !search.get("name")) {
+                        node.focus();
+                      }
+                    }}
+                    type="text"
+                    value={name}
+                    variant="outlined"
+                    error={!!name && name.length > 16}
+                    helperText={name && name.length > 16 ? "Máximo 16 caracteres" : ""}
+                  />
+                  {registerType === "email" ? (
+                    <TextField
+                      name="email"
+                      color="warning"
+                      label="Email"
+                      autoComplete="email"
+                      onChange={onChangeEmail}
+                      type="email"
+                      value={email}
+                      variant="outlined"
+                      error={!!email && email.length < 3}
+                      helperText={email && email.length < 3 ? "Email inválido" : ""}
+                    />
+                  ) : null}
+                  <LoadingButton
+                    type="submit"
+                    isLoading={isRegisterPending || isSeedPending}
+                    color="warning"
+                    variant="outlined"
+                    disabled={!!seedPhrase}
+                  >
+                    Registrarse
+                  </LoadingButton>
+                  {magicLinkSent ? (
+                    <Alert severity="success">
+                      Te enviamos un link para ingresar. Revisa tu bandeja de entrada o spam.
+                    </Alert>
+                  ) : null}
+                  {formErrors.filter(Boolean).map((error) => (
+                    <Alert
+                      key={error?.message}
+                      severity={error?.message.includes("Anota y guarda") ? "warning" : "error"}
+                      sx={{ fontSize: "1.1rem", fontWeight: "medium" }}
+                    >
+                      {error?.message}
+                    </Alert>
+                  ))}
+                </Stack>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <Stack gap={4} px={2} pt={2}>
+              <TwitterButton />
+              <Button variant="contained" onClick={() => navigate("/login")} color="success">
+                Iniciar Sesión
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Stack>
     </PageContainer>
   );
 };

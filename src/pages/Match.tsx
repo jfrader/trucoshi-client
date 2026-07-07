@@ -231,6 +231,20 @@ const _Match = () => {
   const confirmation = useConfirmationModal();
 
   const onPlayAgain = () => {
+    if (match?.tutorial) {
+      createTutorialMatch((error, tutorialMatch) => {
+        toast.closeSnackbar("playagain");
+        if (error) {
+          toast.error(error instanceof Error ? error.message : "No se pudo crear el tutorial");
+          return;
+        }
+        if (tutorialMatch) {
+          navigate(`/match/${tutorialMatch.matchSessionId}`);
+        }
+      });
+      return;
+    }
+
     playAgain((newMatchSessionId) => {
       toast.closeSnackbar("playagain");
       if (newMatchSessionId) {
@@ -241,7 +255,7 @@ const _Match = () => {
 
   const [
     { match, stats, error, canSay, canPlay, me },
-    { playCard, sayCommand, leaveMatch, pauseMatch, playAgain },
+    { playCard, sayCommand, leaveMatch, pauseMatch, playAgain, createTutorialMatch },
   ] = useMatch(sessionId, {
     onMyTurn: () => queue("turn"),
     onFreshHand: () => queue("round"),
@@ -414,11 +428,16 @@ const _Match = () => {
     return (bottomLeaderSeatIndex + Math.floor(slots.length / 2)) % slots.length;
   }, [bottomLeaderSeatIndex, slots.length]);
 
-  const canInteractWithHand = Boolean(canPlay && me?.isTurn && !me?.disabled && !me?.abandoned);
+  const tutorialInputLocked = Boolean(match?.tutorial?.inputLocked);
+
+  const canInteractWithHand = Boolean(
+    canPlay && me?.isTurn && !me?.disabled && !me?.abandoned && !tutorialInputLocked,
+  );
 
   const hasCommandActions = Boolean(
     me &&
     canSay &&
+    !tutorialInputLocked &&
     ((me.isEnvidoTurn && (me.envido?.length || 0) > 0) || (me.commands?.length || 0) > 0),
   );
 

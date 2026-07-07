@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import { IChatMessage, IPublicChatRoom } from "trucoshi";
 import { renderWithTheme } from "../../test/renderWithTheme";
 import { buildPlayer } from "../../test/fixtures/gameFixtures";
@@ -19,6 +19,18 @@ const buildChat = (id: string, playerKey: string, content: string): IChatMessage
     sound: false,
   }) as IChatMessage;
 
+const buildTutorialChat = (
+  id: string,
+  playerKey: string,
+  content: string,
+  tutorialContext?: string,
+): IChatMessage =>
+  ({
+    ...buildChat(id, playerKey, content),
+    tutorial: true,
+    tutorialContext,
+  }) as IChatMessage;
+
 describe("SeatChatBubble", () => {
   it("shows newly appended regular chat without showing room history first", async () => {
     const player = buildPlayer({ key: "p1", teamIdx: 0 });
@@ -35,6 +47,84 @@ describe("SeatChatBubble", () => {
     await waitFor(() => {
       expect(screen.getByRole("status")).toHaveTextContent("new table message");
     });
+  });
+
+  it("shows tutorial chat from room history immediately", async () => {
+    const player = buildPlayer({ key: "bot", teamIdx: 1, name: "Profe Truco" });
+    const tutorialMessage = buildTutorialChat(
+      "t1",
+      player.key,
+      "Bienvenido. Ganas el partido llegando a 9 puntos antes que el Profe.",
+    );
+
+    renderWithTheme(<SeatChatBubble player={player} room={buildRoom([tutorialMessage])} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toHaveTextContent("Bienvenido");
+    });
+  });
+
+  it("queues chained tutorial messages instead of replacing the visible bubble", async () => {
+    vi.useFakeTimers();
+    try {
+      const player = buildPlayer({ key: "bot", teamIdx: 1, name: "Profe Truco" });
+      const firstMessage = buildTutorialChat("t1", player.key, "Primero mira tus cartas.");
+      const secondMessage = buildTutorialChat("t2", player.key, "Despues elegi la mejor jugada.");
+      const { rerender } = renderWithTheme(
+        <SeatChatBubble player={player} room={buildRoom([firstMessage])} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("status")).toHaveTextContent("Primero mira tus cartas.");
+      });
+
+      rerender(<SeatChatBubble player={player} room={buildRoom([firstMessage, secondMessage])} />);
+
+      expect(screen.getByRole("status")).toHaveTextContent("Primero mira tus cartas.");
+
+      act(() => {
+        vi.advanceTimersByTime(9500);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole("status")).toHaveTextContent("Despues elegi la mejor jugada.");
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("replaces stale tutorial bubbles when a newer tutorial context arrives", async () => {
+    vi.useFakeTimers();
+    try {
+      const player = buildPlayer({ key: "bot", teamIdx: 1, name: "Profe Truco" });
+      const oldMessage = buildTutorialChat(
+        "t1",
+        player.key,
+        "Te queda el 7 de oro. Muy buena carta para definir.",
+        "2:3:WAITING_PLAY:0:before_human_turn:none",
+      );
+      const newMessage = buildTutorialChat(
+        "t2",
+        player.key,
+        "Tenes 33 de envido. Cantalo antes de jugar.",
+        "3:1:WAITING_PLAY:0:before_human_turn:none",
+      );
+      const { rerender } = renderWithTheme(
+        <SeatChatBubble player={player} room={buildRoom([oldMessage])} />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("status")).toHaveTextContent("7 de oro");
+      });
+
+      rerender(<SeatChatBubble player={player} room={buildRoom([oldMessage, newMessage])} />);
+
+      expect(screen.getByRole("status")).toHaveTextContent("33 de envido");
+      expect(screen.getByRole("status")).not.toHaveTextContent("7 de oro");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("caps long messages before rendering the bubble", async () => {

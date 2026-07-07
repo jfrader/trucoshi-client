@@ -9,6 +9,7 @@ import {
 const navigate = vi.fn();
 const joinQueue = vi.fn();
 const leaveQueue = vi.fn();
+const createTutorialMatch = vi.fn();
 const requestNotifications = vi.fn();
 const setSidebarOpen = vi.fn();
 const toastInfo = vi.fn();
@@ -53,6 +54,10 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
   ],
 }));
 
+vi.mock("../../trucoshi/hooks/useMatch", () => ({
+  useMatch: () => [{}, { createTutorialMatch }],
+}));
+
 vi.mock("../../hooks/useToast", () => ({
   useToast: () => ({
     info: toastInfo,
@@ -86,6 +91,10 @@ describe("PlayMenu queue controls", () => {
     navigate.mockClear();
     joinQueue.mockClear();
     leaveQueue.mockClear();
+    createTutorialMatch.mockReset();
+    createTutorialMatch.mockImplementation((callback: any) =>
+      callback(null, { matchSessionId: "tutorial-match" })
+    );
     requestNotifications.mockClear();
     setSidebarOpen.mockClear();
     toastInfo.mockClear();
@@ -106,7 +115,7 @@ describe("PlayMenu queue controls", () => {
 
     expect(screen.getByLabelText(/completar con bots/i)).not.toBeChecked();
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^jugar$/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: false });
   });
@@ -128,7 +137,7 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "2v2" }));
     fireEvent.click(screen.getByLabelText(/completar con bots/i));
-    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^jugar$/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
   });
@@ -208,7 +217,7 @@ describe("PlayMenu queue controls", () => {
 
     renderWithTheme(<PlayMenu />);
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^jugar$/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 0, allowBots: false });
     expect(navigate).not.toHaveBeenCalled();
@@ -222,7 +231,7 @@ describe("PlayMenu queue controls", () => {
 
     expect(screen.getByLabelText(/completar con bots/i)).not.toBeChecked();
 
-    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^jugar$/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: false });
   });
@@ -233,7 +242,7 @@ describe("PlayMenu queue controls", () => {
     renderWithTheme(<PlayMenu />);
 
     fireEvent.click(screen.getByLabelText(/completar con bots/i));
-    fireEvent.click(screen.getByRole("button", { name: /jugar/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^jugar$/i }));
 
     expect(joinQueue).toHaveBeenCalledWith({ maxPlayers: 4, allowBots: true });
   });
@@ -273,5 +282,14 @@ describe("PlayMenu queue controls", () => {
 
     expect(screen.getByText("Mantenimiento esta noche")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /close/i })).not.toBeInTheDocument();
+  });
+
+  it("creates a tutorial match and navigates to it", () => {
+    renderWithTheme(<PlayMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: /aprende a jugar/i }));
+
+    expect(createTutorialMatch).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith("/match/tutorial-match");
   });
 });

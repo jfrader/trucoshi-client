@@ -2,7 +2,7 @@
 
 exports[`MatchBottomDock visual guard > renders announcements, hand cards and command lane 1`] = `
 <div
-  class="MuiBox-root css-tvub9t"
+  class="MuiBox-root css-gvrn72"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"
@@ -130,7 +130,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
 
 exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidden hand placeholders 1`] = `
 <div
-  class="MuiBox-root css-tvub9t"
+  class="MuiBox-root css-gvrn72"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"

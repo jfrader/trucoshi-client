@@ -74,7 +74,9 @@ const _MatchSeatCard = ({
   const turnRingPaddingPx = 4;
   const avatarOrbitSizePx = avatarFrameSizePx + turnRingPaddingPx * 2;
   const playerNameBlockPx = 30;
-  const timerVisible = Boolean(player.isTurn && !player.abandoned && !player.disabled);
+  const timerVisible = Boolean(
+    player.isTurn && !player.abandoned && !player.disabled && !match.tutorial,
+  );
   const say = chatProps.useChatState?.[3] || null;
   const chatRoom = chatProps.useChatState?.[0] || null;
   const isForehand = player.idx === match.forehandIdx;
@@ -101,10 +103,10 @@ const _MatchSeatCard = ({
   const statusColor = player.abandoned
     ? "error.main"
     : player.disabled
-    ? "warning.main"
-    : isTurn
-    ? "info.light"
-    : `${getTeamColor(player.teamIdx)}.light`;
+      ? "warning.main"
+      : isTurn
+        ? "info.light"
+        : `${getTeamColor(player.teamIdx)}.light`;
 
   const ringProgress = timerVisible ? Math.max(0, Math.min(100, turnTimer.progress)) : 0;
   const ringStrokePx = 3;
@@ -120,7 +122,9 @@ const _MatchSeatCard = ({
       : tablePointsPlacement.sideOffsetDesktopPx;
   const pointsInwardNudgePx = tablePointsPlacement.inwardNudgePx;
   const pointsTiltDeg =
-    tablePointsSide === "left" ? tablePointsPlacement.tiltDesktopDeg : -tablePointsPlacement.tiltDesktopDeg;
+    tablePointsSide === "left"
+      ? tablePointsPlacement.tiltDesktopDeg
+      : -tablePointsPlacement.tiltDesktopDeg;
 
   return (
     <Box
@@ -240,11 +244,7 @@ const _MatchSeatCard = ({
             />
             <SeatAvatarBadges player={player} say={say} showForehand={isForehand} />
           </Paper>
-          <SeatChatBubble
-            player={player}
-            room={chatRoom}
-            placement={chatBubblePlacement}
-          />
+          <SeatChatBubble player={player} room={chatRoom} placement={chatBubblePlacement} />
         </Box>
 
         <Paper
@@ -319,7 +319,6 @@ const _MatchSeatCard = ({
             transform: `translate(-50%, -50%) translate(${hiddenHandLayout.anchor.x}px, ${hiddenHandLayout.anchor.y}px) rotate(${hiddenHandLayout.anchor.rotateDeg}deg)`,
             transformOrigin: hiddenHandLayout.anchor.origin,
             pointerEvents: "none",
-            zIndex: 2,
           }}
         >
           <Box
@@ -329,16 +328,19 @@ const _MatchSeatCard = ({
               top: 0,
               transform: `translate(calc(-50% + ${pointsOffsetPx}px), calc(-50% + ${4 + pointsInwardNudgePx}px)) rotate(${pointsTiltDeg}deg)`,
               "@media (max-width:599px)": {
-                transform: `translate(calc(-50% + ${tablePointsSide === "left"
-                  ? -tablePointsPlacement.sideOffsetMobilePx
-                  : tablePointsPlacement.sideOffsetMobilePx}px), calc(-50% + ${4 + pointsInwardNudgePx}px)) rotate(${tablePointsSide === "left"
-                  ? tablePointsPlacement.tiltMobileDeg
-                  : -tablePointsPlacement.tiltMobileDeg}deg)`,
+                transform: `translate(calc(-50% + ${
+                  tablePointsSide === "left"
+                    ? -tablePointsPlacement.sideOffsetMobilePx
+                    : tablePointsPlacement.sideOffsetMobilePx
+                }px), calc(-50% + ${4 + pointsInwardNudgePx}px)) rotate(${
+                  tablePointsSide === "left"
+                    ? tablePointsPlacement.tiltMobileDeg
+                    : -tablePointsPlacement.tiltMobileDeg
+                }deg)`,
               },
               display: "flex",
               alignItems: "center",
               gap: tablePointsPlacement.pileGap,
-              zIndex: 220,
             }}
           >
             {tablePointChunks.map((chunk, index) => (
@@ -387,5 +389,5 @@ export const MatchSeatCard = memo(
     prev.player === next.player &&
     prev.seatIndex === next.seatIndex &&
     prev.seatGeometry === next.seatGeometry &&
-    sameSeatPresentation(prev.seatPresentation, next.seatPresentation)
+    sameSeatPresentation(prev.seatPresentation, next.seatPresentation),
 );
