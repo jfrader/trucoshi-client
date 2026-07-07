@@ -207,6 +207,7 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
       setQueueing(false);
       setQueueStatus(null);
       setQueueReplayOptions(null);
+      sound.queue("espada");
       sound.queue("deal");
       notifyMatchFound();
     };
