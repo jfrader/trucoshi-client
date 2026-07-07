@@ -1,10 +1,11 @@
 import { Badge, IconButton, IconButtonProps } from "@mui/material";
 import { Style } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 
-export const InventoryButton = (props: IconButtonProps) => {
-  const [{ account, treasureStatus }] = useTrucoshi();
+export const InventoryButton = ({ onClick, ...props }: IconButtonProps<"a">) => {
+  const [{ account, treasureStatus }, { inspectCard }] = useTrucoshi();
 
   if (!account) {
     return null;
@@ -20,6 +21,10 @@ export const InventoryButton = (props: IconButtonProps) => {
       title="Inventario"
       color="warning"
       {...props}
+      onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+        inspectCard(null);
+        onClick?.(e);
+      }}
     >
       <Badge
         color="error"

@@ -122,10 +122,21 @@ type TrucoshiUiTokens = {
   };
   queue: {
     panel: Record<string, any>;
+    segmentGroup: Record<string, any>;
     segment: Record<string, any>;
     activeSegment: Record<string, any>;
     statusPanel: Record<string, any>;
     cancelButton: Record<string, any>;
+    cancelProgress: Record<string, any>;
+    optionLabel: Record<string, any>;
+    matchFoundContent: Record<string, any>;
+    participantList: Record<string, any>;
+    participantChip: Record<string, any>;
+    participantReadyChip: Record<string, any>;
+    participantPendingChip: Record<string, any>;
+    participantStatusDot: Record<string, any>;
+    participantReadyStatusDot: Record<string, any>;
+    participantPendingStatusDot: Record<string, any>;
   };
   chatDrawer: {
     chatMessages: Record<string, any>;
@@ -508,10 +519,17 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       border: "1px solid rgba(255,255,255,0.1)",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
     },
+    segmentGroup: {
+      gap: "0.375rem",
+    },
     segment: {
       color: "rgba(255,255,255,0.72)",
       borderColor: "rgba(255,255,255,0.16)",
       background: "rgba(8,16,13,0.34)",
+      borderRadius: "0.55rem !important",
+      minHeight: "2.5rem",
+      fontWeight: 800,
+      minWidth: 0,
     },
     activeSegment: {
       color: "rgba(255,255,255,0.95)",
@@ -522,10 +540,65 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
       borderRadius: "0.62rem",
       background: "rgba(0,0,0,0.22)",
       border: "1px solid rgba(255,255,255,0.08)",
+      padding: "0.375rem 0.5rem",
     },
     cancelButton: {
       border: "1px solid rgba(255,255,255,0.14)",
       background: "rgba(0,0,0,0.2)",
+      width: "2.75rem",
+      height: "2.75rem",
+    },
+    cancelProgress: {
+      marginRight: "0.5rem",
+      position: "absolute",
+    },
+    optionLabel: {
+      margin: 0,
+      minWidth: 0,
+    },
+    matchFoundContent: {
+      gap: "1.1rem",
+      paddingTop: "2em",
+      paddingBottom: "2em",
+      justifyContent: "center",
+      alignItems: "center",
+      display: "flex",
+      minWidth: "min(88vw, 420px)",
+      borderRadius: "2em",
+      border: "1px solid rgba(255,255,255,0.1)",
+      backgroundColor: "rgba(148, 52, 44, 0.1)",
+    },
+    participantList: {
+      gap: "0.5rem",
+      justifyContent: "center",
+      maxWidth: "100%",
+    },
+    participantChip: {
+      gap: "0.4rem",
+      borderRadius: "0.32rem",
+      padding: "0.375rem 0.55rem",
+      minWidth: 128,
+      maxWidth: 180,
+    },
+    participantReadyChip: {
+      border: "1px solid #5d751c",
+      backgroundColor: "rgba(116, 148, 36, 0.18)",
+    },
+    participantPendingChip: {
+      border: "1px solid #6f2821",
+      backgroundColor: "rgba(148, 52, 44, 0.15)",
+    },
+    participantStatusDot: {
+      width: 10,
+      height: 10,
+      borderRadius: "50%",
+      flex: "0 0 auto",
+    },
+    participantReadyStatusDot: {
+      boxShadow: "0 0 0 3px rgba(116, 148, 36, 0.2)",
+    },
+    participantPendingStatusDot: {
+      boxShadow: "0 0 0 3px rgba(148, 52, 44, 0.18)",
     },
   },
   chatDrawer: {

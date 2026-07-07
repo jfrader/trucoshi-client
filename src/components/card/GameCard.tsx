@@ -228,9 +228,6 @@ const _GameCard = ({
       zoom={zoom}
       shadow={shadow}
       scale={scale}
-      onClick={onClick}
-      onContextMenu={onClick}
-      onDoubleClick={onDoubleClick}
       enablehover={enableHover}
       disableEvents={disableButton}
       disabledmask={disabledMask}
@@ -241,6 +238,7 @@ const _GameCard = ({
         overflow: "hidden",
         ...buttonProps.sx,
       }}
+      {...events}
       {...buttonProps}
     >
       <Box sx={emojiCardContentSx(width)}>

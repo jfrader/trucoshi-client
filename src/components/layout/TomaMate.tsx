@@ -84,7 +84,9 @@ export const TomaMate = () => {
   );
 };
 
-const AnimatedButton = styled(IconButton)<{ shake?: boolean }>(({ shake }) => ({
+const AnimatedButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== "shake",
+})<{ shake?: boolean }>(({ shake }) => ({
   animation: `${shakeSmall} 0.6s ease infinite`,
   animationPlayState: shake ? "running" : "paused",
 }));

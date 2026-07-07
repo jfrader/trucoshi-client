@@ -139,7 +139,7 @@ function App() {
       >
         <TrucoshiProvider>
           <SoundProvider>
-            <RouterProvider router={AppRouter} />
+            <RouterProvider router={AppRouter} future={{ v7_startTransition: true }} />
           </SoundProvider>
         </TrucoshiProvider>
       </SnackbarProvider>

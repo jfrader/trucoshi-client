@@ -2,14 +2,12 @@ import {
   Box,
   CssBaseline,
   Paper,
-  Stack,
   ThemeProvider,
-  Typography,
   styled,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
 import { themes } from "../../theme";
 import { CardBackdrop } from "../../shared/CardBackdrop";
@@ -18,12 +16,10 @@ import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
 import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Sidebar } from "./Sidebar";
-import { useTheme } from "@mui/material";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 import { useVersionReload } from "../../hooks/useVersionReload";
-import { Backdrop } from "../../shared/Backdrop";
-import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
+import { QueueMatchOverlay } from "./QueueMatchOverlay";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -49,6 +45,62 @@ const LayoutContainer = styled(Box)(({ theme }) => [
   },
 ]);
 
+const EmbeddedTopbarFrame = styled(Box)(({ theme }) => ({
+  position: "fixed",
+  top: 0,
+  right: 0,
+  zIndex: theme.zIndex.drawer + 2,
+}));
+
+const AppPaper = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== "gameSurface",
+})<{ gameSurface: boolean }>(({ gameSurface, theme }) => ({
+  borderRadius: 0,
+  background: theme.palette.background.default,
+  ...(gameSurface
+    ? {
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
+      }
+    : null),
+}));
+
+const AppHeaderFrame = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "gameSurface",
+})<{ gameSurface: boolean }>(({ gameSurface }) => ({
+  display: "flex",
+  flexDirection: "column",
+  ...(gameSurface
+    ? {
+        height: "100dvh",
+        maxHeight: "100dvh",
+        minHeight: "100dvh",
+        overflow: "hidden",
+      }
+    : null),
+}));
+
+const SurfaceContainer = styled(LayoutContainer, {
+  shouldForwardProp: (prop) => prop !== "gameSurface",
+})<{ gameSurface: boolean }>(({ gameSurface, theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  minWidth: "100%",
+  flexGrow: 1,
+  paddingTop: gameSurface ? 0 : "50px",
+  ...(gameSurface
+    ? {
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
+      }
+    : null),
+  [theme.breakpoints.up("md")]: {
+    paddingTop: gameSurface ? 0 : "52px",
+  },
+}));
+
 export const Layout = ({ children }: PropsWithChildren) => {
   const theme = useTheme();
   const matchRoute = useRouteMatch("/match/:sessionId");
@@ -60,8 +112,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
   const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
 
-  const matchQueue = useMatchQueue();
-
   return (
     <ThemeProvider
       theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
@@ -69,69 +119,19 @@ export const Layout = ({ children }: PropsWithChildren) => {
       <CssBaseline />
       {!isGameSurface ? <Topbar /> : null}
       {isGameSurface && !isSidebarOpen ? (
-        <Box
-          sx={(theme) => ({
-            position: "fixed",
-            top: 0,
-            right: 0,
-            zIndex: theme.zIndex.drawer + 2,
-          })}
-        >
+        <EmbeddedTopbarFrame>
           <Topbar embedded compact={isMobile} />
-        </Box>
+        </EmbeddedTopbarFrame>
       ) : null}
       <Sidebar topOffset={isGameSurface ? "0px" : "50px"} showEmbeddedTopbar={isGameSurface} />
       <RewardCodeHandler />
       <main style={{ position: "relative" }}>
-        <Paper
-          className="App"
-          sx={(theme) => ({
-            borderRadius: 0,
-            background: theme.palette.background.default,
-            ...(isGameSurface
-              ? {
-                  height: "100dvh",
-                  maxHeight: "100dvh",
-                  overflow: "hidden",
-                }
-              : null),
-          })}
-        >
-          <Box
-            className="App-header"
-            display="flex"
-            flexDirection="column"
-            sx={
-              isGameSurface
-                ? {
-                    height: "100dvh",
-                    maxHeight: "100dvh",
-                    minHeight: "100dvh",
-                    overflow: "hidden",
-                  }
-                : undefined
-            }
-          >
+        <AppPaper className="App" gameSurface={isGameSurface}>
+          <AppHeaderFrame className="App-header" gameSurface={isGameSurface}>
             <Box display="flex" flexDirection="column" minWidth="100%" flexGrow={1}>
-              <LayoutContainer
+              <SurfaceContainer
                 className={isGameSurface ? "game-surface" : "app-surface"}
-                display="flex"
-                flexDirection="column"
-                pt={isGameSurface ? 0 : "50px"}
-                sx={
-                  isGameSurface
-                    ? (theme: Theme) => ({
-                        height: "100dvh",
-                        maxHeight: "100dvh",
-                        overflow: "hidden",
-                        [theme.breakpoints.up("md")]: {
-                          paddingTop: 0,
-                        },
-                      })
-                    : undefined
-                }
-                minWidth="100%"
-                flexGrow={1}
+                gameSurface={isGameSurface}
               >
                 {!isGameSurface ? <NoticeBannerSlot /> : null}
                 <Box
@@ -144,10 +144,10 @@ export const Layout = ({ children }: PropsWithChildren) => {
                   {children}
                   <Outlet />
                 </Box>
-              </LayoutContainer>
+              </SurfaceContainer>
             </Box>
-          </Box>
-        </Paper>
+          </AppHeaderFrame>
+        </AppPaper>
       </main>
 
       <CardBackdrop
@@ -157,20 +157,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         inspectCard={inspectCard}
       />
 
-      <Backdrop
-        hideLogo
-        message="¡Partida Encontrada!"
-        opacity={0.85}
-        showChat
-        open={matchQueue.matchFound}
-      >
-        <Stack gap={1.75} justifyContent="center" alignItems="center" direction="row">
-          <Typography variant="h5">El juego inicia en...</Typography>
-          <Typography variant="h3" fontWeight="bold" color="success.main">
-            {matchQueue.waitSeconds}
-          </Typography>
-        </Stack>
-      </Backdrop>
+      <QueueMatchOverlay />
 
       <ConfirmationModal preventCloseOnBackdropClick {...modal} />
     </ThemeProvider>

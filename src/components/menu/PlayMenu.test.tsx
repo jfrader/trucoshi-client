@@ -9,11 +9,14 @@ import {
 const navigate = vi.fn();
 const joinQueue = vi.fn();
 const leaveQueue = vi.fn();
+const requestNotifications = vi.fn();
+const setSidebarOpen = vi.fn();
 const toastInfo = vi.fn();
 
 let queueState = {
   status: null as any,
   isQueueing: false,
+  notificationPermission: "unsupported" as NotificationPermission | "unsupported",
 };
 let activeMatches: any[] = [];
 let queueReplayOptions: any = null;
@@ -29,6 +32,7 @@ vi.mock("react-router-dom", async () => {
         {children}
       </a>
     ),
+    useMatch: () => null,
     useNavigate: () => navigate,
   };
 });
@@ -42,6 +46,9 @@ vi.mock("../../trucoshi/hooks/useTrucoshi", () => ({
       queueReplayOptions,
       serverAheadTime,
       noticeBanner,
+    },
+    {
+      setSidebarOpen,
     },
   ],
 }));
@@ -57,6 +64,7 @@ vi.mock("../../trucoshi/hooks/useMatchQueue", () => ({
     ...queueState,
     joinQueue,
     leaveQueue,
+    requestNotifications,
   }),
 }));
 
@@ -78,6 +86,8 @@ describe("PlayMenu queue controls", () => {
     navigate.mockClear();
     joinQueue.mockClear();
     leaveQueue.mockClear();
+    requestNotifications.mockClear();
+    setSidebarOpen.mockClear();
     toastInfo.mockClear();
     activeMatches = [];
     queueReplayOptions = null;
@@ -87,6 +97,7 @@ describe("PlayMenu queue controls", () => {
     queueState = {
       status: null,
       isQueueing: false,
+      notificationPermission: "unsupported",
     };
   });
 
@@ -113,6 +124,7 @@ describe("PlayMenu queue controls", () => {
   it("renders queued status and cancels the queue", () => {
     queueState = {
       isQueueing: true,
+      notificationPermission: "unsupported",
       status: {
         requestId: "queue-1",
         maxPlayers: 2,
@@ -140,6 +152,7 @@ describe("PlayMenu queue controls", () => {
     serverAheadTime = -60_000;
     queueState = {
       isQueueing: true,
+      notificationPermission: "unsupported",
       status: {
         requestId: "queue-1",
         maxPlayers: 2,

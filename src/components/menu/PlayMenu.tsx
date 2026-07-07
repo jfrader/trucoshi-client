@@ -12,6 +12,7 @@ import {
   ToggleButtonGroup,
   Tooltip,
   Typography,
+  styled,
 } from "@mui/material";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -22,7 +23,23 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import { MatchQueuePlayerCount, useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
 import { PlayButton } from "./PlayButton";
-import { KeyboardBackspace } from "@mui/icons-material";
+import { KeyboardBackspace, NotificationsActive, NotificationsOff } from "@mui/icons-material";
+
+const QueueModeToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  ...theme.trucoshiUi.queue.segmentGroup,
+  "& .MuiToggleButtonGroup-grouped": theme.trucoshiUi.queue.segment,
+  "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
+}));
+
+const QueueCancelButton = styled(IconButton)(({ theme }) => theme.trucoshiUi.queue.cancelButton);
+
+const QueueCancelProgress = styled(CircularProgress)(
+  ({ theme }) => theme.trucoshiUi.queue.cancelProgress,
+);
+
+const QueueStatusPanel = styled(Stack)(({ theme }) => theme.trucoshiUi.queue.statusPanel);
+
+const QueueOptionLabel = styled(FormControlLabel)(({ theme }) => theme.trucoshiUi.queue.optionLabel);
 
 const formatElapsedTime = (milliseconds: number) => {
   const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
@@ -67,7 +84,14 @@ export const PlayMenu = ({
     { account, stats, activeMatches, queueReplayOptions, serverAheadTime },
     { setSidebarOpen },
   ] = useTrucoshi();
-  const { status, isQueueing, joinQueue, leaveQueue } = useMatchQueue();
+  const {
+    status,
+    isQueueing,
+    notificationPermission,
+    joinQueue,
+    leaveQueue,
+    requestNotifications,
+  } = useMatchQueue();
   const [maxPlayerCount, setMaxPlayers] = useState<MatchQueuePlayerCount>(0);
   const [playWithBots, setPlayWithBots] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -163,7 +187,7 @@ export const PlayMenu = ({
       <FormGroup>
         <Stack gap={1.25} p={2} mb={1} maxWidth="100%">
           {queuedMatch ? null : (
-            <ToggleButtonGroup
+            <QueueModeToggleGroup
               exclusive
               fullWidth
               color="warning"
@@ -183,17 +207,6 @@ export const PlayMenu = ({
                   }
                 }
               }}
-              sx={(theme) => ({
-                gap: 0.75,
-                "& .MuiToggleButtonGroup-grouped": {
-                  ...theme.trucoshiUi.queue.segment,
-                  borderRadius: "0.55rem !important",
-                  minHeight: "2.5rem",
-                  fontWeight: 800,
-                  minWidth: 0,
-                },
-                "& .Mui-selected, & .Mui-selected:hover": theme.trucoshiUi.queue.activeSegment,
-              })}
             >
               <ToggleButton size="small" value={0}>
                 Todo
@@ -207,13 +220,12 @@ export const PlayMenu = ({
               <ToggleButton size="small" value={6}>
                 3v3
               </ToggleButton>
-            </ToggleButtonGroup>
+            </QueueModeToggleGroup>
           )}
 
           {queuedMatch ? null : (
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-              <FormControlLabel
-                sx={{ m: 0, minWidth: 0 }}
+              <QueueOptionLabel
                 control={
                   <Checkbox
                     color="warning"
@@ -253,6 +265,30 @@ export const PlayMenu = ({
               </Typography>
             </Stack>
           )}
+          {queuedMatch || notificationPermission === "unsupported" ? null : (
+            <Stack direction="row" justifyContent="center">
+              <Button
+                color={notificationPermission === "granted" ? "success" : "inherit"}
+                disabled={notificationPermission === "granted"}
+                onClick={requestNotifications}
+                size="small"
+                startIcon={
+                  notificationPermission === "denied" ? (
+                    <NotificationsOff fontSize="small" />
+                  ) : (
+                    <NotificationsActive fontSize="small" />
+                  )
+                }
+                variant="text"
+              >
+                {notificationPermission === "granted"
+                  ? "Notificaciones activadas"
+                  : notificationPermission === "denied"
+                    ? "Notificaciones bloqueadas"
+                    : "Activar notificaciones"}
+              </Button>
+            </Stack>
+          )}
           <Stack
             flexWrap="wrap"
             direction="row"
@@ -279,38 +315,20 @@ export const PlayMenu = ({
             )}
             <Tooltip title="Cancelar cola">
               <Box position="absolute" visibility={isQueueing ? "visible" : "hidden"}>
-                <CircularProgress
-                  color="inherit"
-                  size="2.75rem"
-                  sx={{ mr: 1, position: "absolute" }}
-                />
-                <IconButton
+                <QueueCancelProgress color="inherit" size="2.75rem" />
+                <QueueCancelButton
                   aria-label="Cancelar cola"
                   color="inherit"
                   onClick={leaveQueue}
-                  sx={(theme) => ({
-                    ...theme.trucoshiUi.queue.cancelButton,
-                    width: "2.75rem",
-                    height: "2.75rem",
-                  })}
                 >
                   <CloseIcon />
-                </IconButton>
+                </QueueCancelButton>
               </Box>
             </Tooltip>
           </Stack>
           {showNoticeBanner ? <NoticeBannerSlot dismissible={false} ignoreDismissal /> : null}
           {isQueueing ? (
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              gap={1}
-              sx={(theme) => ({
-                ...theme.trucoshiUi.queue.statusPanel,
-                px: 1,
-                py: 0.75,
-              })}
-            >
+            <QueueStatusPanel direction="row" justifyContent="space-between" gap={1}>
               <Stack direction="row" gap={1} minWidth={0}>
                 <Typography variant="body2" color="text.secondary" noWrap>
                   {statusText}
@@ -324,7 +342,7 @@ export const PlayMenu = ({
               <Typography variant="body2" color="warning.light" noWrap>
                 {fallbackText}
               </Typography>
-            </Stack>
+            </QueueStatusPanel>
           ) : null}
         </Stack>
         <Stack direction="row" justifyContent="center">
