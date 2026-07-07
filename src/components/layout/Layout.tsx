@@ -15,11 +15,9 @@ import { CardBackdrop } from "../../shared/CardBackdrop";
 import { getInspectedCardKey } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { Topbar } from "./Topbar";
-import { ConfirmationModal } from "../../shared/ConfirmationModal";
 import { Sidebar } from "./Sidebar";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 import { NoticeBannerSlot, TreasureBannerSlot } from "../notice/NoticeBannerSlot";
-import { useVersionReload } from "../../hooks/useVersionReload";
 import { QueueMatchOverlay } from "./QueueMatchOverlay";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
@@ -109,8 +107,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const isGameSurface = Boolean(matchRoute || lobbyRoute);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { modal } = useVersionReload({ currentVersion: import.meta.env.VITE_APP_VERSION });
-
   const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
 
   return (
@@ -165,8 +161,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
       />
 
       <QueueMatchOverlay />
-
-      <ConfirmationModal preventCloseOnBackdropClick {...modal} />
     </ThemeProvider>
   );
 };

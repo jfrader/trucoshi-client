@@ -1,16 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
+import { AppProvider } from "./AppProvider";
 import { Layout } from "./components/layout/Layout";
 import { MainLayout } from "./components/layout/MainLayout";
 import { Lobby } from "./pages/Lobby";
-import { TrucoshiProvider } from "./trucoshi/trucoshi.context";
 import { Match } from "./pages/Match";
 import { SearchMatches } from "./pages/SearchMatches";
 import { Home } from "./pages/Home";
 import { Help } from "./pages/Help";
 import { Rulebook } from "./pages/Rulebook";
-import { SoundProvider } from "./sound/sound.context";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { ResetPassword } from "./pages/ResetPassword";
@@ -19,11 +17,9 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import { MagicLink } from "./pages/MagicLink";
 import { Profile } from "./pages/Profile";
 import { NotFound } from "./pages/NotFound";
-import { SnackbarProvider } from "notistack";
 import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
 import { PlayerRanking } from "./pages/PlayerRanking";
-import CustomSnackbar from "./shared/CustomSnackbar";
 import { InventoryPage } from "./components/inventory/InventoryPage";
 import { Admin } from "./pages/Admin";
 
@@ -124,31 +120,11 @@ const AppRouter = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient({});
-
-const Components = {
-  default: CustomSnackbar,
-  success: CustomSnackbar,
-  error: CustomSnackbar,
-  info: CustomSnackbar,
-  warning: CustomSnackbar,
-};
-
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SnackbarProvider
-        autoHideDuration={4800}
-        Components={Components}
-        style={{ maxWidth: "100%" }}
-      >
-        <TrucoshiProvider>
-          <SoundProvider>
-            <RouterProvider router={AppRouter} future={{ v7_startTransition: true }} />
-          </SoundProvider>
-        </TrucoshiProvider>
-      </SnackbarProvider>
-    </QueryClientProvider>
+    <AppProvider>
+      <RouterProvider router={AppRouter} future={{ v7_startTransition: true }} />
+    </AppProvider>
   );
 }
 

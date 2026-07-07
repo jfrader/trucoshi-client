@@ -1,6 +1,6 @@
 # Trucoshi Truco Rules
 
-This rulebook explains the version of Argentinian Truco implemented in Trucoshi. It keeps the traditional structure of truco, envido, and flor, but only describes the player counts and scoring rules supported by the app.
+This rulebook explains the version of Argentinian Truco played in Trucoshi. It keeps the traditional structure of truco, envido, and flor, with the player counts and scoring used in the app.
 
 ## Players and Teams
 
@@ -10,7 +10,7 @@ Each player receives three cards from a Spanish 40-card deck. The player after t
 
 ## Match Score
 
-A match has a configurable `matchPoint`, with 9 as the default in Trucoshi. Points fill malas first and then buenas. A team wins when it reaches `matchPoint` buenas.
+A match is played to the target score chosen for the table. In Trucoshi, the usual target is 9. Points fill malas first and then buenas. A team wins when it reaches the target in buenas.
 
 A hand with no accepted truco is worth 1 point. Truco, envido, and flor can add or replace that value depending on what was accepted or declined.
 
@@ -28,10 +28,10 @@ Card values for envido and flor are their number, except 10, 11, and 12 count as
 
 The possible envido calls are:
 
-- `ENVIDO`: 2 points if accepted.
-- A second `ENVIDO`: adds 2 more points.
-- `REAL_ENVIDO`: adds 3 points.
-- `FALTA_ENVIDO`: its value follows the match option used by the backend.
+- Envido: 2 points if accepted.
+- A second envido: adds 2 more points.
+- Real envido: adds 3 points.
+- Falta envido: raises the bet to the falta value for the match.
 
 If envido is declined, the caller scores the previously accepted value. If it was the first call, declining gives 1 point. If envido is accepted, players declare their points; the highest value wins, and ties favor the player closest to mano.
 
@@ -41,32 +41,32 @@ Truco is the bet on who wins the hand of tricks. Without truco, the hand is wort
 
 The truco ladder is:
 
-- `TRUCO`: raises the hand to 2 points.
-- `RE_TRUCO`: raises it to 3 points after truco was accepted.
-- `VALE_CUATRO`: raises it to 4 points after re-truco was accepted.
+- Truco: raises the hand to 2 points.
+- Re-truco: raises it to 3 points after truco was accepted.
+- Vale cuatro: raises it to 4 points after re-truco was accepted.
 
-Each raise must be answered with `QUIERO` or `NO_QUIERO`. If a team declines, the other team scores the last accepted value: 1 after rejecting truco, 2 after rejecting re-truco, and 3 after rejecting vale cuatro.
+Each raise must be accepted or declined. If a team declines, the other team scores the last accepted value: 1 after rejecting truco, 2 after rejecting re-truco, and 3 after rejecting vale cuatro.
 
 ## Flor
 
 Flor is optional in match settings and enabled by default. A player has flor when all three cards are the same suit. Flor value is 20 plus the values of all three cards. The best flor is 38.
 
-The app supports:
+The flor calls are:
 
-- `FLOR`: announces flor. Unopposed flor gives 3 points.
+- Flor: announces flor. Unopposed flor gives 3 points.
 - Opposing flor: if another team also has flor, the best flor wins 4 points.
-- `CONTRAFLOR`: raises the flor contest to 6 points; declining gives 4.
-- `CONTRAFLOR_AL_RESTO`: raises to the rest value computed by the match score; declining gives 6.
-- `ACHICO`: gives up the flor contest when allowed, giving 3 points to the opponent.
+- Contraflor: raises the flor contest to 6 points; declining gives 4.
+- Contraflor al resto: raises to the rest value for the match score; declining gives 6.
+- Achico: gives up the flor contest when allowed, giving 3 points to the opponent.
 
 A player who has flor must resolve flor before normal envido options are available.
 
 ## Mazo
 
-`MAZO` means folding. When you go to mazo, you stop fighting that hand or current contest. The points awarded depend on what has already been accepted or what contest is active.
+Going to mazo means folding. When you go to mazo, you stop fighting that hand or current contest. The points awarded depend on what has already been accepted or what contest is active.
 
 ## Pica-Pica
 
-Pica-pica only exists in 6-player matches. It starts once any team reaches `ceil(matchPoint * 0.5)`. From there, hands alternate between pica-pica and normal hands.
+Pica-pica only exists in 6-player matches. It starts once a team reaches halfway to the target score, rounded up. From there, hands alternate between pica-pica and normal hands.
 
-During a pica-pica turn, three one-on-one mini-hands are played with fixed opposite-seat pairs: player 0 vs 3, player 1 vs 4, and player 2 vs 5. Dealer and mano rotation continue normally. If any player abandons the match, pica-pica ends permanently for that match.
+During a pica-pica turn, three one-on-one mini-hands are played between players sitting opposite each other. Dealer and mano rotation continue normally. If any player abandons the match, pica-pica ends permanently for that match.

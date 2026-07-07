@@ -1,6 +1,6 @@
 # Reglas de Truco en Trucoshi
 
-Este reglamento explica la version de Truco Argentino implementada en Trucoshi. Mantiene la estructura tradicional de truco, envido y flor, pero describe solo las cantidades de jugadores y reglas de puntuacion que soporta la app.
+Este reglamento explica la version de Truco Argentino que se juega en Trucoshi. Mantiene la estructura tradicional de truco, envido y flor, con las cantidades de jugadores y reglas de puntuacion usadas en la app.
 
 ## Jugadores y equipos
 
@@ -10,7 +10,7 @@ Cada jugador recibe tres cartas de una baraja espanola de 40 cartas. El jugador 
 
 ## Puntaje de la partida
 
-La partida tiene un `matchPoint` configurable, con 9 como valor por defecto en Trucoshi. Los puntos llenan primero malas y despues buenas. Un equipo gana cuando llega a `matchPoint` buenas.
+La partida se juega hasta el puntaje elegido para la mesa. En Trucoshi, lo habitual es jugar a 9. Los puntos llenan primero malas y despues buenas. Un equipo gana cuando llega al puntaje objetivo en buenas.
 
 Una mano sin truco aceptado vale 1 punto. Truco, envido y flor pueden sumar o reemplazar ese valor segun lo que se acepte o rechace.
 
@@ -28,10 +28,10 @@ Para envido y flor, las cartas valen su numero, excepto 10, 11 y 12, que valen 0
 
 Los cantos posibles son:
 
-- `ENVIDO`: vale 2 puntos si se acepta.
-- Segundo `ENVIDO`: suma 2 puntos mas.
-- `REAL_ENVIDO`: suma 3 puntos.
-- `FALTA_ENVIDO`: su valor sigue la opcion de partida usada por el backend.
+- Envido: vale 2 puntos si se acepta.
+- Segundo envido: suma 2 puntos mas.
+- Real envido: suma 3 puntos.
+- Falta envido: sube la apuesta al valor de falta de la partida.
 
 Si el envido se rechaza, quien lo canto cobra el valor ya aceptado. Si era el primer canto, el rechazo da 1 punto. Si se acepta, los jugadores declaran sus tantos; gana el valor mas alto y los empates favorecen al jugador mas cercano al mano.
 
@@ -41,32 +41,32 @@ El truco es la apuesta sobre quien gana la mano de bazas. Sin truco, la mano val
 
 La escalera del truco es:
 
-- `TRUCO`: sube la mano a 2 puntos.
-- `RE_TRUCO`: sube a 3 puntos despues de aceptar truco.
-- `VALE_CUATRO`: sube a 4 puntos despues de aceptar re-truco.
+- Truco: sube la mano a 2 puntos.
+- Re-truco: sube a 3 puntos despues de aceptar truco.
+- Vale cuatro: sube a 4 puntos despues de aceptar re-truco.
 
-Cada aumento debe responderse con `QUIERO` o `NO_QUIERO`. Si un equipo rechaza, el otro cobra el ultimo valor aceptado: 1 al rechazar truco, 2 al rechazar re-truco y 3 al rechazar vale cuatro.
+Cada aumento debe aceptarse o rechazarse. Si un equipo rechaza, el otro cobra el ultimo valor aceptado: 1 al rechazar truco, 2 al rechazar re-truco y 3 al rechazar vale cuatro.
 
 ## Flor
 
 La flor es opcional en la configuracion de partida y viene activada por defecto. Hay flor cuando las tres cartas son del mismo palo. El valor de la flor es 20 mas el valor de las tres cartas. La mejor flor vale 38.
 
-La app soporta:
+Los cantos de flor son:
 
-- `FLOR`: anuncia flor. Si no hay oposicion, da 3 puntos.
+- Flor: anuncia flor. Si no hay oposicion, da 3 puntos.
 - Flor contraria: si el otro equipo tambien tiene flor, la mejor flor gana 4 puntos.
-- `CONTRAFLOR`: sube la disputa de flor a 6 puntos; rechazarla da 4.
-- `CONTRAFLOR_AL_RESTO`: sube al valor al resto calculado por el tanteador; rechazarla da 6.
-- `ACHICO`: permite achicarse cuando corresponde y da 3 puntos al rival.
+- Contraflor: sube la disputa de flor a 6 puntos; rechazarla da 4.
+- Contraflor al resto: sube al valor al resto de la partida; rechazarla da 6.
+- Achico: permite achicarse cuando corresponde y da 3 puntos al rival.
 
 Un jugador que tiene flor debe resolverla antes de acceder a opciones normales de envido.
 
 ## Mazo
 
-`MAZO` significa irse al mazo. Al hacerlo, dejas de pelear esa mano o el envite actual. Los puntos entregados dependen de lo que ya estaba aceptado o de la disputa activa.
+Irse al mazo significa abandonar la mano. Al hacerlo, dejas de pelear esa mano o el envite actual. Los puntos entregados dependen de lo que ya estaba aceptado o de la disputa activa.
 
 ## Pica-pica
 
-El pica-pica existe solo en partidas de 6 jugadores. Empieza cuando algun equipo llega a `ceil(matchPoint * 0.5)`. Desde ahi, las manos alternan entre pica-pica y manos normales.
+El pica-pica existe solo en partidas de 6 jugadores. Empieza cuando algun equipo llega a la mitad del puntaje objetivo, redondeada hacia arriba. Desde ahi, las manos alternan entre pica-pica y manos normales.
 
-En un turno de pica-pica se juegan tres mini-manos mano a mano con parejas fijas de asientos enfrentados: jugador 0 contra 3, jugador 1 contra 4 y jugador 2 contra 5. La rotacion de dador y mano sigue igual. Si algun jugador abandona la partida, el pica-pica termina definitivamente para esa partida.
+En un turno de pica-pica se juegan tres mini-manos mano a mano entre jugadores sentados frente a frente. La rotacion de dador y mano sigue igual. Si algun jugador abandona la partida, el pica-pica termina definitivamente para esa partida.

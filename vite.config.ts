@@ -1,9 +1,17 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { resolve } from "path";
 import packageJson from "./package.json";
+
+const SENTRY_ORG = "trucoshi";
+const SENTRY_PROJECT = "trucoshi-client";
+const SENTRY_RELEASE = `${packageJson.name}@${packageJson.version}`;
+const hasSentryAuthConfig =
+  Boolean(process.env.SENTRY_AUTH_TOKEN) || existsSync(resolve(process.cwd(), ".env.sentry-build-plugin"));
 
 const versionPlugin = () => ({
   name: "vite-plugin-version",
@@ -21,7 +29,23 @@ const versionPlugin = () => ({
 });
 
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths(), versionPlugin()],
+  plugins: [
+    react(),
+    viteTsconfigPaths(),
+    versionPlugin(),
+    sentryVitePlugin({
+      org: SENTRY_ORG,
+      project: SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      disable: !hasSentryAuthConfig,
+      release: {
+        name: SENTRY_RELEASE,
+      },
+      sourcemaps: {
+        filesToDeleteAfterUpload: ["./dist/**/*.map"],
+      },
+    }),
+  ],
   server: {
     open: true,
     host: "localhost",
@@ -34,7 +58,7 @@ export default defineConfig({
     commonjsOptions: {
       include: [/lightning-accounts/, /node_modules/],
     },
-    sourcemap: true,
+    sourcemap: "hidden",
   },
   test: {
     environment: "jsdom",
