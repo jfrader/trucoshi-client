@@ -171,7 +171,7 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
       if (update) {
         setQueueProposal((current) => (current ? { ...current, ...update } : current));
       }
-      sound.queue("menu1");
+      sound.queue("menu0");
     });
   }, [queueProposal, socket, sound, toast]);
 
@@ -207,7 +207,7 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
       setQueueing(false);
       setQueueStatus(null);
       setQueueReplayOptions(null);
-      sound.queue("shuffle");
+      sound.queue("deal");
       notifyMatchFound();
     };
 
@@ -220,7 +220,7 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
     const handleStarting = (starting: IQueueMatchStarting) => {
       setStartingAt(starting.startsAt + 1000);
       setWaitSeconds(getRemainingSeconds(starting.startsAt, serverAheadTime));
-      sound.queue("menu0");
+      sound.queue("menu1");
 
       clearCountdownTimers();
       countdownInterval.current = setInterval(() => {
@@ -231,12 +231,18 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
         }
       }, 1000);
 
-      countdownTimer.current = setTimeout(() => {
-        clearCountdownTimers();
-        setQueueProposal(null);
-        setStartingAt(null);
-        navigate(`/match/${starting.matchSessionId}`);
-      }, Math.max(starting.startsAt - (Date.now() + serverAheadTime), 0));
+      countdownTimer.current = setTimeout(
+        () => {
+          clearCountdownTimers();
+          setQueueProposal(null);
+          setStartingAt(null);
+          setTimeout(() => {
+            sound.queue("shuffle");
+            navigate(`/match/${starting.matchSessionId}`);
+          }, 500);
+        },
+        Math.max(starting.startsAt - (Date.now() + serverAheadTime), 0),
+      );
     };
 
     const handleCancelled = (cancelled: IQueueMatchCancelled) => {
