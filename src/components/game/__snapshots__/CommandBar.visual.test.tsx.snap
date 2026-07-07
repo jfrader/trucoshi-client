@@ -55,7 +55,7 @@ exports[`CommandBar visual guard > renders waiting state when no actions are ava
     <p
       class="MuiTypography-root MuiTypography-body1 css-1sz6cep-MuiTypography-root"
     >
-      Esperando jugada
+      Esperando oponente
     </p>
   </div>
 </div>

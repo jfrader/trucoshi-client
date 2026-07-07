@@ -68,7 +68,7 @@ const _MatchBottomDock = () => {
         return "Mano finalizada";
       }
 
-      return "Esperando jugada";
+      return "Esperando oponente";
     }
 
     return "Modo Espectador";

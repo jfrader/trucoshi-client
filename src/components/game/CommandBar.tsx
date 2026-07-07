@@ -62,7 +62,7 @@ const _CommandBar = ({
   onSayCommand,
   compact = false,
   showActions = true,
-  statusLabel = "Esperando jugada",
+  statusLabel = "Esperando oponente",
   embedded = false,
 }: CommandBarProps) => {
   const theme = useTheme();

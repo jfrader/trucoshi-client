@@ -35,7 +35,7 @@ describe("CommandBar visual guard", () => {
       />
     );
 
-    expect(screen.getByText("Esperando jugada")).toBeInTheDocument();
+    expect(screen.getByText("Esperando oponente")).toBeInTheDocument();
     expect(container.firstChild).toMatchSnapshot();
   });
 });
