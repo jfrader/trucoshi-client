@@ -86,8 +86,24 @@ vi.mock("./hooks/useVersionReload", () => ({
   }),
 }));
 
-vi.mock("./shared/ConfirmationModal", () => ({
-  ConfirmationModal: () => <div data-testid="version-modal" />,
+vi.mock("./shared/ConfirmationModal", async () => {
+  const { useTheme } = await vi.importActual<typeof import("@mui/material")>("@mui/material");
+
+  return {
+    ConfirmationModal: () => {
+      const theme = useTheme();
+
+      return <div data-testid="version-modal" data-theme-mode={theme.palette.mode} />;
+    },
+  };
+});
+
+vi.mock("./trucoshi/hooks/useTrucoshi", () => ({
+  useTrucoshi: () => [
+    {
+      dark: "true",
+    },
+  ],
 }));
 
 vi.mock("./sound/sound.context", () => ({
@@ -138,6 +154,7 @@ describe("AppProvider", () => {
     expect(screen.getByTestId("sound-provider")).toBeInTheDocument();
     expect(screen.getByText("App content")).toBeInTheDocument();
     expect(screen.getByTestId("version-modal")).toBeInTheDocument();
+    expect(screen.getByTestId("version-modal")).toHaveAttribute("data-theme-mode", "dark");
   });
 
   it("reloads once when any app child fails on a dynamic import error", async () => {

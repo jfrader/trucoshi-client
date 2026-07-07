@@ -1,16 +1,13 @@
 import {
   Box,
-  CssBaseline,
   Paper,
   Stack,
-  ThemeProvider,
   styled,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import type { PropsWithChildren } from "react";
 import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
-import { themes } from "../../theme";
 import { CardBackdrop } from "../../shared/CardBackdrop";
 import { getInspectedCardKey } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -109,13 +106,10 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const matchSessionId = matchRoute?.params.sessionId;
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
+  const [{ inspectedCard, cardDisplayMode, isSidebarOpen }, { inspectCard }] = useTrucoshi();
 
   return (
-    <ThemeProvider
-      theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
-    >
-      <CssBaseline />
+    <>
       {!isGameSurface ? <Topbar /> : null}
       {isGameSurface && !isSidebarOpen ? (
         <EmbeddedTopbarFrame>
@@ -164,6 +158,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
       <QueueMatchOverlay />
       {matchSessionId ? <MatchEntryOverlay key={matchSessionId} /> : null}
-    </ThemeProvider>
+    </>
   );
 };

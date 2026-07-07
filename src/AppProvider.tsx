@@ -1,7 +1,9 @@
 import {
   Button,
   CircularProgress,
+  CssBaseline,
   Stack,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import {
@@ -16,6 +18,8 @@ import { useVersionReload } from "./hooks/useVersionReload";
 import { ConfirmationModal } from "./shared/ConfirmationModal";
 import CustomSnackbar from "./shared/CustomSnackbar";
 import { SoundProvider } from "./sound/sound.context";
+import { themes } from "./theme";
+import { useTrucoshi } from "./trucoshi/hooks/useTrucoshi";
 import { TrucoshiProvider } from "./trucoshi/trucoshi.context";
 
 const queryClient = new QueryClient({});
@@ -87,6 +91,19 @@ const AppErrorFallback = ({ onReload }: { onReload: () => void }) => (
   </Stack>
 );
 
+const AppThemeProvider = ({ children }: PropsWithChildren) => {
+  const [{ dark }] = useTrucoshi();
+
+  return (
+    <ThemeProvider
+      theme={dark === "true" ? themes.trucoshi : dark === "false" ? themes.light : themes.dark}
+    >
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
+  );
+};
+
 const AppErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
   const hasReloadTriggeredRef = useRef(false);
   const hasVersionRefetchTriggeredRef = useRef(false);
@@ -127,19 +144,19 @@ const AppErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
   };
 
   return (
-    <>
-      <SentryErrorBoundary
-        beforeCapture={setAppErrorContext}
-        fallback={renderAppErrorFallback}
-        onError={handleAppError}
-      >
-        <TrucoshiProvider>
+    <TrucoshiProvider>
+      <AppThemeProvider>
+        <SentryErrorBoundary
+          beforeCapture={setAppErrorContext}
+          fallback={renderAppErrorFallback}
+          onError={handleAppError}
+        >
           <SoundProvider>{children}</SoundProvider>
-        </TrucoshiProvider>
-      </SentryErrorBoundary>
+        </SentryErrorBoundary>
 
-      <ConfirmationModal preventCloseOnBackdropClick {...modal} />
-    </>
+        <ConfirmationModal preventCloseOnBackdropClick {...modal} />
+      </AppThemeProvider>
+    </TrucoshiProvider>
   );
 };
 

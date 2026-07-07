@@ -1,10 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Layout } from "./Layout";
 import {
   getNoticeBannerDismissalValue,
   NOTICE_BANNER_DISMISSED_KEY,
 } from "../notice/NoticeBannerSlot";
+import { renderWithTheme } from "../../test/renderWithTheme";
 
 const mocks = vi.hoisted(() => ({
   inspectCard: vi.fn(),
@@ -74,7 +75,7 @@ vi.mock("./Sidebar", () => ({
 }));
 
 const renderLayout = (path: string) =>
-  render(
+  renderWithTheme(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
@@ -96,7 +97,7 @@ const renderLayoutWithMatchSwitcher = (path: string) => {
     return <button onClick={() => navigate("/match/session-2")}>Switch match</button>;
   };
 
-  return render(
+  return renderWithTheme(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
