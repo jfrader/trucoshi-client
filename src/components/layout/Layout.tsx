@@ -19,6 +19,7 @@ import { Sidebar } from "./Sidebar";
 import { RewardCodeHandler } from "../reward/RewardCodeHandler";
 import { NoticeBannerSlot, TreasureBannerSlot } from "../notice/NoticeBannerSlot";
 import { QueueMatchOverlay } from "./QueueMatchOverlay";
+import { MatchEntryOverlay } from "./MatchEntryOverlay";
 
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
@@ -105,6 +106,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
   const matchRoute = useRouteMatch("/match/:sessionId");
   const lobbyRoute = useRouteMatch("/lobby/:sessionId");
   const isGameSurface = Boolean(matchRoute || lobbyRoute);
+  const matchSessionId = matchRoute?.params.sessionId;
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [{ inspectedCard, cardDisplayMode, dark, isSidebarOpen }, { inspectCard }] = useTrucoshi();
@@ -161,6 +163,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
       />
 
       <QueueMatchOverlay />
+      {matchSessionId ? <MatchEntryOverlay key={matchSessionId} /> : null}
     </ThemeProvider>
   );
 };

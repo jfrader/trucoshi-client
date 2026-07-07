@@ -116,6 +116,10 @@ const AppRouter = createBrowserRouter([
         path: "match/:sessionId",
         element: <Match />,
       },
+      // {
+      //   path: "test-error",
+      //   element: <SentryTestErrorButton />,
+      // },
     ],
   },
 ]);

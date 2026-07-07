@@ -78,6 +78,17 @@ type TrucoshiUiTokens = {
     countBadge: Record<string, any>;
   };
   match: {
+    entryOverlay: {
+      holdMs: number;
+      fadeMs: number;
+      root: Record<string, any>;
+      content: Record<string, any>;
+      logo: Record<string, any>;
+      title: Record<string, any>;
+      subtitle: Record<string, any>;
+      progressTrack: Record<string, any>;
+      progressFill: Record<string, any>;
+    };
     scoreCard: Record<string, any>;
     topBadge: Record<string, any>;
     settingsButton: Record<string, any>;
@@ -329,6 +340,53 @@ const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
     },
   },
   match: {
+    entryOverlay: {
+      holdMs: 2000,
+      fadeMs: 320,
+      root: {
+        background:
+          "radial-gradient(circle at 50% 28%, rgba(221, 151, 68, 0.16), transparent 28%), radial-gradient(circle at 50% 72%, rgba(15, 92, 70, 0.34), transparent 42%), linear-gradient(180deg, rgba(4, 12, 10, 0.98), rgba(1, 5, 4, 0.97))",
+        color: "rgba(255,255,255,0.94)",
+      },
+      content: {
+        gap: { xs: 2.2, sm: 2.6 },
+        px: 3,
+        alignItems: "center",
+        textAlign: "center",
+      },
+      logo: {
+        width: { xs: "12rem", sm: "15rem" },
+        height: "auto",
+        filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.45))",
+      },
+      title: {
+        fontSize: { xs: "1.32rem", sm: "1.55rem" },
+        fontWeight: 900,
+        lineHeight: 1,
+        letterSpacing: 0,
+        textShadow: "0 3px 12px rgba(0,0,0,0.55)",
+      },
+      subtitle: {
+        color: "rgba(255,255,255,0.68)",
+        fontWeight: 700,
+        letterSpacing: 0,
+      },
+      progressTrack: {
+        width: { xs: "10rem", sm: "12rem" },
+        height: "0.28rem",
+        borderRadius: "999px",
+        overflow: "hidden",
+        backgroundColor: "rgba(255,255,255,0.12)",
+        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.35)",
+      },
+      progressFill: {
+        width: "42%",
+        height: "100%",
+        borderRadius: "999px",
+        background: "linear-gradient(90deg, #67d68b, #efc36e)",
+        boxShadow: "0 0 18px rgba(239,195,110,0.38)",
+      },
+    },
     scoreCard: {
       px: { xs: 1.2, sm: 1.35 },
       py: { xs: 0.55, sm: 0.7 },

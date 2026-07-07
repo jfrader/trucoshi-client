@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Layout } from "./Layout";
 import {
   getNoticeBannerDismissalValue,
@@ -89,6 +89,29 @@ const renderLayout = (path: string) =>
     </MemoryRouter>
   );
 
+const renderLayoutWithMatchSwitcher = (path: string) => {
+  const MatchSwitcher = () => {
+    const navigate = useNavigate();
+
+    return <button onClick={() => navigate("/match/session-2")}>Switch match</button>;
+  };
+
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <MatchSwitcher />
+            </Layout>
+          }
+        />
+      </Routes>
+    </MemoryRouter>
+  );
+};
+
 describe("Layout game topbar", () => {
   beforeAll(() => {
     const storage = new Map<string, string>();
@@ -109,6 +132,7 @@ describe("Layout game topbar", () => {
     mocks.state.isSidebarOpen = false;
     mocks.state.noticeBanner = null;
     window.localStorage.clear();
+    vi.useRealTimers();
   });
 
   it("shows the floating game topbar while the sidebar is closed", () => {
@@ -156,5 +180,61 @@ describe("Layout game topbar", () => {
     renderLayout("/");
 
     expect(screen.getByText("Mantenimiento esta noche")).toBeInTheDocument();
+  });
+
+  it("shows the match entry overlay on direct match loads", () => {
+    vi.useFakeTimers();
+    renderLayout("/match/session-1");
+
+    expect(screen.getByTestId("match-entry-overlay")).toBeInTheDocument();
+    expect(screen.getByLabelText("Preparando partida")).toBeInTheDocument();
+  });
+
+  it("fades and removes the match entry overlay after the entry delay", () => {
+    vi.useFakeTimers();
+    renderLayout("/match/session-1");
+
+    const overlay = screen.getByTestId("match-entry-overlay");
+    expect(overlay).toHaveStyle("opacity: 1");
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(overlay).toHaveStyle("opacity: 0");
+
+    act(() => {
+      vi.advanceTimersByTime(320);
+    });
+
+    expect(screen.queryByTestId("match-entry-overlay")).not.toBeInTheDocument();
+  });
+
+  it("does not show the match entry overlay on lobby or page routes", () => {
+    vi.useFakeTimers();
+    const { unmount } = renderLayout("/lobby/session-1");
+
+    expect(screen.queryByTestId("match-entry-overlay")).not.toBeInTheDocument();
+
+    unmount();
+    renderLayout("/");
+
+    expect(screen.queryByTestId("match-entry-overlay")).not.toBeInTheDocument();
+  });
+
+  it("shows the match entry overlay again when the match session changes", () => {
+    vi.useFakeTimers();
+    renderLayoutWithMatchSwitcher("/match/session-1");
+
+    act(() => {
+      vi.advanceTimersByTime(2320);
+    });
+
+    expect(screen.queryByTestId("match-entry-overlay")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /switch match/i }));
+
+    expect(screen.getByTestId("match-entry-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId("match-entry-overlay")).toHaveStyle("opacity: 1");
   });
 });
