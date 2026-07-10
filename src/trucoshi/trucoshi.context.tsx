@@ -303,6 +303,14 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       }
 
       setActiveMatches(newActiveMatches);
+      socket.emit(EClientEvent.FETCH_QUEUE_STATUS, ({ success, status }) => {
+        if (!success) {
+          return;
+        }
+
+        setQueueStatus(status || null);
+        setQueueing(Boolean(status));
+      });
       setVersion(`${CLIENT_VERSION}-${serverVersion}`);
       setLoadingAccount(false);
     });

@@ -11,8 +11,8 @@ export const PlayButton = ({ ...props }: BoxProps & { disabled?: boolean }) => {
       className={`PlayButton ${props.disabled ? "PlayButton--disabled" : ""}`}
       {...props}
     >
-      <img className="PlayButton_default" src={jugarButton}></img>
-      <img className="PlayButton_hover" src={jugarButtonHover}></img>
+      <img alt="" className="PlayButton_default" src={jugarButton} />
+      <img alt="" className="PlayButton_hover" src={jugarButtonHover} />
     </Box>
   );
 };

@@ -74,6 +74,7 @@ export const TomaMate = () => {
           }}
         >
           <img
+            alt=""
             onClick={() => {
               setBelly((c) => c + 1);
             }}

@@ -6792,10 +6792,10 @@ triple-beam@^1.3.0:
   resolved "https://registry.npmjs.org/triple-beam/-/triple-beam-1.4.1.tgz#6fde70271dc6e5d73ca0c3b24e2d92afb7441984"
   integrity sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==
 
-trucoshi@12.1.1:
-  version "12.1.1"
-  resolved "https://registry.npmjs.org/trucoshi/-/trucoshi-12.1.1.tgz#8f238441acf9a5c9997197740b2e8ca2d17530cb"
-  integrity sha512-3kGtlHHenimZw2cUIp6tRwLrp8sGSxZ7MukspWKdfJIu2cj0DhVG/VWaYjHm9H5sq+RSoJZ7JxSzXN7o70Zk1Q==
+trucoshi@12.2.0:
+  version "12.2.0"
+  resolved "https://registry.npmjs.org/trucoshi/-/trucoshi-12.2.0.tgz#938ef78418ea8ca7118fd8ed9618148976c35dd1"
+  integrity sha512-oHFJVy1yA3elWI+3Zj8MapwXA3yX2jPMPsMbrN3fwNHC8uYgofNq+lKx3xRXpp3z4uS4ilmHBR9l1yF8QP0IyQ==
   dependencies:
     "@prisma/client" "^6.19.2"
     "@socket.io/redis-adapter" "8.3.0"

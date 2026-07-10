@@ -169,6 +169,27 @@ describe("PlayMenu queue controls", () => {
     expect(leaveQueue).toHaveBeenCalled();
   });
 
+  it("restores the queued game settings from queue status", () => {
+    queueState = {
+      status: {
+        requestId: "queue-1",
+        maxPlayers: 4,
+        allowBots: true,
+        queuedPlayers: 1,
+        requiredPlayers: 4,
+        position: 1,
+        queuedAt: Date.now(),
+      },
+      isQueueing: true,
+      notificationPermission: "unsupported",
+    };
+
+    renderWithTheme(<PlayMenu />);
+
+    expect(screen.getByRole("button", { name: "2v2" })).toHaveClass("Mui-selected");
+    expect(screen.getByLabelText(/completar con bots/i)).toBeChecked();
+  });
+
   it("uses server-adjusted time for queued elapsed status", () => {
     const localNow = Date.now();
     serverAheadTime = -60_000;

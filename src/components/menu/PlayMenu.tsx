@@ -115,6 +115,15 @@ export const PlayMenu = ({
     setPlayWithBots(queueReplayOptions.allowBots);
   }, [queueReplayOptions]);
 
+  useEffect(() => {
+    if (!status) {
+      return;
+    }
+
+    setMaxPlayers(status.maxPlayers);
+    setPlayWithBots(status.allowBots);
+  }, [status]);
+
   const serverNow = now + serverAheadTime;
   const botFallbackRemaining = status?.botFallbackAt
     ? Math.max(Math.ceil((status.botFallbackAt - serverNow) / 1000), 0)
