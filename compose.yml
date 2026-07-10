@@ -2,6 +2,7 @@ services:
   trucoshi-client:
     build:
       context: .
+      target: runtime
       args:
         VITE_APP_ENVIRONMENT_TITLE: ${VITE_APP_ENVIRONMENT_TITLE:-Production}
         VITE_APP_ENVIRONMENT: ${VITE_APP_ENVIRONMENT:-production}
