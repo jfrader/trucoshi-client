@@ -30,7 +30,6 @@ const onRender: ProfilerOnRenderCallback = (
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.log("[Profiler]", {
     id,
     phase,

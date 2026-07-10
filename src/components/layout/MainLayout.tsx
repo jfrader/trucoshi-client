@@ -1,13 +1,14 @@
 import { Box, Stack } from "@mui/material";
 import { Container } from "@mui/system";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@tanstack/react-router";
+import type { PropsWithChildren } from "react";
 import { SocketBackdrop } from "../../shared/SocketBackdrop";
 import { TrucoshiText } from "../../shared/TrucoshiText";
 import { Link } from "../../shared/Link";
 import { CardToggler } from "../card/CardToggler";
 import { Footer } from "./Footer";
 
-export const MainLayout = () => {
+export const MainLayout = ({ children }: PropsWithChildren) => {
   return (
     <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       <SocketBackdrop />
@@ -32,7 +33,7 @@ export const MainLayout = () => {
           </Link>
           <CardToggler width={{ xs: "80%", md: "33%" }} />
         </Stack>
-        <Outlet />
+        {children ?? <Outlet />}
         <Footer />
       </Box>
     </Container>

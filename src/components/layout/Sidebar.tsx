@@ -1,15 +1,14 @@
-import { Box, Button, Card, CardContent, Slide, Stack } from "@mui/material";
+import { Box, Button, Card, CardContent, CircularProgress, Slide, Stack } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { PlayMenu } from "../menu/PlayMenu";
-import { WalletMenu } from "../menu/WalletMenu";
-import { useNavigate } from "react-router-dom";
-import { MatchList } from "../game/MatchList";
+import { useNavigate } from "@tanstack/react-router";
 import { Topbar } from "./Topbar";
 import StyleIcon from "@mui/icons-material/Style";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import { TrucoshiText } from "../../shared/TrucoshiText";
-import { Link } from "../../shared/Link";
-import { Typography } from "@mui/material";
+import { lazy, Suspense } from "react";
+
+const SidebarMainContent = lazy(() =>
+  import("./SidebarMainContent").then((module) => ({ default: module.SidebarMainContent })),
+);
 
 const SIDEBAR_WIDTH = { xs: "100vw", sm: "24rem", md: "26rem" };
 
@@ -90,25 +89,18 @@ export const Sidebar = ({
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                   pr: 0.25,
-                  pt: 1
+                  pt: 1,
                 }}
               >
-                <WalletMenu />
-                <Stack pt={1} alignItems="center">
-                  <Link to="/" lineHeight={4}>
-                    <Typography height="26px" variant="h6">
-                      <TrucoshiText height="26px" />
-                    </Typography>
-                  </Link>
-                </Stack>
-                <PlayMenu smallPlayButton onMenuClick={onMenuClick} />
-                {activeMatches.length ? (
-                  <Card sx={(theme) => ({ mx: 2, ...theme.trucoshiUi.treasure.rewardFrame })}>
-                    <CardContent>
-                      <MatchList dense matches={activeMatches} title="Partidas activas" />
-                    </CardContent>
-                  </Card>
-                ) : null}
+                <Suspense
+                  fallback={
+                    <Stack minHeight="12rem" alignItems="center" justifyContent="center">
+                      <CircularProgress color="inherit" />
+                    </Stack>
+                  }
+                >
+                  <SidebarMainContent activeMatches={activeMatches} onMenuClick={onMenuClick} />
+                </Suspense>
               </Stack>
               <Stack
                 data-testid="sidebar-bottom-actions"
@@ -128,7 +120,7 @@ export const Sidebar = ({
                         startIcon={<AdminPanelSettingsIcon />}
                         onClick={() => {
                           onMenuClick();
-                          navigate("/admin");
+                          void navigate({ to: "/admin" });
                         }}
                       >
                         Admin
@@ -141,7 +133,7 @@ export const Sidebar = ({
                       startIcon={<StyleIcon />}
                       onClick={() => {
                         onMenuClick();
-                        navigate("/inventory");
+                        void navigate({ to: "/inventory" });
                       }}
                     >
                       Inventario
@@ -157,7 +149,7 @@ export const Sidebar = ({
                       variant="contained"
                       onClick={() => {
                         onMenuClick();
-                        navigate(`/register`);
+                        void navigate({ to: "/register" });
                       }}
                     >
                       Registrarse

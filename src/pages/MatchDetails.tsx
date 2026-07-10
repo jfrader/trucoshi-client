@@ -34,7 +34,7 @@ import {
   CARDS_HUMAN_READABLE,
   IHandPoints,
 } from "trucoshi";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { useToast } from "../hooks/useToast";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { getTeamColor, getTeamName } from "../utils/team";
@@ -49,14 +49,18 @@ export const MatchDetails = () => {
   const navigate = useNavigate();
   const context = useContext(TrucoshiContext);
   const toast = useToast();
-  const { matchId } = useParams<{ matchId: string }>();
+  const { matchId } = useParams({ from: "/history/$matchId" });
   const [match, setMatch] = useState<IMatchDetails | null>();
   const [isLoading, setLoading] = useState(false);
-  const { pathname } = useLocation();
-  const [search] = useSearchParams();
+  const search = useSearch({ from: "/history/$matchId" });
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    navigate(pathname + "?t=" + newValue, { replace: true });
+    void navigate({
+      to: "/history/$matchId",
+      params: { matchId },
+      search: { t: newValue },
+      replace: true,
+    });
   };
 
   if (!context) {
@@ -115,7 +119,7 @@ export const MatchDetails = () => {
           {!isLoading ? (
             <>
               {match ? (
-                <TabContext value={search.get("t") || "1"}>
+                <TabContext value={search.t || "1"}>
                   <TabList
                     variant="scrollable"
                     textColor="inherit"
@@ -140,7 +144,12 @@ export const MatchDetails = () => {
                       </ListItem>
                       {owner?.accountId ? (
                         <ListItemButton
-                          onClick={() => navigate(`/profile/${owner?.accountId}`)}
+                          onClick={() =>
+                            void navigate({
+                              to: "/profile/$accountId",
+                              params: { accountId: String(owner.accountId) },
+                            })
+                          }
                           divider
                         >
                           <ListItemAvatar>
@@ -181,7 +190,7 @@ export const MatchDetails = () => {
                         isPlayer
                           ? undefined
                           : (Object.keys(LOBBY_OPTIONS_HUMAN_READABLE).filter(
-                              (o) => o !== "satsPerPlayer"
+                              (o) => o !== "satsPerPlayer",
                             ) as (keyof ILobbyOptions)[])
                       }
                     />
@@ -201,7 +210,11 @@ export const MatchDetails = () => {
                               key={player.idx}
                               onClick={
                                 player.accountId
-                                  ? () => navigate(`/profile/${player.accountId}`)
+                                  ? () =>
+                                      void navigate({
+                                        to: "/profile/$accountId",
+                                        params: { accountId: String(player.accountId) },
+                                      })
                                   : undefined
                               }
                             >
@@ -249,7 +262,12 @@ export const MatchDetails = () => {
                                     primary={
                                       match.players[round.player].accountId ? (
                                         <Link
-                                          to={`/profile/${match.players[round.player].accountId}`}
+                                          to="/profile/$accountId"
+                                          params={{
+                                            accountId: String(
+                                              match.players[round.player].accountId,
+                                            ),
+                                          }}
                                         >
                                           {match.players[round.player].name}
                                         </Link>

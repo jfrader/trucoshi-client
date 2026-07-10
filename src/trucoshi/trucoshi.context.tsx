@@ -31,7 +31,7 @@ import { CardInspectionInput, normalizeCardInspection } from "./cards/cardInspec
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { useMe } from "../api/hooks/useMe";
 import { useCookies } from "react-cookie";
-import { User } from "lightning-accounts";
+import type { User } from "lightning-accounts";
 import { useLogout } from "../api/hooks/useLogout";
 import { useRefreshTokens } from "../api/hooks/useRefreshTokens";
 import { is401 } from "../api/apiClient";
@@ -40,7 +40,8 @@ import { useToast } from "../hooks/useToast";
 import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
 import { getCookieName, getIdentityCookie } from "../utils/cookie";
 import { useQueryClient } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
+import { useLocation } from "@tanstack/react-router";
+import { ApiResponse } from "../api/types";
 import {
   getDeckCardImageSources,
   getDefaultCardImageSources,
@@ -48,9 +49,11 @@ import {
 } from "./cards/cardImageLoader";
 
 const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:4001";
+const getStoredSessionId = () =>
+  typeof window !== "undefined" && window.localStorage
+    ? window.localStorage.getItem("trucoshi:session")
+    : null;
 const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
-export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "development";
-
 export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
 
 const emptyTreasureStatus: ITreasureStatus = {
@@ -64,6 +67,7 @@ const sendPing = (socket: Socket<ServerToClientEvents, ClientToServerEvents>) =>
 };
 
 export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
+  const { pathname } = useLocation();
   const [loggingOut, setLoggingOut] = useState(false);
   const [session, setSession] = useStateStorage<string | null>("session", null);
   const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
@@ -81,7 +85,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [serverAheadTime, setServerAheadTime] = useState<number>(0);
   const [cardDisplayMode, setCardDisplayMode] = useStateStorage<CardDisplayMode>(
     "cardDisplayMode",
-    "skins"
+    "skins",
   );
   const [inventory, setInventory] = useState<IInventoryCardGroup[]>([]);
   const [equippedDeck, setEquippedDeck] = useState<IEquippedDeck>({});
@@ -105,8 +109,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const timer = useRef<NodeJS.Timer | null>(null);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const isGameSurface = pathname.startsWith("/match/") || pathname.startsWith("/lobby/");
   const appCardImageSources =
     cardDisplayMode === "emoji"
       ? []
@@ -115,8 +120,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           ...(cardDisplayMode === "skins" ? getDeckCardImageSources(equippedDeck) : []),
         ];
 
-  const appCardImages = useCardImagePreload(appCardImageSources, cardDisplayMode === "emoji");
-  const cardDisplayImagesReady = cardDisplayMode === "emoji" || appCardImages.ready;
+  const appCardImages = useCardImagePreload(
+    appCardImageSources,
+    cardDisplayMode === "emoji",
+    "low",
+  );
+  const cardDisplayImagesReady =
+    !isGameSurface || cardDisplayMode === "emoji" || appCardImages.ready;
 
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(() =>
     io(HOST, {
@@ -124,15 +134,15 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       autoConnect: false,
       secure: import.meta.env.MODE === "production",
       auth: (cb) => {
-        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+        const cachedMe = queryClient.getQueryData<ApiResponse<User>>(["me"])?.data;
         cb({
-          sessionID: localStorage.getItem(`trucoshi:session`),
+          sessionID: getStoredSessionId(),
           name,
           identity: cachedMe ? getIdentityCookie() : undefined,
           user: cachedMe,
         });
       },
-    })
+    }),
   );
 
   useEffect(() => {
@@ -141,7 +151,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (shouldConnect) {
-      timer.current && clearInterval(timer.current);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
       setSocket((current) => {
         let userId;
         let authName;
@@ -174,9 +186,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           autoConnect: false,
           secure: import.meta.env.MODE === "production",
           auth: (cb) => {
-            const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+            const cachedMe = queryClient.getQueryData<ApiResponse<User>>(["me"])?.data;
             cb({
-              sessionID: localStorage.getItem(`trucoshi:session`),
+              sessionID: getStoredSessionId(),
               name,
               identity: cachedMe ? getIdentityCookie() : undefined,
               user: cachedMe,
@@ -218,7 +230,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             setShouldConnect(true);
           }, 1000);
         },
-      }
+      },
     );
   }, [socket, apiLogout, toast, queryClient, removeCookie]);
 
@@ -232,7 +244,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           setNoticeBanner(noticeBanner);
         }
       });
-      timer.current && clearInterval(timer.current);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
     });
 
     socket.on("connect_error", () => {
@@ -241,7 +255,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setLoadingAccount(true);
       setLoggingOut(true);
 
-      timer.current && clearInterval(timer.current);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
       timer.current = setInterval(() => {
         setLoggingOut(false);
         setShouldConnect(true);
@@ -254,7 +270,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       setLoadingAccount(true);
       setLoggingOut(true);
 
-      timer.current && clearInterval(timer.current);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
       timer.current = setInterval(() => {
         setLoggingOut(false);
         setShouldConnect(true);
@@ -272,7 +290,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         }
         setLogged(logged);
       } else {
-        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+        const cachedMe = queryClient.getQueryData<ApiResponse<User>>(["me"])?.data;
 
         if (cachedMe?.id) {
           setShouldConnect(true);
@@ -295,7 +313,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
     socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
       setActiveMatches((current) =>
-        current.filter((m) => m.matchSessionId !== deletedMatchSessionId)
+        current.filter((m) => m.matchSessionId !== deletedMatchSessionId),
       );
     });
 
@@ -335,7 +353,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       socket.off(EServerEvent.REFRESH_IDENTITY);
       socket.off(EServerEvent.UPDATE_STATS);
       socket.off(EServerEvent.UPDATE_NOTICE_BANNER);
-      timer.current && clearInterval(timer.current);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
     };
   }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me, queryClient]);
 
@@ -367,13 +387,13 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
               toast.error(e.message);
               callback?.(newName);
             },
-          }
+          },
         );
       }
       setName(newName);
       callback?.(newName);
     },
-    [account, name, refetchMe, setName, toast, updateProfile]
+    [account, name, refetchMe, setName, toast, updateProfile],
   );
 
   const fetchPublicMatches = useCallback(
@@ -382,7 +402,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
         setPublicMatches(matches);
       });
     },
-    [socket]
+    [socket],
   );
 
   const fetchInventory = useCallback(() => {
@@ -438,8 +458,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
                     equipped: skin.id === cardSkinId,
                   })),
                 }
-              : group
-          )
+              : group,
+          ),
         );
 
         socket.emit(
@@ -462,10 +482,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             }
 
             resolve(false);
-          }
+          },
         );
       }),
-    [account?.id, equippedDeck, inventory, isConnected, socket, toast]
+    [account?.id, equippedDeck, inventory, isConnected, socket, toast],
   );
 
   const fetchTreasureStatus = useCallback(() => {
@@ -519,10 +539,10 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
             }
 
             resolve(false);
-          }
+          },
         );
       }),
-    [account?.id, isConnected, socket, toast]
+    [account?.id, isConnected, socket, toast],
   );
 
   const devGrantTreasureChest = useCallback(
@@ -550,7 +570,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           resolve(false);
         });
       }),
-    [account?.id, isConnected, socket, toast]
+    [account?.id, isConnected, socket, toast],
   );
 
   const redeemRewardCode = (code: string, options?: { silent?: boolean }) =>
@@ -561,28 +581,24 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
       }
 
       setTreasureLoading(true);
-      socket.emit(
-        EClientEvent.REDEEM_REWARD_CODE,
-        code,
-        ({ success, treasureStatus, error }) => {
-          setTreasureLoading(false);
+      socket.emit(EClientEvent.REDEEM_REWARD_CODE, code, ({ success, treasureStatus, error }) => {
+        setTreasureLoading(false);
 
-          if (success) {
-            setTreasureStatus(treasureStatus);
-            if (!options?.silent) {
-              toast.success("Cofre agregado al inventario");
-            }
-            resolve({ success: true });
-            return;
+        if (success) {
+          setTreasureStatus(treasureStatus);
+          if (!options?.silent) {
+            toast.success("Cofre agregado al inventario");
           }
-
-          if (error) {
-            toast.error(error.message);
-          }
-
-          resolve({ success: false, errorCode: error?.code });
+          resolve({ success: true });
+          return;
         }
-      );
+
+        if (error) {
+          toast.error(error.message);
+        }
+
+        resolve({ success: false, errorCode: error?.code });
+      });
     });
 
   useEffect(() => {
@@ -659,7 +675,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
               isLoadingAccount,
               isPendingLogin,
               isPendingUpdateProfile,
-            ]
+            ],
           ),
         },
         dispatch: {

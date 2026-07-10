@@ -21,6 +21,7 @@ import { useCreateDeposit } from "../../api/hooks/useCreateDeposit";
 import { SatoshiIcon } from "../../assets/icons/SatoshiIcon";
 import { useWithdraw } from "../../api/hooks/useWithdraw";
 import { useToast } from "../../hooks/useToast";
+import { ENABLE_BETS_AND_DEPOSITS } from "../../config/features";
 
 export const WalletMenu = ({ ...props }: BoxProps) => {
   const toast = useToast();
@@ -35,10 +36,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  if (
-    !account?.wallet ||
-    (account.wallet.balanceInSats <= 0 && import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS !== "1")
-  ) {
+  if (!account?.wallet || (account.wallet.balanceInSats <= 0 && !ENABLE_BETS_AND_DEPOSITS)) {
     return null;
   }
 
@@ -59,7 +57,7 @@ export const WalletMenu = ({ ...props }: BoxProps) => {
       <FormGroup>
         <Collapse in={withdrawInvoice === null && isDeposit === null}>
           <FormGroup>
-            {import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ? (
+            {ENABLE_BETS_AND_DEPOSITS ? (
               <Button
                 color="warning"
                 size="large"

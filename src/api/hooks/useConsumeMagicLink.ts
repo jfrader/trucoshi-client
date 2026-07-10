@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
-import { User } from "lightning-accounts";
+import type { User } from "lightning-accounts";
 import { apiClient } from "../apiClient";
+import { ApiResponse } from "../types";
 
 export const useConsumeMagicLink = () => {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export const useConsumeMagicLink = () => {
       apiClient.instance.post<{ user?: User }>("/auth/magic-link/consume", null, {
         params: { token },
       }),
-    onSuccess(data: AxiosResponse<{ user?: User }>) {
+    onSuccess(data: ApiResponse<{ user?: User }>) {
       if (data.data.user) {
         queryClient.setQueryData(["me"], { data: data.data.user });
       }

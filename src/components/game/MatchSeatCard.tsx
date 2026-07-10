@@ -48,7 +48,7 @@ const decomposeScoreToMatches = (score: number) => {
   return chunks;
 };
 
-const _MatchSeatCard = ({
+const MatchSeatCardComponent = ({
   player,
   seatIndex,
   seatGeometry,
@@ -384,7 +384,7 @@ const sameSeatPresentation = (prev: MatchSeatPresentation, next: MatchSeatPresen
   prev.tablePoints.pileGap === next.tablePoints.pileGap;
 
 export const MatchSeatCard = memo(
-  _MatchSeatCard,
+  MatchSeatCardComponent,
   (prev, next) =>
     prev.player === next.player &&
     prev.seatIndex === next.seatIndex &&

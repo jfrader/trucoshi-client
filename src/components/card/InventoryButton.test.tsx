@@ -1,5 +1,4 @@
 import { fireEvent, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { ReactElement } from "react";
 import { renderWithTheme } from "../../test/renderWithTheme";
 import { CardDisplayModeToggle } from "./CardDisplayModeToggle";
@@ -59,8 +58,7 @@ vi.mock("./GameCard", () => ({
   ),
 }));
 
-const renderInRouter = (ui: ReactElement) =>
-  renderWithTheme(<MemoryRouter>{ui}</MemoryRouter>);
+const renderInRouter = (ui: ReactElement) => renderWithTheme(ui);
 
 beforeEach(() => {
   mocks.queue.mockClear();

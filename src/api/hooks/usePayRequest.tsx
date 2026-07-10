@@ -1,9 +1,11 @@
-import { UseMutationOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UseMutationOptions } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
+import { ApiResponse } from "../types";
 
 export const usePayRequest = (
-  options: Omit<UseMutationOptions<AxiosResponse, AxiosError, unknown>, "mutationFn"> = {}
+  options: Omit<UseMutationOptions<ApiResponse, AxiosError, string>, "mutationFn"> = {},
 ) => {
   const queryClient = useQueryClient();
   const {
@@ -12,9 +14,9 @@ export const usePayRequest = (
     isPending,
   } = useMutation({
     mutationKey: ["pay-request-pay"],
-    mutationFn: apiClient.wallet.payRequest,
+    mutationFn: (payRequestId: string) => apiClient.wallet.payRequest(payRequestId),
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["me"] });
+      void queryClient.refetchQueries({ queryKey: ["me"] });
     },
     ...options,
   });

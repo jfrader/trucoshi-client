@@ -99,7 +99,7 @@ export type GameCardProps = {
   as?: ElementType;
 } & ButtonProps;
 
-const _GameCard = ({
+const GameCardComponent = ({
   card,
   disableDoubleClick = false,
   enableHover = false,
@@ -252,7 +252,7 @@ const _GameCard = ({
 
 export type FlipGameCardProps = { flip?: boolean } & GameCardProps;
 
-const _FlipGameCard = ({ flip = false, width = "4.4em", ...props }: FlipGameCardProps) => {
+const FlipGameCardComponent = ({ flip = false, width = "4.4em", ...props }: FlipGameCardProps) => {
   const inspectedBackCardSkinId =
     props.card !== BURNT_CARD
       ? resolveInspectionCardSkinId({
@@ -358,6 +358,5 @@ const GameCardButton = styled(Button, {
   }),
 }));
 
-// Export with original names
-export const GameCard = memo(_GameCard);
-export const FlipGameCard = memo(_FlipGameCard);
+export const GameCard = memo(GameCardComponent);
+export const FlipGameCard = memo(FlipGameCardComponent);

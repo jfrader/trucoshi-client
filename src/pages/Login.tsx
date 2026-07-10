@@ -15,11 +15,12 @@ import { LoadingButton } from "../shared/LoadingButton";
 import { useLogin } from "../api/hooks/useLogin";
 import { useMagicLinkLogin } from "../api/hooks/useMagicLinkLogin";
 import { useSeedLogin } from "../api/hooks/useSeedLogin";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { TwitterButton } from "../shared/TwitterButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { hasPendingRewardCode } from "../components/reward/rewardCodeStorage";
+import { TrucoshiResponsiveLogoLink } from "../shared/TrucoshiResponsiveLogoLink";
 
 export const Login = () => {
   const queryClient = useQueryClient();
@@ -37,11 +38,15 @@ export const Login = () => {
   const { login, isPending: isPasswordPending } = useLogin();
   const { sendMagicLink, isPending: isMagicLinkPending } = useMagicLinkLogin();
   const { seedLogin, isPending: isSeedPending } = useSeedLogin();
-  const showRewardCodeAlert = !account && hasPendingRewardCode();
+  const [showRewardCodeAlert, setShowRewardCodeAlert] = useState(false);
+
+  useEffect(() => {
+    setShowRewardCodeAlert(!account && hasPendingRewardCode());
+  }, [account]);
 
   useEffect(() => {
     if (account) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
   }, [account, navigate]);
 
@@ -84,7 +89,7 @@ export const Login = () => {
         {
           onSuccess: () => {
             queryClient.resetQueries({ queryKey: ["me"] });
-            navigate("/");
+            void navigate({ to: "/" });
           },
           onError: (e) => setErrors([e]),
         },
@@ -104,7 +109,7 @@ export const Login = () => {
               return;
             }
             queryClient.resetQueries({ queryKey: ["me"] });
-            navigate("/");
+            void navigate({ to: "/" });
           },
           onError: (e) => setErrors([e]),
         },
@@ -171,9 +176,7 @@ export const Login = () => {
             >
               <Stack px={2} pt={2} gap={4}>
                 {showRewardCodeAlert ? (
-                  <Alert severity="info">
-                    Ingresa tu email y entra al link para registrarte
-                  </Alert>
+                  <Alert severity="info">Ingresa tu email y entra al link para registrarte</Alert>
                 ) : null}
                 <ToggleButtonGroup
                   color="warning"
@@ -248,7 +251,10 @@ export const Login = () => {
                       <Button onClick={() => handleEmailLoginMethodChange("link")} color="info">
                         Usar link de ingreso
                       </Button>
-                      <Button onClick={() => navigate("/forgot-password")} color="info">
+                      <Button
+                        onClick={() => void navigate({ to: "/forgot-password" })}
+                        color="info"
+                      >
                         ¿Olvidaste tu contraseña?
                       </Button>
                     </>
@@ -275,9 +281,16 @@ export const Login = () => {
         </Card>
         <Card>
           <CardContent>
-            <Stack gap={4} px={2} pt={2}>
+            <Stack direction="row" justifyContent="space-between" gap={4} px={2} pt={2}>
               <TwitterButton />
-              <Button variant="contained" onClick={() => navigate("/register")} color="success">
+
+              <TrucoshiResponsiveLogoLink sx={{ pt: 0.5 }} />
+
+              <Button
+                variant="contained"
+                onClick={() => void navigate({ to: "/register" })}
+                color="success"
+              >
                 Registrarse
               </Button>
             </Stack>

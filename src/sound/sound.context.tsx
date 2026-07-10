@@ -10,7 +10,7 @@ import {
   SetStateAction,
 } from "react";
 import { IGameSounds, ISoundContext, ISoundQueue } from "./types";
-import { Howl, HowlOptions } from "howler";
+import type { Howl, HowlOptions } from "howler";
 import { gameSounds } from "./sounds";
 
 const INITIAL_QUEUE: ISoundQueue = [];
@@ -20,7 +20,12 @@ const SOUND_EXPIRY_TIMEOUT = 5000;
 
 export const SoundContext = createContext<ISoundContext | null>(null);
 
-const getStoredVolume = () => Number(localStorage.getItem("trucoshi:volume") || 0.5);
+const getStorage = () =>
+  typeof window !== "undefined" && window.localStorage ? window.localStorage : null;
+
+const DEFAULT_VOLUME = 0.5;
+
+const getStoredVolume = () => Number(getStorage()?.getItem("trucoshi:volume") || DEFAULT_VOLUME);
 
 export const SoundProvider = ({ children }: PropsWithChildren) => {
   const soundsRef = useRef<Record<string, Howl>>({});
@@ -28,15 +33,24 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   const isPlayingQueueSoundRef = useRef<boolean | string>(false);
   const isLoadingRef = useRef(true);
   const readyToLoadRef = useRef(false);
-  const [mainVolume, _setVolume] = useState<number>(getStoredVolume);
-  const [isMuted, setMuted] = useState(() => !getStoredVolume());
+  const [mainVolume, _setVolume] = useState(DEFAULT_VOLUME);
+  const [isMuted, setMuted] = useState(false);
   const [queueTrigger, setQueueTrigger] = useState(0);
+
+  useEffect(() => {
+    const storedVolume = getStoredVolume();
+    _setVolume(storedVolume);
+    setMuted(!storedVolume);
+  }, []);
 
   const load = useCallback(
     async (key: string, sound: HowlOptions): Promise<[string, Howl]> => {
       if (soundsRef.current[key]) {
         return Promise.resolve([key, soundsRef.current[key]]);
       }
+
+      const { Howl } = await import("howler");
+
       return new Promise<[string, Howl]>((resolve, reject) => {
         try {
           const howl = new Howl({
@@ -61,7 +75,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
         }
       });
     },
-    [mainVolume, isMuted]
+    [mainVolume, isMuted],
   );
 
   useEffect(() => {
@@ -79,7 +93,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
           isLoadingRef.current = false;
           soundsRef.current = results.reduce(
             (prev, [key, howl]) => ({ ...prev, [key]: howl }),
-            soundsRef.current
+            soundsRef.current,
           );
         })
         .catch((e) => {
@@ -138,7 +152,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     setMuted(!vol);
     _setVolume((curr) => {
       const newVol = typeof vol === "number" ? vol : vol(curr);
-      localStorage.setItem("trucoshi:volume", newVol.toFixed(2).toString());
+      getStorage()?.setItem("trucoshi:volume", newVol.toFixed(2).toString());
       for (const key in soundsRef.current) {
         if (soundsRef.current[key]) {
           soundsRef.current[key].volume(newVol);
@@ -151,7 +165,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
   const queue = useCallback(
     (
       key: keyof typeof gameSounds | string,
-      callback?: (e: Error | null, status?: "playing" | "finished") => void
+      callback?: (e: Error | null, status?: "playing" | "finished") => void,
     ) => {
       if (isMuted) {
         callback?.(new Error("Muted"));
@@ -196,7 +210,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       ];
       setQueueTrigger((prev) => prev + 1);
     },
-    [isMuted]
+    [isMuted],
   );
 
   const contextValue = useMemo(
@@ -208,8 +222,8 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
         volume: mainVolume,
         isMuted,
         isPlayingQueueSoundRef,
-      } satisfies ISoundContext),
-    [queue, mute, setVolume, mainVolume, isMuted]
+      }) satisfies ISoundContext,
+    [queue, mute, setVolume, mainVolume, isMuted],
   );
 
   return <SoundContext.Provider value={contextValue}>{children}</SoundContext.Provider>;

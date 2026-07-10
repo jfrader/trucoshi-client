@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { useRounds } from "../trucoshi/hooks/useRounds";
 import { EFlorCommand, EMatchState, ICard } from "trucoshi";
@@ -214,7 +214,7 @@ const MatchMobileCommDrawer = memo(() => {
 
 MatchMobileCommDrawer.displayName = "MatchMobileCommDrawer";
 
-const _Match = () => {
+const MatchPage = () => {
   const [{ serverAheadTime, cardDisplayMode }, , , hydrated] = useTrucoshi();
   const [isAbandonOpen, setAbandonOpen] = useState(false);
   const [isRulesOpen, setRulesOpen] = useState(false);
@@ -223,7 +223,7 @@ const _Match = () => {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [pauseRequested, setPauseRequested] = useState(false);
   const [animateAnnouncement, setAnimateAnnouncement] = useState(false);
-  const { sessionId } = useParams<{ sessionId: string }>();
+  const { sessionId } = useParams({ from: "/match/$sessionId" });
   const { queue } = useSound();
   const theme = useTheme();
   const isDesktopChat = useMediaQuery(theme.breakpoints.up("lg"));
@@ -240,7 +240,10 @@ const _Match = () => {
           return;
         }
         if (tutorialMatch) {
-          navigate(`/match/${tutorialMatch.matchSessionId}`);
+          void navigate({
+            to: "/match/$sessionId",
+            params: { sessionId: tutorialMatch.matchSessionId },
+          });
         }
       });
       return;
@@ -249,7 +252,10 @@ const _Match = () => {
     playAgain((newMatchSessionId) => {
       toast.closeSnackbar("playagain");
       if (newMatchSessionId) {
-        navigate(`/lobby/${newMatchSessionId}`);
+        void navigate({
+          to: "/lobby/$sessionId",
+          params: { sessionId: newMatchSessionId },
+        });
       }
     });
   };
@@ -520,7 +526,7 @@ const _Match = () => {
   if (shouldRedirectToLobby) {
     return (
       <MatchStateProvider match={match}>
-        <Navigate to={`/lobby/${sessionId}`} replace />
+        <Navigate to="/lobby/$sessionId" params={{ sessionId }} replace />
       </MatchStateProvider>
     );
   }
@@ -700,4 +706,4 @@ const _Match = () => {
   );
 };
 
-export const Match = memo(_Match);
+export const Match = memo(MatchPage);

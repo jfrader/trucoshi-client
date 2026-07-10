@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ChangeEvent, useState } from "react";
 import { Box, BoxProps, Button, FormGroup, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "../../shared/LoadingButton";
 import { Sats } from "../../shared/Sats";
 import { ProfileIconButton } from "../layout/ProfileIconButton";
+import { ENABLE_BETS_AND_DEPOSITS } from "../../config/features";
 
 export const WelcomeMenu = ({ ...props }: BoxProps) => {
   const navigate = useNavigate();
@@ -18,11 +19,12 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
 
   const onClickChangeName = () => {
     setNameLoading(true);
-    nameField &&
+    if (nameField) {
       sendUserId(nameField, (newName) => {
         setNameField(newName);
         setNameLoading(false);
       });
+    }
   };
   return (
     <Box key={account?.id} display="flex" flexDirection="column" justifyContent="center" {...props}>
@@ -35,9 +37,7 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
         >
           Bienvenido
         </Typography>
-        {account &&
-        (import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ||
-          (account.wallet?.balanceInSats || 0) > 0) ? (
+        {account && (ENABLE_BETS_AND_DEPOSITS || (account.wallet?.balanceInSats || 0) > 0) ? (
           <Box
             role="button"
             sx={{ cursor: "pointer" }}
@@ -51,7 +51,9 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
             </Typography>
             <Sats amount={account.wallet?.balanceInSats || 0} />
           </Box>
-        ) : <ProfileIconButton />}
+        ) : (
+          <ProfileIconButton />
+        )}
       </Stack>
       <form
         onSubmit={(e) => {
@@ -98,7 +100,12 @@ export const WelcomeMenu = ({ ...props }: BoxProps) => {
                 color="success"
                 fullWidth
                 onClick={() =>
-                  navigate(`/register?name=${nameField !== "Satoshi" ? nameField : ""}`)
+                  void navigate({
+                    to: "/register",
+                    search: {
+                      name: nameField && nameField !== "Satoshi" ? nameField : undefined,
+                    },
+                  })
                 }
               >
                 Registrarse

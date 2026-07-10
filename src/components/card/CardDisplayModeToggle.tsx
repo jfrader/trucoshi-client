@@ -3,7 +3,7 @@ import { AutoAwesome, EmojiSymbols, Style } from "@mui/icons-material";
 import { useState } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { CardDisplayMode } from "../../trucoshi/cards/cardSkinResolver";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { FlipGameCard } from "./GameCard";
 
 const DISPLAY_MODE_OPTIONS: Array<{

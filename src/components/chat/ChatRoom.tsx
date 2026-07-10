@@ -42,9 +42,9 @@ import { bounce } from "../../assets/animations/bounce";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import EmojiConvertor from "emoji-js";
 import ChatField from "./ChatField";
 import { NoticeBannerSlot } from "../notice/NoticeBannerSlot";
+import { replaceEmojiAliases } from "./emojiAliases";
 
 const ChatFieldWithEmojis = lazy(() => import("./ChatFieldWithEmojis"));
 
@@ -483,14 +483,9 @@ export const ChatButton = ({
   );
 };
 
-const emoji = new EmojiConvertor();
-emoji.replace_mode = "unified";
-
 export const MessageContent = ({ children }: { children: IChatMessage }) => {
   if (!children.card && !children.command) {
-    const renderedMessage = emoji.replace_colons(children.content);
-
-    return <span dangerouslySetInnerHTML={{ __html: renderedMessage }} />;
+    return <span>{replaceEmojiAliases(children.content)}</span>;
   }
   return <ChatButton message={children}>{getMessageContent(children)}</ChatButton>;
 };

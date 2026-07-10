@@ -1,13 +1,13 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { renderWithTheme } from "../../test/renderWithTheme";
 import { TrucoHelp } from "./TrucoHelp";
 
 const createTutorialMatch = vi.fn();
 const navigate = vi.fn();
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+vi.mock("@tanstack/react-router", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
   return {
     ...actual,
     useNavigate: () => navigate,
@@ -22,12 +22,7 @@ vi.mock("./CardRanking", () => ({
   CardRanking: () => <div data-testid="card-ranking" />,
 }));
 
-const renderTrucoHelp = () =>
-  renderWithTheme(
-    <MemoryRouter>
-      <TrucoHelp />
-    </MemoryRouter>,
-  );
+const renderTrucoHelp = () => renderWithTheme(<TrucoHelp />);
 
 describe("TrucoHelp", () => {
   beforeEach(() => {
@@ -43,7 +38,7 @@ describe("TrucoHelp", () => {
 
     expect(screen.getByRole("link", { name: /como jugar truco/i })).toHaveAttribute(
       "href",
-      "/help/rules/es",
+      "/reglas-del-truco",
     );
     expect(screen.getByRole("link", { name: /how to play truco/i })).toHaveAttribute(
       "href",
@@ -64,6 +59,9 @@ describe("TrucoHelp", () => {
     fireEvent.click(screen.getByRole("button", { name: /jugar tutorial/i }));
 
     expect(createTutorialMatch).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith("/match/tutorial-session");
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/match/$sessionId",
+      params: { sessionId: "tutorial-session" },
+    });
   });
 });

@@ -17,7 +17,7 @@ const isUnreadChatCandidate = (message: IChatMessage) =>
       !message.card,
   );
 
-const _MatchBottomDock = () => {
+const MatchBottomDockComponent = () => {
   const {
     state: { chatProps, isDesktopChat, canSay, me, hasCommandActions, canInteractWithHand },
     announcements: {
@@ -367,4 +367,4 @@ const _MatchBottomDock = () => {
   );
 };
 
-export const MatchBottomDock = memo(_MatchBottomDock);
+export const MatchBottomDock = memo(MatchBottomDockComponent);

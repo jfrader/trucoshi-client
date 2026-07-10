@@ -8,23 +8,24 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
     class="MuiStack-root css-fm002g-MuiStack-root"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-110nfx-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1sz1mro-MuiPaper-root"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
     >
       <div
         class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body2 css-m64nil-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-mu1xz-MuiTypography-root"
         >
           Envido
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1xh2i2i-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-14zwqme-MuiTypography-root"
         >
           Truco
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1pp6dye-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1ymnob-MuiTypography-root"
         >
           Quiero
         </p>
@@ -36,7 +37,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
       >
         <svg
           aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1cesefj-MuiSvgIcon-root"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-138z9zs-MuiSvgIcon-root"
           data-testid="ChatBubbleOutlineIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -53,7 +54,8 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
       </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-rcu2tn-MuiPaper-root"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
     >
       <div
         class="MuiBox-root css-8hnoxy"
@@ -109,14 +111,11 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
                 class="MuiBox-root css-1mefu91"
               >
                 <button
-                  class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-5zmfoa-MuiButtonBase-root-MuiButton-root"
+                  class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py3sou-MuiButtonBase-root-MuiButton-root"
                   tabindex="0"
                   type="button"
                 >
                   Truco!
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
             </div>
@@ -136,23 +135,24 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
     class="MuiStack-root css-fm002g-MuiStack-root"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-110nfx-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1sz1mro-MuiPaper-root"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
     >
       <div
         class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body2 css-z5xlh3-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-7kzyxm-MuiTypography-root"
         >
           -
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1bs1g1a-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1jpp7th-MuiTypography-root"
         >
           -
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-cuhsxa-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-fq4255-MuiTypography-root"
         >
           Sin anuncios
         </p>
@@ -164,7 +164,7 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
       >
         <svg
           aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1cesefj-MuiSvgIcon-root"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-138z9zs-MuiSvgIcon-root"
           data-testid="ChatBubbleOutlineIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -181,7 +181,8 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
       </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-rcu2tn-MuiPaper-root"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
     >
       <div
         class="MuiBox-root css-8hnoxy"
@@ -210,7 +211,7 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
               class="MuiBox-root css-nz8yh0"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1 css-1sz6cep-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 css-1290f4r-MuiTypography-root"
               >
                 Modo Espectador
               </p>

@@ -14,7 +14,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { Link, useMatch as useRouteMatch, useNavigate } from "react-router-dom";
+import { Link, useMatchRoute, useNavigate } from "@tanstack/react-router";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { ITrucoshiStats } from "trucoshi";
 import { ReactNode, SyntheticEvent, useEffect, useState } from "react";
@@ -80,8 +80,9 @@ export const PlayMenu = ({
   smallPlayButton?: boolean;
   onMenuClick?: (e: SyntheticEvent) => void;
 }) => {
-  const isInMatch = useRouteMatch("/match/:id");
-  const isInHome = useRouteMatch("/");
+  const matchRoute = useMatchRoute();
+  const isInMatch = Boolean(matchRoute({ to: "/match/$sessionId" }));
+  const isInHome = Boolean(matchRoute({ to: "/" }));
   const navigate = useNavigate();
   const [
     { account, stats, activeMatches, queueReplayOptions, serverAheadTime },
@@ -144,12 +145,15 @@ export const PlayMenu = ({
     allowBots: boolean;
   }) => {
     if (queuedMatch && !isQueueing) {
-      navigate(`/match/${queuedMatch.matchSessionId}`);
+      void navigate({
+        to: "/match/$sessionId",
+        params: { sessionId: queuedMatch.matchSessionId },
+      });
       return;
     }
 
     if (isInMatch) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
 
     if (isInMatch || isInHome) {
@@ -175,7 +179,10 @@ export const PlayMenu = ({
       if (error || !match) {
         return;
       }
-      navigate(`/match/${match.matchSessionId}`);
+      void navigate({
+        to: "/match/$sessionId",
+        params: { sessionId: match.matchSessionId },
+      });
     });
   };
 
@@ -328,11 +335,9 @@ export const PlayMenu = ({
             </QueueStatusPanel>
           ) : null}
         </Stack>
-        <Stack direction="row" justifyContent="center">
-          <Button color="warning" size="large" onClick={onMenuClick} component={Link} to="/matches">
-            Crear / Buscar partida
-          </Button>
-        </Stack>
+        <Button color="warning" size="large" onClick={onMenuClick} component={Link} to="/matches">
+          Crear / Buscar partida
+        </Button>
         <Button color="secondary" size="large" onClick={onMenuClick} component={Link} to="/ranking">
           Ranking
         </Button>

@@ -1,5 +1,5 @@
-import { ImgHTMLAttributes } from "react";
+import type { ImgHTMLAttributes } from "react";
 
-export const TrucoshiText = (props: ImgHTMLAttributes<HTMLImageElement>) => {
-  return <img src="/trucoshi-text.svg" alt="Trucoshi" {...props} />;
-};
+export const TrucoshiText = (props: ImgHTMLAttributes<HTMLImageElement>) => (
+  <img src="/trucoshi-text.svg" alt="Trucoshi" {...props} />
+);

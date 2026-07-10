@@ -2,6 +2,7 @@ import { List, ListItem, ListItemSecondaryAction, ListItemText, ListProps } from
 import { ReactNode } from "react";
 import { ILobbyOptions } from "trucoshi";
 import { Sats } from "../../shared/Sats";
+import { ENABLE_BETS_AND_DEPOSITS } from "../../config/features";
 
 export const LOBBY_OPTIONS_HUMAN_READABLE: Partial<Record<keyof ILobbyOptions, string>> = {
   satsPerPlayer: "Sats por jugador",
@@ -40,10 +41,7 @@ export const GameOptionsList = ({
     <List {...props}>
       {Object.entries(LOBBY_OPTIONS_HUMAN_READABLE)
         .filter(([key]) => (keys ? keys.includes(key as keyof ILobbyOptions) : true))
-        .filter(
-          ([key]) =>
-            key !== "satsPerPlayer" || import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1"
-        )
+        .filter(([key]) => key !== "satsPerPlayer" || ENABLE_BETS_AND_DEPOSITS)
         .map(([key, label]) => {
           const value = options[key as keyof ILobbyOptions];
           if (value === undefined) {

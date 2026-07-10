@@ -14,21 +14,22 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useMagicLinkRegister } from "../api/hooks/useMagicLinkRegister";
 import { useRegisterWithSeed } from "../api/hooks/useRegisterWithSeed";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { TwitterButton } from "../shared/TwitterButton";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 import { useQueryClient } from "@tanstack/react-query";
 import { SeedDisplay } from "../components/other/SeedDisplay";
+import { TrucoshiResponsiveLogoLink } from "../shared/TrucoshiResponsiveLogoLink";
 
 export const Register = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [search] = useSearchParams();
+  const { name: initialName } = useSearch({ from: "/register" });
   const [{ account }] = useTrucoshi();
 
   const [hydrated, setHydrated] = useState(false);
   const [registerType, setRegisterType] = useState<"email" | "seed">("email");
-  const [name, setName] = useState(search.get("name") || "");
+  const [name, setName] = useState(initialName || "");
   const [email, setEmail] = useState("");
   const [formErrors, setErrors] = useState<Error[]>([]);
   const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export const Register = () => {
 
   useEffect(() => {
     if (account) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
   }, [account, navigate]);
 
@@ -94,7 +95,7 @@ export const Register = () => {
     queryClient.resetQueries({ queryKey: ["me"] });
     setSeedPhrase(null);
     setErrors([]);
-    navigate("/login");
+    void navigate({ to: "/login" });
   };
 
   const onChangeName = (event: ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +115,7 @@ export const Register = () => {
       setErrors([]);
       setSeedPhrase(null);
       setMagicLinkSent(false);
-      setName(search.get("name") || "");
+      setName(initialName || "");
       setEmail("");
     }
   };
@@ -151,7 +152,7 @@ export const Register = () => {
                     onChange={onChangeName}
                     autoComplete="off"
                     inputRef={(node) => {
-                      if (!hydrated && node && !search.get("name")) {
+                      if (!hydrated && node && !initialName) {
                         node.focus();
                       }
                     }}
@@ -179,7 +180,7 @@ export const Register = () => {
                     type="submit"
                     isLoading={isRegisterPending || isSeedPending}
                     color="warning"
-                    variant="outlined"
+                    variant="contained"
                     disabled={!!seedPhrase}
                   >
                     Registrarse
@@ -205,9 +206,16 @@ export const Register = () => {
         </Card>
         <Card>
           <CardContent>
-            <Stack gap={4} px={2} pt={2}>
+            <Stack direction="row" justifyContent="space-between" gap={4} px={2} pt={2}>
               <TwitterButton />
-              <Button variant="contained" onClick={() => navigate("/login")} color="success">
+
+              <TrucoshiResponsiveLogoLink sx={{ pt: 0.5 }} />
+
+              <Button
+                variant="contained"
+                onClick={() => void navigate({ to: "/login" })}
+                color="info"
+              >
                 Iniciar Sesión
               </Button>
             </Stack>

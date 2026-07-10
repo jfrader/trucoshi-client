@@ -1,7 +1,7 @@
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import QRCode from "react-qr-code";
 import { Sats } from "../../shared/Sats";
-import { Transaction } from "lightning-accounts";
+import type { Transaction } from "lightning-accounts";
 import { useDeposit } from "../../api/hooks/useDeposit";
 import { useEffect } from "react";
 import { useToast } from "../../hooks/useToast";

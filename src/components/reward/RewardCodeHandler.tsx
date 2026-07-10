@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { GAME_ERROR } from "trucoshi";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import {
-  markPromoChestReady,
-  PENDING_REWARD_CODE_KEY,
-} from "./rewardCodeStorage";
+import { markPromoChestReady, PENDING_REWARD_CODE_KEY } from "./rewardCodeStorage";
 
 export const RewardCodeHandler = () => {
   const location = useLocation();
@@ -15,7 +12,7 @@ export const RewardCodeHandler = () => {
   const [attemptedCode, setAttemptedCode] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(location.searchStr);
     const code = params.get("code")?.trim();
 
     if (!code) {
@@ -24,12 +21,12 @@ export const RewardCodeHandler = () => {
 
     window.localStorage.setItem(PENDING_REWARD_CODE_KEY, code);
     if (!account?.id) {
-      navigate("/login", { replace: true });
+      void navigate({ to: "/login", replace: true });
       return;
     }
 
-    navigate("/", { replace: true });
-  }, [account?.id, location.search, navigate]);
+    void navigate({ to: "/", replace: true });
+  }, [account?.id, location.searchStr, navigate]);
 
   useEffect(() => {
     if (!account?.id || !isConnected || redeemingCode) {

@@ -31,6 +31,24 @@ declare module "@mui/material/Button" {
 }
 
 type TrucoshiUiTokens = {
+  shell: {
+    darkBackground: string;
+    lightBackground: string;
+    featureBackground: string;
+  };
+  seo: {
+    canvas: string;
+    heroBackground: string;
+    heroOverlay: string;
+    contentSurface: string;
+    navigationSurface: string;
+    divider: string;
+    textPrimary: string;
+    textSecondary: string;
+    accent: string;
+    accentSoft: string;
+    cardShadow: string;
+  };
   board: {
     feltPrimary: string;
     feltSecondary: string;
@@ -184,6 +202,29 @@ declare module "@mui/material/styles" {
 }
 
 const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
+  shell: {
+    darkBackground:
+      "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.11), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.18), transparent 36rem), linear-gradient(145deg, #1f3828 0%, #15291e 46%, #0b1812 100%)",
+    lightBackground:
+      "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.13), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.15), transparent 36rem), linear-gradient(145deg, #eef5ef 0%, #dfece3 48%, #f5eee7 100%)",
+    featureBackground:
+      "radial-gradient(circle at 92% 10%, rgba(236,108,52,0.12), transparent 35%), linear-gradient(120deg, #0d1d15, #0a1510)",
+  },
+  seo: {
+    canvas: "#09130e",
+    heroBackground:
+      "radial-gradient(circle at 78% 26%, rgba(44, 124, 91, 0.3), transparent 32%), radial-gradient(circle at 14% 100%, rgba(236, 108, 52, 0.13), transparent 34%), linear-gradient(145deg, #13291d 0%, #0c1d15 52%, #08110d 100%)",
+    heroOverlay:
+      "linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px)",
+    contentSurface: "#0d1b14",
+    navigationSurface: "rgba(255,255,255,0.035)",
+    divider: "rgba(231, 238, 230, 0.13)",
+    textPrimary: "#f5efe3",
+    textSecondary: "#b8c5bb",
+    accent: "#ec6c34",
+    accentSoft: "rgba(236, 108, 52, 0.14)",
+    cardShadow: "0 30px 54px rgba(0,0,0,0.5), 0 5px 14px rgba(0,0,0,0.35)",
+  },
   board: {
     feltPrimary: "#1b6250",
     feltSecondary: "#0f4a3d",
@@ -878,12 +919,13 @@ const base = {
     MuiButton: {
       styleOverrides: {
         contained: ({ ownerState, theme }) => {
-          return {
-            background:
-              ownerState.color === "inherit"
-                ? undefined
-                : alpha((theme.palette[ownerState.color || "primary"] as any).main, 0.4),
-          };
+          return ownerState.color === "inherit"
+            ? {}
+            : {
+                border: "1px solid",
+                borderColor: (theme.palette[ownerState.color || "primary"] as any).dark,
+                background: alpha((theme.palette[ownerState.color || "primary"] as any).main, 0.5),
+              };
         },
       },
 

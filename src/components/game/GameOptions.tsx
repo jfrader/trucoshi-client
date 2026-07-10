@@ -15,6 +15,7 @@ import { ILobbyOptions } from "trucoshi";
 import { SatoshiIcon } from "../../assets/icons/SatoshiIcon";
 import { Close } from "@mui/icons-material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
+import { ENABLE_BETS_AND_DEPOSITS } from "../../config/features";
 
 const DEFAULT_TURN_TIMES = [15, 30, 45, 60, 120, 999];
 
@@ -38,7 +39,7 @@ export const GameOptions = ({
       }}
     >
       <Stack gap={4} px={2} pt={2}>
-        {import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1" ? (
+        {ENABLE_BETS_AND_DEPOSITS ? (
           <Stack direction="row" alignItems="center" gap={1}>
             <TextField
               size="small"
@@ -173,7 +174,7 @@ export const GameOptions = ({
                 <MenuItem key={a} value={String(a)}>
                   {a}s
                 </MenuItem>
-              )
+              ),
             )}
           </Select>
         </FormControl>

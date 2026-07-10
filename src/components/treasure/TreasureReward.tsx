@@ -36,7 +36,6 @@ export const TreasureRarityBadge = ({
 
   return (
     <RarityBadgeRoot
-      component="span"
       data-rarity={rarity}
       data-testid={`treasure-rarity-${rarity}`}
       rarity={rarity}
@@ -71,11 +70,11 @@ export const TreasureResultSummary = ({
 
   return (
     <ResultSummaryRoot data-testid="treasure-result-summary" summarySize={size}>
-      <ResultTitle component="span" data-testid="treasure-result-title" summarySize={size}>
+      <ResultTitle data-testid="treasure-result-title" summarySize={size}>
         {getResultTitle(result)}
       </ResultTitle>
       {cardLabel ? (
-        <ResultCardLabel component="span" summarySize={size}>
+        <ResultCardLabel summarySize={size}>
           {cardLabel}
         </ResultCardLabel>
       ) : null}

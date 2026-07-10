@@ -55,7 +55,7 @@ type CommandBarProps = PropsWithChildren<{
   embedded?: boolean;
 }>;
 
-const _CommandBar = ({
+const CommandBarComponent = ({
   children,
   player,
   canSay,
@@ -192,4 +192,4 @@ const _CommandBar = ({
   );
 };
 
-export const CommandBar = memo(_CommandBar);
+export const CommandBar = memo(CommandBarComponent);

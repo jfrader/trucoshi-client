@@ -18,12 +18,6 @@ export const useTurnTimer = (
   const { queue } = useSound();
   const [turnTimer, setTurnTimer] = useState<TurnTimer>(INITIAL_TIMER);
 
-  const queueMe = (key: string) => {
-    if (player?.isMe) {
-      queue(key);
-    }
-  };
-
   useEffect(() => {
     if (!player || !player.isTurn || !match) {
       setTurnTimer((prev) => (prev === INITIAL_TIMER ? prev : INITIAL_TIMER));
@@ -33,6 +27,12 @@ export const useTurnTimer = (
     if (player.bot) {
       return setTurnTimer({ isExtension: false, progress: 100 });
     }
+
+    const queueMe = (key: string) => {
+      if (player.isMe) {
+        queue(key);
+      }
+    };
 
     const updateTimer = () => {
       if (match.state === EMatchState.PAUSED) {

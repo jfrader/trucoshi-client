@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { SyntheticEvent, useContext, useEffect, useState } from "react";
 import { useMe } from "../api/hooks/useMe";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
 import { EClientEvent, IAccountDetails } from "trucoshi";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { useToast } from "../hooks/useToast";
@@ -49,7 +49,7 @@ const getSeedModalConfig = (
   title: string,
   hasSeed: boolean | undefined,
   acceptLabel: string,
-  onConfirm: () => void
+  onConfirm: () => void,
 ) => ({
   title,
   body: hasSeed
@@ -65,9 +65,10 @@ export const Profile = () => {
   const context = useContext(TrucoshiContext);
   const toast = useToast();
 
-  const [search] = useSearchParams();
-  const { pathname } = useLocation();
-  const { accountId } = useParams<{ accountId: string }>();
+  const { searchStr } = useLocation();
+  const search = new URLSearchParams(searchStr);
+  const params = useParams({ strict: false });
+  const accountId = "accountId" in params ? params.accountId : undefined;
   const { me, isPending } = useMe();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const { setSeed, isPending: isPendingSetSeed } = useSetSeed();
@@ -88,7 +89,17 @@ export const Profile = () => {
   const modal = useConfirmationModal();
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    navigate(pathname + "?t=" + newValue, { replace: true });
+    if (accountId) {
+      void navigate({
+        to: "/profile/$accountId",
+        params: { accountId },
+        search: { t: newValue },
+        replace: true,
+      });
+      return;
+    }
+
+    void navigate({ to: "/profile", search: { t: newValue }, replace: true });
   };
 
   if (!context) {
@@ -97,11 +108,15 @@ export const Profile = () => {
 
   useEffect(() => {
     if (!accountId && !me && !isPending && !isLoading) {
-      navigate("/login");
+      void navigate({ to: "/login" });
     }
 
     if (!accountId && me) {
-      navigate(`/profile/${me.id}`, { replace: true });
+      void navigate({
+        to: "/profile/$accountId",
+        params: { accountId: String(me.id) },
+        replace: true,
+      });
     }
   }, [accountId, isLoading, isPending, me, navigate]);
 
@@ -121,7 +136,7 @@ export const Profile = () => {
           if (success) {
             setProfile({ account, matches, stats });
           }
-        }
+        },
       );
     }
   }, [accountId, context.socket, context.state.isConnected, me?.id, toast]);
@@ -135,7 +150,9 @@ export const Profile = () => {
   }
 
   const isMyProfile = Number(accountId) === me?.id;
-  const meHasPassword = Boolean((me as (typeof me & { hasPassword?: boolean }) | null)?.hasPassword);
+  const meHasPassword = Boolean(
+    (me as (typeof me & { hasPassword?: boolean }) | null)?.hasPassword,
+  );
 
   const win = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
@@ -215,7 +232,7 @@ export const Profile = () => {
           setCurrentPassword("");
         },
         onError: (e) => setFormErrors([e.message]),
-      }
+      },
     );
   };
 
@@ -258,7 +275,7 @@ export const Profile = () => {
           setCurrentPassword("");
         },
         onError: (e) => setFormErrors([e.message]),
-      }
+      },
     );
   };
 
@@ -279,8 +296,8 @@ export const Profile = () => {
             },
             onError: (e) => setFormErrors([e.message]),
           });
-        }
-      )
+        },
+      ),
     );
   };
 
@@ -316,8 +333,8 @@ export const Profile = () => {
             },
             onError: (e) => setFormErrors([e.message]),
           });
-        }
-      )
+        },
+      ),
     );
   };
 
@@ -342,7 +359,7 @@ export const Profile = () => {
                     <ListItemText primary="Nombre" secondary={profile.account.name} />
                   </ListItem>
                   {isMyProfile ? (
-                    <ListItemButton onClick={() => navigate("/inventory")} divider>
+                    <ListItemButton onClick={() => void navigate({ to: "/inventory" })} divider>
                       <ListItemText
                         primary="Inventario"
                         secondary="Arma el mazo que ven los demas"
@@ -482,14 +499,14 @@ export const Profile = () => {
                                 variant="contained"
                                 size="small"
                                 disabled={Boolean(
-                                    isPendingUpdateProfile ||
-                                    !email ||
-                                    ((!me.email ||
-                                      (!!me.email &&
-                                        !meHasPassword &&
-                                        email.trim() !== (me.email || ""))) &&
-                                      !!validateNewPassword()) ||
-                                    (me.email && meHasPassword && !currentPassword)
+                                  isPendingUpdateProfile ||
+                                  !email ||
+                                  ((!me.email ||
+                                    (!!me.email &&
+                                      !meHasPassword &&
+                                      email.trim() !== (me.email || ""))) &&
+                                    !!validateNewPassword()) ||
+                                  (me.email && meHasPassword && !currentPassword),
                                 )}
                                 sx={{ alignSelf: "flex-end", mt: 1 }}
                               >
@@ -592,8 +609,8 @@ export const Profile = () => {
                         </ListItem>
                       ) : (
                         <ListItemButton
-                          component={Link}
-                          to={apiClient.instance.defaults.baseURL + "/auth/twitter"}
+                          component="a"
+                          href={apiClient.instance.defaults.baseURL + "/auth/twitter"}
                           divider
                         >
                           <ListItemText secondary="Autoriza tu cuenta para iniciar sesión con X">
@@ -655,7 +672,12 @@ export const Profile = () => {
                       <ListItemButton
                         key={match.id}
                         divider
-                        onClick={() => navigate(`/history/${match.id}`)}
+                        onClick={() =>
+                          void navigate({
+                            to: "/history/$matchId",
+                            params: { matchId: String(match.id) },
+                          })
+                        }
                       >
                         <ListItemText
                           secondary={`${dayjs(match.createdAt).format("DD/MM/YYYY")}`}

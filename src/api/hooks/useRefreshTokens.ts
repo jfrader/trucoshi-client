@@ -1,9 +1,10 @@
 import { UseMutationOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
+import { ApiResponse } from "../types";
 
 export const useRefreshTokens = (
-  options: Omit<UseMutationOptions<AxiosResponse, AxiosError, unknown>, "mutationFn"> = {}
+  options: Omit<UseMutationOptions<ApiResponse, AxiosError, unknown>, "mutationFn"> = {},
 ) => {
   const queryClient = useQueryClient();
   const {

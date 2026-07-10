@@ -8,7 +8,7 @@ export const debugComponent = (children: any) => {
   try {
     const format = JSON.stringify(children);
     return <pre style={{ whiteSpace: "wrap" }}>{format}</pre>;
-  } catch (e) {
+  } catch {
     return null;
   }
 };

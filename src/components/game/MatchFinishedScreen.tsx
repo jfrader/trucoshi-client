@@ -10,7 +10,7 @@ import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useMe } from "../../api/hooks/useMe";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useMatchQueue } from "../../trucoshi/hooks/useMatchQueue";
@@ -27,8 +27,8 @@ export const MatchFinishedScreen = ({
   chatProps: ReturnType<typeof useChatRoom>;
   onPlayAgain: () => void;
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
+  const router = useRouter();
   const [
     { treasureStatus, treasureLoading, treasureOpening, treasureResult },
     { devGrantTreasureChest, fetchTreasureStatus, openTreasureChest, setQueueReplayOptions },
@@ -44,7 +44,7 @@ export const MatchFinishedScreen = ({
 
   const iAmWinner = useMemo(
     () => match.me?.teamIdx === match.winner?.id || !match.me,
-    [match.me, match.winner?.id]
+    [match.me, match.winner?.id],
   );
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export const MatchFinishedScreen = ({
     if (match.createdFromQueue && match.queueOptions) {
       joinQueue(match.queueOptions);
       socket.emit(EClientEvent.LEAVE_MATCH, match.matchSessionId);
-      navigate("/");
+      void navigate({ to: "/" });
       return;
     }
 
@@ -84,11 +84,20 @@ export const MatchFinishedScreen = ({
   const Actions = ({ children, ...props }: StackProps) => (
     <Stack {...props} onClick={(e) => e.stopPropagation()}>
       {children}
-      <Button color="info" component={Link} to={`/history/${match.id}`} variant="text">
-        Ver resumen
-      </Button>
+      <Link to="/history/$matchId" params={{ matchId: String(match.id) }} underline="none">
+        <Button color="info" component="span" variant="text">
+          Ver resumen
+        </Button>
+      </Link>
       <Button
-        onClick={onExit(() => (location.key === "default" ? navigate("/") : navigate(-1)))}
+        onClick={onExit(() => {
+          if (router.history.canGoBack()) {
+            router.history.back();
+            return;
+          }
+
+          void navigate({ to: "/" });
+        })}
         variant="text"
       >
         Volver al inicio

@@ -6,10 +6,11 @@ export const useLogin = () => {
   const { mutate, error, isPending } = useMutation({
     onSuccess(data) {
       queryClient.setQueryData(["me"], data);
-      queryClient.refetchQueries({ queryKey: ["me"] })
+      void queryClient.refetchQueries({ queryKey: ["me"] });
     },
     mutationKey: ["login"],
-    mutationFn: apiClient.auth.loginUser,
+    mutationFn: (data: { email: string; password: string }) =>
+      apiClient.auth.loginUser(data),
   });
 
   return { login: mutate, error, isPending };

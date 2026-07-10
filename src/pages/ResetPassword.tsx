@@ -4,24 +4,24 @@ import { Alert, Card, CardContent, Stack, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useResetPassword } from "../api/hooks/useResetPassword";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
-  const [search] = useSearchParams();
+  const search = useSearch({ from: "/reset-password" });
   const [{ account }] = useTrucoshi();
 
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [formErrors, setErrors] = useState<Error[]>([]);
-  const token = search.get("token") || "";
+  const token = search.token || "";
 
   const { resetPassword, error, isPending } = useResetPassword();
 
   useEffect(() => {
     if (account) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
   }, [account, navigate]);
 
@@ -36,7 +36,7 @@ export const ResetPassword = () => {
     if (password !== password2) {
       return setErrors((current) => [...current, new Error("Las contraseñas no coinciden")]);
     }
-    resetPassword({ token, password }, { onSuccess: () => navigate("/login") });
+    resetPassword({ token, password }, { onSuccess: () => void navigate({ to: "/login" }) });
   };
 
   const onChangePassword = (event: ChangeEvent<HTMLInputElement>) => {

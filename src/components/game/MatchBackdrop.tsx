@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { Backdrop, TrucoshiBackdropProps } from "../../shared/Backdrop";
 
 export const MatchBackdrop = ({
@@ -12,7 +12,7 @@ export const MatchBackdrop = ({
       mountOnEnter
       unmountOnExit
       open={Boolean(error)}
-      onClick={() => navigate("/")}
+      onClick={() => void navigate({ to: "/" })}
       message={error && error.message ? error.message : "No se pudo encontrar la partida"}
       {...props}
     />

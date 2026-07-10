@@ -6,7 +6,7 @@ import { useState } from "react";
 import { RainDrop } from "../../shared/EmojiRain";
 import bigMate from "../../assets/other/big_mate.png";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { useMatch } from "react-router-dom";
+import { useMatchRoute } from "@tanstack/react-router";
 import { EClientEvent } from "trucoshi";
 
 const bellySize = 21;
@@ -18,8 +18,9 @@ export const TomaMate = () => {
   const [disabled, setDisabled] = useState(false);
   const [belly, setBelly] = useState(0);
 
-  const match = useMatch("/match/:sessionId");
-  const lobby = useMatch("/lobby/:sessionId");
+  const matchRoute = useMatchRoute();
+  const match = matchRoute({ to: "/match/$sessionId" });
+  const lobby = matchRoute({ to: "/lobby/$sessionId" });
 
   return (
     <>
@@ -36,9 +37,9 @@ export const TomaMate = () => {
 
           const sound = Math.random() > 0.5 ? "ceba_toma_mate" : "mate";
           const ml = match || lobby;
-          if (ml && ml.params.sessionId) {
+          if (ml) {
             setDisabled(true);
-            socket.emit(EClientEvent.SAY, ml.params.sessionId, sound);
+            socket.emit(EClientEvent.SAY, ml.sessionId, sound);
             setTimeout(() => {
               setDisabled(false);
             }, 4000);
@@ -57,7 +58,7 @@ export const TomaMate = () => {
       >
         <MateIcon fontSize="small" />
       </AnimatedButton>
-      <Slide in={belly === bellySize}>
+      <Slide in={belly === bellySize} mountOnEnter unmountOnExit>
         <RainDrop
           sx={{
             pointerEvents: "none",

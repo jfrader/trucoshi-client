@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useMatch } from "../../trucoshi/hooks/useMatch";
 import { useToast } from "../../hooks/useToast";
 
@@ -12,7 +12,10 @@ export const CreateMatchButton = () => {
       if (e || !match) {
         return toast.error("Hubo un error al crear la partida...");
       }
-      navigate(`/lobby/${match.matchSessionId}`);
+      void navigate({
+        to: "/lobby/$sessionId",
+        params: { sessionId: match.matchSessionId },
+      });
     });
 
   return (

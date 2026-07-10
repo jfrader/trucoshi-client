@@ -13,7 +13,7 @@ import {
 } from "@sentry/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "notistack";
-import { type PropsWithChildren, useRef } from "react";
+import { type PropsWithChildren, useRef, useState } from "react";
 import { useVersionReload } from "./hooks/useVersionReload";
 import { ConfirmationModal } from "./shared/ConfirmationModal";
 import CustomSnackbar from "./shared/CustomSnackbar";
@@ -21,8 +21,6 @@ import { SoundProvider } from "./sound/sound.context";
 import { themes } from "./theme";
 import { useTrucoshi } from "./trucoshi/hooks/useTrucoshi";
 import { TrucoshiProvider } from "./trucoshi/trucoshi.context";
-
-const queryClient = new QueryClient({});
 
 const SnackbarComponents = {
   default: CustomSnackbar,
@@ -160,14 +158,18 @@ const AppErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const AppProvider = ({ children }: PropsWithChildren) => (
-  <QueryClientProvider client={queryClient}>
-    <SnackbarProvider
-      autoHideDuration={4800}
-      Components={SnackbarComponents}
-      style={{ maxWidth: "100%" }}
-    >
-      <AppErrorBoundaryProvider>{children}</AppErrorBoundaryProvider>
-    </SnackbarProvider>
-  </QueryClientProvider>
-);
+export const AppProvider = ({ children }: PropsWithChildren) => {
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SnackbarProvider
+        autoHideDuration={4800}
+        Components={SnackbarComponents}
+        style={{ maxWidth: "100%" }}
+      >
+        <AppErrorBoundaryProvider>{children}</AppErrorBoundaryProvider>
+      </SnackbarProvider>
+    </QueryClientProvider>
+  );
+};

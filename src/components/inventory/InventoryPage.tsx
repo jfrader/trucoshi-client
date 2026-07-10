@@ -11,7 +11,7 @@ import { CheckCircle, Lock, Style } from "@mui/icons-material";
 import { MouseEvent, TouchEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CARDS_HUMAN_READABLE, ICard, ITreasureOpenResult } from "trucoshi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { PageContainer } from "../../shared/PageContainer";
 import { GameCard } from "../card/GameCard";
 import { CardInspectionInput } from "../../trucoshi/cards/cardInspection";
@@ -625,7 +625,7 @@ export const InventoryPage = () => {
     }
 
     if (!account) {
-      navigate("/login", { replace: true });
+      void navigate({ to: "/login", replace: true });
       return;
     }
 

@@ -37,7 +37,7 @@ export const HELP_LINKS = [
   },
   {
     label: "Como jugar Truco",
-    to: "/help/rules/es",
+    to: "/reglas-del-truco",
     Icon: Flag,
   },
   {

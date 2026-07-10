@@ -24,8 +24,9 @@ let queueReplayOptions: any = null;
 let serverAheadTime = 0;
 let noticeBanner: any = null;
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+vi.mock("@tanstack/react-router", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
   return {
     ...actual,
     Link: ({ children, to, ...props }: any) => (
@@ -33,7 +34,7 @@ vi.mock("react-router-dom", async () => {
         {children}
       </a>
     ),
-    useMatch: () => null,
+    useMatchRoute: () => () => false,
     useNavigate: () => navigate,
   };
 });
@@ -93,7 +94,7 @@ describe("PlayMenu queue controls", () => {
     leaveQueue.mockClear();
     createTutorialMatch.mockReset();
     createTutorialMatch.mockImplementation((callback: any) =>
-      callback(null, { matchSessionId: "tutorial-match" })
+      callback(null, { matchSessionId: "tutorial-match" }),
     );
     requestNotifications.mockClear();
     setSidebarOpen.mockClear();
@@ -203,7 +204,10 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /volver a la partida/i }));
 
-    expect(navigate).toHaveBeenCalledWith("/match/queue-match");
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/match/$sessionId",
+      params: { sessionId: "queue-match" },
+    });
     expect(joinQueue).not.toHaveBeenCalled();
   });
 
@@ -260,7 +264,10 @@ describe("PlayMenu queue controls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /volver a la partida/i }));
 
-    expect(navigate).toHaveBeenCalledWith("/match/queue-match");
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/match/$sessionId",
+      params: { sessionId: "queue-match" },
+    });
     expect(joinQueue).not.toHaveBeenCalled();
   });
 
@@ -275,7 +282,7 @@ describe("PlayMenu queue controls", () => {
     };
     window.localStorage.setItem(
       NOTICE_BANNER_DISMISSED_KEY,
-      getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt)
+      getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt),
     );
 
     renderWithTheme(<PlayMenu showNoticeBanner />);
@@ -290,6 +297,9 @@ describe("PlayMenu queue controls", () => {
     fireEvent.click(screen.getByRole("button", { name: /aprende a jugar/i }));
 
     expect(createTutorialMatch).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith("/match/tutorial-match");
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/match/$sessionId",
+      params: { sessionId: "tutorial-match" },
+    });
   });
 });

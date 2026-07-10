@@ -74,22 +74,19 @@ describe("SeatChatBubble", () => {
         <SeatChatBubble player={player} room={buildRoom([firstMessage])} />,
       );
 
-      await waitFor(() => {
-        expect(screen.getByRole("status")).toHaveTextContent("Primero mira tus cartas.");
-      });
+      expect(screen.getByRole("status")).toHaveTextContent("Primero mira tus cartas.");
 
       rerender(<SeatChatBubble player={player} room={buildRoom([firstMessage, secondMessage])} />);
 
       expect(screen.getByRole("status")).toHaveTextContent("Primero mira tus cartas.");
 
-      act(() => {
-        vi.advanceTimersByTime(9500);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(9500);
       });
 
-      await waitFor(() => {
-        expect(screen.getByRole("status")).toHaveTextContent("Despues elegi la mejor jugada.");
-      });
+      expect(screen.getByRole("status")).toHaveTextContent("Despues elegi la mejor jugada.");
     } finally {
+      vi.clearAllTimers();
       vi.useRealTimers();
     }
   });
@@ -114,15 +111,14 @@ describe("SeatChatBubble", () => {
         <SeatChatBubble player={player} room={buildRoom([oldMessage])} />,
       );
 
-      await waitFor(() => {
-        expect(screen.getByRole("status")).toHaveTextContent("7 de oro");
-      });
+      expect(screen.getByRole("status")).toHaveTextContent("7 de oro");
 
       rerender(<SeatChatBubble player={player} room={buildRoom([oldMessage, newMessage])} />);
 
       expect(screen.getByRole("status")).toHaveTextContent("33 de envido");
       expect(screen.getByRole("status")).not.toHaveTextContent("7 de oro");
     } finally {
+      vi.clearAllTimers();
       vi.useRealTimers();
     }
   });
@@ -147,9 +143,7 @@ describe("SeatChatBubble", () => {
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByRole("status")).toHaveTextContent("this message is...");
-    });
+    expect(screen.getByRole("status")).toHaveTextContent("this message is...");
   });
 
   it("places bubbles inward from radial seat geometry", () => {

@@ -1,5 +1,4 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { renderWithTheme } from "../../test/renderWithTheme";
 import { Sidebar } from "./Sidebar";
 
@@ -43,12 +42,7 @@ vi.mock("./Topbar", () => ({
   Topbar: () => <div>Topbar</div>,
 }));
 
-const renderSidebar = () =>
-  renderWithTheme(
-    <MemoryRouter>
-      <Sidebar />
-    </MemoryRouter>
-  );
+const renderSidebar = () => renderWithTheme(<Sidebar />);
 
 describe("Sidebar", () => {
   beforeEach(() => {
@@ -79,10 +73,11 @@ describe("Sidebar", () => {
     expect(mocks.setSidebarOpen).toHaveBeenCalledWith(false);
   });
 
-  it("keeps account actions in a separate bottom section", () => {
+  it("keeps account actions in a separate bottom section", async () => {
     mocks.state.isSidebarOpen = true;
     renderSidebar();
 
+    await screen.findByText("Play menu");
     expect(screen.getByTestId("sidebar-scroll-area")).toHaveTextContent("Play menu");
     expect(screen.getByTestId("sidebar-bottom-actions")).toHaveTextContent("Inventario");
     expect(screen.getByTestId("sidebar-bottom-actions")).toHaveTextContent("Cerrar Sesion");

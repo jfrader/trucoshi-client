@@ -1,13 +1,6 @@
-import {
-  Box,
-  Paper,
-  Stack,
-  styled,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Paper, Stack, styled, useMediaQuery, useTheme } from "@mui/material";
+import { Outlet, useMatchRoute } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
-import { Outlet, useMatch as useRouteMatch } from "react-router-dom";
 import { CardBackdrop } from "../../shared/CardBackdrop";
 import { getInspectedCardKey } from "../../trucoshi/cards/cardInspection";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -53,7 +46,11 @@ const AppPaper = styled(Paper, {
   shouldForwardProp: (prop) => prop !== "gameSurface",
 })<{ gameSurface: boolean }>(({ gameSurface, theme }) => ({
   borderRadius: 0,
-  background: theme.palette.background.default,
+  background: gameSurface
+    ? theme.palette.background.default
+    : theme.palette.mode === "light"
+      ? theme.trucoshiUi.shell.lightBackground
+      : theme.trucoshiUi.shell.darkBackground,
   ...(gameSurface
     ? {
         height: "100dvh",
@@ -100,10 +97,11 @@ const SurfaceContainer = styled(LayoutContainer, {
 
 export const Layout = ({ children }: PropsWithChildren) => {
   const theme = useTheme();
-  const matchRoute = useRouteMatch("/match/:sessionId");
-  const lobbyRoute = useRouteMatch("/lobby/:sessionId");
-  const isGameSurface = Boolean(matchRoute || lobbyRoute);
-  const matchSessionId = matchRoute?.params.sessionId;
+  const matchRoute = useMatchRoute();
+  const matchParams = matchRoute({ to: "/match/$sessionId" });
+  const lobbyParams = matchRoute({ to: "/lobby/$sessionId" });
+  const isGameSurface = Boolean(matchParams || lobbyParams);
+  const matchSessionId = matchParams ? matchParams.sessionId : undefined;
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [{ inspectedCard, cardDisplayMode, isSidebarOpen }, { inspectCard }] = useTrucoshi();
@@ -140,8 +138,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
                   display="flex"
                   flexDirection="column"
                 >
-                  {children}
-                  <Outlet />
+                  {children ?? <Outlet />}
                 </Box>
               </SurfaceContainer>
             </Box>

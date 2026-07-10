@@ -1,6 +1,6 @@
 import { Badge, IconButton, IconButtonProps } from "@mui/material";
 import { Style } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 

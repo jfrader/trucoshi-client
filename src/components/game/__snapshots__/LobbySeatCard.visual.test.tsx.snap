@@ -2,13 +2,14 @@
 
 exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-fw4u00-MuiPaper-root"
+  style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
 >
   <div
     class="MuiBox-root css-1w33tl2"
   >
     <p
-      class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-i3amvv-MuiTypography-root"
     >
       Ellos
     </p>
@@ -20,14 +21,11 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
     class="MuiStack-root css-1tkf38c-MuiStack-root"
   >
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-1ak3sdw-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-18sxtb0-MuiButtonBase-root-MuiButton-root"
       tabindex="0"
       type="button"
     >
       Unirse
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-qxnhi9"
@@ -38,7 +36,8 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
 
 exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-c0258a-MuiPaper-root"
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1ripwsd-MuiPaper-root"
+  style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12); --Paper-overlay: linear-gradient(rgba(255, 255, 255, 0.051), rgba(255, 255, 255, 0.051));"
 >
   <div
     class="MuiBox-root css-1btro7y"
@@ -59,13 +58,13 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
         class="MuiBox-root css-31l7gp"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-pc2pji-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-10yxvft-MuiTypography-root"
           title="Player p2"
         >
           Player p2
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body1 css-1nt64wr-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-srkk9w-MuiTypography-root"
         >
           Esperando
         </p>
@@ -114,19 +113,16 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
       class="MuiStack-root css-j3ygch-MuiStack-root"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-i3amvv-MuiTypography-root"
       >
         Ellos
       </p>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-1b8berl-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-14sv6qv-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         Quitar
-        <span
-          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-        />
       </button>
     </div>
   </div>

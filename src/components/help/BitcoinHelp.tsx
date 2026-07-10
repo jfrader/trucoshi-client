@@ -1,6 +1,11 @@
 import { List, ListItem, ListItemText, Stack, Typography } from "@mui/material";
+import { ENABLE_BETS_AND_DEPOSITS } from "../../config/features";
 
 export const BitcoinHelp = () => {
+  if (!ENABLE_BETS_AND_DEPOSITS) {
+    return null;
+  }
+
   return (
     <Stack pt={2} direction="column" gap={2}>
       <Typography variant="h6">Bitcoin y Lightning Network</Typography>

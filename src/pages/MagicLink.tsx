@@ -1,17 +1,17 @@
 import { Person } from "@mui/icons-material";
 import { Alert, Card, CardContent, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useConsumeMagicLink } from "../api/hooks/useConsumeMagicLink";
 import { LoadingButton } from "../shared/LoadingButton";
 import { PageContainer } from "../shared/PageContainer";
 
 export const MagicLink = () => {
   const navigate = useNavigate();
-  const [search] = useSearchParams();
+  const search = useSearch({ from: "/magic-link" });
   const [formErrors, setErrors] = useState<Error[]>([]);
-  const token = search.get("token") || "";
-  const next = search.get("next");
+  const token = search.token || "";
+  const next = search.next;
   const { consumeMagicLink, error, isPending } = useConsumeMagicLink();
 
   useEffect(() => {
@@ -25,10 +25,18 @@ export const MagicLink = () => {
       {
         onSuccess: (response) => {
           const userId = response.data.user?.id;
-          navigate(next === "profile" && userId ? `/profile/${userId}` : "/");
+          if (next === "profile" && userId) {
+            void navigate({
+              to: "/profile/$accountId",
+              params: { accountId: String(userId) },
+            });
+            return;
+          }
+
+          void navigate({ to: "/" });
         },
         onError: (e) => setErrors([e]),
-      }
+      },
     );
   }, [consumeMagicLink, navigate, next, token]);
 

@@ -17,7 +17,6 @@ import {
   ITreasureStatus,
   ITrucoshiStats,
   IWaitingPlayCallback,
-  IWaitingPlayData,
   IWaitingSayCallback,
   ServerToClientEvents,
 } from "trucoshi";
@@ -26,17 +25,10 @@ import { CardDisplayMode } from "./cards/cardSkinResolver";
 import { CardInspectionInput, IInspectedCard } from "./cards/cardInspection";
 import { CardSkinId, IEquippedDeck, IInventoryCardGroup } from "./cards/skinRegistry";
 import { Dispatch, SetStateAction } from "react";
-import { User } from "lightning-accounts";
+import type { User } from "lightning-accounts";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
-
-export enum ETrucoshiStateActions {
-  SET_SESSION,
-  SET_ID,
-  SET_LAST_PONG,
-  SET_CONNECTED,
-  SET_LOGGED,
-}
+import { AxiosError } from "axios";
+import { ApiResponse } from "../api/types";
 
 export type PropsWithPlayer<P = unknown> = P & { player: IPublicPlayer };
 
@@ -83,13 +75,13 @@ export interface ITrucoshiActions {
   devGrantTreasureChest(): Promise<boolean>;
   redeemRewardCode(
     code: string,
-    options?: IRewardCodeRedeemOptions
+    options?: IRewardCodeRedeemOptions,
   ): Promise<IRewardCodeRedeemOutcome>;
   setCardDisplayMode(mode: CardDisplayMode): void;
   inspectCard: Dispatch<SetStateAction<CardInspectionInput>>;
   refetchMe: (
-    options?: RefetchOptions | undefined
-  ) => Promise<QueryObserverResult<AxiosResponse<User, any>, AxiosError<unknown, any>>>;
+    options?: RefetchOptions | undefined,
+  ) => Promise<QueryObserverResult<ApiResponse<User>, AxiosError<unknown, any>>>;
   logout(): void;
 }
 
@@ -132,8 +124,6 @@ export interface ITrucoshiContext {
 }
 
 export type ICallbackMatchUpdate = (error: unknown, match?: IPublicMatch) => void;
-
-export type IWaitingPlayResolveFn = ((data: IWaitingPlayData) => void) | null;
 
 export interface IRewardCodeRedeemOutcome {
   success: boolean;

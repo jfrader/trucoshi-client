@@ -1,12 +1,9 @@
 import { waitFor } from "@testing-library/react";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { useLocation } from "@tanstack/react-router";
 import { GAME_ERROR } from "trucoshi";
-import { renderWithTheme } from "../../test/renderWithTheme";
+import { renderWithThemeAt } from "../../test/renderWithTheme";
 import { RewardCodeHandler } from "./RewardCodeHandler";
-import {
-  PENDING_REWARD_CODE_KEY,
-  PROMO_CHEST_READY_KEY,
-} from "./rewardCodeStorage";
+import { PENDING_REWARD_CODE_KEY, PROMO_CHEST_READY_KEY } from "./rewardCodeStorage";
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -32,11 +29,12 @@ const LocationProbe = () => {
 };
 
 const renderHandler = (entry = "/") =>
-  renderWithTheme(
-    <MemoryRouter initialEntries={[entry]}>
+  renderWithThemeAt(
+    <>
       <RewardCodeHandler />
       <LocationProbe />
-    </MemoryRouter>
+    </>,
+    entry,
   );
 
 describe("RewardCodeHandler", () => {

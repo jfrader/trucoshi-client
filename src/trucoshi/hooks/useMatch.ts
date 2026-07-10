@@ -378,11 +378,11 @@ export const useMatch = (
     if (matchId && matchState.match) {
       socket.emit(EClientEvent.LEAVE_MATCH, matchId, ({ activeMatches }) => {
         if (activeMatches) {
-          context.dispatch.setActiveMatches(activeMatches)
+          context.dispatch.setActiveMatches(activeMatches);
         }
       });
     }
-  }, [matchId, matchState.match, socket]);
+  }, [context.dispatch, matchId, matchState.match, socket]);
 
   const playAgain = useCallback(
     (callback: (newMatchSessionId?: string) => void) => {

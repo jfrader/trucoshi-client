@@ -1,0 +1,284 @@
+{
+  "siteUrl": "https://trucoshi.com",
+  "siteName": "Trucoshi",
+  "defaultOgImage": "/trucoshi-og-image.jpg",
+  "defaultTwitterImage": "/trucoshi-twitter-image.jpg",
+  "pages": {
+    "home": {
+      "canonicalPath": "/",
+      "title": "Truco online gratis | Trucoshi",
+      "description": "Jugá Truco argentino online gratis en Trucoshi. Partidas rápidas con cartas españolas, envido, truco, retruco, vale cuatro, bots y ranking de jugadores.",
+      "locale": "es_AR",
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": "https://trucoshi.com/#website",
+          "name": "Trucoshi",
+          "url": "https://trucoshi.com",
+          "inLanguage": "es-AR",
+          "description": "Truco argentino online gratis con partidas rápidas, bots y ranking."
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": "https://trucoshi.com/#organization",
+          "name": "Trucoshi",
+          "url": "https://trucoshi.com",
+          "logo": "https://trucoshi.com/logo.png",
+          "sameAs": [
+            "https://t.me/trucoshi",
+            "https://github.com/jfrader/trucoshi",
+            "https://x.com/trucoshi"
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "VideoGame",
+          "@id": "https://trucoshi.com/#game",
+          "name": "Trucoshi",
+          "url": "https://trucoshi.com",
+          "applicationCategory": "GameApplication",
+          "operatingSystem": "Web",
+          "genre": "Card game",
+          "gamePlatform": "Web browser",
+          "inLanguage": "es-AR",
+          "description": "Juego de Truco argentino online gratis con cartas españolas, envido, truco, retruco y vale cuatro.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
+      ]
+    },
+    "help": {
+      "canonicalPath": "/help",
+      "title": "Ayuda para jugar Truco online | Trucoshi",
+      "description": "Ayuda de Trucoshi para jugar Truco online, aprender las reglas y consultar el ranking de cartas.",
+      "locale": "es_AR",
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Ayuda",
+              "item": "https://trucoshi.com/help"
+            }
+          ]
+        }
+      ]
+    },
+    "trucoOnline": {
+      "canonicalPath": "/truco-online",
+      "title": "Truco online gratis | Jugá en Trucoshi",
+      "description": "Jugá Truco online gratis en Trucoshi desde el navegador. Partidas rápidas, bots si falta gente, reglas a mano y sin instalar nada.",
+      "locale": "es_AR",
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Truco online",
+              "item": "https://trucoshi.com/truco-online"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Se puede jugar gratis?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí. Podés entrar y jugar Truco online gratis, sin vueltas."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Puedo jugar con bots?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí. Si falta gente, podés completar la partida con bots y jugar igual."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Hace falta instalar algo?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Trucoshi corre en el navegador, desde el celu o la compu."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Dónde veo las reglas?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Tenés las reglas del Truco argentino en la página de reglas, con envido y ranking de cartas."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "trucoArgentino": {
+      "canonicalPath": "/truco-argentino",
+      "title": "Truco argentino | Reglas y partidas online",
+      "description": "Conocé cómo se juega al Truco argentino en Trucoshi: cartas españolas, envido, flor, truco, retruco y vale cuatro.",
+      "locale": "es_AR",
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Truco argentino",
+              "item": "https://trucoshi.com/truco-argentino"
+            }
+          ]
+        }
+      ]
+    },
+    "rankingCartasTruco": {
+      "canonicalPath": "/ranking-cartas-truco",
+      "title": "Ranking de cartas del Truco | Trucoshi",
+      "description": "Mirá el ranking de cartas del Truco argentino para saber qué carta gana cada baza y jugar mejor en Trucoshi.",
+      "locale": "es_AR",
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Ranking de cartas del Truco",
+              "item": "https://trucoshi.com/ranking-cartas-truco"
+            }
+          ]
+        }
+      ]
+    },
+    "spanishRules": {
+      "canonicalPath": "/reglas-del-truco",
+      "title": "Reglas del Truco Argentino | Trucoshi",
+      "description": "Reglas del Truco argentino: cartas españolas, ranking de cartas, envido, truco, retruco, vale cuatro, flor, mazo y pica-pica.",
+      "locale": "es_AR",
+      "alternates": [
+        {
+          "hrefLang": "es-AR",
+          "path": "/reglas-del-truco"
+        },
+        {
+          "hrefLang": "en",
+          "path": "/help/rules/en"
+        },
+        {
+          "hrefLang": "x-default",
+          "path": "/reglas-del-truco"
+        }
+      ],
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Reglas del Truco",
+              "item": "https://trucoshi.com/reglas-del-truco"
+            }
+          ]
+        }
+      ]
+    },
+    "englishRules": {
+      "canonicalPath": "/help/rules/en",
+      "title": "Argentinian Truco rules | Trucoshi",
+      "description": "Learn Argentinian Truco rules in English: Spanish cards, card ranking, envido, truco, retruco, vale cuatro, flor and pica-pica.",
+      "locale": "en_US",
+      "alternates": [
+        {
+          "hrefLang": "es-AR",
+          "path": "/reglas-del-truco"
+        },
+        {
+          "hrefLang": "en",
+          "path": "/help/rules/en"
+        },
+        {
+          "hrefLang": "x-default",
+          "path": "/reglas-del-truco"
+        }
+      ],
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Trucoshi",
+              "item": "https://trucoshi.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Argentinian Truco rules",
+              "item": "https://trucoshi.com/help/rules/en"
+            }
+          ]
+        }
+      ]
+    },
+    "ranking": {
+      "canonicalPath": "/ranking",
+      "title": "Ranking de jugadores de truco | Trucoshi",
+      "description": "Ranking de jugadores de Trucoshi: consulta posiciones, partidas jugadas y tasa de victoria en Truco argentino online.",
+      "locale": "es_AR"
+    }
+  }
+}

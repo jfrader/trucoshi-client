@@ -1,5 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "@tanstack/react-router";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import {
   Box,
@@ -238,7 +238,7 @@ export const Lobby = () => {
     throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
   }
 
-  const { sessionId } = useParams<{ sessionId: string }>();
+  const { sessionId } = useParams({ from: "/lobby/$sessionId" });
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const [isReadyLoading, setReadyLoading] = useState(false);
@@ -270,19 +270,25 @@ export const Lobby = () => {
     };
   }, [context.socket]);
 
-  const onJoinMatch = useCallback((teamIdx: 0 | 1) => {
-    setReadyLoading(true);
-    if (sessionId) {
-      joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
-    }
-  }, [joinMatch, sessionId]);
+  const onJoinMatch = useCallback(
+    (teamIdx: 0 | 1) => {
+      setReadyLoading(true);
+      if (sessionId) {
+        joinMatch(sessionId, () => setReadyLoading(false), teamIdx);
+      }
+    },
+    [joinMatch, sessionId],
+  );
 
-  const onAddBot = useCallback((teamIdx: 0 | 1) => {
-    setReadyLoading(true);
-    if (sessionId) {
-      addBot(sessionId, () => setReadyLoading(false), teamIdx);
-    }
-  }, [addBot, sessionId]);
+  const onAddBot = useCallback(
+    (teamIdx: 0 | 1) => {
+      setReadyLoading(true);
+      if (sessionId) {
+        addBot(sessionId, () => setReadyLoading(false), teamIdx);
+      }
+    },
+    [addBot, sessionId],
+  );
 
   const onStartMatch = useCallback(() => {
     setReadyLoading(true);
@@ -314,7 +320,7 @@ export const Lobby = () => {
   );
 
   if (shouldRedirectToMatch) {
-    return <Navigate to={`/match/${sessionId}`} replace />;
+    return <Navigate to="/match/$sessionId" params={{ sessionId }} replace />;
   }
 
   return (

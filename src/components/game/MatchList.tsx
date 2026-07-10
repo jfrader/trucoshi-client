@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ReactElement, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { IPublicMatchInfo, EMatchState } from "trucoshi";
 
 const MATCH_STATE_MAP: { [key in EMatchState]: [string, BadgeProps["color"]] } = {
@@ -76,13 +76,20 @@ export const MatchList = ({
                 >
                   <ListItemButton
                     sx={{ background: "transparent", borderBottom: "none" }}
-                    onClick={() =>
-                      navigate(
-                        isStarted
-                          ? `/match/${info.matchSessionId}`
-                          : `/lobby/${info.matchSessionId}`,
-                      )
-                    }
+                    onClick={() => {
+                      if (isStarted) {
+                        void navigate({
+                          to: "/match/$sessionId",
+                          params: { sessionId: info.matchSessionId },
+                        });
+                        return;
+                      }
+
+                      void navigate({
+                        to: "/lobby/$sessionId",
+                        params: { sessionId: info.matchSessionId },
+                      });
+                    }}
                   >
                     <ListItemAvatar>
                       {info.createdFromQueue ? (

@@ -50,6 +50,7 @@ export const CardRanking = ({
                   cards={cards.length}
                   i={j}
                   key={c}
+                  rotationSeed={c}
                 >
                   <GameCard onClick={() => inspectCard(c)} card={c} />
                 </HandCardContainer>

@@ -60,4 +60,24 @@ describe("ChatRoom", () => {
     expect(listText).toContain(chatText);
     expect(listText.indexOf(noticeText)).toBeLessThan(listText.indexOf(chatText));
   });
+
+  it("renders chat content as text while expanding supported emoji aliases", () => {
+    const roomMessage = buildChat("m1", "Player", '<img src=x onerror="alert(1)"> :mate:');
+
+    const { container } = renderWithTheme(
+      <ChatRoom
+        alwaysVisible
+        hideInput
+        active
+        setActive={vi.fn()}
+        latestMessage={null}
+        players={[]}
+        maxPlayers={2}
+        useChatState={[buildRoom([roomMessage]), vi.fn(), false, null]}
+      />,
+    );
+
+    expect(container.querySelector("img")).not.toBeInTheDocument();
+    expect(container).toHaveTextContent('<img src=x onerror="alert(1)"> 🧉');
+  });
 });

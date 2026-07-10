@@ -1,0 +1,36 @@
+services:
+  trucoshi-client:
+    build:
+      context: .
+      args:
+        VITE_APP_ENVIRONMENT_TITLE: ${VITE_APP_ENVIRONMENT_TITLE:-Production}
+        VITE_APP_ENVIRONMENT: ${VITE_APP_ENVIRONMENT:-production}
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-}
+        VITE_APP_NAME: ${VITE_APP_NAME:-trucoshi-client}
+        VITE_APP_HOST: ${VITE_APP_HOST:-https://trucoshi.com}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_LIGHTNING_ACCOUNTS_URL: ${VITE_LIGHTNING_ACCOUNTS_URL:-}
+        VITE_LIGHTNING_ACCOUNTS_COOKIE_PREFIX: ${VITE_LIGHTNING_ACCOUNTS_COOKIE_PREFIX:-}
+        VITE_ENABLE_BETS_AND_DEPOSITS: ${VITE_ENABLE_BETS_AND_DEPOSITS:-0}
+        VITE_DEBUG: ${VITE_DEBUG:-0}
+        VITE_DEBUG_PROFILER_THRESHOLD: ${VITE_DEBUG_PROFILER_THRESHOLD:-8}
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+    expose:
+      - "3000"
+    init: true
+    restart: unless-stopped
+
+  trucoshi-edge:
+    build:
+      context: .
+      target: edge
+    ports:
+      - "127.0.0.1:${HOST_PORT:-3000}:8080"
+    depends_on:
+      trucoshi-client:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped

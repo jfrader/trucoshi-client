@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import {
   EClientEvent,
   EServerEvent,
@@ -239,7 +239,10 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
           setStartingAt(null);
           setTimeout(() => {
             sound.queue("shuffle");
-            navigate(`/match/${starting.matchSessionId}`);
+            void navigate({
+              to: "/match/$sessionId",
+              params: { sessionId: starting.matchSessionId },
+            });
           }, 500);
         },
         Math.max(starting.startsAt - (Date.now() + serverAheadTime), 0),

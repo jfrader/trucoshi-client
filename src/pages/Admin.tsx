@@ -30,8 +30,8 @@ import {
   Refresh,
   Save,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link as RouterLink } from "@tanstack/react-router";
 import { EClientEvent, IAdminDashboard, NoticeBannerSeverity } from "trucoshi";
 import { PageContainer } from "../shared/PageContainer";
 import { useToast } from "../hooks/useToast";
@@ -53,7 +53,7 @@ const formatDateTime = (value?: string | null) => {
 
 export const Admin = () => {
   const [{ account, isConnected }, , socket] = useTrucoshi();
-  const toast = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const [dashboard, setDashboard] = useState<IAdminDashboard>(emptyDashboard);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -68,7 +68,7 @@ export const Admin = () => {
 
   const isAdmin = account?.role === "ADMIN";
 
-  const fetchDashboard = () => {
+  const fetchDashboard = useCallback(() => {
     if (!isAdmin || !isConnected) {
       return;
     }
@@ -83,14 +83,14 @@ export const Admin = () => {
       }
 
       if (error) {
-        toast.error(error.message);
+        showError(error.message);
       }
     });
-  };
+  }, [isAdmin, isConnected, showError, socket]);
 
   useEffect(() => {
     fetchDashboard();
-  }, [account?.id, isConnected, isAdmin, socket]);
+  }, [account?.id, fetchDashboard]);
 
   useEffect(() => {
     const noticeBanner = dashboard.noticeBanner;
@@ -123,12 +123,12 @@ export const Admin = () => {
               ...current.rewardCodes.filter((row) => row.id !== rewardCode.id),
             ],
           }));
-          toast.success("Codigo creado");
+          showSuccess("Codigo creado");
           return;
         }
 
         if (error) {
-          toast.error(error.message);
+          showError(error.message);
         }
       },
     );
@@ -140,7 +140,7 @@ export const Admin = () => {
     }
 
     navigator.clipboard.writeText(createdLink).then(() => {
-      toast.success("Link copiado");
+      showSuccess("Link copiado");
     });
   };
 
@@ -164,12 +164,12 @@ export const Admin = () => {
 
         if (success) {
           setDashboard((current) => ({ ...current, noticeBanner }));
-          toast.success(active ? "Aviso actualizado" : "Aviso oculto");
+          showSuccess(active ? "Aviso actualizado" : "Aviso oculto");
           return;
         }
 
         if (error) {
-          toast.error(error.message);
+          showError(error.message);
         }
       },
     );
@@ -391,14 +391,14 @@ export const Admin = () => {
                           {match.players}/{match.options.maxPlayers}
                         </TableCell>
                         <TableCell align="right">
-                          <Button
-                            component={RouterLink}
-                            size="small"
-                            startIcon={<OpenInNew />}
-                            to={`/match/${match.matchSessionId}`}
+                          <RouterLink
+                            to="/match/$sessionId"
+                            params={{ sessionId: match.matchSessionId }}
                           >
-                            Ver
-                          </Button>
+                            <Button component="span" size="small" startIcon={<OpenInNew />}>
+                              Ver
+                            </Button>
+                          </RouterLink>
                         </TableCell>
                       </TableRow>
                     ))

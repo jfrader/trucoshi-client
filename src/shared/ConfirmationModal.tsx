@@ -46,7 +46,11 @@ export const ConfirmationModal = ({
           id={formId}
           onSubmit={(e) => {
             e.preventDefault();
-            onConfirm ? onConfirm() : props.onClose();
+            if (onConfirm) {
+              onConfirm();
+            } else {
+              props.onClose();
+            }
           }}
         >
           <Stack direction="row" gap={2} width="100%">

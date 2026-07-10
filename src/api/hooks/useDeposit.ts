@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../apiClient";
 import { UseQueryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosResponse, AxiosError } from "axios";
-import { Transaction } from "lightning-accounts";
+import { AxiosError } from "axios";
+import type { Transaction } from "lightning-accounts";
+import { ApiResponse } from "../types";
 
 export const useDeposit = ({
   transactionId,
   ...options
 }: {
   transactionId: string;
-} & Omit<UseQueryOptions<AxiosResponse<Transaction>, AxiosError>, "queryFn" | "queryKey">) => {
+} & Omit<UseQueryOptions<ApiResponse<Transaction>, AxiosError>, "queryFn" | "queryKey">) => {
   const [enabled, setEnabled] = useState(false);
 
   const queryClient = useQueryClient();
 
-  const { data, error, isPending } = useQuery<AxiosResponse<Transaction>, AxiosError>({
+  const { data, error, isPending } = useQuery<ApiResponse<Transaction>, AxiosError>({
     queryKey: ["wallet-get-deposit"],
     queryFn: () => apiClient.wallet.getDepositTransaction(transactionId),
     retry: false,

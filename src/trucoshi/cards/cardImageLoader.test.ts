@@ -10,6 +10,7 @@ import { resolveDefaultCardImage, resolveSkinImage } from "./cardSkinResolver";
 
 type PendingImage = {
   src: string;
+  fetchPriority: string;
   onload: (() => void) | null;
   onerror: (() => void) | null;
   complete: boolean;
@@ -27,6 +28,7 @@ const installImageMock = () => {
       onload: (() => void) | null = null;
       onerror: (() => void) | null = null;
       complete = false;
+      fetchPriority = "auto";
       private decodePromise: Promise<void>;
       resolveDecode: () => void = () => undefined;
       private srcValue = "";
@@ -97,30 +99,48 @@ describe("cardImageLoader", () => {
   });
 
   it("limits concurrent image preloads", async () => {
-    const sources = [
-      "1e",
-      "1c",
-      "1b",
-      "1o",
-      "2e",
-      "2c",
-      "2b",
-      "2o",
-    ].map(
+    const sources = ["1e", "1c", "1b", "1o", "2e", "2c", "2b", "2o"].map(
       (card) =>
         resolveDefaultCardImage(card as Parameters<typeof resolveDefaultCardImage>[0]) as string,
     );
 
     const preload = preloadCardImageSources(sources);
 
-    expect(images).toHaveLength(6);
+    expect(images).toHaveLength(3);
+
+    for (let index = 0; index < sources.length; index += 1) {
+      const image = images[index];
+      expect(image).toBeDefined();
+      image.complete = true;
+      image.onload?.();
+      image.resolveDecode();
+      await flushImageQueue();
+    }
+
+    await preload;
+    expect(images).toHaveLength(sources.length);
+  });
+
+  it("prioritizes interactive card requests over queued deck warming", async () => {
+    const backgroundSources = ["1e", "1c", "1b", "1o"].map(
+      (card) =>
+        resolveDefaultCardImage(card as Parameters<typeof resolveDefaultCardImage>[0]) as string,
+    );
+    const interactiveSource = resolveDefaultCardImage("re") as string;
+
+    const backgroundPreload = preloadCardImageSources(backgroundSources, "low");
+    const interactivePreload = preloadCardImageSources([interactiveSource], "high");
+
+    expect(images).toHaveLength(3);
+    expect(images.every((image) => image.fetchPriority === "low")).toBe(true);
 
     images[0].complete = true;
     images[0].onload?.();
     images[0].resolveDecode();
     await flushImageQueue();
 
-    expect(images).toHaveLength(7);
+    expect(images[3].src).toBe(interactiveSource);
+    expect(images[3].fetchPriority).toBe("high");
 
     for (const image of images) {
       image.complete = true;
@@ -130,15 +150,13 @@ describe("cardImageLoader", () => {
 
     await flushImageQueue();
 
-    expect(images).toHaveLength(8);
-
     for (const image of images) {
       image.complete = true;
       image.onload?.();
       image.resolveDecode();
     }
 
-    await preload;
+    await Promise.all([backgroundPreload, interactivePreload]);
   });
 
   it("falls back to decoded default when a skin source fails", async () => {

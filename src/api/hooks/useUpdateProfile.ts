@@ -10,7 +10,12 @@ export const useUpdateProfile = () => {
       queryClient.resetQueries({ queryKey: ["me"] });
     },
     mutationKey: ["me-update-profile"],
-    mutationFn: apiClient.users.updateUser.bind(this, String(me?.id)),
+    mutationFn: (data: {
+      name?: string;
+      email?: string;
+      currentPassword?: string;
+      password?: string;
+    }) => apiClient.users.updateUser(String(me?.id), data),
   });
 
   return { updateProfile: mutate, error, isPending };

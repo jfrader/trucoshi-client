@@ -4,21 +4,21 @@ import { Alert, Card, CardContent, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useVerifyEmail } from "../api/hooks/useVerifyEmail";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const VerifyEmail = () => {
   const navigate = useNavigate();
-  const [search] = useSearchParams();
+  const search = useSearch({ from: "/verify-email" });
   const [{ account }] = useTrucoshi();
   const [formErrors, setErrors] = useState<Error[]>([]);
-  const token = search.get("token") || "";
+  const token = search.token || "";
 
   const { verifyEmail, error, isPending } = useVerifyEmail();
 
   useEffect(() => {
     if (account) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
   }, [account, navigate]);
 
@@ -26,7 +26,7 @@ export const VerifyEmail = () => {
     if (!token) {
       setErrors((current) => [...current, new Error("No se proporcionó un token válido")]);
     } else {
-      verifyEmail({ token }, { onSuccess: () => navigate("/login") });
+      verifyEmail({ token }, { onSuccess: () => void navigate({ to: "/login" }) });
     }
   }, [token, verifyEmail, navigate]);
 

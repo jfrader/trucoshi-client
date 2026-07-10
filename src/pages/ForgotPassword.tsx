@@ -4,7 +4,7 @@ import { Alert, Button, Card, CardContent, Stack, TextField } from "@mui/materia
 import { ChangeEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useForgotPassword } from "../api/hooks/useForgotPassword";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
 export const ForgotPassword = () => {
@@ -17,7 +17,7 @@ export const ForgotPassword = () => {
 
   useEffect(() => {
     if (account) {
-      navigate("/");
+      void navigate({ to: "/" });
     }
   }, [account, navigate]);
 
@@ -28,7 +28,7 @@ export const ForgotPassword = () => {
         onSuccess: () => {
           setSuccess(true);
         },
-      }
+      },
     );
   };
 
@@ -46,7 +46,7 @@ export const ForgotPassword = () => {
                 Se ha enviado un email con instrucciones para restablecer tu contraseña. Revisa tu
                 bandeja de entrada o spam.
               </Alert>
-              <Button onClick={() => navigate("/login")} color="success">
+              <Button onClick={() => void navigate({ to: "/login" })} color="success">
                 Volver al Inicio de Sesión
               </Button>
             </Stack>
@@ -75,7 +75,7 @@ export const ForgotPassword = () => {
                 >
                   Enviar Email de Restablecimiento
                 </LoadingButton>
-                <Button onClick={() => navigate("/login")} color="success">
+                <Button onClick={() => void navigate({ to: "/login" })} color="success">
                   Volver al Inicio de Sesión
                 </Button>
                 {error ? <Alert severity="error">{error.message}</Alert> : null}

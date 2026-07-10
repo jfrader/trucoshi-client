@@ -12,11 +12,11 @@ const openTreasureChest = vi.fn();
 const devGrantTreasureChest = vi.fn();
 const onPlayAgain = vi.fn();
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+vi.mock("@tanstack/react-router", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
   return {
     ...actual,
-    useLocation: () => ({ key: "match" }),
     useNavigate: () => navigate,
   };
 });
@@ -123,7 +123,7 @@ const renderFinishedScreen = (match: any) =>
       error={null}
       chatProps={{} as any}
       onPlayAgain={onPlayAgain}
-    />
+    />,
   );
 
 describe("MatchFinishedScreen play again", () => {
@@ -148,7 +148,7 @@ describe("MatchFinishedScreen play again", () => {
           { key: "p1", name: "Player 1", bot: false },
           { key: "p2", name: "Holdbot", bot: true },
         ],
-      })
+      }),
     );
 
     expect(setQueueReplayOptions).toHaveBeenCalledWith(queueOptions);
@@ -160,7 +160,7 @@ describe("MatchFinishedScreen play again", () => {
 
     expect(joinQueue).toHaveBeenCalledWith(queueOptions);
     expect(socketEmit).toHaveBeenCalledWith(EClientEvent.LEAVE_MATCH, "finished-match");
-    expect(navigate).toHaveBeenCalledWith("/");
+    expect(navigate).toHaveBeenCalledWith({ to: "/" });
     expect(onPlayAgain).not.toHaveBeenCalled();
   });
 

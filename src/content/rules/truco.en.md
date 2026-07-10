@@ -1,5 +1,3 @@
-# Trucoshi Truco Rules
-
 This rulebook explains the version of Argentinian Truco played in Trucoshi. It keeps the traditional structure of truco, envido, and flor, with the player counts and scoring used in the app.
 
 ## Players and Teams

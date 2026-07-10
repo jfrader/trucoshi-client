@@ -6,7 +6,6 @@ const VERSION_CHECK_TIME = 1000 * 5 * 60;
 const SERVER_VERSION_PATH = "/version.json";
 const TITLE = "Hay una nueva version disponible";
 
-// eslint-disable-next-line react-refresh/only-export-components
 const DEFAULT_ON_RELOAD = () => {
   setTimeout(() => {
     window.location.reload();

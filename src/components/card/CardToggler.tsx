@@ -8,6 +8,7 @@ import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { useSound } from "../../sound/hooks/useSound";
 import { Deck } from "trucoshi/dist/lib";
 import { InventoryButton } from "./InventoryButton";
+import { INITIAL_CARD_TOGGLER_CARDS } from "../../trucoshi/cards/criticalCardAssets";
 
 const deck = Deck();
 deck.random.secret = Math.random().toString();
@@ -18,7 +19,7 @@ deck.shuffle(0);
 export const CardToggler = (props: BoxProps) => {
   const { queue } = useSound();
   const [{ equippedDeck }] = useTrucoshi();
-  const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.takeThree());
+  const [randomCards, setRandomCards] = useState<ICard[]>(() => [...INITIAL_CARD_TOGGLER_CARDS]);
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
@@ -26,7 +27,9 @@ export const CardToggler = (props: BoxProps) => {
 
   const setFlip = (v: SetStateAction<boolean>) => {
     setDisabled(true);
-    timer.current && clearTimeout(timer.current);
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
     timer.current = setTimeout(() => {
       setDisabled(false);
     }, 350);
@@ -36,17 +39,17 @@ export const CardToggler = (props: BoxProps) => {
 
   useEffect(() => {
     queue("play0");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flip]);
+  }, [flip, queue]);
 
   useEffect(() => {
     setFlip(true);
     const timeout = setTimeout(() => setFlip(false), 750);
     return () => {
       clearTimeout(timeout);
-      timer.current && clearTimeout(timer.current);
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -64,6 +67,7 @@ export const CardToggler = (props: BoxProps) => {
               openMargin={6}
               fontSize="11px"
               key={card}
+              rotationSeed={card}
               cards={randomCards.length}
               i={i}
             >
@@ -88,7 +92,9 @@ export const CardToggler = (props: BoxProps) => {
             e.stopPropagation();
 
             setDisabled(true);
-            timer.current && clearTimeout(timer.current);
+            if (timer.current) {
+              clearTimeout(timer.current);
+            }
             timer.current = setTimeout(() => {
               setDisabled(false);
             }, 200);

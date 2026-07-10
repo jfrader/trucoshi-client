@@ -36,7 +36,7 @@ const canJoinTeam = ({
   return players.length < options.maxPlayers && teamCount < teamCap;
 };
 
-const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
+const LobbySeatCardComponent = ({ slot }: LobbySeatCardProps) => {
   const {
     state: { match, account, isReadyLoading, chatProps },
     actions: { onJoinMatch, onAddBot, onSetReady, onSetUnReady, kickPlayer },
@@ -320,4 +320,4 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
   );
 };
 
-export const LobbySeatCard = memo(_LobbySeatCard);
+export const LobbySeatCard = memo(LobbySeatCardComponent);

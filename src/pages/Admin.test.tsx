@@ -1,5 +1,4 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { EClientEvent, IAdminDashboard } from "trucoshi";
 import { renderWithTheme } from "../test/renderWithTheme";
 import { Admin } from "./Admin";
@@ -75,12 +74,7 @@ vi.mock("../hooks/useToast", () => ({
   }),
 }));
 
-const renderAdmin = () =>
-  renderWithTheme(
-    <MemoryRouter>
-      <Admin />
-    </MemoryRouter>
-  );
+const renderAdmin = () => renderWithTheme(<Admin />);
 
 describe("Admin page", () => {
   beforeEach(() => {
@@ -189,7 +183,7 @@ describe("Admin page", () => {
           buttonText: "Leer mas",
           buttonHref: "/help",
         }),
-        expect.any(Function)
+        expect.any(Function),
       );
     });
     expect(mocks.toastSuccess).toHaveBeenCalledWith("Aviso actualizado");
@@ -209,7 +203,7 @@ describe("Admin page", () => {
           buttonText: "Leer mas",
           buttonHref: "/help",
         }),
-        expect.any(Function)
+        expect.any(Function),
       );
     });
     expect(mocks.toastSuccess).toHaveBeenCalledWith("Aviso oculto");

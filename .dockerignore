@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.output
+dist
+node_modules
+npm-debug.log
+yarn-error.log
+.env
+.env.*
+!.env.example
+coverage
+playwright-report
+test-results
+output

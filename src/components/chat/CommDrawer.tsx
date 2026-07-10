@@ -142,7 +142,9 @@ export const CommDrawer = ({
       : "grey.100";
 
   const openDrawer = (nextTab?: CommTabName) => {
-    nextTab && setTab(nextTab);
+    if (nextTab) {
+      setTab(nextTab);
+    }
     chatProps.setActive(true);
   };
 

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 
 export const useResetPassword = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export const useResetPassword = () => {
       apiClient.auth.resetPassword({ token }, { password }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      navigate("/login");
+      void navigate({ to: "/login" });
     },
   });
 

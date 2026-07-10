@@ -1,11 +1,12 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { useNavigate } from "@tanstack/react-router";
+import { act } from "react";
 import { Layout } from "./Layout";
 import {
   getNoticeBannerDismissalValue,
   NOTICE_BANNER_DISMISSED_KEY,
 } from "../notice/NoticeBannerSlot";
-import { renderWithTheme } from "../../test/renderWithTheme";
+import { renderWithThemeAt } from "../../test/renderWithTheme";
 
 const mocks = vi.hoisted(() => ({
   inspectCard: vi.fn(),
@@ -67,49 +68,41 @@ vi.mock("./Topbar", () => ({
 
 vi.mock("./Sidebar", () => ({
   Sidebar: ({ showEmbeddedTopbar }: { showEmbeddedTopbar?: boolean }) => (
-    <div
-      data-show-embedded-topbar={showEmbeddedTopbar ? "true" : "false"}
-      data-testid="sidebar"
-    />
+    <div data-show-embedded-topbar={showEmbeddedTopbar ? "true" : "false"} data-testid="sidebar" />
   ),
 }));
 
 const renderLayout = (path: string) =>
-  renderWithTheme(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route
-          path="*"
-          element={
-            <Layout>
-              <div>Page content</div>
-            </Layout>
-          }
-        />
-      </Routes>
-    </MemoryRouter>
+  renderWithThemeAt(
+    <Layout>
+      <div>Page content</div>
+    </Layout>,
+    path,
   );
 
 const renderLayoutWithMatchSwitcher = (path: string) => {
   const MatchSwitcher = () => {
     const navigate = useNavigate();
 
-    return <button onClick={() => navigate("/match/session-2")}>Switch match</button>;
+    return (
+      <button
+        onClick={() =>
+          void navigate({
+            to: "/match/$sessionId",
+            params: { sessionId: "session-2" },
+          })
+        }
+      >
+        Switch match
+      </button>
+    );
   };
 
-  return renderWithTheme(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route
-          path="*"
-          element={
-            <Layout>
-              <MatchSwitcher />
-            </Layout>
-          }
-        />
-      </Routes>
-    </MemoryRouter>
+  return renderWithThemeAt(
+    <Layout>
+      <MatchSwitcher />
+    </Layout>,
+    path,
   );
 };
 
@@ -171,7 +164,7 @@ describe("Layout game topbar", () => {
       expect(screen.queryByText("Mantenimiento esta noche")).not.toBeInTheDocument();
     });
     expect(window.localStorage.getItem(NOTICE_BANNER_DISMISSED_KEY)).toBe(
-      getNoticeBannerDismissalValue(1, "2026-07-01T12:00:00.000Z")
+      getNoticeBannerDismissalValue(1, "2026-07-01T12:00:00.000Z"),
     );
 
     mocks.state.noticeBanner = {
@@ -191,21 +184,23 @@ describe("Layout game topbar", () => {
     expect(screen.getByLabelText("Preparando partida")).toBeInTheDocument();
   });
 
-  it("fades and removes the match entry overlay after the entry delay", () => {
+  it("fades and removes the match entry overlay after the entry delay", async () => {
     vi.useFakeTimers();
     renderLayout("/match/session-1");
 
     const overlay = screen.getByTestId("match-entry-overlay");
     expect(overlay).toHaveStyle("opacity: 1");
 
+    await act(async () => {});
+
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersToNextTimer();
     });
 
     expect(overlay).toHaveStyle("opacity: 0");
 
     act(() => {
-      vi.advanceTimersByTime(320);
+      vi.advanceTimersToNextTimer();
     });
 
     expect(screen.queryByTestId("match-entry-overlay")).not.toBeInTheDocument();

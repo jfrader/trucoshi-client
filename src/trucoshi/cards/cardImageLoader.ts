@@ -15,12 +15,23 @@ const readySources = new Set<string>();
 const failedSources = new Set<string>();
 const inflightSources = new Map<string, Promise<void>>();
 const listeners = new Set<() => void>();
-const queuedImageLoads: Array<() => void> = [];
+const queuedImageLoads: Array<{
+  priority: CardImageFetchPriority;
+  start: () => void;
+}> = [];
 
 let cacheVersion = 0;
 let activeImageLoads = 0;
 
-const MAX_CONCURRENT_IMAGE_PRELOADS = 6;
+const MAX_CONCURRENT_IMAGE_PRELOADS = 3;
+
+export type CardImageFetchPriority = "high" | "low" | "auto";
+
+const CARD_IMAGE_PRIORITY_ORDER: Record<CardImageFetchPriority, number> = {
+  high: 0,
+  auto: 1,
+  low: 2,
+};
 
 const notify = () => {
   cacheVersion += 1;
@@ -52,30 +63,38 @@ const completeSource = (source: string, failed = false) => {
 
 const pumpQueuedImageLoads = () => {
   while (activeImageLoads < MAX_CONCURRENT_IMAGE_PRELOADS && queuedImageLoads.length) {
-    const start = queuedImageLoads.shift();
-    start?.();
+    const task = queuedImageLoads.shift();
+    task?.start();
   }
 };
 
-const queueImageLoad = (load: () => Promise<void>) =>
+const queueImageLoad = (load: () => Promise<void>, priority: CardImageFetchPriority) =>
   new Promise<void>((resolve) => {
-    queuedImageLoads.push(() => {
-      activeImageLoads += 1;
-      load()
-        .catch(() => undefined)
-        .finally(() => {
-          activeImageLoads = Math.max(0, activeImageLoads - 1);
-          pumpQueuedImageLoads();
-          resolve();
-        });
+    queuedImageLoads.push({
+      priority,
+      start: () => {
+        activeImageLoads += 1;
+        load()
+          .catch(() => undefined)
+          .finally(() => {
+            activeImageLoads = Math.max(0, activeImageLoads - 1);
+            pumpQueuedImageLoads();
+            resolve();
+          });
+      },
     });
+    queuedImageLoads.sort(
+      (left, right) =>
+        CARD_IMAGE_PRIORITY_ORDER[left.priority] - CARD_IMAGE_PRIORITY_ORDER[right.priority],
+    );
 
     pumpQueuedImageLoads();
   });
 
-const decodeImageSource = (source: string): Promise<void> =>
+const decodeImageSource = (source: string, priority: CardImageFetchPriority): Promise<void> =>
   new Promise<void>((resolve) => {
     const image = new Image();
+    image.fetchPriority = priority;
     let settled = false;
 
     const fail = () => {
@@ -122,7 +141,7 @@ const decodeImageSource = (source: string): Promise<void> =>
     }
   });
 
-const loadImageSource = (source: string): Promise<void> => {
+const loadImageSource = (source: string, priority: CardImageFetchPriority): Promise<void> => {
   if (readySources.has(source) || failedSources.has(source)) {
     return Promise.resolve();
   }
@@ -137,14 +156,19 @@ const loadImageSource = (source: string): Promise<void> => {
     return Promise.resolve();
   }
 
-  const task = queueImageLoad(() => decodeImageSource(source));
+  const task = queueImageLoad(() => decodeImageSource(source, priority), priority);
 
   inflightSources.set(source, task);
   return task;
 };
 
-export const preloadCardImageSources = (sources: Array<string | undefined>) =>
-  Promise.all(uniqueSources(sources).map(loadImageSource)).then(() => undefined);
+export const preloadCardImageSources = (
+  sources: Array<string | undefined>,
+  priority: CardImageFetchPriority = "auto",
+) =>
+  Promise.all(uniqueSources(sources).map((source) => loadImageSource(source, priority))).then(
+    () => undefined,
+  );
 
 export const isCardImageSourceReady = (source?: string) =>
   Boolean(source && readySources.has(source));
@@ -158,6 +182,7 @@ export const useCardImageCacheVersion = () =>
 export const useCardImagePreload = (
   sources: Array<string | undefined>,
   disabled = false,
+  priority: CardImageFetchPriority = "auto",
 ) => {
   useCardImageCacheVersion();
 
@@ -169,10 +194,10 @@ export const useCardImagePreload = (
       return;
     }
 
-    preloadCardImageSources(sourceList);
+    preloadCardImageSources(sourceList, priority);
     // sourceKey is the stable dependency for sourceList.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceKey]);
+  }, [priority, sourceKey]);
 
   const ready = sourceList.every(isCardImageSourceComplete);
 
@@ -243,9 +268,7 @@ export const getReadyCardImageSource = (request: CardImageRequest) => {
 };
 
 export const getDeckCardImageSources = (deck: IEquippedDeck = {}) =>
-  Object.values(deck).map((cardSkinId) =>
-    cardSkinId ? resolveSkinImage(cardSkinId) : undefined,
-  );
+  Object.values(deck).map((cardSkinId) => (cardSkinId ? resolveSkinImage(cardSkinId) : undefined));
 
 export const getInventoryCardImageSources = () => [
   ...getDefaultCardImageSources(),

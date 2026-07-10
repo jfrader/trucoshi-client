@@ -1,5 +1,4 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { ITreasureOpenResult } from "trucoshi";
 import { IInventoryCardGroup, IInventoryCardSkin } from "../../trucoshi/cards/skinRegistry";
 import { renderWithTheme } from "../../test/renderWithTheme";
@@ -27,8 +26,9 @@ let account: any = { id: 1, name: "Player 0" };
 let treasureResult: ITreasureOpenResult | null = null;
 let inventoryLoading = false;
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+vi.mock("@tanstack/react-router", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
   return {
     ...actual,
     useNavigate: () => navigate,
@@ -131,12 +131,7 @@ const promo1e: IInventoryCardSkin = {
   rarity: "EPIC" as const,
 };
 
-const renderInventory = () =>
-  renderWithTheme(
-    <MemoryRouter>
-      <InventoryPage />
-    </MemoryRouter>
-  );
+const renderInventory = () => renderWithTheme(<InventoryPage />);
 
 describe("InventoryPage stack selector", () => {
   beforeEach(() => {
@@ -160,9 +155,7 @@ describe("InventoryPage stack selector", () => {
     inventory = [
       {
         card: "1e",
-        skins: [
-          argentino1e,
-        ],
+        skins: [argentino1e],
       },
       {
         card: "3c",
@@ -182,11 +175,11 @@ describe("InventoryPage stack selector", () => {
     expect(screen.getByTestId("inventory-stack-3c")).toHaveAttribute("data-preview-count", "0");
     expect(screen.getByTestId("inventory-stack-choice-1e-default")).toHaveAttribute(
       "data-card-width",
-      "var(--inventory-card-width)"
+      "var(--inventory-card-width)",
     );
     expect(screen.getAllByTestId("game-card-1e")[0]).toHaveAttribute(
       "data-width",
-      "var(--inventory-card-width)"
+      "var(--inventory-card-width)",
     );
     expect(screen.getByTestId("inventory-skin-count-1e")).toHaveTextContent("1");
     expect(screen.queryByTestId("inventory-skin-count-3c")).not.toBeInTheDocument();
@@ -240,29 +233,32 @@ describe("InventoryPage stack selector", () => {
     expect(screen.getByTestId("inventory-stack-1e")).toHaveAttribute("data-open", "true");
     expect(screen.getByTestId("inventory-stack-choice-1e-default")).toHaveAttribute(
       "data-selected",
-      "true"
+      "true",
     );
     expect(screen.getByTestId("inventory-stack-choice-1e-default")).toHaveAttribute(
       "data-stack-index",
-      "0"
+      "0",
     );
     expect(screen.getByTestId("inventory-skin-selector-1e")).toHaveAttribute(
       "data-layout",
-      "viewport-hand"
+      "viewport-hand",
     );
-    expect(screen.getByTestId("inventory-skin-selector-1e")).toHaveAttribute("data-fit", "fan-clamp");
+    expect(screen.getByTestId("inventory-skin-selector-1e")).toHaveAttribute(
+      "data-fit",
+      "fan-clamp",
+    );
     expect(screen.getByTestId("inventory-skin-selector-hand-1e")).toBeInTheDocument();
     expect(screen.getByTestId("inventory-selector-choice-1e-1")).toHaveAttribute(
       "data-size",
-      "large"
+      "large",
     );
     expect(screen.getByTestId("inventory-selector-choice-1e-1")).toHaveAttribute(
       "data-card-width",
-      "var(--inventory-open-card-width)"
+      "var(--inventory-open-card-width)",
     );
     expect(screen.getByTestId("inventory-selector-selected-1e-default")).toHaveAttribute(
       "data-position",
-      "left"
+      "left",
     );
     expect(screen.getByTestId("inventory-hover-overlay")).toHaveAttribute("data-active", "true");
 
@@ -362,11 +358,11 @@ describe("InventoryPage stack selector", () => {
 
     expect(screen.getByTestId("inventory-selector-choice-1e-default")).toHaveAttribute(
       "data-stack-index",
-      "0"
+      "0",
     );
     expect(screen.getByTestId("inventory-selector-choice-1e-1")).toHaveAttribute(
       "data-stack-index",
-      "1"
+      "1",
     );
     const lockedChoice = screen.getByTestId("inventory-selector-choice-1e-2");
     expect(lockedChoice).toHaveAttribute("data-stack-index", "2");

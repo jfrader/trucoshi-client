@@ -342,7 +342,7 @@ export const PrimaryTreasureButton = styled(Button)(({ theme }) => ({
   ...theme.trucoshiUi.treasure.actionButton,
 }));
 
-export const RarityBadgeRoot = styled(Box, {
+export const RarityBadgeRoot = styled("span", {
   shouldForwardProp: (prop) => prop !== "rarity" && prop !== "badgeSize",
 })<{ rarity: string; badgeSize: "compact" | "large" }>(({ theme, rarity, badgeSize }) => ({
   ...(theme.trucoshiUi.treasure.rarityStyles[rarity] ||
@@ -378,7 +378,7 @@ export const ResultSummaryRoot = styled(Stack, {
   minWidth: 0,
 }));
 
-export const ResultTitle = styled(Box, {
+export const ResultTitle = styled("span", {
   shouldForwardProp: (prop) => prop !== "summarySize",
 })<{ summarySize: "compact" | "large" }>(({ theme, summarySize }) => ({
   color: summarySize === "large" ? theme.palette.warning.light : theme.palette.text.primary,
@@ -395,7 +395,7 @@ export const ResultTitle = styled(Box, {
   },
 }));
 
-export const ResultCardLabel = styled(Box, {
+export const ResultCardLabel = styled("span", {
   shouldForwardProp: (prop) => prop !== "summarySize",
 })<{ summarySize: "compact" | "large" }>(({ theme, summarySize }) => ({
   color: theme.palette.text.secondary,

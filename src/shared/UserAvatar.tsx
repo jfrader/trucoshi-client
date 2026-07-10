@@ -1,6 +1,6 @@
 import { Person, PsychologyAlt, SmartToy } from "@mui/icons-material";
 import { Avatar, AvatarProps, Badge, BoxProps, styled } from "@mui/material";
-import { User } from "lightning-accounts";
+import type { User } from "lightning-accounts";
 import { useRef, useState } from "react";
 import { Link } from "./Link";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";

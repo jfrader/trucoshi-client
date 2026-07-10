@@ -11,8 +11,7 @@ export const SocketBackdrop = ({
   return (
     <Backdrop
       {...props}
-      mountOnEnter
-      unmountOnExit
+      appear={false}
       open={!isConnected || isLoggingIn}
       message={message || "Conectando..."}
       loading={true}

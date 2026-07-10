@@ -87,7 +87,7 @@ export const NoticeBannerSlot = ({
       noticeBanner ? getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt) : "",
     [noticeBanner],
   );
-  const [dismissedValue, setDismissedValue] = useState(() => getStoredDismissalValue());
+  const [dismissedValue, setDismissedValue] = useState<string | null>(null);
 
   useEffect(() => {
     setDismissedValue(getStoredDismissalValue());
@@ -114,10 +114,15 @@ export const NoticeBannerSlot = ({
 
 export const TreasureBannerSlot = () => {
   const [{ account }] = useTrucoshi();
-  const showRewardCodeAlert = !account && hasPendingRewardCode();
+  const [showRewardCodeAlert, setShowRewardCodeAlert] = useState(false);
   const bannerType: TreasureBannerType = showRewardCodeAlert ? "treasure" : "guest";
-  const [dismissal, setDismissal] = useState(() => getStoredTreasureBannerDismissal());
+  const [dismissal, setDismissal] = useState<TreasureBannerDismissal | null>(null);
   const hidden = isTreasureBannerDismissed(dismissal, bannerType);
+
+  useEffect(() => {
+    setShowRewardCodeAlert(!account && hasPendingRewardCode());
+    setDismissal(getStoredTreasureBannerDismissal());
+  }, [account]);
 
   const banner: NoticeBannerProps = {
     hidden,

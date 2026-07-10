@@ -42,16 +42,16 @@ export const MatchEntryOverlay = () => {
   const [isOpen, setOpen] = useState(true);
 
   useEffect(() => {
-    const fadeTimer = window.setTimeout(() => {
+    const fadeTimer = setTimeout(() => {
       setOpen(false);
     }, holdMs);
-    const unmountTimer = window.setTimeout(() => {
+    const unmountTimer = setTimeout(() => {
       setMounted(false);
     }, holdMs + fadeMs);
 
     return () => {
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(unmountTimer);
+      clearTimeout(fadeTimer);
+      clearTimeout(unmountTimer);
     };
   }, [fadeMs, holdMs]);
 

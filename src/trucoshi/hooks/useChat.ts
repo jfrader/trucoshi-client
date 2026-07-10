@@ -72,7 +72,9 @@ export const useChat = (
 
           if (message.user.key !== "system") {
             setSay(message);
-            timeout && clearTimeout(timeout);
+            if (timeout) {
+              clearTimeout(timeout);
+            }
             timeout = setTimeout(() => setSay(null), 4000);
           }
 
@@ -133,7 +135,9 @@ export const useChat = (
     return () => {
       socket.off(EServerEvent.UPDATE_CHAT, handleUpdateChat);
       socket.off(EServerEvent.NEW_MESSAGE, handleNewMessage);
-      timeout && clearTimeout(timeout);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     };
   }, [matchId, queue, socket]);
 

@@ -6,10 +6,10 @@ export const useWithdraw = () => {
 
   const { data, mutate, error, isPending, reset } = useMutation({
     mutationKey: ["wallet-withdraw"],
-    mutationFn: apiClient.wallet.payWithdrawInvoice,
+    mutationFn: (data: { invoice: string }) => apiClient.wallet.payWithdrawInvoice(data),
     onSuccess() {
-      queryClient.refetchQueries({ queryKey: ["me"] })
-    }
+      void queryClient.refetchQueries({ queryKey: ["me"] });
+    },
   });
 
   return {

@@ -1,7 +1,7 @@
 import { School } from "@mui/icons-material";
 import { List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { HELP_LINKS } from "../../assets/links/links";
 import { CardRanking } from "./CardRanking";
 import { Link } from "../../shared/Link";
@@ -19,7 +19,10 @@ export const TrucoHelp = () => {
       if (error || !match) {
         return;
       }
-      navigate(`/match/${match.matchSessionId}`);
+      void navigate({
+        to: "/match/$sessionId",
+        params: { sessionId: match.matchSessionId },
+      });
     });
   };
 
