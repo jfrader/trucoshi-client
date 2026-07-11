@@ -82,15 +82,22 @@ export const buildNoIndexSeo = (title: string): SeoConfig => ({
   robots: "noindex,nofollow",
 });
 
+const buildDocumentTitle = (title: string) => {
+  const pageTitle = title.split("|")[0]?.trim() || siteSeo.siteName;
+
+  return pageTitle === siteSeo.siteName ? siteSeo.siteName : `${siteSeo.siteName} | ${pageTitle}`;
+};
+
 export const buildSeoHead = (config: SeoConfig): RouterHeadConfig => {
   const canonicalUrl = config.canonicalPath ? buildAbsoluteUrl(config.canonicalPath) : undefined;
   const ogImageUrl = buildAbsoluteUrl(config.ogImage ?? siteSeo.defaultOgImage);
   const twitterImageUrl = buildAbsoluteUrl(config.twitterImage ?? siteSeo.defaultTwitterImage);
   const robots = config.robots ?? "index,follow";
+  const documentTitle = buildDocumentTitle(config.title);
 
   return {
     meta: [
-      { title: config.title },
+      { title: documentTitle },
       { name: "description", content: config.description },
       { name: "robots", content: robots },
       { property: "og:site_name", content: siteSeo.siteName },

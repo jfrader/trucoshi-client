@@ -16,6 +16,15 @@ describe("seoConfig", () => {
     expect(seoPages.spanishRules.title).toBe("Reglas del Truco Argentino | Trucoshi");
   });
 
+  it("uses compact Trucoshi-first document titles", () => {
+    expect(buildSeoHead(seoPages.spanishRules).meta).toContainEqual({
+      title: "Trucoshi | Reglas del Truco Argentino",
+    });
+    expect(buildSeoHead(buildNoIndexSeo("Partida (1v1)")).meta).toContainEqual({
+      title: "Trucoshi | Partida (1v1)",
+    });
+  });
+
   it("builds absolute production URLs", () => {
     expect(buildAbsoluteUrl("/ranking")).toBe("https://trucoshi.com/ranking");
   });
