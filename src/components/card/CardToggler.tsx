@@ -43,7 +43,7 @@ export const CardToggler = (props: BoxProps) => {
 
   useEffect(() => {
     setFlip(true);
-    const timeout = setTimeout(() => setFlip(false), 750);
+    const timeout = setTimeout(() => setFlip(false), 1750);
     return () => {
       clearTimeout(timeout);
       if (timer.current) {

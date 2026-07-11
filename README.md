@@ -57,6 +57,18 @@ game and accounts URLs; never point its public configuration at production
 services. The staging host config also sends `X-Robots-Tag: noindex, nofollow,
 noarchive` on every response and overrides `/robots.txt` with a full disallow.
 
+### Host maintenance fallback
+
+The host nginx references replace upstream `502`, `503`, and `504` responses
+with a branded maintenance page while preserving a `503` HTTP status. Install
+the static page on the host before enabling either site configuration:
+
+```sh
+sudo install -D -m 0644 nginx/maintenance.html \
+  /var/www/trucoshi-maintenance/maintenance.html
+sudo nginx -t && sudo systemctl reload nginx
+```
+
 ## Application structure
 
 - `src/routes`: file-based TanStack routes, route metadata, redirects, and HTTP handlers.

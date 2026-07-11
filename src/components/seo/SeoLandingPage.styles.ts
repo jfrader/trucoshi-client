@@ -572,18 +572,19 @@ export const FaqAnswer = styled(Typography)(({ theme }) => ({
 }));
 
 export const FinalCta = styled(Box)(({ theme }) => ({
-  display: "grid",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  flexDirection: "column",
   gap: theme.spacing(3),
   marginTop: theme.spacing(9),
-  paddingBlock: theme.spacing(5),
+  padding: theme.spacing(5),
   borderTop: `1px solid ${theme.trucoshiUi.seo.divider}`,
   borderBottom: `1px solid ${theme.trucoshiUi.seo.divider}`,
   background:
     "linear-gradient(90deg, rgba(236,108,52,0.1), transparent 42%, rgba(255,255,255,0.025))",
   [theme.breakpoints.up("md")]: {
-    gridTemplateColumns: "minmax(0, 1fr) auto",
-    alignItems: "center",
-    paddingInline: theme.spacing(4),
+    flexDirection: "row",
   },
 }));
 
@@ -599,7 +600,7 @@ export const FinalCtaTitle = styled("h2")(({ theme }) => ({
 
 export const HomeDiscoveryRoot = styled("section")(({ theme }) => ({
   position: "relative",
-  marginTop: theme.spacing(6),
+  marginTop: theme.spacing(3),
   overflow: "hidden",
   borderTop: `1px solid ${theme.trucoshiUi.seo.divider}`,
   borderBottom: `1px solid ${theme.trucoshiUi.seo.divider}`,
