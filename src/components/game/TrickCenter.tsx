@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { IChatMessage, IPlayedCard } from "trucoshi";
+import { useEffect, useRef, useState } from "react";
+import { ICard, IChatMessage, IPlayedCard, IPublicMatch, IPublicPlayer } from "trucoshi";
 import { GameCard } from "../card/GameCard";
 import { useBoardLayout } from "../../board";
 import { useMatchGameplay } from "./MatchGameplayContext";
@@ -68,10 +68,100 @@ const getStackOffset = ({
   };
 };
 
+type PlayerTableCard = {
+  roundIdx: number;
+  played: IPlayedCard;
+};
+
+const getRevealedCards = (match: IPublicMatch, player: IPublicPlayer): ICard[] | undefined => {
+  const florBattlePlayer = match.florBattle?.playersWithFlor.find(
+    (candidate) => candidate.idx === player.idx,
+  );
+
+  if (florBattlePlayer?.cards) {
+    return florBattlePlayer.cards;
+  }
+
+  const previousFlor =
+    player.hasSaidFlor &&
+    match.previousHand?.flor?.data.find((candidate) => candidate.idx === player.idx);
+
+  if (previousFlor) {
+    return previousFlor.cards;
+  }
+
+  if (
+    match.previousHand?.envido?.winner.key === player.key &&
+    match.previousHand.envido.data?.cards
+  ) {
+    return match.previousHand.envido.data.cards;
+  }
+
+  return undefined;
+};
+
+const getPlayerTableCards = (
+  match: IPublicMatch,
+  rounds: IPlayedCard[][],
+): {
+  cardsByPlayerKey: Record<string, PlayerTableCard[]>;
+  revealedPlayerKeys: Set<string>;
+} => {
+  const cardsByPlayerKey: Record<string, PlayerTableCard[]> = {};
+
+  rounds.forEach((round, roundIdx) => {
+    round.forEach((played) => {
+      if (!cardsByPlayerKey[played.player.key]) {
+        cardsByPlayerKey[played.player.key] = [];
+      }
+
+      if (cardsByPlayerKey[played.player.key].length < 3) {
+        cardsByPlayerKey[played.player.key].push({ roundIdx, played });
+      }
+    });
+  });
+
+  const revealedPlayerKeys = new Set<string>();
+
+  match.players.forEach((player) => {
+    const revealedCards = getRevealedCards(match, player);
+
+    if (!revealedCards) {
+      return;
+    }
+
+    revealedPlayerKeys.add(player.key);
+
+    const playerCards = cardsByPlayerKey[player.key] || [];
+    const visibleCards = new Set(playerCards.map(({ played }) => played.card));
+
+    revealedCards.forEach((card, revealIdx) => {
+      if (visibleCards.has(card) || playerCards.length >= 3) {
+        return;
+      }
+
+      visibleCards.add(card);
+      playerCards.push({
+        roundIdx: rounds.length + revealIdx,
+        played: {
+          card,
+          key: `reveal-${match.matchSessionId}-${player.key}-${card}`,
+          player,
+          cardSkinId: player.deckSkinByCard?.[card],
+        },
+      });
+    });
+
+    cardsByPlayerKey[player.key] = playerCards;
+  });
+
+  return { cardsByPlayerKey, revealedPlayerKeys };
+};
+
 export const TrickCenter = () => {
   const {
     announcements: { latestAnnouncement },
-    state: { rounds, slots, chatProps },
+    state: { match, rounds, slots, chatProps },
   } = useMatchGameplay();
   const layout = useBoardLayout();
   const { getFallbackCardSkinId } = useMatchCardSkins();
@@ -126,49 +216,25 @@ export const TrickCenter = () => {
     [],
   );
 
-  const slotByPlayer = useMemo(
-    () =>
-      slots.reduce<Record<string, number>>((acc, slot, i) => {
-        if (slot.player) {
-          acc[slot.player.key] = i;
-        }
+  const slotByPlayer = slots.reduce<Record<string, number>>((acc, slot, i) => {
+    if (slot.player) {
+      acc[slot.player.key] = i;
+    }
 
-        return acc;
-      }, {}),
-    [slots],
-  );
+    return acc;
+  }, {});
 
-  const playOrder = useMemo(() => {
-    const orderByCard: Record<string, number> = {};
-    let order = 1;
+  const playOrder: Record<string, number> = {};
+  let nextPlayOrder = 1;
 
-    rounds.forEach((round, roundIdx) => {
-      round.forEach((played) => {
-        orderByCard[`${roundIdx}-${played.player.key}-${played.card}`] = order;
-        order += 1;
-      });
+  rounds.forEach((round, roundIdx) => {
+    round.forEach((played) => {
+      playOrder[`${roundIdx}-${played.player.key}-${played.card}`] = nextPlayOrder;
+      nextPlayOrder += 1;
     });
+  });
 
-    return orderByCard;
-  }, [rounds]);
-
-  const playerRoundCardsByPlayerKey = useMemo(() => {
-    const byPlayer: Record<string, { roundIdx: number; played: IPlayedCard }[]> = {};
-
-    rounds.forEach((round, roundIdx) => {
-      round.forEach((played) => {
-        if (!byPlayer[played.player.key]) {
-          byPlayer[played.player.key] = [];
-        }
-
-        if (byPlayer[played.player.key].length < 3) {
-          byPlayer[played.player.key].push({ roundIdx, played });
-        }
-      });
-    });
-
-    return byPlayer;
-  }, [rounds]);
+  const { cardsByPlayerKey, revealedPlayerKeys } = getPlayerTableCards(match, rounds);
 
   return (
     <Box width="100%" height="100%" position="relative">
@@ -219,14 +285,15 @@ export const TrickCenter = () => {
           centerLayout.centerShiftYPercent +
           geometry.sin * (centerLayout.playerSpreadYPercent + centerLayout.spreadBoost);
 
-        const playerRoundCards = playerRoundCardsByPlayerKey[slot.player.key] || [];
+        const playerRoundCards = cardsByPlayerKey[slot.player.key] || [];
 
         if (!playerRoundCards.length) {
           return [];
         }
 
         const playerKey = slot.player.key;
-        const isStackOpen = openStackPlayerKey === playerKey;
+        const isStackOpen =
+          openStackPlayerKey === playerKey || revealedPlayerKeys.has(slot.player.key);
 
         return (
           <Box
