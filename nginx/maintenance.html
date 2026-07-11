@@ -69,10 +69,8 @@
       .pulse {
         background: var(--mate);
         border-radius: 50%;
-        box-shadow: 0 0 0 0 rgb(116 148 36 / 65%);
         height: 0.56rem;
         width: 0.56rem;
-        animation: pulse 2.1s infinite;
       }
 
       h1 {
@@ -141,14 +139,12 @@
       .card--left {
         margin-left: -5.05rem;
         transform: rotate(-13deg);
-        animation: drift-left 4.8s ease-in-out infinite;
       }
 
       .card--right {
         color: var(--mate);
         margin-left: -0.45rem;
         transform: rotate(13deg);
-        animation: drift-right 4.8s ease-in-out infinite 0.4s;
       }
 
       .retry {
@@ -178,24 +174,6 @@
         opacity: 0.76;
       }
 
-      @keyframes drift-left {
-        0%, 100% { transform: rotate(-13deg) translateY(0); }
-        50% { transform: rotate(-10deg) translateY(-0.55rem); }
-      }
-
-      @keyframes drift-right {
-        0%, 100% { transform: rotate(13deg) translateY(0); }
-        50% { transform: rotate(10deg) translateY(-0.7rem); }
-      }
-
-      @keyframes pulse {
-        70% { box-shadow: 0 0 0 0.55rem rgb(116 148 36 / 0%); }
-        100% { box-shadow: 0 0 0 0 rgb(116 148 36 / 0%); }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-      }
     </style>
   </head>
   <body>
