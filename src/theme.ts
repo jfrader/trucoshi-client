@@ -33,6 +33,7 @@ declare module "@mui/material/Button" {
 type TrucoshiUiTokens = {
   shell: {
     background: string;
+    backgroundColor: string;
     featureBackground: string;
   };
   seo: {
@@ -215,6 +216,7 @@ const DARK_BOARD_SHELL_BACKGROUND =
 const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
   shell: {
     background: TRUCOSHI_SHELL_BACKGROUND,
+    backgroundColor: "#0b1812",
     featureBackground:
       "radial-gradient(circle at 92% 10%, rgba(236,108,52,0.12), transparent 35%), linear-gradient(120deg, #0d1d15, #0a1510)",
   },
@@ -922,7 +924,7 @@ const base = {
         html: {
           minHeight: "100%",
           overscrollBehaviorY: "none",
-          backgroundColor: theme.palette.background.default,
+          backgroundColor: theme.trucoshiUi.shell.backgroundColor,
         },
         body: {
           minHeight: "var(--trucoshi-viewport-height, 100dvh)",
@@ -1061,6 +1063,7 @@ export const light = createTheme({
     shell: {
       ...defaultTrucoshiUiTokens.shell,
       background: LIGHT_SHELL_BACKGROUND,
+      backgroundColor: "#f5eee7",
     },
   },
 } satisfies ThemeOptions);
@@ -1073,6 +1076,7 @@ export const dark = createTheme({
     shell: {
       ...defaultTrucoshiUiTokens.shell,
       background: DARK_SHELL_BACKGROUND,
+      backgroundColor: "#010302",
     },
     board: {
       ...defaultTrucoshiUiTokens.board,

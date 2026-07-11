@@ -11,6 +11,9 @@ describe("application shell themes", () => {
     expect(new Set(shellBackgrounds).size).toBe(3);
     expect(themes.dark.palette.background.default).toBe("#000");
     expect(themes.dark.trucoshiUi.shell.background).not.toContain("#1f3828");
+    expect(themes.trucoshi.trucoshiUi.shell.backgroundColor).toBe("#0b1812");
+    expect(themes.dark.trucoshiUi.shell.backgroundColor).toBe("#010302");
+    expect(themes.light.trucoshiUi.shell.backgroundColor).toBe("#f5eee7");
   });
 
   it("darkens the gameplay room without changing the table felt", () => {
