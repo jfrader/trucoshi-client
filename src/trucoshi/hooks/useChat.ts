@@ -40,7 +40,7 @@ export const useChat = (
       return;
     }
 
-    let timeout: NodeJS.Timeout | null = null;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
     const handleUpdateChat = (nextRoom: IPublicChatRoom) => {
       if (checkRoom(matchId, nextRoom.id)) {
         setRoom((current) => {

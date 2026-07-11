@@ -112,8 +112,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isGameSurface = pathname.startsWith("/match/") || pathname.startsWith("/lobby/");
+  const shouldPreloadAppCardImages = isGameSurface && cardDisplayMode !== "emoji";
   const appCardImageSources =
-    cardDisplayMode === "emoji"
+    !shouldPreloadAppCardImages
       ? []
       : [
           ...getDefaultCardImageSources(),
@@ -122,7 +123,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
 
   const appCardImages = useCardImagePreload(
     appCardImageSources,
-    cardDisplayMode === "emoji",
+    !shouldPreloadAppCardImages,
     "low",
   );
   const cardDisplayImagesReady =

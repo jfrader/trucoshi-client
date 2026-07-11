@@ -217,8 +217,11 @@ describe("TreasureChestPanel", () => {
     expect(soundMocks.queue).toHaveBeenCalledWith("menu1");
     expect(soundMocks.queue).toHaveBeenCalledWith("shuffle");
     expect(screen.getByTestId("treasure-opening-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId("treasure-opening-overlay")).toHaveAttribute(
+      "data-trucoshi-overlay",
+      "open",
+    );
     expect(screen.getByTestId("treasure-chest-frame")).toHaveAttribute("data-frame", "0");
-    expect(document.body.style.overflow).toBe("hidden");
 
     act(() => {
       vi.advanceTimersByTime(180);

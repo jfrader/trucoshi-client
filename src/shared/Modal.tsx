@@ -11,12 +11,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren, type ReactNode } from "react";
 import { UseModalProps } from "../hooks/useModal";
 
 type Props = {
-  title?: React.ReactNode;
-  actions?: React.ReactNode;
+  title?: ReactNode;
+  actions?: ReactNode;
   hideClose?: boolean;
   preventCloseOnBackdropClick?: boolean;
   isLoading?: boolean;

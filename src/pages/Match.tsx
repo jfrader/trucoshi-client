@@ -13,12 +13,12 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { type Theme, useTheme } from "@mui/material/styles";
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useMatch } from "../trucoshi/hooks/useMatch";
 import { useRounds } from "../trucoshi/hooks/useRounds";
-import { EFlorCommand, EMatchState, ICard } from "trucoshi";
+import { EFlorCommand, EMatchState, type ICard, type ILobbyOptions } from "trucoshi";
 import { SocketBackdrop } from "../shared/SocketBackdrop";
 import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { useChatRoom } from "../components/chat/ChatRoom";
@@ -53,7 +53,7 @@ import { MatchGameplayProvider, useMatchGameplay } from "../components/game/Matc
 import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
 import { MatchCardSkinsProvider } from "../components/game/MatchCardSkinsContext";
 
-const spectatorTooltipSx = (theme: any) => ({
+const spectatorTooltipSx = (theme: Theme) => ({
   position: "fixed",
   right: "1em",
   bottom: "calc(env(safe-area-inset-bottom) + 4.1rem)",
@@ -99,7 +99,7 @@ const RulesDialog = ({
 }: {
   open: boolean;
   onClose: () => void;
-  options?: any;
+  options?: ILobbyOptions;
 }) => (
   <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
     <DialogTitle>Reglas de la Partida</DialogTitle>

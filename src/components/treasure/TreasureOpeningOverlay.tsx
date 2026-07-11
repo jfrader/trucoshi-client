@@ -31,21 +31,6 @@ const REWARD_AUTO_REVEAL_MS = 1000;
 
 type QueueSound = ReturnType<typeof useTreasureSound>["queue"];
 
-const useBodyScrollLock = (open: boolean) => {
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open]);
-};
-
 const useChestFrameAnimation = ({
   open,
   started,
@@ -311,8 +296,6 @@ export const TreasureOpeningOverlay = ({
     queue,
   });
 
-  useBodyScrollLock(open);
-
   useEffect(() => {
     if (!open || !started) {
       animationSoundKey.current = null;
@@ -335,7 +318,7 @@ export const TreasureOpeningOverlay = ({
   };
 
   return createPortal(
-    <OverlayRoot data-testid="treasure-opening-overlay">
+    <OverlayRoot data-testid="treasure-opening-overlay" data-trucoshi-overlay="open">
       <OverlayHeader>
         {showClose ? (
           <OverlayCloseButton aria-label="Cerrar cofre" onClick={onClose}>

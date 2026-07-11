@@ -1,5 +1,4 @@
-import { Box, Stack } from "@mui/material";
-import { Container } from "@mui/system";
+import { Box, Container, Stack } from "@mui/material";
 import { Outlet } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 import { SocketBackdrop } from "../../shared/SocketBackdrop";

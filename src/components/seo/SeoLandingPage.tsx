@@ -85,12 +85,12 @@ const spanishSeoLandingCopy: SeoLandingPageCopy = {
   backLabel: "Volver",
   primaryActionLabel: "Entrar a jugar",
   heroVisualCaption: "2 · 4 · 6 jugadores / web",
-  navigationLabel: "Seguí explorando",
-  editorialEyebrow: "La mesa, sin misterio",
-  faqEyebrow: "Antes de repartir",
-  faqHeading: "Preguntas rápidas.",
-  finalEyebrow: "La mesa está lista",
-  finalTitle: "Tres cartas. Una decisión. Jugá ahora.",
+  navigationLabel: "Más sobre el Truco",
+  editorialEyebrow: "Cómo se juega",
+  faqEyebrow: "Preguntas frecuentes",
+  faqHeading: "Preguntas frecuentes",
+  finalEyebrow: "¿Listo para jugar?",
+  finalTitle: "Entrá a una mesa y jugá una partida.",
   finalActionLabel: "Ir a las mesas",
 };
 
@@ -104,7 +104,7 @@ type SeoLandingPageProps = {
   sections: readonly SeoEditorialSection[];
   heroCards: readonly [string, string, string];
   children?: ReactNode;
-  faqs?: SeoFaqItem[];
+  faqs?: readonly SeoFaqItem[];
   copy?: Partial<SeoLandingPageCopy>;
 };
 
@@ -275,11 +275,10 @@ export function HomeSeoDiscovery() {
     <HomeDiscoveryRoot>
       <HomeDiscoveryInner>
         <Box>
-          <Eyebrow>Conocé la mesa</Eyebrow>
-          <HomeDiscoveryTitle>Truco online gratis, con mesa propia.</HomeDiscoveryTitle>
+          <Eyebrow>Truco online</Eyebrow>
+          <HomeDiscoveryTitle>Jugá Truco online gratis.</HomeDiscoveryTitle>
           <HomeDiscoveryLead>
-            Partidas rápidas desde el navegador, con bots para practicar y las reglas siempre a
-            mano.
+            Jugá desde el navegador, practicá con bots y consultá las reglas cuando las necesites.
           </HomeDiscoveryLead>
         </Box>
 

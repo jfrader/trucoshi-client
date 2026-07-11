@@ -23,7 +23,7 @@ export const CardToggler = (props: BoxProps) => {
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
-  const timer = useRef<NodeJS.Timeout | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setFlip = (v: SetStateAction<boolean>) => {
     setDisabled(true);

@@ -270,7 +270,7 @@ export const HeroCardImage = styled("img")({
 
 export const HeroSeal = styled(Box)(({ theme }) => ({
   position: "absolute",
-  top: "48%",
+  top: "16%",
   left: "50%",
   zIndex: 4,
   display: "grid",

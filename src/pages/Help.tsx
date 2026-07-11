@@ -26,17 +26,17 @@ export function Help() {
   const sections = [
     {
       title: "Aprendé la mano",
-      body: "Consultá las reglas completas, los cantos y el orden de las cartas sin salir del universo de Trucoshi.",
+      body: "Consultá las reglas, los cantos y el orden de las cartas.",
     },
     {
       title: "Practicá jugando",
-      body: "Abrí el tutorial para probar bazas, envido y truco con una mesa preparada para aprender sin presión.",
+      body: "Abrí el tutorial para practicar bazas, envido y truco.",
     },
     ...(ENABLE_BETS_AND_DEPOSITS
       ? [
           {
             title: "Entendé los pagos",
-            body: "Conocé por qué Trucoshi usa Bitcoin y Lightning para mover valor de forma rápida y con costos bajos.",
+            body: "Conocé cómo usa Trucoshi Bitcoin y Lightning para los pagos.",
           },
         ]
       : []),
@@ -44,15 +44,15 @@ export function Help() {
 
   return (
     <SeoLandingPage
-      indexLabel="Centro / Ayuda"
+      indexLabel="Ayuda"
       eyebrow="Reglas, cartas y soporte"
-      title="Todo para sentarte a jugar."
+      title="Ayuda para jugar al Truco"
       intro={
         ENABLE_BETS_AND_DEPOSITS
-          ? "Aprendé el Truco argentino, practicá una mano, revisá el ranking de cartas o entendé cómo usamos Bitcoin y Lightning."
-          : "Aprendé el Truco argentino, practicá una mano y revisá el ranking de cartas."
+          ? "Consultá las reglas, practicá una mano, revisá el ranking de cartas o conocé cómo usamos Bitcoin y Lightning."
+          : "Consultá las reglas, practicá una mano y revisá el ranking de cartas."
       }
-      editorialTitle="Elegí qué querés resolver y seguí desde ahí."
+      editorialTitle="Elegí un tema"
       heroCards={[threeCopa, oneEspada, sevenOro]}
       links={[
         { label: "Reglas del Truco", to: "/reglas-del-truco" },
@@ -63,10 +63,9 @@ export function Help() {
     >
       <HelpDirectory>
         <HelpDirectoryHeader>
-          <HelpDirectoryTitle>Guías y herramientas.</HelpDirectoryTitle>
+          <HelpDirectoryTitle>Guías y herramientas</HelpDirectoryTitle>
           <HelpDirectoryLead>
-            Todo el contenido sigue disponible; ahora está ordenado como una guía y no como una
-            pantalla separada de la experiencia.
+            Reglas, tutorial y ranking de cartas.
           </HelpDirectoryLead>
         </HelpDirectoryHeader>
 
@@ -76,7 +75,7 @@ export function Help() {
               <HelpTopicKicker>Mesa y cartas</HelpTopicKicker>
               <HelpTopicTitle>Truco argentino</HelpTopicTitle>
               <HelpTopicDescription>
-                Reglas en español e inglés, tutorial práctico, comunidad y ranking visual.
+                Reglas en español e inglés, tutorial y ranking de cartas.
               </HelpTopicDescription>
             </HelpTopicSummary>
             <HelpTopicContent>
@@ -90,7 +89,7 @@ export function Help() {
                 <HelpTopicKicker>Pagos instantáneos</HelpTopicKicker>
                 <HelpTopicTitle>Bitcoin y Lightning Network</HelpTopicTitle>
                 <HelpTopicDescription>
-                  Una explicación directa de las tecnologías que usa Trucoshi para mover valor.
+                  Información sobre los pagos con Bitcoin y Lightning.
                 </HelpTopicDescription>
               </HelpTopicSummary>
               <HelpTopicContent>

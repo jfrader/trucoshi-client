@@ -24,9 +24,9 @@ import {
   Alert,
   Button,
 } from "@mui/material";
-import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { type FormEvent, SyntheticEvent, useContext, useEffect, useState } from "react";
 import { useMe } from "../api/hooks/useMe";
-import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { EClientEvent, IAccountDetails } from "trucoshi";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { useToast } from "../hooks/useToast";
@@ -65,10 +65,10 @@ export const Profile = () => {
   const context = useContext(TrucoshiContext);
   const toast = useToast();
 
-  const { searchStr } = useLocation();
-  const search = new URLSearchParams(searchStr);
+  const search = useSearch({ strict: false });
   const params = useParams({ strict: false });
   const accountId = "accountId" in params ? params.accountId : undefined;
+  const activeTab = search.t === "2" ? "2" : "1";
   const { me, isPending } = useMe();
   const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
   const { setSeed, isPending: isPendingSetSeed } = useSetSeed();
@@ -183,7 +183,7 @@ export const Profile = () => {
     return "";
   };
 
-  const handleSubmitEmail = (e: React.FormEvent) => {
+  const handleSubmitEmail = (e: FormEvent) => {
     e.preventDefault();
     setFormErrors([]);
 
@@ -236,7 +236,7 @@ export const Profile = () => {
     );
   };
 
-  const handleSubmitPassword = (e: React.FormEvent) => {
+  const handleSubmitPassword = (e: FormEvent) => {
     e.preventDefault();
     setFormErrors([]);
 
@@ -348,7 +348,7 @@ export const Profile = () => {
           {isLoading ? (
             <CircularProgress />
           ) : (
-            <TabContext value={search.get("t") || "1"}>
+            <TabContext value={activeTab}>
               <TabList textColor="inherit" onChange={handleChange} aria-label="Tabs del perfil">
                 <Tab label="Información" value="1" />
                 <Tab label="Historial" value="2" />

@@ -3,9 +3,7 @@ import createCache from "@emotion/cache";
 import { createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
 import { AppProvider } from "../AppProvider";
 import { Layout } from "../components/layout/Layout";
-import { AppRoutePreloader } from "../components/routing/AppRoutePreloader";
 import { NotFound } from "../pages/NotFound";
-import { CRITICAL_CARD_IMAGE_SOURCES } from "../trucoshi/cards/criticalCardAssets";
 import "../index.css";
 import "../App.css";
 
@@ -21,7 +19,6 @@ const RootDocument = () => {
       <body>
         <CacheProvider value={emotionCache}>
           <AppProvider>
-            <AppRoutePreloader />
             <Layout />
           </AppProvider>
         </CacheProvider>
@@ -44,12 +41,6 @@ export const Route = createRootRoute({
       { rel: "icon", href: "/favicon.ico" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/site.webmanifest" },
-      ...CRITICAL_CARD_IMAGE_SOURCES.map((href) => ({
-        rel: "preload",
-        as: "image",
-        href,
-        fetchPriority: "high" as const,
-      })),
     ],
   }),
   component: RootDocument,

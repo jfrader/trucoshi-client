@@ -1,4 +1,4 @@
-import { alpha, createTheme, ThemeOptions } from "@mui/material";
+import { alpha, createTheme, type Theme, type ThemeOptions } from "@mui/material";
 import createPalette, { PaletteColorOptions } from "@mui/material/styles/createPalette";
 import { BURNT_CARD } from "trucoshi";
 
@@ -32,8 +32,7 @@ declare module "@mui/material/Button" {
 
 type TrucoshiUiTokens = {
   shell: {
-    darkBackground: string;
-    lightBackground: string;
+    background: string;
     featureBackground: string;
   };
   seo: {
@@ -201,12 +200,21 @@ declare module "@mui/material/styles" {
   }
 }
 
+const TRUCOSHI_SHELL_BACKGROUND =
+  "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.11), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.18), transparent 36rem), linear-gradient(145deg, #1f3828 0%, #15291e 46%, #0b1812 100%)";
+
+const LIGHT_SHELL_BACKGROUND =
+  "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.13), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.15), transparent 36rem), linear-gradient(145deg, #eef5ef 0%, #dfece3 48%, #f5eee7 100%)";
+
+const DARK_SHELL_BACKGROUND =
+  "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.045), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.065), transparent 36rem), linear-gradient(145deg, #0b0e0c 0%, #050806 46%, #010302 100%)";
+
+const DARK_BOARD_SHELL_BACKGROUND =
+  "radial-gradient(110% 75% at 50% 4%, rgba(255,255,255,0.035), transparent 64%), radial-gradient(130% 90% at 50% 100%, rgba(0,38,28,0.2), transparent 70%), linear-gradient(160deg, #101512 0%, #080e0b 62%, #020705 100%)";
+
 const defaultTrucoshiUiTokens: TrucoshiUiTokens = {
   shell: {
-    darkBackground:
-      "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.11), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.18), transparent 36rem), linear-gradient(145deg, #1f3828 0%, #15291e 46%, #0b1812 100%)",
-    lightBackground:
-      "radial-gradient(circle at 82% 0%, rgba(236, 108, 52, 0.13), transparent 30rem), radial-gradient(circle at 8% 62%, rgba(47, 126, 91, 0.15), transparent 36rem), linear-gradient(145deg, #eef5ef 0%, #dfece3 48%, #f5eee7 100%)",
+    background: TRUCOSHI_SHELL_BACKGROUND,
     featureBackground:
       "radial-gradient(circle at 92% 10%, rgba(236,108,52,0.12), transparent 35%), linear-gradient(120deg, #0d1d15, #0a1510)",
   },
@@ -909,6 +917,20 @@ export const darkPalette = createPalette({
 const base = {
   trucoshiUi: defaultTrucoshiUiTokens,
   components: {
+    MuiCssBaseline: {
+      styleOverrides: (theme: Theme) => ({
+        html: {
+          minHeight: "100%",
+          overscrollBehaviorY: "none",
+          backgroundColor: theme.palette.background.default,
+        },
+        body: {
+          minHeight: "var(--trucoshi-viewport-height, 100dvh)",
+          overscrollBehaviorY: "none",
+          background: theme.trucoshiUi.shell.background,
+        },
+      }),
+    },
     MuiLinearProgress: {
       styleOverrides: {
         bar: {
@@ -957,27 +979,12 @@ const base = {
             },
           }),
         },
-        // {
-        //   props: { variant: "emojicard", name: "1e" },
-        //   style: () => ({
-        //     animation: `${glow} 1s infinite alternate`,
-        //   }),
-        // },
-        // {
-        //   props: { variant: "card", name: "1e" },
-        //   style: () => ({
-        //     animation: `${glow} 1s infinite alternate`,
-        //   }),
-        // },
         {
           props: { variant: "emojicard", name: BURNT_CARD },
           style: ({ theme }) => ({
             border: "1px solid",
             color: theme.palette.background.paper,
             background: theme.palette.error.main,
-            // backgroundImage: "url(/trucoshi-logo.svg)",
-            // backgroundRepeat: "no-repeat",
-            // backgroundPosition: "center center",
             ":active": {
               background: theme.palette.error.main,
             },
@@ -1049,11 +1056,29 @@ const base = {
 export const light = createTheme({
   palette: lightPalette,
   ...base,
+  trucoshiUi: {
+    ...defaultTrucoshiUiTokens,
+    shell: {
+      ...defaultTrucoshiUiTokens.shell,
+      background: LIGHT_SHELL_BACKGROUND,
+    },
+  },
 } satisfies ThemeOptions);
 
 export const dark = createTheme({
   palette: darkPalette,
   ...base,
+  trucoshiUi: {
+    ...defaultTrucoshiUiTokens,
+    shell: {
+      ...defaultTrucoshiUiTokens.shell,
+      background: DARK_SHELL_BACKGROUND,
+    },
+    board: {
+      ...defaultTrucoshiUiTokens.board,
+      shellBackground: DARK_BOARD_SHELL_BACKGROUND,
+    },
+  },
 } satisfies ThemeOptions);
 
 export const trucoshi = createTheme({

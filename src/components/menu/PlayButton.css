@@ -40,39 +40,3 @@
 .PlayButton:hover .PlayButton_hover {
   opacity: 1;
 }
-
-/* .PlayButton--disabled img {
-  filter: grayscale(100%) brightness(0.7);
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-
-  mask-image: var(--img-src);
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  -webkit-mask-image: var(--img-src); 
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-
-  background:
-    radial-gradient(circle, #fff 10%, transparent 11%) 0 0 / 20px 20px,
-    radial-gradient(circle, #ffaa00 15%, transparent 16%) 8px 8px / 16px 16px,
-    radial-gradient(circle, #ffdd55 8%, transparent 9%) 4px 12px / 24px 24px;
-
-  animation: flying-sparks 2.5s linear infinite;
-}
-
-/* @keyframes flying-sparks {
-  0% {
-    background-position:
-      0px 0px,
-      0px 0px,
-      0px 0px;
-  }
-  100% {
-    background-position:
-      -20px -40px,
-      16px -32px,
-      -24px -48px;
-  }
-} */

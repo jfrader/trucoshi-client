@@ -7,7 +7,7 @@
     "home": {
       "canonicalPath": "/",
       "title": "Truco online gratis | Trucoshi",
-      "description": "Jugá Truco argentino online gratis en Trucoshi. Partidas rápidas con cartas españolas, envido, truco, retruco, vale cuatro, bots y ranking de jugadores.",
+      "description": "Jugá Truco argentino online gratis en Trucoshi. Partidas con cartas españolas, envido, truco, retruco, vale cuatro, bots y ranking de jugadores.",
       "locale": "es_AR",
       "jsonLd": [
         {
@@ -17,7 +17,7 @@
           "name": "Trucoshi",
           "url": "https://trucoshi.com",
           "inLanguage": "es-AR",
-          "description": "Truco argentino online gratis con partidas rápidas, bots y ranking."
+          "description": "Truco argentino online gratis con bots y ranking."
         },
         {
           "@context": "https://schema.org",
@@ -81,7 +81,7 @@
     "trucoOnline": {
       "canonicalPath": "/truco-online",
       "title": "Truco online gratis | Jugá en Trucoshi",
-      "description": "Jugá Truco online gratis en Trucoshi desde el navegador. Partidas rápidas, bots si falta gente, reglas a mano y sin instalar nada.",
+      "description": "Jugá Truco online gratis en Trucoshi desde el navegador. Creá una mesa, sumá bots y consultá las reglas sin instalar nada.",
       "locale": "es_AR",
       "jsonLd": [
         {
@@ -99,44 +99,6 @@
               "position": 2,
               "name": "Truco online",
               "item": "https://trucoshi.com/truco-online"
-            }
-          ]
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "¿Se puede jugar gratis?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Sí. Podés entrar y jugar Truco online gratis, sin vueltas."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "¿Puedo jugar con bots?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Sí. Si falta gente, podés completar la partida con bots y jugar igual."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "¿Hace falta instalar algo?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "No. Trucoshi corre en el navegador, desde el celu o la compu."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "¿Dónde veo las reglas?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Tenés las reglas del Truco argentino en la página de reglas, con envido y ranking de cartas."
-              }
             }
           ]
         }

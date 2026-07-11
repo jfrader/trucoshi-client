@@ -13,7 +13,7 @@ describe("Rulebook", () => {
     renderRulebook("es");
 
     expect(
-      screen.getByRole("heading", { name: /reglas del truco, para tener a mano/i }),
+      screen.getByRole("heading", { name: /reglas del truco argentino/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/pica-pica existe solo en partidas de 6 jugadores/i),
@@ -29,7 +29,7 @@ describe("Rulebook", () => {
     renderRulebook("en");
 
     expect(
-      screen.getByRole("heading", { name: /argentinian truco rules, within reach/i }),
+      screen.getByRole("heading", { name: /argentinian truco rules/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/pica-pica only exists in 6-player matches/i)).toBeInTheDocument();
     expect(screen.getByText("Visual card ranking")).toHaveAttribute("data-compact", "true");

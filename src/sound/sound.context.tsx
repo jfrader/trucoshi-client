@@ -9,7 +9,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { IGameSounds, ISoundContext, ISoundQueue } from "./types";
+import { ISoundContext, ISoundQueue } from "./types";
 import type { Howl, HowlOptions } from "howler";
 import { gameSounds } from "./sounds";
 
@@ -29,10 +29,9 @@ const getStoredVolume = () => Number(getStorage()?.getItem("trucoshi:volume") ||
 
 export const SoundProvider = ({ children }: PropsWithChildren) => {
   const soundsRef = useRef<Record<string, Howl>>({});
+  const loadingSoundsRef = useRef<Record<string, Promise<Howl>>>({});
   const soundQueueRef = useRef<ISoundQueue>(INITIAL_QUEUE);
   const isPlayingQueueSoundRef = useRef<boolean | string>(false);
-  const isLoadingRef = useRef(true);
-  const readyToLoadRef = useRef(false);
   const [mainVolume, _setVolume] = useState(DEFAULT_VOLUME);
   const [isMuted, setMuted] = useState(false);
   const [queueTrigger, setQueueTrigger] = useState(0);
@@ -78,29 +77,37 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
     [mainVolume, isMuted],
   );
 
-  useEffect(() => {
-    if (readyToLoadRef.current && isLoadingRef.current) {
-      isPlayingQueueSoundRef.current = true;
-      const promises: Array<Promise<[string, Howl]>> = [];
-      for (const key in gameSounds) {
-        if ((gameSounds as IGameSounds)[key]) {
-          promises.push(load(key, (gameSounds as IGameSounds)[key]));
-        }
+  const getSound = useCallback(
+    (key: string) => {
+      const loadedSound = soundsRef.current[key];
+      if (loadedSound) {
+        return Promise.resolve(loadedSound);
       }
-      Promise.all(promises)
-        .then((results) => {
-          isPlayingQueueSoundRef.current = false;
-          isLoadingRef.current = false;
-          soundsRef.current = results.reduce(
-            (prev, [key, howl]) => ({ ...prev, [key]: howl }),
-            soundsRef.current,
-          );
+
+      const loadingSound = loadingSoundsRef.current[key];
+      if (loadingSound) {
+        return loadingSound;
+      }
+
+      const soundConfig = gameSounds[key as keyof typeof gameSounds];
+      if (!soundConfig) {
+        return Promise.reject(new Error(`Sound not found: ${key}`));
+      }
+
+      const soundPromise = load(key, soundConfig)
+        .then(([, sound]) => {
+          soundsRef.current[key] = sound;
+          return sound;
         })
-        .catch((e) => {
-          console.error(e);
+        .finally(() => {
+          delete loadingSoundsRef.current[key];
         });
-    }
-  }, [load]);
+
+      loadingSoundsRef.current[key] = soundPromise;
+      return soundPromise;
+    },
+    [load],
+  );
 
   useEffect(() => {
     const [next] = soundQueueRef.current;
@@ -172,14 +179,6 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
         return;
       }
 
-      readyToLoadRef.current = true;
-
-      const sound = soundsRef.current[key];
-      if (!sound) {
-        callback?.(new Error("Sound not found"));
-        return;
-      }
-
       if (soundQueueRef.current.some((item) => item.key === key)) {
         callback?.(new Error("Sound already in queue"));
         return;
@@ -190,19 +189,28 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       }
 
       const promise = () =>
-        new Promise((resolve, reject) => {
-          isPlayingQueueSoundRef.current = key;
-          sound.once("end", () => {
-            callback?.(null, "finished");
-            resolve(undefined);
-          });
-          sound.once("playerror", (_id, error) => {
-            callback?.(new Error("Play error"));
-            reject(error);
-          });
-          callback?.(null, "playing");
-          sound.play();
-        });
+        getSound(key)
+          .catch((error: unknown) => {
+            const soundError = error instanceof Error ? error : new Error("Sound load error");
+            callback?.(soundError);
+            throw soundError;
+          })
+          .then(
+            (sound) =>
+              new Promise((resolve, reject) => {
+                isPlayingQueueSoundRef.current = key;
+                sound.once("end", () => {
+                  callback?.(null, "finished");
+                  resolve(undefined);
+                });
+                sound.once("playerror", (_id, error) => {
+                  callback?.(new Error("Play error"));
+                  reject(error);
+                });
+                callback?.(null, "playing");
+                sound.play();
+              }),
+          );
 
       soundQueueRef.current = [
         ...soundQueueRef.current,
@@ -210,7 +218,7 @@ export const SoundProvider = ({ children }: PropsWithChildren) => {
       ];
       setQueueTrigger((prev) => prev + 1);
     },
-    [isMuted],
+    [getSound, isMuted],
   );
 
   const contextValue = useMemo(

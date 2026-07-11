@@ -1,9 +1,11 @@
 import { styled } from "@mui/material";
 import { toasty } from "../../assets/animations/toasty";
 
-type Props = { animate: any };
+type Props = { animate: boolean };
 
-const ToastyContainer = styled("div")<Props>(({ animate, theme }) => ({
+const ToastyContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "animate",
+})<Props>(({ animate, theme }) => ({
   position: "fixed",
   bottom: "-10px",
   right: "-200px",
@@ -19,7 +21,7 @@ const ToastyImage = styled("img")({
 
 const Toasty = ({ animate }: Props) => {
   return (
-    <ToastyContainer key={animate} animate={animate}>
+    <ToastyContainer key={String(animate)} animate={animate}>
       <ToastyImage src="/toasty.png" alt="Toasty!" />
     </ToastyContainer>
   );

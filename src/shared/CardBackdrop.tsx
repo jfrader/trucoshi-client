@@ -55,11 +55,10 @@ export const CardBackdrop = ({ card, displayMode = "skins", inspectCard, ...prop
   };
 
   useEffect(() => {
-    const rndSound = Math.round(Math.random() * 2);
-    queue("play" + rndSound);
-    _setFlip(Boolean(card?.flip));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (card) {
+      _setFlip(Boolean(card.flip));
+    }
+  }, [card]);
 
   if (!card) {
     return null;

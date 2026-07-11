@@ -1,7 +1,7 @@
 import { Person, PsychologyAlt, SmartToy } from "@mui/icons-material";
 import { Avatar, AvatarProps, Badge, BoxProps, styled } from "@mui/material";
 import type { User } from "lightning-accounts";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "./Link";
 import { useTrucoshi } from "../trucoshi/hooks/useTrucoshi";
 
@@ -32,7 +32,6 @@ export const UserAvatar = ({
 } & AvatarProps) => {
   const [{ stats }] = useTrucoshi();
   const [error, setError] = useState(false);
-  const ref = useRef<HTMLImageElement>(null);
   const iconSx = { height: SIZES[size] * 0.9 + "px", width: SIZES[size] * 0.9 + "px" };
   const opt =
     account.avatarUrl && !error
@@ -50,7 +49,6 @@ export const UserAvatar = ({
   const props: AvatarProps = {
     alt: account.name,
     title: account.name,
-    role: "button",
     sx: {
       bgcolor: bgcolor || stringToColor(account.name),
       width: SIZES[size] + "px",
@@ -67,7 +65,8 @@ export const UserAvatar = ({
     link && accountId
       ? {
           component: Link,
-          to: `/profile/${account.accountId || account.id}`,
+          to: "/profile/$accountId",
+          params: { accountId: String(accountId) },
         }
       : {};
 
@@ -83,7 +82,6 @@ export const UserAvatar = ({
       title={online ? "Conectado" : "Desconectado"}
     >
       <Avatar
-        ref={ref}
         onError={() => {
           setError(true);
         }}
@@ -112,7 +110,9 @@ function stringToColor(string: string = "") {
   return color;
 }
 
-const StyledBadge = styled(Badge)<{ online?: boolean }>(({ theme, online }) => ({
+const StyledBadge = styled(Badge, {
+  shouldForwardProp: (prop) => prop !== "online",
+})<{ online?: boolean }>(({ theme, online }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: theme.palette[online ? "success" : "error"].main,
     color: theme.palette[online ? "success" : "error"].main,

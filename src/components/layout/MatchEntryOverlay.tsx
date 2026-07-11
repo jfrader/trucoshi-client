@@ -1,6 +1,8 @@
-import { Box, Stack, Typography, styled, useTheme } from "@mui/material";
+import { Box, Portal, Stack, Typography, styled, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { TrucoshiText } from "../../shared/TrucoshiText";
+
+const APP_VIEWPORT_HEIGHT = "var(--trucoshi-viewport-height, 100dvh)";
 
 const OverlayRoot = styled(Box, {
   shouldForwardProp: (prop) => prop !== "open" && prop !== "fadeMs",
@@ -11,7 +13,9 @@ const OverlayRoot = styled(Box, {
   zIndex: theme.zIndex.modal + 10,
   display: "grid",
   placeItems: "center",
-  maxHeight: "100dvh",
+  width: "100%",
+  height: APP_VIEWPORT_HEIGHT,
+  maxHeight: APP_VIEWPORT_HEIGHT,
   overflow: "hidden",
   opacity: open ? 1 : 0,
   pointerEvents: "auto",
@@ -60,26 +64,29 @@ export const MatchEntryOverlay = () => {
   }
 
   return (
-    <OverlayRoot
-      aria-label="Preparando partida"
-      data-testid="match-entry-overlay"
-      fadeMs={fadeMs}
-      open={isOpen}
-      role="status"
-    >
-      <OverlayContent>
-        <Stack gap={2} alignItems="center">
-          <Box sx={theme.trucoshiUi.match.entryOverlay.logo}>
-            <TrucoshiText style={{ display: "block", height: "auto", width: "100%" }} />
-          </Box>
-          <Typography sx={theme.trucoshiUi.match.entryOverlay.subtitle} variant="body2">
-            Preparando partida
-          </Typography>
-        </Stack>
-        <ProgressTrack aria-hidden="true">
-          <ProgressFill />
-        </ProgressTrack>
-      </OverlayContent>
-    </OverlayRoot>
+    <Portal>
+      <OverlayRoot
+        aria-label="Preparando partida"
+        data-testid="match-entry-overlay"
+        data-trucoshi-overlay="open"
+        fadeMs={fadeMs}
+        open={isOpen}
+        role="status"
+      >
+        <OverlayContent>
+          <Stack gap={2} alignItems="center">
+            <Box sx={theme.trucoshiUi.match.entryOverlay.logo}>
+              <TrucoshiText style={{ display: "block", height: "auto", width: "100%" }} />
+            </Box>
+            <Typography sx={theme.trucoshiUi.match.entryOverlay.subtitle} variant="body2">
+              Preparando partida
+            </Typography>
+          </Stack>
+          <ProgressTrack aria-hidden="true">
+            <ProgressFill />
+          </ProgressTrack>
+        </OverlayContent>
+      </OverlayRoot>
+    </Portal>
   );
 };

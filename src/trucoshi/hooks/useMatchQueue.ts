@@ -48,8 +48,8 @@ export const useMatchQueue = ({ listen = false }: UseMatchQueueOptions = {}) => 
   const sound = useSound();
   const toast = useToast();
   const navigate = useNavigate();
-  const countdownTimer = useRef<NodeJS.Timeout | null>(null);
-  const countdownInterval = useRef<NodeJS.Timeout | null>(null);
+  const countdownTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [queueProposal, setQueueProposal] = useState<IQueueMatchFound | null>(null);
   const [startingAt, setStartingAt] = useState<number | null>(null);

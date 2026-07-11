@@ -693,6 +693,7 @@ export const InventoryPage = () => {
       <Box
         data-testid="inventory-hover-overlay"
         data-active={openCard ? "true" : "false"}
+        data-trucoshi-overlay={openCard ? "open" : undefined}
         onClick={handleCloseCard}
         sx={(theme) => ({
           position: "fixed",

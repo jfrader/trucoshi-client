@@ -10,7 +10,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { type ChangeEvent, type MouseEvent, useEffect, useState } from "react";
 import { LoadingButton } from "../shared/LoadingButton";
 import { useMagicLinkRegister } from "../api/hooks/useMagicLinkRegister";
 import { useRegisterWithSeed } from "../api/hooks/useRegisterWithSeed";
@@ -107,7 +107,7 @@ export const Register = () => {
   };
 
   const handleRegisterTypeChange = (
-    _: React.MouseEvent<HTMLElement>,
+    _: MouseEvent<HTMLElement>,
     newRegisterType: "email" | "seed",
   ) => {
     if (newRegisterType) {

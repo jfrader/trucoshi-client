@@ -24,12 +24,12 @@ const rulebookByLanguage = {
   es: {
     cardRankingTitle: "Ranking visual de cartas",
     markdown: spanishRules,
-    indexLabel: "Guía 04 / Reglas",
-    eyebrow: "Del envido al vale cuatro",
-    title: "Reglas del Truco, para tener a mano.",
+    indexLabel: "Reglas del Truco",
+    eyebrow: "Truco argentino",
+    title: "Reglas del Truco argentino",
     intro:
-      "Una guía clara del Truco argentino que jugamos en Trucoshi: equipos, bazas, tantos, flor y cada canto de la mesa.",
-    editorialTitle: "Primero entendé la mano. Después, hacete el distraído.",
+      "Reglas para jugar al Truco argentino en Trucoshi: equipos, bazas, tantos, envido, flor y truco.",
+    editorialTitle: "Reglas básicas",
     links: [
       { label: "Truco online", to: "/truco-online" },
       { label: "Ranking de cartas", to: "/ranking-cartas-truco" },
@@ -38,11 +38,11 @@ const rulebookByLanguage = {
     sections: [
       {
         title: "Tres cartas, hasta tres bazas",
-        body: "La mano se gana llevando dos bazas. Si hay pardas, importa quién es mano y cómo se resolvieron las otras vueltas.",
+        body: "Una mano tiene hasta tres bazas. Gana el equipo que se lleva dos; si hay pardas, importa quién es mano y las otras bazas.",
       },
       {
-        title: "Cada quiero cambia el partido",
-        body: "Envido, flor y truco son apuestas distintas. Podés aceptar, subir o rechazar; cada decisión modifica los puntos en juego.",
+        title: "Envido, flor y truco",
+        body: "Son apuestas distintas. Podés aceptar, subir o rechazar; cada una cambia los puntos de la mano.",
       },
     ],
     copy: undefined,
@@ -50,12 +50,12 @@ const rulebookByLanguage = {
   en: {
     cardRankingTitle: "Visual card ranking",
     markdown: englishRules,
-    indexLabel: "Guide 04 / Rules",
-    eyebrow: "From envido to vale cuatro",
-    title: "Argentinian Truco rules, within reach.",
+    indexLabel: "Truco rules",
+    eyebrow: "Argentinian Truco",
+    title: "Argentinian Truco rules",
     intro:
-      "A clear guide to the version of Argentinian Truco played on Trucoshi: teams, tricks, envido, flor and every raise at the table.",
-    editorialTitle: "Understand the hand first. Bluff later.",
+      "Rules for the version of Argentinian Truco played on Trucoshi: teams, tricks, scoring, envido, flor and truco.",
+    editorialTitle: "Basic rules",
     links: [
       { label: "Play Truco online", to: "/truco-online" },
       { label: "Card ranking", to: "/ranking-cartas-truco" },
@@ -64,23 +64,23 @@ const rulebookByLanguage = {
     sections: [
       {
         title: "Three cards, up to three tricks",
-        body: "A hand is won by taking two tricks. When tricks are tied, the mano and the outcome of the other rounds decide the result.",
+        body: "A hand has up to three tricks. The team that wins two takes the hand; tied tricks depend on mano and the other tricks.",
       },
       {
-        title: "Every quiero changes the stakes",
-        body: "Envido, flor and truco are separate bets. You can accept, raise or decline; every decision changes the points at stake.",
+        title: "Envido, flor and truco",
+        body: "They are separate bets. You can accept, raise or decline; each one changes the points for the hand.",
       },
     ],
     copy: {
       backLabel: "Back",
       primaryActionLabel: "Play now",
       heroVisualCaption: "2 · 4 · 6 players / web",
-      navigationLabel: "Keep exploring",
-      editorialEyebrow: "The table, explained",
-      faqEyebrow: "Before the deal",
-      faqHeading: "Quick questions.",
-      finalEyebrow: "The table is ready",
-      finalTitle: "Three cards. One decision. Play now.",
+      navigationLabel: "More about Truco",
+      editorialEyebrow: "How it works",
+      faqEyebrow: "Frequently asked questions",
+      faqHeading: "Frequently asked questions",
+      finalEyebrow: "Ready to play?",
+      finalTitle: "Join a table and play a match.",
       finalActionLabel: "Find a table",
     } satisfies SeoLandingPageCopy,
   },

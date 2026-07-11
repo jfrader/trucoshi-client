@@ -11,6 +11,8 @@ import { NoticeBannerSlot, TreasureBannerSlot } from "../notice/NoticeBannerSlot
 import { QueueMatchOverlay } from "./QueueMatchOverlay";
 import { MatchEntryOverlay } from "./MatchEntryOverlay";
 
+const APP_VIEWPORT_HEIGHT = "var(--trucoshi-viewport-height, 100dvh)";
+
 const LayoutContainer = styled(Box)(({ theme }) => [
   `
     *::-webkit-scrollbar {
@@ -48,16 +50,14 @@ const AppPaper = styled(Paper, {
   borderRadius: 0,
   background: gameSurface
     ? theme.palette.background.default
-    : theme.palette.mode === "light"
-      ? theme.trucoshiUi.shell.lightBackground
-      : theme.trucoshiUi.shell.darkBackground,
+    : theme.trucoshiUi.shell.background,
   ...(gameSurface
     ? {
-        height: "100dvh",
-        maxHeight: "100dvh",
+        height: APP_VIEWPORT_HEIGHT,
+        maxHeight: APP_VIEWPORT_HEIGHT,
         overflow: "hidden",
       }
-    : null),
+    : { minHeight: APP_VIEWPORT_HEIGHT }),
 }));
 
 const AppHeaderFrame = styled(Box, {
@@ -67,12 +67,12 @@ const AppHeaderFrame = styled(Box, {
   flexDirection: "column",
   ...(gameSurface
     ? {
-        height: "100dvh",
-        maxHeight: "100dvh",
-        minHeight: "100dvh",
+        height: APP_VIEWPORT_HEIGHT,
+        maxHeight: APP_VIEWPORT_HEIGHT,
+        minHeight: APP_VIEWPORT_HEIGHT,
         overflow: "hidden",
       }
-    : null),
+    : { minHeight: APP_VIEWPORT_HEIGHT }),
 }));
 
 const SurfaceContainer = styled(LayoutContainer, {
@@ -85,8 +85,8 @@ const SurfaceContainer = styled(LayoutContainer, {
   paddingTop: gameSurface ? 0 : "50px",
   ...(gameSurface
     ? {
-        height: "100dvh",
-        maxHeight: "100dvh",
+        height: APP_VIEWPORT_HEIGHT,
+        maxHeight: APP_VIEWPORT_HEIGHT,
         overflow: "hidden",
       }
     : null),

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   buildAbsoluteUrl,
   buildHelpSeoPage,
@@ -6,6 +8,7 @@ import {
   buildSeoHead,
   seoPages,
 } from "./seoConfig";
+import { TRUCO_ONLINE_FAQS } from "../content/seo/trucoOnline";
 
 describe("seoConfig", () => {
   it("defines the canonical Spanish rules route", () => {
@@ -23,8 +26,36 @@ describe("seoConfig", () => {
     expect(seoPages.rankingCartasTruco.canonicalPath).toBe("/ranking-cartas-truco");
   });
 
+  it("keeps canonical public pages in sync with the sitemap", () => {
+    const sitemap = readFileSync(resolve("public/sitemap.xml"), "utf8");
+    const sitemapUrls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
+    const canonicalUrls = Object.values(seoPages)
+      .map((page) => page.canonicalPath)
+      .filter((path): path is string => Boolean(path))
+      .map(buildAbsoluteUrl);
+
+    expect(new Set(sitemapUrls)).toEqual(new Set(canonicalUrls));
+    expect(sitemapUrls).toHaveLength(new Set(sitemapUrls).size);
+  });
+
+  it("keeps public titles, descriptions, and canonicals unique", () => {
+    const publicPages = Object.values(seoPages).filter((page) => page.canonicalPath);
+
+    expect(new Set(publicPages.map((page) => page.title)).size).toBe(publicPages.length);
+    expect(new Set(publicPages.map((page) => page.description)).size).toBe(publicPages.length);
+    expect(new Set(publicPages.map((page) => page.canonicalPath)).size).toBe(publicPages.length);
+  });
+
   it("keeps FAQ structured data on the visible truco online FAQ page", () => {
-    expect(seoPages.trucoOnline.jsonLd?.some((entry) => entry["@type"] === "FAQPage")).toBe(true);
+    const faqPage = seoPages.trucoOnline.jsonLd?.find((entry) => entry["@type"] === "FAQPage");
+
+    expect(faqPage?.mainEntity).toEqual(
+      TRUCO_ONLINE_FAQS.map(({ question, answer }) => ({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: { "@type": "Answer", text: answer },
+      })),
+    );
     expect(seoPages.trucoArgentino.jsonLd?.some((entry) => entry["@type"] === "FAQPage")).toBe(
       false,
     );

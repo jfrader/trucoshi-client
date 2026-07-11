@@ -1,6 +1,6 @@
 import { Box, IconButton, Menu, MenuItem, Paper, Typography } from "@mui/material";
 import { Settings } from "@mui/icons-material";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useBoardLayout } from "../../board";
 import { useMatchGameplay } from "./MatchGameplayContext";
 import { getTeamDisplayName } from "../../utils/team";
@@ -19,10 +19,10 @@ export const MatchTopBar = () => {
   const myTeamLabel = getTeamDisplayName(match, myTeamIdx);
   const opponentTeamLabel = getTeamDisplayName(match, opponentTeamIdx);
 
-  const useWideGrid = useMemo(
-    () => layout.profile === "desktop" || layout.profile === "tabletWide" || layout.profile === "tablet",
-    [layout.profile]
-  );
+  const useWideGrid =
+    layout.profile === "desktop" ||
+    layout.profile === "tabletWide" ||
+    layout.profile === "tablet";
 
   return (
     <>

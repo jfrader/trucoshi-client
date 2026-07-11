@@ -22,6 +22,8 @@ import { themes } from "./theme";
 import { useTrucoshi } from "./trucoshi/hooks/useTrucoshi";
 import { TrucoshiProvider } from "./trucoshi/trucoshi.context";
 
+const APP_VIEWPORT_HEIGHT = "var(--trucoshi-viewport-height, 100dvh)";
+
 const SnackbarComponents = {
   default: CustomSnackbar,
   success: CustomSnackbar,
@@ -62,7 +64,7 @@ const AppDynamicImportFallback = () => (
   <Stack
     role="status"
     aria-label="Recargando"
-    minHeight="100vh"
+    minHeight={APP_VIEWPORT_HEIGHT}
     alignItems="center"
     justifyContent="center"
     spacing={2}
@@ -76,7 +78,13 @@ const AppDynamicImportFallback = () => (
 );
 
 const AppErrorFallback = ({ onReload }: { onReload: () => void }) => (
-  <Stack minHeight="100vh" alignItems="center" justifyContent="center" spacing={2} px={3}>
+  <Stack
+    minHeight={APP_VIEWPORT_HEIGHT}
+    alignItems="center"
+    justifyContent="center"
+    spacing={2}
+    px={3}
+  >
     <Typography variant="h6" textAlign="center">
       No pudimos cargar Trucoshi
     </Typography>

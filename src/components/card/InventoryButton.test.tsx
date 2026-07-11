@@ -167,6 +167,7 @@ describe("selected card skins", () => {
       "argentino/1e_argentino_002",
     );
     expect(screen.getByTestId("flip-game-card-1e")).toHaveAttribute("data-display-mode", "skins");
+    expect(mocks.queue).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: /inventario/i, hidden: true })).toHaveAttribute(
       "href",
       "/inventory",

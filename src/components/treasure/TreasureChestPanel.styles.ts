@@ -1,5 +1,7 @@
 import { Box, Button, ButtonBase, IconButton, Stack, Theme, styled } from "@mui/material";
 
+const APP_VIEWPORT_HEIGHT = "var(--trucoshi-viewport-height, 100dvh)";
+
 const squareButton = (theme: Theme) => ({
   color: theme.palette.text.secondary,
   background: "rgba(255,255,255,0.06)",
@@ -178,11 +180,14 @@ export const SecondaryActionButton = styled(Button)(({ theme }) => ({
 export const OverlayRoot = styled(Box)(({ theme }) => ({
   position: "fixed",
   inset: 0,
-  width: "100vw",
-  height: "100dvh",
+  width: "100%",
+  height: APP_VIEWPORT_HEIGHT,
+  maxHeight: APP_VIEWPORT_HEIGHT,
   zIndex: theme.zIndex.tooltip + 20,
   color: theme.palette.text.primary,
-  overflow: "hidden",
+  overflowX: "hidden",
+  overflowY: "auto",
+  overscrollBehavior: "contain",
   background: theme.trucoshiUi.treasure.overlayBackground,
   display: "grid",
   gridTemplateRows: "auto minmax(0, 1fr) auto",
@@ -217,8 +222,8 @@ export const Stage = styled(Box)({
   justifySelf: "center",
   position: "relative",
   width: "min(96vw, 44rem)",
-  height: "min(43rem, calc(100dvh - 8.25rem))",
-  minHeight: "min(34rem, calc(100dvh - 8.25rem))",
+  height: `min(43rem, calc(${APP_VIEWPORT_HEIGHT} - 8.25rem))`,
+  minHeight: `min(34rem, calc(${APP_VIEWPORT_HEIGHT} - 8.25rem))`,
 });
 
 export const StageGlow = styled(Box, {

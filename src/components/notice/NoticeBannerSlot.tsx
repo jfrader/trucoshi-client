@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { NoticeBanner, NoticeBannerProps } from "./NoticeBanner";
 import { hasPendingRewardCode } from "../reward/rewardCodeStorage";
@@ -82,11 +82,9 @@ export const NoticeBannerSlot = ({
   ignoreDismissal?: boolean;
 }) => {
   const [{ noticeBanner }] = useTrucoshi();
-  const dismissalValue = useMemo(
-    () =>
-      noticeBanner ? getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt) : "",
-    [noticeBanner],
-  );
+  const dismissalValue = noticeBanner
+    ? getNoticeBannerDismissalValue(noticeBanner.id, noticeBanner.updatedAt)
+    : "";
   const [dismissedValue, setDismissedValue] = useState<string | null>(null);
 
   useEffect(() => {

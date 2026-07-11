@@ -1,4 +1,5 @@
 import {
+  Box,
   Stack,
   styled,
   SvgIconProps,
@@ -7,7 +8,7 @@ import {
   TypographyProps,
   useTheme,
 } from "@mui/material";
-import { Box, css } from "@mui/system";
+import { css } from "@mui/material/styles";
 import { bounce } from "../../assets/animations/bounce";
 import { TeamTag } from "./TeamTag";
 import { PropsWithPlayer } from "../../trucoshi/types";
@@ -106,7 +107,9 @@ export const PlayerTag = ({
   );
 };
 
-export const PlayerName = styled(Typography)<{ isturn: number }>(({ theme, isturn }) =>
+export const PlayerName = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "isturn",
+})<{ isturn: number }>(({ theme, isturn }) =>
   isturn
     ? {
         color: theme.palette.success.main,
@@ -114,7 +117,9 @@ export const PlayerName = styled(Typography)<{ isturn: number }>(({ theme, istur
     : {}
 );
 
-export const AnimatedBox = styled(Box)<{ isturn: number; infinite?: number }>(
+export const AnimatedBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isturn" && prop !== "infinite",
+})<{ isturn: number; infinite?: number }>(
   ({ isturn, infinite = 0 }) =>
     isturn
       ? css`

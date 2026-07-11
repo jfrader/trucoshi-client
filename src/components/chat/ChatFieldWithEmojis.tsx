@@ -14,6 +14,7 @@ import InsertEmoticon from "@mui/icons-material/InsertEmoticon";
 import {
   type ChangeEventHandler,
   type FormEventHandler,
+  type MouseEvent,
   type SyntheticEvent,
   useState,
   useRef,
@@ -45,7 +46,7 @@ const ChatFieldWithEmojis = ({
   const [autocompleteKey, setAutocompleteKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleOpenPicker = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenPicker = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
     setShowPicker(true);
   };

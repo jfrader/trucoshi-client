@@ -9,7 +9,7 @@ import { UserAvatar } from "../../shared/UserAvatar";
 import { AvatarGroup } from "@mui/material";
 import { Link } from "../../shared/Link";
 import { EmojiRain } from "../../shared/EmojiRain";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useMe } from "../../api/hooks/useMe";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
@@ -42,10 +42,7 @@ export const MatchFinishedScreen = ({
   const showTreasurePanel =
     Boolean(match.createdFromQueue && match.me) && !hasBotPlayer && !treasurePanelDismissed;
 
-  const iAmWinner = useMemo(
-    () => match.me?.teamIdx === match.winner?.id || !match.me,
-    [match.me, match.winner?.id],
-  );
+  const iAmWinner = match.me?.teamIdx === match.winner?.id || !match.me;
 
   useEffect(() => {
     if (match.options.satsPerPlayer) {

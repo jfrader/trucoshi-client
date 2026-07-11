@@ -27,6 +27,7 @@ import {
   useMemo,
   useCallback,
   memo,
+  type MouseEvent,
 } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
@@ -48,7 +49,9 @@ import { replaceEmojiAliases } from "./emojiAliases";
 
 const ChatFieldWithEmojis = lazy(() => import("./ChatFieldWithEmojis"));
 
-const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
+const ChatBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active: number }>(({ active }) => [
   {
     opacity: active ? 0.9 : 0.3,
   },
@@ -61,7 +64,7 @@ type Props = BoxProps & {
   showNoticeBanner?: boolean;
 } & ReturnType<typeof useChatRoom>;
 
-const MESSAGE_GROUPING_THRESHOLD = 1 * 60 * 1000;
+const MESSAGE_GROUPING_THRESHOLD = 60 * 1000;
 
 const getPlayersSignature = (players: IPublicPlayer[] | undefined) =>
   (players || []).map((player) => `${player.key}:${player.name}:${player.teamIdx}`).join("|");
@@ -80,7 +83,7 @@ const useStableChatPlayers = (players: IPublicPlayer[] | undefined) => {
 };
 
 export const useChatRoom = (match?: IPublicMatch | null) => {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestAnimatedMessageIdRef = useRef<IChatMessage["id"] | null>(null);
 
   const [active, setActive] = useState<boolean>(false);
@@ -183,8 +186,8 @@ export const ChatRoom = ({
     }
   }, [filteredMessages.length]);
 
-  const onActivate = (e: any) => {
-    e.stopPropagation();
+  const onActivate = (event: MouseEvent) => {
+    event.stopPropagation();
     setActive(true);
   };
 

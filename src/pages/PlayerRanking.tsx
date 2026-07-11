@@ -82,7 +82,8 @@ export const PlayerRanking = () => {
                 {ranking.map((player, i) => {
                   const linkProps = {
                     component: Link,
-                    to: `/profile/${player.accountId}`,
+                    to: "/profile/$accountId" as const,
+                    params: { accountId: String(player.accountId) },
                   };
                   return (
                     <ListItem key={player.accountId}>

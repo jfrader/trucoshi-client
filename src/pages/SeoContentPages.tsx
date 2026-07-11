@@ -7,9 +7,9 @@ import sevenOro from "../assets/cards/default/7o.png";
 import { CardRanking } from "../components/help/CardRanking";
 import {
   SeoLandingPage,
-  type SeoFaqItem,
   type SeoPageLink,
 } from "../components/seo/SeoLandingPage";
+import { TRUCO_ONLINE_FAQS } from "../content/seo/trucoOnline";
 
 const sharedLinks: SeoPageLink[] = [
   { label: "Reglas", to: "/reglas-del-truco" },
@@ -17,51 +17,31 @@ const sharedLinks: SeoPageLink[] = [
   { label: "Truco argentino", to: "/truco-argentino" },
 ];
 
-const trucoOnlineFaqs: SeoFaqItem[] = [
-  {
-    question: "¿Se puede jugar gratis?",
-    answer: "Sí. Podés entrar y jugar Truco online gratis, sin vueltas.",
-  },
-  {
-    question: "¿Puedo jugar con bots?",
-    answer: "Sí. Si falta gente, podés completar la partida con bots y jugar igual.",
-  },
-  {
-    question: "¿Hace falta instalar algo?",
-    answer: "No. Trucoshi corre en el navegador, desde el celu o la compu.",
-  },
-  {
-    question: "¿Dónde veo las reglas?",
-    answer:
-      "Tenés las reglas del Truco argentino en la página de reglas, con envido y ranking de cartas.",
-  },
-];
-
 export function TrucoOnline() {
   return (
     <SeoLandingPage
-      indexLabel="Guía 01 / Truco online"
+      indexLabel="Truco online"
       eyebrow="Jugá desde el navegador"
-      title="Truco online, sin esperar la sobremesa."
-      intro="Entrá a Trucoshi, elegí una mesa y empezá. Partidas rápidas, bots cuando falta gente y nada que instalar."
-      editorialTitle="De abrir la web a cantar Truco en minutos."
+      title="Jugá Truco online gratis."
+      intro="Jugá Truco argentino desde el navegador. Entrá a una mesa o creá la tuya; si faltan jugadores, podés sumar bots."
+      editorialTitle="Cómo jugar en Trucoshi"
       heroCards={[sevenOro, oneEspada, threeBasto]}
       links={sharedLinks}
       sections={[
         {
-          title: "Elegí cómo entrar",
-          body: "Buscá una partida abierta, entrá a la cola o armá tu propia mesa. La experiencia está pensada para llegar al juego sin pasos de más.",
+          title: "Elegí una mesa",
+          body: "Entrá a una partida abierta, buscá partida en la cola o creá una mesa con tus propias opciones.",
         },
         {
-          title: "Practicá sin presión",
-          body: "Si querés agarrarle la mano antes de jugar con gente, completá la mesa con bots y probá envido, truco, retruco y vale cuatro.",
+          title: "Jugá con bots",
+          body: "Podés sumar bots a la mesa para practicar o completar una partida.",
         },
         {
-          title: "Jugá donde estés",
-          body: "Trucoshi funciona en el navegador del celular o la compu. Tus reglas, tu ranking y tus partidas quedan a un toque de distancia.",
+          title: "Jugá desde cualquier dispositivo",
+          body: "Trucoshi funciona en el navegador, tanto en el celular como en la computadora.",
         },
       ]}
-      faqs={trucoOnlineFaqs}
+      faqs={TRUCO_ONLINE_FAQS}
     />
   );
 }
@@ -69,11 +49,11 @@ export function TrucoOnline() {
 export function TrucoArgentino() {
   return (
     <SeoLandingPage
-      indexLabel="Guía 02 / Truco argentino"
-      eyebrow="El juego de siempre"
-      title="Truco argentino, de frente y sin vueltas."
-      intro="Tres cartas, dos equipos y todo lo que pasa entre una mirada y un quiero. Trucoshi lleva la mesa argentina al navegador."
-      editorialTitle="La picardía de la mesa, con reglas claras."
+      indexLabel="Truco argentino"
+      eyebrow="Reglas del juego"
+      title="Cómo se juega al Truco argentino"
+      intro="El Truco argentino se juega con cartas españolas, bazas y apuestas como envido, truco, retruco, vale cuatro y flor."
+      editorialTitle="Lo básico del Truco argentino"
       heroCards={[threeCopa, oneBasto, sevenEspada]}
       links={[
         { label: "Ver reglas", to: "/reglas-del-truco" },
@@ -83,15 +63,15 @@ export function TrucoArgentino() {
       sections={[
         {
           title: "Dos equipos, una mesa",
-          body: "Podés jugar de a 2, 4 o 6. Cada jugador recibe tres cartas españolas y comparte el objetivo con su compañero.",
+          body: "Se puede jugar de a 2, 4 o 6. Cada jugador recibe tres cartas y, en las partidas por equipos, juega con un compañero.",
         },
         {
           title: "Bazas y cantos",
-          body: "La mano se define jugando cartas y midiendo cuándo subir la apuesta. El envido suma por tantos; truco, retruco y vale cuatro cambian el valor de la mano.",
+          body: "La mano se gana al ganar dos bazas. El envido, el truco, el retruco y el vale cuatro definen los puntos en juego.",
         },
         {
-          title: "Aprendé jugando",
-          body: "Las reglas están siempre disponibles y los bots te dejan probar cantos sin esperar una mesa llena. La mejor forma de entender el Truco es repartir.",
+          title: "Consultá las reglas",
+          body: "Podés consultar las reglas y el ranking de cartas, o jugar con bots para practicar.",
         },
       ]}
     />
@@ -101,11 +81,11 @@ export function TrucoArgentino() {
 export function RankingCartasTruco() {
   return (
     <SeoLandingPage
-      indexLabel="Guía 03 / Ranking"
-      eyebrow="Cada baza tiene un orden"
-      title="Ranking de cartas: sabé qué manda."
-      intro="El orden de fuerza del Truco argentino, de la espada más brava a las cartas que conviene guardar para engañar."
-      editorialTitle="Leé la mesa antes de soltar una carta."
+      indexLabel="Ranking de cartas"
+      eyebrow="Orden de las cartas"
+      title="Ranking de cartas del Truco"
+      intro="El orden de fuerza de las cartas del Truco argentino, de mayor a menor."
+      editorialTitle="Qué carta gana cada baza"
       heroCards={[oneBasto, oneEspada, sevenOro]}
       links={[
         { label: "Reglas completas", to: "/reglas-del-truco" },
@@ -114,12 +94,12 @@ export function RankingCartasTruco() {
       ]}
       sections={[
         {
-          title: "La más fuerte gana",
-          body: "Cada carta tiene una jerarquía propia. La carta con mayor valor se lleva la baza, más allá del número que tenga impreso.",
+          title: "La carta más alta gana",
+          body: "La carta con mayor valor en el ranking gana la baza. El orden no depende solo del número de la carta.",
         },
         {
           title: "Cuando la baza queda parda",
-          body: "Si las cartas más altas empatan entre equipos contrarios, la baza queda parda. La mano y el resultado de las otras bazas deciden qué pasa después.",
+          body: "Si las cartas más altas empatan entre equipos contrarios, la baza queda parda. El resultado de las otras bazas y quién es mano definen la mano.",
         },
       ]}
     >

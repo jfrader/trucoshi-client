@@ -10,7 +10,7 @@ export const VolumeControl = () => {
   const [sliderValue, setSliderValue] = useState(() => volume * 100);
   const [anchorEl, setAnchorEl] = useState<(EventTarget & HTMLButtonElement) | null>(null);
   const iconButtonRef = useRef<HTMLButtonElement | null>(null);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleVolumeChange: SliderProps["onChange"] = (_event, newValue) => {
     if (typeof newValue !== "number") {

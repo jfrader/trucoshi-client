@@ -1,6 +1,7 @@
 import type { DetailedHTMLProps, LinkHTMLAttributes, MetaHTMLAttributes } from "react";
 import seoPagesData from "./seoPages.json";
 import { ENABLE_BETS_AND_DEPOSITS } from "../config/features";
+import { TRUCO_ONLINE_FAQS } from "../content/seo/trucoOnline";
 
 export type SeoAlternate = {
   hrefLang: string;
@@ -39,7 +40,28 @@ export const siteSeo = {
   defaultTwitterImage: seoPagesData.defaultTwitterImage,
 };
 
-export const seoPages = seoPagesData.pages as Record<SeoPageKey, SeoConfig>;
+const baseSeoPages = seoPagesData.pages as Record<SeoPageKey, SeoConfig>;
+
+const trucoOnlineFaqJsonLd: JsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: TRUCO_ONLINE_FAQS.map(({ question, answer }) => ({
+    "@type": "Question",
+    name: question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: answer,
+    },
+  })),
+};
+
+export const seoPages: Record<SeoPageKey, SeoConfig> = {
+  ...baseSeoPages,
+  trucoOnline: {
+    ...baseSeoPages.trucoOnline,
+    jsonLd: [...(baseSeoPages.trucoOnline.jsonLd ?? []), trucoOnlineFaqJsonLd],
+  },
+};
 
 export const buildHelpSeoPage = (enableBetsAndDeposits: boolean): SeoConfig =>
   enableBetsAndDeposits

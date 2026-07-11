@@ -15,7 +15,7 @@ describe("Help", () => {
     renderWithThemeAt(<Help />, "/help");
 
     expect(
-      screen.getByRole("heading", { name: /todo para sentarte a jugar/i }),
+      screen.getByRole("heading", { name: /ayuda para jugar al truco/i }),
     ).toBeInTheDocument();
     expect(screen.getByText("Herramientas de Truco")).toBeInTheDocument();
     expect(screen.queryByText(/bitcoin|lightning/i)).not.toBeInTheDocument();
