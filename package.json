@@ -1,0 +1,107 @@
+{
+  "name": "trucoshi-client",
+  "version": "15.0.4",
+  "private": false,
+  "packageManager": "yarn@1.22.22",
+  "license": "GPL-3.0-or-later",
+  "author": {
+    "name": "jfrader",
+    "email": "jfrader@pm.me",
+    "url": "https://github.com/jfrader"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jfrader/trucoshi-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jfrader/trucoshi-client/issues"
+  },
+  "homepage": "https://github.com/jfrader/trucoshi-client#readme",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25.0.0",
+    "yarn": "1.22.22"
+  },
+  "keywords": [
+    "bitcoin",
+    "lightning",
+    "truco",
+    "card game"
+  ],
+  "scripts": {
+    "start": "vite",
+    "serve": "node server/serve.mjs",
+    "build": "tsc && vite build && node server/verify-built-assets.mjs",
+    "preview": "vite preview",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:update": "vitest run -u",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.15.6",
+    "@mui/lab": "^5.0.0-alpha.162",
+    "@mui/material": "^5.15.6",
+    "@tanstack/react-query": "^5.84.1",
+    "axios": "^1.6.3",
+    "dayjs": "^1.11.10",
+    "howler": "^2.2.4",
+    "lightning-accounts": "7.0.1",
+    "lodash.groupby": "^4.6.0",
+    "notistack": "^3.0.1",
+    "numeral": "^2.0.6",
+    "react": "^18.2.0",
+    "react-cookie": "^7.0.0",
+    "react-dom": "^18.2.0",
+    "react-qr-code": "^2.0.12",
+    "react-router-dom": "^6.8.0",
+    "socket.io-client": "4.8.3",
+    "trucoshi": "15.0.4"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^13.0.0",
+    "@testing-library/user-event": "^13.2.1",
+    "@types/howler": "^2.2.7",
+    "@types/jest": "^27.0.1",
+    "@types/lodash.groupby": "^4.6.9",
+    "@types/node": "^24.12.0",
+    "@types/numeral": "^2.0.5",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "8.64.0",
+    "@typescript-eslint/parser": "8.64.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "4.1.2",
+    "eslint": "^8.56.0",
+    "eslint-config-react-app": "7.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jsdom": "^29.0.1",
+    "typescript": "^5.9.3",
+    "vite": "7.3.6",
+    "vite-tsconfig-paths": "^4.2.3",
+    "vitest": "4.1.2"
+  }
+}

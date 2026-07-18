@@ -1,0 +1,430 @@
+import {
+  useState,
+  useCallback,
+  useEffect,
+  PropsWithChildren,
+  useRef,
+  SetStateAction,
+} from "react";
+import { io, Socket } from "socket.io-client";
+import {
+  ClientToServerEvents,
+  EClientEvent,
+  EServerEvent,
+  ICard,
+  IJoinQueueOptions,
+  IPublicMatchInfo,
+  IQueueStatus,
+  EMatchState,
+  ITrucoshiStats,
+} from "trucoshi";
+import useStateStorage from "../hooks/useStateStorage";
+import { createContext } from "react";
+import { CompatibleServerToClientEvents, ITrucoshiContext } from "./types";
+import { useMe } from "../api/hooks/useMe";
+import { useCookies } from "react-cookie";
+import { User } from "lightning-accounts";
+import { useLogout } from "../api/hooks/useLogout";
+import { useRefreshTokens } from "../api/hooks/useRefreshTokens";
+import { is401 } from "../api/apiClient";
+import { useLogin } from "../api/hooks/useLogin";
+import { useToast } from "../hooks/useToast";
+import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
+import { getCookieName, getIdentityCookie } from "../utils/cookie";
+import { useQueryClient } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { CardTheme, normalizeCardTheme } from "./cardThemes";
+
+const HOST = import.meta.env.VITE_APP_HOST || "http://localhost:2992";
+const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION || "";
+export const CLIENT_ENVIRONMENT = import.meta.env.VITE_APP_ENVIRONMENT || "development";
+
+export const TrucoshiContext = createContext<ITrucoshiContext | null>(null);
+
+const sendPing = (socket: Socket<CompatibleServerToClientEvents, ClientToServerEvents>) => {
+  socket.emit(EClientEvent.PING, Date.now());
+};
+
+export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [session, setSession] = useStateStorage<string | null>("session", null);
+  const [dark, setDark] = useStateStorage<"true" | "">("isDarkTheme", "true");
+  const [storedCardTheme, setStoredCardTheme] = useStateStorage<string>(
+    "cardtheme",
+    "default",
+  );
+  const cardTheme = normalizeCardTheme(storedCardTheme);
+  const [name, setName] = useStateStorage<string>("id", "Satoshi");
+  const [account, setAccount] = useState<User | null>(null);
+  const [publicMatches, setPublicMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [activeMatches, setActiveMatches] = useState<Array<IPublicMatchInfo>>([]);
+  const [queueStatus, setQueueStatus] = useState<IQueueStatus | null>(null);
+  const [isQueueing, setQueueing] = useState(false);
+  const [queueReplayOptions, setQueueReplayOptions] = useState<IJoinQueueOptions | null>(null);
+  const [isLoadingAccount, setLoadingAccount] = useState(true);
+  const [isConnected, setConnected] = useState<boolean>(false);
+  const [isLogged, setLogged] = useState<boolean>(false);
+  const [lastPong, setLastPong] = useState<number | null>(null);
+  const [serverAheadTime, setServerAheadTime] = useState<number>(0);
+  const [inspectedCard, setInspectedCard] = useState<ICard | null>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [version, setVersion] = useState("");
+  const [shouldConnect, setShouldConnect] = useState(false);
+  const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
+  const [, , removeCookie] = useCookies([getCookieName("identity")]);
+
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
+  const { isPending: isPendingRefreshTokens } = useRefreshTokens();
+  const { logout: apiLogout } = useLogout();
+  const { isPending: isPendingLogin } = useLogin();
+  const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (storedCardTheme !== cardTheme) {
+      setStoredCardTheme(cardTheme);
+    }
+  }, [cardTheme, setStoredCardTheme, storedCardTheme]);
+
+  const setCardTheme = (nextTheme: SetStateAction<CardTheme>) => {
+    setStoredCardTheme((currentTheme) => {
+      const normalizedCurrentTheme = normalizeCardTheme(currentTheme);
+      return normalizeCardTheme(
+        typeof nextTheme === "function"
+          ? nextTheme(normalizedCurrentTheme)
+          : nextTheme,
+      );
+    });
+  };
+
+  const [socket, setSocket] = useState<
+    Socket<CompatibleServerToClientEvents, ClientToServerEvents>
+  >(() =>
+    io(HOST, {
+      withCredentials: true,
+      autoConnect: false,
+      secure: import.meta.env.MODE === "production",
+      auth: (cb) => {
+        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+        cb({
+          sessionID: localStorage.getItem(`trucoshi:session`),
+          name,
+          identity: cachedMe ? getIdentityCookie() : undefined,
+          user: cachedMe,
+        });
+      },
+    }),
+  );
+
+  useEffect(() => {
+    setShouldConnect(!isPendingLogin && !isPendingMe && !!(me || error) && !loggingOut);
+  }, [error, isPendingMe, loggingOut, me, isPendingLogin]);
+
+  useEffect(() => {
+    if (shouldConnect) {
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+      setSocket((current) => {
+        let userId;
+        let authName;
+
+        (current as any).auth((data: any) => {
+          userId = data.user?.id;
+          authName = data.name;
+        });
+
+        const meId = account?.id;
+
+        if (me && userId === meId) {
+          setAccount(me);
+        } else {
+          setAccount(null);
+        }
+
+        if (current.active && userId === meId && authName === name) {
+          if (!current.connected) {
+            current.connect();
+          }
+          return current;
+        }
+
+        current.io.reconnection(false);
+        current.disconnect();
+
+        const newSocket = io(HOST, {
+          withCredentials: true,
+          autoConnect: false,
+          secure: import.meta.env.MODE === "production",
+          auth: (cb) => {
+            const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+            cb({
+              sessionID: localStorage.getItem(`trucoshi:session`),
+              name,
+              identity: cachedMe ? getIdentityCookie() : undefined,
+              user: cachedMe,
+            });
+          },
+        });
+        newSocket.connect();
+        return newSocket;
+      });
+    }
+  }, [account?.id, me, name, queryClient, session, shouldConnect]);
+
+  const logout = useCallback(() => {
+    setLoggingOut(true);
+    setLoadingAccount(true);
+    setShouldConnect(false);
+    socket.io.reconnection(false);
+    socket.emit(EClientEvent.LOGOUT, () => {});
+    apiLogout(
+      { withCredentials: true },
+      {
+        onError(e) {
+          toast.error(e.message);
+        },
+        onSettled() {
+          queryClient.setQueryData(["me"], () => ({ data: null }));
+          removeCookie(getCookieName("identity"));
+          setLogged(false);
+          setAccount(null);
+          setActiveMatches([]);
+          setQueueStatus(null);
+          setQueueing(false);
+          setQueueReplayOptions(null);
+          setTimeout(() => {
+            setLoggingOut(false);
+            setShouldConnect(true);
+          }, 1000);
+        },
+      },
+    );
+  }, [socket, apiLogout, toast, queryClient, removeCookie]);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      setConnected(true);
+      sendPing(socket);
+      socket.emit(EClientEvent.JOIN_ROOM, "stats");
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+    });
+
+    socket.on("connect_error", () => {
+      setLogged(false);
+      setConnected(false);
+      setLoadingAccount(true);
+      setLoggingOut(true);
+
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+      timer.current = setInterval(() => {
+        setLoggingOut(false);
+        setShouldConnect(true);
+      }, 5000);
+    });
+
+    socket.on("disconnect", () => {
+      setLogged(false);
+      setConnected(false);
+      setLoadingAccount(true);
+      setLoggingOut(true);
+
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+      timer.current = setInterval(() => {
+        setLoggingOut(false);
+        setShouldConnect(true);
+      }, 5000);
+    });
+
+    socket.on(EServerEvent.UPDATE_STATS, (updated) => setStats(updated));
+
+    socket.on(EServerEvent.SET_SESSION, ({ session, account }, serverVersion, newActiveMatches) => {
+      if (account) {
+        const logged = Boolean(me && me.id === account.id);
+        if (logged && me) {
+          setAccount(me);
+        }
+        setLogged(logged);
+      } else {
+        const cachedMe = queryClient.getQueryData<AxiosResponse<User>>(["me"])?.data;
+
+        if (cachedMe?.id) {
+          setShouldConnect(true);
+          socket.disconnect();
+          return;
+        }
+
+        setSession(session);
+        setLogged(true);
+      }
+
+      setActiveMatches(newActiveMatches);
+      setVersion(`${CLIENT_VERSION}-${serverVersion}`);
+      setLoadingAccount(false);
+    });
+
+    socket.on(EServerEvent.UPDATE_ACTIVE_MATCHES, (newActiveMatches) => {
+      setActiveMatches(newActiveMatches);
+    });
+
+    socket.on(EServerEvent.MATCH_DELETED, (deletedMatchSessionId) => {
+      setActiveMatches((current) =>
+        current.filter((m) => m.matchSessionId !== deletedMatchSessionId),
+      );
+    });
+
+    socket.on(EServerEvent.PONG, (serverTime, clientTime) => {
+      setLastPong(serverTime);
+      setServerAheadTime(serverTime - clientTime);
+    });
+
+    socket.on(EServerEvent.REFRESH_IDENTITY, (userId, cb) => {
+      if (!account || userId !== account.id) {
+        return cb(null);
+      }
+      setShouldConnect(false);
+      refetchMe()
+        .then(() => {
+          setTimeout(() => {
+            const token = getIdentityCookie();
+            if (token) {
+              cb(token);
+              setShouldConnect(true);
+            }
+          });
+        })
+        .catch(() => {
+          cb(null);
+        });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("connect_error");
+      socket.off(EServerEvent.SET_SESSION);
+      socket.off(EServerEvent.UPDATE_ACTIVE_MATCHES);
+      socket.off(EServerEvent.MATCH_DELETED);
+      socket.off(EServerEvent.PONG);
+      socket.off(EServerEvent.REFRESH_IDENTITY);
+      socket.off(EServerEvent.UPDATE_STATS);
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+    };
+  }, [socket, setSession, account, refetchMe, removeCookie, toast, logout, me, queryClient]);
+
+  const sendUserId = useCallback(
+    (newName: string, callback?: (name: string) => void) => {
+      if (newName.length > 16) {
+        toast.warning("Maximo 16 caracteres");
+        return callback?.(account ? account.name : name);
+      }
+
+      if (account) {
+        return updateProfile(
+          { name: newName },
+          {
+            onSuccess() {
+              refetchMe()
+                .then((res) => {
+                  if (res.data?.data) {
+                    setAccount(res.data.data);
+                    callback?.(res.data.data.name);
+                  }
+                })
+                .catch((e) => {
+                  toast.error(e.message);
+                  callback?.(newName);
+                });
+            },
+            onError(e) {
+              toast.error(e.message);
+              callback?.(newName);
+            },
+          },
+        );
+      }
+      setName(newName);
+      callback?.(newName);
+    },
+    [account, name, refetchMe, setName, toast, updateProfile],
+  );
+
+  const fetchPublicMatches = useCallback(
+    (filters: { state?: Array<EMatchState> } = {}) => {
+      socket.emit(EClientEvent.LIST_MATCHES, filters, ({ matches }) => {
+        setPublicMatches(matches);
+      });
+    },
+    [socket],
+  );
+
+  useEffect(() => {
+    if (is401(error)) {
+      logout();
+    }
+  }, [error, logout]);
+
+  const isAccountPending =
+    isPendingMe ||
+    isPendingRefreshTokens ||
+    isLoadingAccount ||
+    isPendingLogin ||
+    isPendingUpdateProfile;
+
+  return (
+    <TrucoshiContext.Provider
+      value={{
+        socket,
+        state: {
+          stats,
+          dark,
+          cardTheme,
+          account,
+          version,
+          publicMatches,
+          session,
+          name,
+          isConnected,
+          isLogged,
+          lastPong,
+          activeMatches,
+          queueStatus,
+          isQueueing,
+          queueReplayOptions,
+          serverAheadTime,
+          isSidebarOpen,
+          inspectedCard,
+          isLoggingIn: isLoadingAccount || isPendingLogin,
+          isAccountPending,
+        },
+        dispatch: {
+          setDark,
+          setCardTheme,
+          setSidebarOpen,
+          sendPing: () => sendPing(socket),
+          sendUserId,
+          setActiveMatches,
+          setQueueStatus,
+          setQueueing,
+          setQueueReplayOptions,
+          fetchPublicMatches,
+          inspectCard: setInspectedCard,
+          logout,
+          refetchMe,
+        },
+      }}
+    >
+      {children}
+    </TrucoshiContext.Provider>
+  );
+};
