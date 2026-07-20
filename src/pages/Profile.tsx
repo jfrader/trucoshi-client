@@ -1,653 +1,200 @@
-import {
-  AlternateEmail,
-  Close,
-  EmojiEvents,
-  SmartToy,
-  VideogameAsset,
-  VpnKey,
-  X,
-} from "@mui/icons-material";
-import { PageContainer } from "../shared/PageContainer";
-import {
-  Card,
-  CardContent,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemSecondaryAction,
-  ListItemText,
-  Stack,
-  Tab,
-  TextField,
-  Alert,
-  Button,
-} from "@mui/material";
-import { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { Box, Button, CircularProgress, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { useEffect } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMe } from "../api/hooks/useMe";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { EClientEvent, IAccountDetails } from "trucoshi";
-import { TrucoshiContext } from "../trucoshi/trucoshi.context";
-import { useToast } from "../hooks/useToast";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
-import dayjs from "dayjs";
-import { UserAvatar } from "../shared/UserAvatar";
-import { useUpdateProfile } from "../api/hooks/useUpdateProfile";
-import { useSetSeed } from "../api/hooks/useSetSeed";
-import { IconButton } from "@mui/material";
+import { PublicMatchHistory } from "../components/profile/PublicMatchHistory";
+import { PublicProfileHero } from "../components/profile/PublicProfileHero";
+import { usePlayerProfile } from "../components/profile/usePlayerProfile";
+import { contentGutterSx } from "../components/layout/contentLayout";
+import { PageContainer } from "../shared/PageContainer";
 import { NotFound } from "./NotFound";
-import { PlayerRatioListItemText } from "../components/other/PlayerRatioListItemText";
-import { CurrencyBitcoin as SatoshiIcon } from "@mui/icons-material";
-import { SeedDisplay } from "../components/other/SeedDisplay";
-import { useConfirmationModal } from "../hooks/useConfirmationModal";
-import { ConfirmationModal } from "../shared/ConfirmationModal";
-import { useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../api/apiClient";
 
-const getSeedModalConfig = (
-  title: string,
-  hasSeed: boolean | undefined,
-  acceptLabel: string,
-  onConfirm: () => void
-) => ({
-  title,
-  body: hasSeed
-    ? "¿Estás seguro de querer regenerar una nueva frase de semilla? Esto reemplazará la anterior, así que anotala y guardala bien, ya que quien la tenga puede iniciar sesión."
-    : "Vas a generar una frase de semilla para login. Asegurate de guardarla en un lugar seguro, ya que quien la tenga puede iniciar sesión.",
-  acceptLabel,
-  onConfirm,
-});
+type PublicProfileTab = "1" | "2";
+
+const ProfileLoading = () => (
+  <PageContainer maxWidth="md" title="Perfil">
+    <Stack alignItems="center" justifyContent="center" minHeight="18rem" spacing={1.5}>
+      <CircularProgress color="warning" size={34} />
+      <Typography color="text.secondary" variant="body2">
+        Cargando jugador…
+      </Typography>
+    </Stack>
+  </PageContainer>
+);
+
+const ProfileError = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
+  <PageContainer maxWidth="md" title="Perfil">
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      minHeight="18rem"
+      role="alert"
+      spacing={1.5}
+      textAlign="center"
+    >
+      <Typography fontWeight={900}>No se pudo cargar el perfil</Typography>
+      <Typography color="text.secondary" maxWidth="26rem" variant="body2">
+        {message}
+      </Typography>
+      <Button color="warning" onClick={onRetry} variant="outlined">
+        Reintentar
+      </Button>
+    </Stack>
+  </PageContainer>
+);
+
+const ProfileDetail = ({ label, value }: { label: string; value: string | number }) => (
+  <Stack
+    spacing={0.35}
+    sx={(theme) => ({
+      minWidth: 0,
+      px: contentGutterSx,
+      py: 1.5,
+      borderBottom: `1px solid ${theme.trucoshiUi.content.divider}`,
+      "&:last-of-type": { borderBottom: 0 },
+    })}
+  >
+    <Typography
+      color="text.secondary"
+      fontSize="0.68rem"
+      fontWeight={850}
+      letterSpacing="0.08em"
+      textTransform="uppercase"
+    >
+      {label}
+    </Typography>
+    <Typography fontWeight={850}>{value}</Typography>
+  </Stack>
+);
 
 export const Profile = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const context = useContext(TrucoshiContext);
-  const toast = useToast();
-
+  const { accountId: routeAccountId } = useParams<{ accountId: string }>();
   const [search] = useSearchParams();
-  const { pathname } = useLocation();
-  const { accountId } = useParams<{ accountId: string }>();
-  const { me, isPending } = useMe();
-  const { updateProfile, isPending: isPendingUpdateProfile } = useUpdateProfile();
-  const { setSeed, isPending: isPendingSetSeed } = useSetSeed();
+  const { me, isPending: isMePending } = useMe();
+  const accountId = routeAccountId || (me?.id ? String(me.id) : "");
+  const numericAccountId = Number(accountId);
+  const isValidAccountId = Number.isInteger(numericAccountId) && numericAccountId > 0;
+  const shouldFetchProfile = !isMePending && isValidAccountId;
+  const { profile, isLoading, error, retry } = usePlayerProfile(
+    shouldFetchProfile ? numericAccountId : undefined,
+  );
+  const activeTab: PublicProfileTab = search.get("t") === "2" ? "2" : "1";
 
-  const [profile, setProfile] = useState<IAccountDetails | null>(null);
-  const [isLoading, setLoading] = useState(true);
-  const [editEmail, setEditEmail] = useState(false);
-  const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newPassword2, setNewPassword2] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [editPassword, setEditPassword] = useState(false);
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
-  const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
+  useEffect(() => {
+    if (isMePending || routeAccountId) {
+      return;
+    }
+    if (!me?.id) {
+      navigate("/login", { replace: true });
+      return;
+    }
+    navigate(`/profile/${me.id}`, { replace: true });
+  }, [isMePending, me?.id, navigate, routeAccountId]);
 
-  const modal = useConfirmationModal();
-
-  const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    navigate(pathname + "?t=" + newValue, { replace: true });
-  };
-
-  if (!context) {
-    throw new Error("useTrucoshiState must be used inside TrucoshiProvider");
+  if (isMePending || (!routeAccountId && !me)) {
+    return <ProfileLoading />;
   }
 
-  useEffect(() => {
-    if (!accountId && !me && !isPending && !isLoading) {
-      navigate("/login");
-    }
+  if (!isValidAccountId) {
+    return <NotFound />;
+  }
 
-    if (!accountId && me) {
-      navigate(`/profile/${me.id}`, { replace: true });
-    }
-  }, [accountId, isLoading, isPending, me, navigate]);
-
-  useEffect(() => {
-    const id = accountId || me?.id;
-    if (context.state.isConnected && id) {
-      setLoading(true);
-      context.socket.emit(
-        EClientEvent.FETCH_ACCOUNT_DETAILS,
-        Number(id),
-        ({ account, matches, stats, error, success }) => {
-          setLoading(false);
-          if (error) {
-            toast.error(error.message);
-            setProfile(null);
-          }
-          if (success) {
-            setProfile({ account, matches, stats });
-          }
-        }
-      );
-    }
-  }, [accountId, context.socket, context.state.isConnected, me?.id, toast]);
+  if (error) {
+    return <ProfileError message={error} onRetry={retry} />;
+  }
 
   if (isLoading) {
-    return <PageContainer icon={<CircularProgress />} />;
+    return <ProfileLoading />;
   }
 
   if (!profile?.account) {
     return <NotFound />;
   }
 
-  const isMyProfile = Number(accountId) === me?.id;
-
   const win = profile.stats?.win || 0;
   const loss = profile.stats?.loss || 0;
+  const total = win + loss;
+  const winRate = total ? Math.round((win / total) * 100) : 0;
 
-  const validatePassword = () => {
-    if (!password || !password2) {
-      return "Ambas contraseñas son requeridas";
-    }
-    if (password !== password2) {
-      return "Las contraseñas no coinciden";
-    }
-    if (password.length < 8) {
-      return "La contraseña debe tener al menos 8 caracteres";
-    }
-    return "";
+  const handleTabChange = (_event: unknown, value: string) => {
+    const nextTab: PublicProfileTab = value === "2" ? "2" : "1";
+    navigate(`/profile/${accountId}?t=${nextTab}`, { replace: true });
   };
 
-  const validateNewPassword = () => {
-    if (!newPassword || !newPassword2) {
-      return "Ambas contraseñas son requeridas";
-    }
-    if (newPassword !== newPassword2) {
-      return "Las contraseñas no coinciden";
-    }
-    if (newPassword.length < 8) {
-      return "La contraseña debe tener al menos 8 caracteres";
-    }
-    return "";
-  };
-
-  const handleSubmitEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors([]);
-
-    if (!me) {
-      return;
-    }
-
-    if (!email) {
-      setFormErrors(["Email es requerido"]);
-      return;
-    }
-
-    if (!me.email && !newPassword) {
-      setFormErrors(["Debes establecer una contraseña para el nuevo email"]);
-      return;
-    }
-
-    const newPasswordError = !me.email ? validateNewPassword() : "";
-    if (newPasswordError) {
-      setFormErrors([newPasswordError]);
-      return;
-    }
-
-    updateProfile(
-      {
-        email: email.trim(),
-        password: !me.email ? newPassword.trim() : undefined,
-        currentPassword: me.email ? currentPassword.trim() : undefined,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Tu Email fue actualizado!");
-          setEditEmail(false);
-          setEmail(me.email || "");
-          setNewPassword("");
-          setNewPassword2("");
-          setCurrentPassword("");
-        },
-        onError: (e) => setFormErrors([e.message]),
-      }
-    );
-  };
-
-  const handleSubmitPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors([]);
-
-    if (!me) {
-      return;
-    }
-
-    const error = validatePassword();
-    if (error) {
-      setFormErrors([error]);
-      return;
-    }
-
-    if (!me.email) {
-      setFormErrors(["Debes establecer un email antes de cambiar la contraseña"]);
-      return;
-    }
-
-    updateProfile(
-      {
-        password: password.trim(),
-        currentPassword: currentPassword.trim(),
-      },
-      {
-        onSuccess: () => {
-          queryClient.resetQueries({ queryKey: ["me"] });
-          toast.success("Tu contraseña fue actualizada!");
-          setEditPassword(false);
-          setPassword("");
-          setPassword2("");
-          setCurrentPassword("");
-        },
-        onError: (e) => setFormErrors([e.message]),
-      }
-    );
-  };
-
-  const handleSetSeed = () => {
-    setFormErrors([]);
-    modal.onOpen(
-      getSeedModalConfig(
-        "Confirmar Generación de Frase de Semilla",
-        me?.hasSeed,
-        "Sí, Generar",
-        () => {
-          setSeed(undefined, {
-            onSuccess: ({ seedPhrase }) => {
-              queryClient.resetQueries({ queryKey: ["me"] });
-              setSeedPhrase(seedPhrase || null);
-              setFormErrors(["Anota y guarda tu nueva frase de semilla, no se volverá a mostrar"]);
-              modal.onClose();
-            },
-            onError: (e) => setFormErrors([e.message]),
-          });
-        }
-      )
-    );
-  };
-
-  const handleConfirmSeed = () => {
-    setSeedPhrase(null);
-    setFormErrors([]);
-  };
-
-  const handleRegenerateSeed = () => {
-    setFormErrors([]);
-    // Check if user has at least one alternative login method
-    if (!me?.email && !me?.twitter) {
-      modal.onOpen({
-        title: "Regeneración no disponible",
-        body: "Necesitas al menos un método de login más para poder regenerar tu semilla.",
-        acceptLabel: "Entendido",
-        onConfirm: () => modal.onClose(),
-      });
-      return;
-    }
-    modal.onOpen(
-      getSeedModalConfig(
-        "Confirmar Regeneración de Frase de Semilla",
-        true,
-        "Sí, Regenerar",
-        () => {
-          setSeed(undefined, {
-            onSuccess: ({ seedPhrase }) => {
-              queryClient.resetQueries({ queryKey: ["me"] });
-              setSeedPhrase(seedPhrase || null); // Set the new seed phrase
-              setFormErrors(["Anota y guarda tu nueva frase de semilla, no se volverá a mostrar"]);
-              modal.onClose();
-            },
-            onError: (e) => setFormErrors([e.message]),
-          });
-        }
-      )
-    );
+  const openMatch = (matchId: number) => {
+    navigate(`/history/${matchId}`);
   };
 
   return (
-    <PageContainer
-      title={profile.account.name}
-      icon={<UserAvatar status size="large" account={profile.account} />}
-    >
-      <Card>
-        <CardContent>
-          {isLoading ? (
-            <CircularProgress />
+    <PageContainer maxWidth="md">
+      <Stack spacing={2.25} pb={2}>
+        <PublicProfileHero account={profile.account} win={win} loss={loss} />
+
+        <Stack
+          sx={(theme) => ({
+            ...theme.trucoshiUi.account.panel,
+            overflow: "hidden",
+            background: theme.trucoshiUi.content.surface,
+          })}
+        >
+          <Tabs
+            value={activeTab}
+            variant="fullWidth"
+            textColor="inherit"
+            onChange={handleTabChange}
+            aria-label="Secciones del perfil"
+            sx={(theme) => ({
+              minHeight: 48,
+              borderBottom: `1px solid ${theme.trucoshiUi.content.divider}`,
+              background: theme.trucoshiUi.content.navigationSurface,
+              "& .MuiTabs-indicator": { backgroundColor: theme.palette.warning.main },
+              "& .MuiTab-root": { minHeight: 48, fontWeight: 900 },
+              "& .Mui-selected": { color: theme.palette.warning.light },
+            })}
+          >
+            <Tab
+              aria-controls="public-profile-panel-1"
+              id="public-profile-tab-1"
+              label="Información"
+              value="1"
+            />
+            <Tab
+              aria-controls="public-profile-panel-2"
+              id="public-profile-tab-2"
+              label="Historial"
+              value="2"
+            />
+          </Tabs>
+
+          {activeTab === "1" ? (
+            <Box aria-labelledby="public-profile-tab-1" id="public-profile-panel-1" role="tabpanel">
+              <Stack px={contentGutterSx} pt={contentGutterSx} pb={1.4}>
+                <Typography component="h2" variant="h6" fontWeight={950}>
+                  Resumen del jugador
+                </Typography>
+                <Typography color="text.secondary" variant="body2">
+                  Resultados públicos de sus partidas completadas.
+                </Typography>
+              </Stack>
+              <ProfileDetail label="Jugador" value={profile.account.name} />
+              <ProfileDetail label="Partidas" value={total} />
+              <ProfileDetail label="Victorias" value={win} />
+              <ProfileDetail label="Derrotas" value={loss} />
+              <ProfileDetail label="Efectividad" value={`${winRate}%`} />
+            </Box>
           ) : (
-            <TabContext value={search.get("t") || "1"}>
-              <TabList textColor="inherit" onChange={handleChange} aria-label="Tabs del perfil">
-                <Tab label="Información" value="1" />
-                <Tab label="Historial" value="2" />
-              </TabList>
-              <TabPanel sx={{ px: 0 }} value="1">
-                <List dense sx={{ flexGrow: 1 }}>
-                  <ListItem divider>
-                    <ListItemText primary="Nombre" secondary={profile.account.name} />
-                  </ListItem>
-                  {isMyProfile ? (
-                    <>
-                      {seedPhrase ? (
-                        <ListItem>
-                          <SeedDisplay
-                            seedPhrase={seedPhrase}
-                            errors={formErrors}
-                            onConfirm={handleConfirmSeed}
-                          />
-                        </ListItem>
-                      ) : me?.hasSeed ? (
-                        <ListItemButton onClick={handleRegenerateSeed} divider>
-                          <ListItemText
-                            primary="Frase de Semilla"
-                            secondary="Cambia tu frase secreta de login por una nueva"
-                          />
-                          <ListItemSecondaryAction>
-                            <VpnKey />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      ) : (
-                        <ListItemButton onClick={handleSetSeed} divider disabled={isPendingSetSeed}>
-                          <ListItemText
-                            primary="Frase de Semilla"
-                            secondary="Generar frase de semilla"
-                          />
-                          <ListItemSecondaryAction>
-                            <VpnKey />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      )}
-                      {me.email && !editEmail ? (
-                        <ListItemButton onClick={() => setEditEmail(true)} divider>
-                          <ListItemText primary="Email" secondary={me.email} />
-                          <ListItemSecondaryAction>
-                            <AlternateEmail />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      ) : !me.email && !editEmail ? (
-                        <ListItemButton onClick={() => setEditEmail(true)} divider>
-                          <ListItemText
-                            primary="Email"
-                            secondary="Establecer un email para tu cuenta"
-                          />
-                          <ListItemSecondaryAction>
-                            <AlternateEmail />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      ) : (
-                        <ListItem divider>
-                          <form style={{ width: "100%" }} onSubmit={handleSubmitEmail}>
-                            <Stack py={1} direction="column" gap={1} width="100%">
-                              <Stack direction="row" alignItems="center" gap={1}>
-                                <IconButton
-                                  title="Cancelar"
-                                  onClick={() => {
-                                    setEditEmail(false);
-                                    setEmail(me.email || "");
-                                    setNewPassword("");
-                                    setNewPassword2("");
-                                    setCurrentPassword("");
-                                    setFormErrors([]);
-                                  }}
-                                  color="error"
-                                  size="small"
-                                >
-                                  <Close fontSize="small" />
-                                </IconButton>
-                                <TextField
-                                  name="email"
-                                  type="email"
-                                  value={email}
-                                  size="small"
-                                  label="Nuevo Email"
-                                  fullWidth
-                                  disabled={isPendingUpdateProfile}
-                                  onChange={(e) => setEmail(e.target.value)}
-                                />
-                              </Stack>
-                              {!me.email && (
-                                <>
-                                  <TextField
-                                    name="newPassword"
-                                    type="password"
-                                    value={newPassword}
-                                    size="small"
-                                    label="Nueva Contraseña"
-                                    fullWidth
-                                    disabled={isPendingUpdateProfile}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    error={newPassword !== newPassword2 && newPassword2 !== ""}
-                                    helperText={
-                                      newPassword !== newPassword2 && newPassword2 !== ""
-                                        ? "Las contraseñas no coinciden"
-                                        : ""
-                                    }
-                                  />
-                                  <TextField
-                                    name="newPassword2"
-                                    type="password"
-                                    value={newPassword2}
-                                    size="small"
-                                    label="Repite la Contraseña"
-                                    fullWidth
-                                    disabled={isPendingUpdateProfile}
-                                    onChange={(e) => setNewPassword2(e.target.value)}
-                                  />
-                                </>
-                              )}
-                              {me.email && (
-                                <TextField
-                                  name="currentPassword"
-                                  type="password"
-                                  value={currentPassword}
-                                  size="small"
-                                  label="Contraseña Actual"
-                                  fullWidth
-                                  disabled={isPendingUpdateProfile}
-                                  onChange={(e) => setCurrentPassword(e.target.value)}
-                                />
-                              )}
-                              <Button
-                                type="submit"
-                                color="success"
-                                variant="contained"
-                                size="small"
-                                disabled={Boolean(
-                                  isPendingUpdateProfile ||
-                                    !email ||
-                                    (!me.email && !!validateNewPassword()) ||
-                                    (me.email && !currentPassword)
-                                )}
-                                sx={{ alignSelf: "flex-end", mt: 1 }}
-                              >
-                                Guardar
-                              </Button>
-                            </Stack>
-                          </form>
-                        </ListItem>
-                      )}
-                      {me.email && !editPassword ? (
-                        <ListItemButton onClick={() => setEditPassword(true)} divider>
-                          <ListItemText primary="Contraseña" secondary="••••••••" />
-                          <ListItemSecondaryAction>
-                            <VpnKey />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      ) : editPassword ? (
-                        <ListItem divider>
-                          <form style={{ width: "100%" }} onSubmit={handleSubmitPassword}>
-                            <Stack py={1} direction="row" alignItems="center" gap={1} width="100%">
-                              <IconButton
-                                title="Cancelar"
-                                onClick={() => {
-                                  setEditPassword(false);
-                                  setPassword("");
-                                  setPassword2("");
-                                  setCurrentPassword("");
-                                  setFormErrors([]);
-                                }}
-                                color="error"
-                                size="small"
-                              >
-                                <Close fontSize="small" />
-                              </IconButton>
-                              <TextField
-                                name="password"
-                                type="password"
-                                value={password}
-                                size="small"
-                                label="Nueva Contraseña"
-                                fullWidth
-                                disabled={isPendingUpdateProfile}
-                                onChange={(e) => setPassword(e.target.value)}
-                                error={password !== password2 && password2 !== ""}
-                                helperText={
-                                  password !== password2 && password2 !== ""
-                                    ? "Las contraseñas no coinciden"
-                                    : ""
-                                }
-                              />
-                              <TextField
-                                name="password2"
-                                type="password"
-                                value={password2}
-                                size="small"
-                                label="Repite la Contraseña"
-                                fullWidth
-                                disabled={isPendingUpdateProfile}
-                                onChange={(e) => setPassword2(e.target.value)}
-                              />
-                              <TextField
-                                name="currentPassword"
-                                type="password"
-                                value={currentPassword}
-                                size="small"
-                                label="Contraseña Actual"
-                                fullWidth
-                                disabled={isPendingUpdateProfile}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                              />
-                              <Button
-                                type="submit"
-                                color="success"
-                                variant="contained"
-                                size="large"
-                                disabled={isPendingUpdateProfile || !!validatePassword()}
-                                sx={{ flexShrink: 0 }}
-                              >
-                                Guardar
-                              </Button>
-                            </Stack>
-                          </form>
-                        </ListItem>
-                      ) : null}
-                      {me.twitter ? (
-                        <ListItem divider>
-                          <ListItemText primary="Login con X.com" secondary={me.twitter} />
-                          <ListItemSecondaryAction>
-                            <X />
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      ) : (
-                        <ListItemButton
-                          component={Link}
-                          to={apiClient.instance.defaults.baseURL + "/auth/twitter"}
-                          divider
-                        >
-                          <ListItemText secondary="Autoriza tu cuenta para iniciar sesión con X">
-                            Conectar X.com
-                          </ListItemText>
-                          <ListItemSecondaryAction>
-                            <X />
-                          </ListItemSecondaryAction>
-                        </ListItemButton>
-                      )}
-                    </>
-                  ) : null}
-                  <ListItem divider>
-                    <PlayerRatioListItemText win={win} loss={loss} />
-                  </ListItem>
-                  {isMyProfile ? (
-                    <>
-                      <ListItem divider>
-                        <ListItemText
-                          primary="Sats apostados"
-                          secondary={profile.stats?.satsBet || 0}
-                        />
-                      </ListItem>
-                      <ListItem divider>
-                        <ListItemText
-                          primary="Sats ganados"
-                          secondary={profile.stats?.satsWon || 0}
-                        />
-                      </ListItem>
-                      <ListItem divider>
-                        <ListItemText
-                          primary="Sats perdidos"
-                          secondary={profile.stats?.satsLost || 0}
-                        />
-                      </ListItem>
-                    </>
-                  ) : null}
-                  {formErrors
-                    .filter((error) => !seedPhrase || !error?.includes("Anota y guarda"))
-                    .map((error) => (
-                      <ListItem key={error}>
-                        <Alert
-                          severity={error.includes("Anota y guarda") ? "warning" : "error"}
-                          sx={{ width: "100%" }}
-                        >
-                          {error}
-                        </Alert>
-                      </ListItem>
-                    ))}
-                </List>
-              </TabPanel>
-              <TabPanel sx={{ px: 0 }} value="2">
-                <List dense sx={{ flexGrow: 1 }}>
-                  {profile.matches.map((match) => {
-                    const isWinner =
-                      match.winnerIdx ===
-                      match.players.find((p) => p.accountId === profile.account?.id)?.teamIdx;
-                    return (
-                      <ListItemButton
-                        key={match.id}
-                        divider
-                        onClick={() => navigate(`/history/${match.id}`)}
-                      >
-                        <ListItemText
-                          secondary={`${dayjs(match.createdAt).format("DD/MM/YYYY")}`}
-                          primary={match.sessionId}
-                        />
-                        <ListItemSecondaryAction>
-                          {(match.bet?.satsPerPlayer || 0) > 0 &&
-                          (isMyProfile || match.players.find((p) => p.accountId === me?.id)) ? (
-                            <span title="Partida con Sats">
-                              <SatoshiIcon color={isWinner ? "success" : "error"} sx={{ mr: 2 }} />
-                            </span>
-                          ) : null}
-                          {match.players.find((p) => p.bot) ? (
-                            <span title="Partida con Bots">
-                              <SmartToy color="info" fontSize="small" sx={{ mr: 2 }} />
-                            </span>
-                          ) : null}
-                          {isWinner ? (
-                            <span title="Jugador gano esta partida">
-                              <EmojiEvents color="warning" />
-                            </span>
-                          ) : (
-                            <VideogameAsset />
-                          )}
-                        </ListItemSecondaryAction>
-                      </ListItemButton>
-                    );
-                  })}
-                </List>
-              </TabPanel>
-            </TabContext>
+            <Box aria-labelledby="public-profile-tab-2" id="public-profile-panel-2" role="tabpanel">
+              <PublicMatchHistory
+                accountId={numericAccountId}
+                matches={profile.matches}
+                viewerAccountId={me?.id}
+                onOpenMatch={openMatch}
+              />
+            </Box>
           )}
-        </CardContent>
-      </Card>
-      <ConfirmationModal {...modal} />
+        </Stack>
+      </Stack>
     </PageContainer>
   );
 };

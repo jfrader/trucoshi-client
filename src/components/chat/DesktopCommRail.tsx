@@ -1,5 +1,5 @@
 import { Box, Paper, Stack, Tab, Tabs, Typography, styled } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ChatRoom, useChatRoom } from "./ChatRoom";
 import { CommTabName, FILTER_BY_TAB } from "./commTabs";
 import { useBoardLayout, useMatchState } from "../../board";
@@ -28,7 +28,7 @@ const RailHeader = styled(Stack)(({ theme }) => ({
 export const DesktopCommRail = ({ chatProps }: Props) => {
   const [tab, setTab] = useState<CommTabName>("all");
 
-  const messageFilter = useMemo(() => FILTER_BY_TAB[tab], [tab]);
+  const messageFilter = FILTER_BY_TAB[tab];
 
   return (
     <RailRoot>
@@ -55,7 +55,13 @@ export const DesktopCommRail = ({ chatProps }: Props) => {
         </Tabs>
       </RailHeader>
 
-      <Box position="relative" minHeight={0} flex={1} overflow="hidden">
+      <Box
+        className="ChatRoom_container"
+        position="relative"
+        minHeight={0}
+        flex={1}
+        overflow="hidden"
+      >
         {tab === "debug" ? (
           <RailDebugPanel />
         ) : (

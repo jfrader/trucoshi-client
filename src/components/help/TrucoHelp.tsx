@@ -9,14 +9,12 @@ export const TrucoHelp = () => {
       <List>
         {HELP_LINKS.map(({ to, label, Icon }) => {
           return (
-            <ListItemButton key={to}>
+            <ListItemButton component={Link} target="_blank" to={to} key={to}>
               <ListItemIcon>
                 <Icon />
               </ListItemIcon>
               <ListItemText>
-                <Link target="_blank" to={to}>
-                  <Typography>{label}</Typography>
-                </Link>
+                <Typography>{label}</Typography>
               </ListItemText>
             </ListItemButton>
           );

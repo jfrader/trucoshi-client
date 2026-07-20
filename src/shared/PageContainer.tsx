@@ -1,6 +1,6 @@
 import { ChevronLeft } from "@mui/icons-material";
 import { Box, Button, Container, ContainerProps, Slide, Stack, Typography } from "@mui/material";
-import { PropsWithChildren, ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const PageContainer = ({
@@ -15,13 +15,16 @@ export const PageContainer = ({
   const location = useLocation();
   const navigate = useNavigate();
   return (
-    <Container maxWidth="sm" {...props}>
+    <Container maxWidth="md" {...props}>
       <Box pt={4} position="relative" maxWidth="95vw">
         <Stack alignItems="center" spacing={1}>
-          <Typography
-            sx={{ display: "flex", alignItems: "center", gap: 2 }}
-            textTransform="uppercase"
-            variant="h6"
+          <Box
+            position="relative"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            minHeight={32}
+            width="100%"
           >
             <Button
               onClick={() => (location.key === "default" ? navigate("/") : navigate(-1))}
@@ -32,11 +35,19 @@ export const PageContainer = ({
             >
               Atras
             </Button>
-            {title}
+            <Typography
+              component={title ? "h1" : "div"}
+              px={8}
+              textAlign="center"
+              textTransform="uppercase"
+              variant="h6"
+            >
+              {title}
+            </Typography>
             <Box position="absolute" right={0}>
               {action}
             </Box>
-          </Typography>
+          </Box>
           {icon}
         </Stack>
         <Slide in direction="right">

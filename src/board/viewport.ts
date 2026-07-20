@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { BoardPlayerCount, BoardViewport, BoardViewportProfile } from "./types";
 
 const VIEWPORT_FALLBACK = {
@@ -38,7 +38,7 @@ export const resolveBoardViewportProfile = ({
 }): BoardViewportProfile => {
   const aspectRatio = width / Math.max(height, 1);
   const shortHeight = height <= 520;
-  const compactPhoneHeight = height <= 700 && width <= 430;
+  const compactPortrait = width <= 430 && aspectRatio >= 0.49 && aspectRatio < 1;
 
   if (width >= 1200) {
     return "desktop";
@@ -56,7 +56,11 @@ export const resolveBoardViewportProfile = ({
     return aspectRatio >= 1.25 ? "tabletWide" : "tablet";
   }
 
-  if (shortHeight || compactPhoneHeight || aspectRatio >= 1.3) {
+  if (compactPortrait) {
+    return "phoneCompact";
+  }
+
+  if (shortHeight || aspectRatio >= 1.3) {
     return "phoneWide";
   }
 
@@ -89,13 +93,11 @@ export const useBoardViewport = () => {
     };
   }, []);
 
-  return useMemo<BoardViewport>(() => {
-    const height = Math.max(snapshot.height, 1);
+  const height = Math.max(snapshot.height, 1);
 
-    return {
-      width: snapshot.width,
-      height,
-      aspectRatio: snapshot.width / height,
-    };
-  }, [snapshot.height, snapshot.width]);
+  return {
+    width: snapshot.width,
+    height,
+    aspectRatio: snapshot.width / height,
+  } satisfies BoardViewport;
 };

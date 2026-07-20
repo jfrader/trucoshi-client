@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  IconButton,
   Paper,
   Stack,
   Typography,
@@ -18,7 +17,6 @@ import { MatchBackdrop } from "../components/game/MatchBackdrop";
 import { useChatRoom } from "../components/chat/ChatRoom";
 import { useSound } from "../sound/hooks/useSound";
 import { FloatingProgress } from "../shared/FloatingProgress";
-import { Settings } from "@mui/icons-material";
 import { GameOptions } from "../components/game/GameOptions";
 import { EMatchState, ILobbyOptions } from "trucoshi";
 import { GameOptionsList } from "../components/game/GameOptionsList";
@@ -33,6 +31,8 @@ import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
 import { LobbyGameplayProvider, useLobbyGameplay } from "../components/game/LobbyGameplayContext";
 import { useGameAdmission } from "../trucoshi/hooks/useGameAdmission";
 import { AdmissionNotice } from "../components/notice/AdmissionNotice";
+import { LobbyTopBar } from "../components/game/LobbyTopBar";
+import { useToast } from "../hooks/useToast";
 
 const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "matchPoint",
@@ -41,6 +41,33 @@ const OPTIONS_KEYS: (keyof ILobbyOptions)[] = [
   "turnTime",
   "flor",
 ];
+
+const copyTextToClipboard = async (text: string) => {
+  if (window.navigator.clipboard?.writeText) {
+    try {
+      await window.navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Use the selection fallback below when clipboard permission is denied.
+    }
+  }
+
+  const textarea = window.document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  window.document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    return window.document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    window.document.body.removeChild(textarea);
+  }
+};
 
 const LobbyBoardScene = memo(() => {
   const {
@@ -56,6 +83,19 @@ const LobbyBoardScene = memo(() => {
     },
     actions: { onStartMatch, onOpenOptions },
   } = useLobbyGameplay();
+  const toast = useToast();
+
+  const copyLobbyUrl = () => {
+    if (!sessionId) {
+      toast.warning("No se pudo copiar el link");
+      return;
+    }
+
+    void copyTextToClipboard(`${window.location.origin}/lobby/${sessionId}`).then((copied) => {
+      if (copied) toast.success("Link de sala copiado");
+      else toast.error("No se pudo copiar el link");
+    });
+  };
 
   return (
     <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
@@ -63,44 +103,14 @@ const LobbyBoardScene = memo(() => {
         <TrucoBoardLayout
           slots={slots}
           topContent={
-            <>
-              <Paper
-                sx={(theme) => ({
-                  ...theme.trucoshiUi.lobby.topPlayersCard,
-                  px: 1.2,
-                  py: 0.8,
-                  borderRadius: "1rem",
-                })}
-              >
-                <Typography fontSize="0.78rem" color="grey.300">
-                  Lobby
-                </Typography>
-                <Typography fontSize="1rem" fontWeight={700} color="common.white">
-                  {match.players.length} / {match.options.maxPlayers}
-                </Typography>
-              </Paper>
-
-              <Paper
-                sx={(theme) => ({
-                  ...theme.trucoshiUi.lobby.topSessionCard,
-                  px: 1.6,
-                  py: 0.8,
-                  borderRadius: "0.9rem",
-                })}
-              >
-                <Typography color="common.white" fontWeight={700} fontSize="1rem">
-                  Sala {sessionId}
-                </Typography>
-              </Paper>
-
-              <IconButton
-                sx={(theme) => theme.trucoshiUi.lobby.topSettingsButton}
-                onClick={onOpenOptions}
-                disabled={match.busy || !match.me?.isOwner}
-              >
-                <Settings />
-              </IconButton>
-            </>
+            <LobbyTopBar
+              maxPlayers={match.options.maxPlayers}
+              playerCount={match.players.length}
+              sessionId={sessionId}
+              settingsDisabled={match.busy || !match.me?.isOwner}
+              onCopyLobbyUrl={copyLobbyUrl}
+              onOpenOptions={onOpenOptions}
+            />
           }
           centerContent={
             <Paper
@@ -269,8 +279,8 @@ export const Lobby = () => {
       <BoardLayoutProvider surface="lobby" totalSeats={slots.length}>
         <Box
           sx={{
-            height: "100dvh",
-            maxHeight: "100dvh",
+            height: "var(--trucoshi-viewport-height, 100dvh)",
+            maxHeight: "var(--trucoshi-viewport-height, 100dvh)",
             overflow: "hidden",
           }}
         >

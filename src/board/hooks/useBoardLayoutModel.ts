@@ -17,6 +17,7 @@ import {
   DEFAULT_MATCH_CENTER_BASE,
   DEFAULT_MATCH_FOUR_PLAYER_SEAT_OVERRIDES,
   DEFAULT_MATCH_TWO_PLAYER_SEAT_OVERRIDES,
+  MATCH_CENTER_OVERRIDES_BY_PLAYER_COUNT,
   getBoardProfileTokens,
   getFrameForSurface,
 } from "../tokens";
@@ -55,6 +56,7 @@ export const getMatchSeatPresentationForIndex = ({
 }): MatchSeatPresentation => {
   if (!layout.match) {
     return {
+      avatarFrameSizePx: 56,
       translateY: 0,
       avatarNudgeY: 0,
       hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
@@ -85,6 +87,7 @@ export const getMatchSeatPresentationForIndex = ({
   const avatarNudgeY = isTopSeat && !avatarNudgeBlocked ? seatPresentation.topSeatAvatarNudgeY : 0;
 
   return {
+    avatarFrameSizePx: seatPresentation.avatarFrameSizePx,
     translateY,
     avatarNudgeY,
     hiddenHandCardWidth: seatPresentation.hiddenHandCardWidth,
@@ -129,8 +132,11 @@ const buildMatchLayoutModel = ({
       ...DEFAULT_MATCH_CENTER_BASE,
       ...(profileTokens.match.center.overrides || {}),
       spreadBoost: profileTokens.match.center.spreadBoost,
+      ...(MATCH_CENTER_OVERRIDES_BY_PLAYER_COUNT[playerCount] || {}),
     },
     match: {
+      topBarTranslateY: profileTokens.match.topBarTranslateY,
+      boardTranslateY: profileTokens.match.boardTranslateY,
       dock: profileTokens.match.dock,
       seatPresentation: profileTokens.match.seatPresentation,
     },

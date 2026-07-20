@@ -1,21 +1,34 @@
 import { Box, Button, ButtonProps, styled } from "@mui/material";
 import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard, SUITS_HUMAN_READABLE } from "trucoshi";
+import { ElementType, memo, MouseEventHandler } from "react";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
-import { useState } from "react";
-import type { ElementType, MouseEventHandler } from "react";
 import {
   CardTheme,
   getCardImageUrl,
   normalizeCardTheme,
 } from "../../trucoshi/cardThemes";
+import {
+  getReadyCardImageSource,
+  useCardImagePreload,
+} from "../../trucoshi/cardImageLoader";
 
 const cardContainerSx = {
   position: "relative",
+  display: "inline-block",
   lineHeight: 1,
   perspective: "28em",
 };
 
+const flipContainerSx = (width: string) => ({
+  ...cardContainerSx,
+  width,
+  height: `calc(${width} * 1.48)`,
+});
+
 const flipWrapperSx = {
+  position: "relative",
+  width: "100%",
+  height: "100%",
   lineHeight: 1,
   letterSpacing: 0,
   pr: "2px",
@@ -44,13 +57,13 @@ const backCardSx = {
   transform: "rotateY(180deg)",
 };
 
-const emojiCardContentSx = (width: string) => ({
+const emojiCardContentSx = {
   letterSpacing: 0,
   px: "2px",
   width: "100%",
-  fontSize: `calc(${width} * 0.3)`,
+  fontSize: "35cqw",
   textAlign: "center",
-});
+};
 
 const suitTopSx = {
   position: "absolute",
@@ -64,6 +77,21 @@ const suitBottomSx = {
   bottom: "3%",
   left: 0,
   opacity: 0.15,
+};
+
+const mergeCardFrameSx = (width: string, cardSx: ButtonProps["sx"]) => {
+  const frameSx = {
+    width,
+    height: `calc(${width} * 1.48)`,
+    borderRadius: `calc(${width} / 13)`,
+    overflow: "hidden",
+  };
+
+  if (!cardSx) {
+    return frameSx;
+  }
+
+  return [frameSx, ...(Array.isArray(cardSx) ? cardSx : [cardSx])];
 };
 
 export type GameCardProps = {
@@ -81,7 +109,7 @@ export type GameCardProps = {
   as?: ElementType;
 } & ButtonProps;
 
-const _GameCard = ({
+const GameCardComponent = ({
   card,
   disableDoubleClick = false,
   enableHover = false,
@@ -93,10 +121,22 @@ const _GameCard = ({
   disableButton,
   disabledMask = false,
   theme,
+  sx: cardSx,
   ...buttonProps
 }: GameCardProps) => {
   const [{ cardTheme }, { inspectCard }] = useTrucoshi();
-  const [failedImageSource, setFailedImageSource] = useState<string | null>(null);
+  const name = burn ? BURNT_CARD : card;
+  const selectedTheme = normalizeCardTheme(theme ?? cardTheme);
+  const requestedImageSource =
+    selectedTheme === "emoji" ? null : getCardImageUrl(selectedTheme, name);
+
+  useCardImagePreload([requestedImageSource], selectedTheme === "emoji", "high");
+
+  const imageSource = getReadyCardImageSource(requestedImageSource);
+  const renderBitmap = Boolean(imageSource);
+  const humanCard = CARDS_HUMAN_READABLE[name];
+  const suit = SUITS_HUMAN_READABLE[name.charAt(1) as "e" | "o" | "c" | "b"];
+  const cardLabel = humanCard || "Carta boca abajo";
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
@@ -111,24 +151,13 @@ const _GameCard = ({
     }
   };
 
-  const name = burn ? BURNT_CARD : card;
-  const selectedTheme = normalizeCardTheme(theme ?? cardTheme);
-  const imageSource =
-    selectedTheme === "emoji" ? null : getCardImageUrl(selectedTheme, name);
-  const renderBitmap = Boolean(imageSource && failedImageSource !== imageSource);
-
   const events: ButtonProps = disableButton
     ? { component: "div" }
     : {
-        onClick: onClick,
+        onClick,
         onContextMenu: onClick,
-        onDoubleClick: onDoubleClick,
+        onDoubleClick,
       };
-
-  const humanCard = CARDS_HUMAN_READABLE[name];
-  const suit = SUITS_HUMAN_READABLE[name.charAt(1) as "e" | "o" | "c" | "b"];
-  const cardLabel = humanCard || "Carta boca abajo";
-  const { sx, ...restButtonProps } = buttonProps;
 
   return (
     <GameCardButton
@@ -143,26 +172,22 @@ const _GameCard = ({
       disabledmask={disabledMask}
       data-card-theme={selectedTheme}
       aria-label={cardLabel}
-      sx={{
-        width,
-        height: renderBitmap ? "auto" : `calc(${width} * 1.48)`,
-        borderRadius: `calc(${width} / 13)`,
-        overflow: "hidden",
-        ...sx,
-      }}
+      sx={mergeCardFrameSx(width, cardSx)}
       {...events}
-      {...restButtonProps}
+      {...buttonProps}
     >
       {renderBitmap ? (
         <Box
           component="img"
           alt={cardLabel}
-          src={imageSource || undefined}
-          onError={() => setFailedImageSource(imageSource)}
-          sx={{ display: "block", objectFit: "contain", width: "100%" }}
+          src={imageSource}
+          loading="eager"
+          decoding="sync"
+          draggable={false}
+          sx={{ display: "block", objectFit: "contain", width: "100%", height: "100%" }}
         />
       ) : (
-        <Box sx={emojiCardContentSx(width)}>
+        <Box sx={emojiCardContentSx}>
           <Box sx={suitTopSx}>{suit}</Box>
           <Box>{humanCard || <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Box>
           <Box sx={suitBottomSx}>{suit}</Box>
@@ -174,14 +199,14 @@ const _GameCard = ({
 
 export type FlipGameCardProps = { flip?: boolean } & GameCardProps;
 
-const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
-  <Box sx={cardContainerSx}>
+const FlipGameCardComponent = ({ flip = false, width = "4.4em", ...props }: FlipGameCardProps) => (
+  <Box sx={flipContainerSx(width)}>
     <Box sx={flip ? flipWrapperFlippedSx : flipWrapperSx}>
-      <Box sx={frontCardSx}>
-        <GameCard {...props} />
+      <Box sx={{ ...frontCardSx, pointerEvents: flip ? "none" : "auto" }}>
+        <GameCard {...props} width={width} />
       </Box>
-      <Box sx={backCardSx}>
-        <GameCard {...props} card={BURNT_CARD} />
+      <Box sx={{ ...backCardSx, pointerEvents: flip ? "auto" : "none" }}>
+        <GameCard {...props} width={width} card={BURNT_CARD} />
       </Box>
     </Box>
   </Box>
@@ -189,9 +214,15 @@ const _FlipGameCard = ({ flip = false, ...props }: FlipGameCardProps) => (
 
 const GameCardButton = styled(Button, {
   shouldForwardProp: (prop) =>
-    !["enablehover", "emojicard", "zoom", "shadow", "scale", "disableEvents", "disabledmask"].includes(
-      prop as string
-    ),
+    ![
+      "enablehover",
+      "emojicard",
+      "zoom",
+      "shadow",
+      "scale",
+      "disableEvents",
+      "disabledmask",
+    ].includes(prop as string),
 })<{
   enablehover?: boolean;
   emojicard?: boolean;
@@ -200,64 +231,67 @@ const GameCardButton = styled(Button, {
   scale?: number;
   disableEvents?: boolean;
   disabledmask?: boolean;
-}>(({
-  theme,
-  enablehover,
-  emojicard,
-  zoom,
-  shadow,
-  scale = 1.75,
-  disableEvents = false,
-  disabledmask = false,
-}) => ({
-  lineHeight: 1,
-  position: "relative",
-  transition: theme.transitions.create(["transform", "box-shadow"], {
-    duration: theme.transitions.duration.standard,
-  }),
-  ...(disableEvents && { pointerEvents: "none" }),
-  ...(shadow && { boxShadow: theme.shadows[4] }),
-  ...(zoom && { transform: `scale(${scale})` }),
-  ...(emojicard
-    ? {
-        fontWeight: 700,
-        textAlign: "center",
-        padding: "0.6rem 0.2rem",
-      }
-    : {
-        padding: 0,
-        margin: 0,
-        background: "transparent",
-        border: "none",
-        outline: "none",
-      }),
-  ...(enablehover && {
-    transformOrigin: "50% 100%",
-    "@media (hover: hover) and (pointer: fine)": {
-      "&:hover": {
-        boxShadow: theme.shadows[4],
-        zIndex: theme.zIndex.fab - 1,
-        transform: "translateY(-9%) scale(1.5)",
-        "& *": {
+}>(
+  ({
+    theme,
+    enablehover,
+    emojicard,
+    zoom,
+    shadow,
+    scale = 1.75,
+    disableEvents = false,
+    disabledmask = false,
+  }) => ({
+    lineHeight: 1,
+    position: "relative",
+    containerType: "inline-size",
+    transition: theme.transitions.create(["transform", "box-shadow"], {
+      duration: theme.transitions.duration.standard,
+    }),
+    ...(disableEvents && { pointerEvents: "none" }),
+    ...(shadow && { boxShadow: theme.shadows[4] }),
+    ...(zoom && { transform: `scale(${scale})` }),
+    ...(emojicard
+      ? {
+          fontWeight: 700,
+          textAlign: "center",
+          padding: "0.6rem 0.2rem",
+        }
+      : {
+          padding: 0,
+          margin: 0,
+          background: "transparent",
+          border: "none",
+          outline: "none",
+        }),
+    ...(enablehover && {
+      transformOrigin: "50% 100%",
+      "@media (hover: hover) and (pointer: fine)": {
+        "&:hover": {
+          boxShadow: theme.shadows[4],
           zIndex: theme.zIndex.fab - 1,
+          transform: "translateY(-9%) scale(1.5)",
+          "& *": {
+            zIndex: theme.zIndex.fab - 1,
+          },
         },
       },
-    },
+    }),
+    ...(disabledmask && {
+      "&::after": {
+        content: '""',
+        position: "absolute",
+        inset: 0,
+        borderRadius: "inherit",
+        border: "1px solid rgba(255,255,255,0.14)",
+        backgroundColor: "rgba(7, 10, 9, 0.42)",
+        boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22)",
+        pointerEvents: "none",
+        zIndex: 3,
+      },
+    }),
   }),
-  ...(disabledmask && {
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      inset: 0,
-      borderRadius: "inherit",
-      border: "1px solid rgba(255,255,255,0.14)",
-      backgroundColor: "rgba(7, 10, 9, 0.42)",
-      boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.22)",
-      pointerEvents: "none",
-      zIndex: 3,
-    },
-  }),
-}));
+);
 
-export const GameCard = _GameCard;
-export const FlipGameCard = _FlipGameCard;
+export const GameCard = memo(GameCardComponent);
+export const FlipGameCard = memo(FlipGameCardComponent);

@@ -11,12 +11,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { UseModalProps } from "../hooks/useModal";
 
 type Props = {
-  title?: React.ReactNode;
-  actions?: React.ReactNode;
+  title?: ReactNode;
+  actions?: ReactNode;
   hideClose?: boolean;
   preventCloseOnBackdropClick?: boolean;
   isLoading?: boolean;
@@ -62,7 +62,7 @@ export const Modal = <T extends Record<string, any>>({
       {title && <DialogTitle>{title}</DialogTitle>}
 
       {children ? (
-        <DialogContent>
+        <DialogContent sx={{ backgroundColor: "inherit" }}>
           {isLoading ? (
             <Stack py={8} height="100%" alignItems="center" justifyContent="center">
               <CircularProgress />
@@ -86,7 +86,11 @@ export const Modal = <T extends Record<string, any>>({
           )}
         </DialogContent>
       ) : null}
-      {actions ? <DialogActions>{isLoading ? null : actions}</DialogActions> : null}
+      {actions ? (
+        <DialogActions sx={{ backgroundColor: "inherit" }}>
+          {isLoading ? null : actions}
+        </DialogActions>
+      ) : null}
     </Dialog>
   );
 };

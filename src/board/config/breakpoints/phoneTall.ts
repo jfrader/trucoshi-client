@@ -7,10 +7,10 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     topStripGap: "0.78rem",
     topStripMarginBottom: "0.42rem",
     bottomStripMarginTop: "0.42rem",
-    boardWidth: "min(calc(100% - 1.35rem), 56rem)",
-    boardMaxWidth: "calc(100% - 1.35rem)",
+    boardWidth: "min(calc(100% - 0.45rem), 56rem)",
+    boardMaxWidth: "calc(100% - 0.45rem)",
     boardHeight: "min(88%, 41rem)",
-    boardMaxHeight: "52vh",
+    boardMaxHeight: "54vh",
     boardAspectRatio: "auto",
     boardBorderRadius: "50% / 48%",
     boardInnerBorderRadius: "50% / 48%",
@@ -21,6 +21,8 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     seatMaxWidth: "11.5rem",
   },
   match: {
+    topBarTranslateY: "-0.5rem",
+    boardTranslateY: "-0.65rem",
     seatBase: {
       radiusXMultiplier: 1,
       radiusYMultiplier: 1,
@@ -36,7 +38,7 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     },
     center: {
       overrides: {
-        centerShiftYPercent: 1.2,
+        centerShiftYPercent: 4,
         playerSpreadXPercent: 37,
         playerSpreadYPercent: 32,
         maxJitterPx: 2,
@@ -45,8 +47,13 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     },
     dock: {
       handCardWidth: "clamp(4.7rem, 14.2dvh, 6.65rem)",
-      playedCardWidth: "clamp(3.34rem, 9.8vw, 3.9rem)",
+      playedCardWidth: "clamp(3.65rem, 10.7vw, 4.15rem)",
       announcementBlockHeight: "4.75rem",
+      announcementTextSizes: {
+        tertiary: "0.875rem",
+        secondary: "0.875rem",
+        primary: "1.25rem",
+      },
       handBlockHeight: "6.95rem",
       commandBlockHeight: "3.95rem",
       dockGap: "0.58rem",
@@ -57,11 +64,12 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
       commandCompact: false,
     },
     seatPresentation: {
+      avatarFrameSizePx: 58,
       meTranslateY: 20,
       lowerSideTranslateY: 24,
       topSeatAvatarNudgeY: 0,
       hideTopSeatAvatarNudgeOnProfiles: ["phoneTall"],
-      hiddenHandCardWidth: "clamp(1.82rem, 5.1vw, 2.02rem)",
+      hiddenHandCardWidth: "clamp(1.9rem, 5.35vw, 2.1rem)",
       hiddenHandScale: 1,
       hiddenHandRules: {
         tableInsetPx: 42,
@@ -73,6 +81,9 @@ export const PHONE_TALL_PROFILE_TOKENS: BoardProfileLayoutTokens = {
         fanSpreadDeg: 6.3,
         minClearancePx: 9,
         handOrigin: "50% 114%",
+      },
+      tablePoints: {
+        imageHeightMobile: "1.16rem",
       },
     },
   },

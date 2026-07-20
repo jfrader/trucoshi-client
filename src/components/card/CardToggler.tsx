@@ -1,6 +1,6 @@
-import { Box, BoxProps, IconButton, Stack } from "@mui/material";
-import { SetStateAction, useEffect, useRef, useState } from "react";
-import { ICard } from "trucoshi";
+import { Box, IconButton, Stack, styled, type BoxProps } from "@mui/material";
+import { useEffect, useRef, useState, type SetStateAction } from "react";
+import type { ICard } from "trucoshi";
 import { FlipGameCard } from "./GameCard";
 import { Refresh, Visibility, VisibilityOff } from "@mui/icons-material";
 import { HandCardContainer } from "./HandCardContainer";
@@ -13,9 +13,42 @@ deck.random.bitcoinHash = Math.random().toString();
 deck.random.clients = [Math.random().toString()];
 deck.shuffle(0);
 
+const INITIAL_CARDS = ["1e", "1b", "7e"] as ICard[];
+
+const CardTogglerRoot = styled(Box)(({ theme }) => ({
+  position: "relative",
+  zIndex: theme.zIndex.appBar - 1,
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) auto",
+  columnGap: theme.spacing(1),
+  overflow: "visible",
+  [theme.breakpoints.down("md")]: { display: "block" },
+}));
+
+const CardPreview = styled(Box)(({ theme }) => ({
+  position: "relative",
+  minWidth: 0,
+  height: "100%",
+  paddingTop: theme.spacing(3),
+  boxSizing: "border-box",
+  overflow: "visible",
+}));
+
+const CardActions = styled(Stack)(({ theme }) => ({
+  position: "relative",
+  zIndex: theme.zIndex.appBar + 3,
+  alignSelf: "start",
+  alignItems: "center",
+  [theme.breakpoints.down("md")]: {
+    position: "absolute",
+    top: 0,
+    left: "min(calc(50% + 8.75rem), calc(100% - 3.25rem))",
+  },
+}));
+
 export const CardToggler = (props: BoxProps) => {
   const { queue } = useSound();
-  const [randomCards, setRandomCards] = useState<ICard[]>(() => deck.takeThree());
+  const [randomCards, setRandomCards] = useState<ICard[]>(() => [...INITIAL_CARDS]);
   const [flip, _setFlip] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
@@ -35,12 +68,11 @@ export const CardToggler = (props: BoxProps) => {
 
   useEffect(() => {
     queue("play0");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flip]);
+  }, [flip, queue]);
 
   useEffect(() => {
     setFlip(true);
-    const timeout = setTimeout(() => setFlip(false), 750);
+    const timeout = setTimeout(() => setFlip(false), 1750);
     return () => {
       clearTimeout(timeout);
       if (timer.current) {
@@ -51,20 +83,17 @@ export const CardToggler = (props: BoxProps) => {
   }, []);
 
   return (
-    <Box
-      pt={3}
-      height="7em"
-      sx={(theme) => ({ position: "relative", zIndex: theme.zIndex.appBar - 1 })}
-      {...props}
-    >
-      <Box position="relative" left={-25}>
+    <CardTogglerRoot height="7em" {...props}>
+      <CardPreview>
         {randomCards.map((card, i) => {
           return (
             <HandCardContainer
+              centered
               open
               openMargin={6}
               fontSize="11px"
               key={card}
+              rotationSeed={card}
               cards={randomCards.length}
               i={i}
             >
@@ -72,10 +101,11 @@ export const CardToggler = (props: BoxProps) => {
             </HandCardContainer>
           );
         })}
-      </Box>
+      </CardPreview>
 
-      <Stack justifyContent="end" alignItems="end" position="absolute" right="0" top="0">
+      <CardActions role="group" aria-label="Controles de cartas">
         <IconButton
+          title="Repartir"
           disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
@@ -101,6 +131,7 @@ export const CardToggler = (props: BoxProps) => {
           <Refresh />
         </IconButton>
         <IconButton
+          title="Girar"
           disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
@@ -111,7 +142,7 @@ export const CardToggler = (props: BoxProps) => {
         >
           {flip ? <Visibility /> : <VisibilityOff />}
         </IconButton>
-      </Stack>
-    </Box>
+      </CardActions>
+    </CardTogglerRoot>
   );
 };

@@ -2,7 +2,7 @@
 
 exports[`MatchBottomDock visual guard > renders announcements, hand cards and command lane 1`] = `
 <div
-  class="MuiBox-root css-tvub9t"
+  class="MuiBox-root css-gvrn72"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"
@@ -14,17 +14,17 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
         class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body2 css-m64nil-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-tn23hq-MuiTypography-root"
         >
           Envido
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1xh2i2i-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-zemrrq-MuiTypography-root"
         >
           Truco
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1pp6dye-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1hyk470-MuiTypography-root"
         >
           Quiero
         </p>
@@ -53,7 +53,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
       </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jutl6g-MuiPaper-root"
     >
       <div
         class="MuiBox-root css-8hnoxy"
@@ -62,7 +62,9 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
           class="MuiStack-root css-w34giv-MuiStack-root"
         >
           <div
-            class="truco-play-card-interactive MuiBox-root css-uxynjk"
+            class="truco-play-card-interactive MuiBox-root css-1mu6sn7"
+            data-can-play="true"
+            data-testid="playable-match-card-0"
           >
             <div
               data-testid="game-card"
@@ -71,7 +73,9 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
             </div>
           </div>
           <div
-            class="truco-play-card-interactive MuiBox-root css-18a9g97"
+            class="truco-play-card-interactive MuiBox-root css-1bpgqu3"
+            data-can-play="true"
+            data-testid="playable-match-card-1"
           >
             <div
               data-testid="game-card"
@@ -80,7 +84,9 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
             </div>
           </div>
           <div
-            class="truco-play-card-interactive MuiBox-root css-wbr6ro"
+            class="truco-play-card-interactive MuiBox-root css-6i6odz"
+            data-can-play="true"
+            data-testid="playable-match-card-2"
           >
             <div
               data-testid="game-card"
@@ -130,7 +136,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
 
 exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidden hand placeholders 1`] = `
 <div
-  class="MuiBox-root css-tvub9t"
+  class="MuiBox-root css-gvrn72"
 >
   <div
     class="MuiStack-root css-fm002g-MuiStack-root"
@@ -142,17 +148,17 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
         class="MuiBox-root css-1em705f"
       >
         <p
-          class="MuiTypography-root MuiTypography-body2 css-z5xlh3-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1nepzin-MuiTypography-root"
         >
-          Anterior: sin datos
+          -
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1bs1g1a-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-tn23hq-MuiTypography-root"
         >
-          Anterior: sin datos
+          -
         </p>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-cuhsxa-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-1fmiq20-MuiTypography-root"
         >
           Sin anuncios
         </p>
@@ -181,7 +187,7 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
       </button>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jk5562-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1jutl6g-MuiPaper-root"
     >
       <div
         class="MuiBox-root css-8hnoxy"

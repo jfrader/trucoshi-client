@@ -1,7 +1,13 @@
 import { Box, styled } from "@mui/material";
 
 const OPEN_MARGIN = 4;
-const randDeg = () => Math.round(Math.random() * 3) * (Math.random() > 0.5 ? 1 : -1);
+const getRotation = (seed: string, i: number, cards: number) => {
+  const hash = Array.from(seed).reduce(
+    (value, character) => (value * 31 + character.charCodeAt(0)) | 0,
+    0,
+  );
+  return (Math.abs(hash + i * 7 + cards * 11) % 7) - 3;
+};
 const getMargin = (i: number, cards: number, margin: number = OPEN_MARGIN) => {
   if (cards === 2) {
     const m = margin / 2;
@@ -23,7 +29,15 @@ const getMargin = (i: number, cards: number, margin: number = OPEN_MARGIN) => {
 
 export const HandCardContainer = styled(Box, {
   shouldForwardProp(propName) {
-    return !["open", "cards", "i", "openMargin", "margin"].includes(propName as string);
+    return ![
+      "open",
+      "cards",
+      "i",
+      "openMargin",
+      "margin",
+      "rotationSeed",
+      "centered",
+    ].includes(propName as string);
   },
 })<{
   open: boolean;
@@ -31,15 +45,29 @@ export const HandCardContainer = styled(Box, {
   i: number;
   openMargin?: number;
   margin?: number;
-}>(({ theme, open, cards, i, openMargin: openMarginProp = OPEN_MARGIN, margin = 1 }) => {
+  rotationSeed?: string;
+  centered?: boolean;
+}>(({
+  theme,
+  open,
+  cards,
+  i,
+  openMargin: openMarginProp = OPEN_MARGIN,
+  margin = 1,
+  rotationSeed = `${cards}-${i}`,
+  centered = false,
+}) => {
   const openMargin = getMargin(i, cards, openMarginProp);
   const closedMargin = getMargin(i, cards, margin);
+  const rotation = getRotation(rotationSeed, i, cards);
+  const transform = `${centered ? "translateX(-50%) " : ""}rotate(${rotation}deg)`;
   return [
     {
       position: "absolute",
       left: "50%",
-      right: "50%",
-      transform: `rotate(${randDeg()}deg)`,
+      right: centered ? "auto" : "50%",
+      width: centered ? "max-content" : undefined,
+      transform,
       marginLeft: closedMargin,
       transition: theme.transitions.create(["transform", "margin-top", "margin-left"], {
         duration: theme.transitions.duration.standard,
@@ -47,7 +75,7 @@ export const HandCardContainer = styled(Box, {
     },
     open
       ? {
-          transform: `rotate(${randDeg()}deg)`,
+          transform,
           marginLeft: openMargin,
           zIndex: theme.zIndex.appBar + 2,
           "& *": {

@@ -5,7 +5,7 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
   class="MuiBox-root css-u3deep"
 >
   <div
-    class="MuiBox-root css-19wwmka"
+    class="MuiBox-root css-1aw12ve"
   >
     <div
       data-testid="board-top"
@@ -14,14 +14,14 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
     </div>
   </div>
   <div
-    class="MuiBox-root css-52nma6"
+    class="MuiBox-root css-1w6pfz6"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 css-mlsoqm-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 css-2gwjxh-MuiPaper-root"
       data-truco-board-surface="true"
     >
       <div
-        class="MuiBox-root css-14bz54"
+        class="MuiBox-root css-1afndzr"
       >
         <div
           data-testid="board-center"

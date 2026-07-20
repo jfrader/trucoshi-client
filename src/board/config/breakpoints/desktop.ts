@@ -21,6 +21,8 @@ export const DESKTOP_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     seatMaxWidth: "11.8rem",
   },
   match: {
+    topBarTranslateY: "-1rem",
+    boardTranslateY: "0rem",
     seatBase: {
       radiusXMultiplier: 1.1,
       radiusYMultiplier: 1.12,
@@ -40,8 +42,13 @@ export const DESKTOP_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     },
     dock: {
       handCardWidth: "clamp(4.18rem, 4.35vw, 5.28rem)",
-      playedCardWidth: "clamp(3.2rem, 2.8vw, 3.65rem)",
+      playedCardWidth: "clamp(3.55rem, 3.1vw, 3.95rem)",
       announcementBlockHeight: "4.75rem",
+      announcementTextSizes: {
+        tertiary: "0.875rem",
+        secondary: "0.875rem",
+        primary: "1.25rem",
+      },
       handBlockHeight: "6.6rem",
       commandBlockHeight: "3.5rem",
       dockGap: "0.58rem",
@@ -52,6 +59,7 @@ export const DESKTOP_PROFILE_TOKENS: BoardProfileLayoutTokens = {
       commandCompact: true,
     },
     seatPresentation: {
+      avatarFrameSizePx: 56,
       meTranslateY: 22,
       lowerSideTranslateY: 24,
       topSeatAvatarNudgeY: 0,

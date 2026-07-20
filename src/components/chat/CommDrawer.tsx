@@ -228,7 +228,7 @@ export const CommDrawer = ({
         onClose={() => chatProps.setActive(false)}
         PaperProps={{
           sx: (theme) => ({
-            height: "min(68vh, 36rem)",
+            height: "min(calc(var(--trucoshi-viewport-height, 100dvh) * 0.68), 36rem)",
             borderTopLeftRadius: "1rem",
             borderTopRightRadius: "1rem",
             background: theme.trucoshiUi.chatDrawer.drawerPanelBackground,

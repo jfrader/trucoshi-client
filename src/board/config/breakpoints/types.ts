@@ -10,6 +10,8 @@ import {
 export type BoardProfileLayoutTokens = {
   frame: BoardSurfaceFrameConfig;
   match: {
+    topBarTranslateY: string;
+    boardTranslateY: string;
     seatBase: BoardSeatGeometryConfig;
     center: {
       overrides: Partial<Omit<BoardCenterStackConfig, "spreadBoost">>;

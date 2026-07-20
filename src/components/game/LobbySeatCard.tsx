@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { ILobbyOptions, IPublicPlayer } from "trucoshi";
-import { getTeamColor, getTeamName } from "../../utils/team";
+import { getTeamColor, getTeamDisplayName } from "../../utils/team";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { Sats } from "../../shared/Sats";
 import { Link } from "../../shared/Link";
@@ -52,7 +52,7 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
 
   const teamLabel = (
     <Typography color={`${getTeamColor(slot.teamIdx)}.light`} fontSize="1rem">
-      {getTeamName(slot.teamIdx)}
+      {getTeamDisplayName(match, slot.teamIdx)}
     </Typography>
   );
 

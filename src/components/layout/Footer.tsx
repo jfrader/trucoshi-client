@@ -1,4 +1,4 @@
-import { Link as MuiLink, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import { GENERAL_LINKS } from "../../assets/links/links";
 import { FooterLink } from "./FooterLink";
@@ -28,15 +28,6 @@ export const Footer = () => {
             </FooterLink>
           );
         })}
-        <Typography display="block" variant="caption">
-          <MuiLink
-            href={`${import.meta.env.BASE_URL}ASSET_NOTICES.md`}
-            target="_blank"
-            rel="license noopener noreferrer"
-          >
-            Licencias y autoría de las cartas
-          </MuiLink>
-        </Typography>
       </Stack>
     </Stack>
   );

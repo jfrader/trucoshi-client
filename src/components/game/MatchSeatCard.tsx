@@ -57,7 +57,7 @@ const _MatchSeatCard = ({
         : undefined;
   const tablePointsSide = seatIndex === frontLeaderSeatIndex ? "right" : "left";
   const hiddenCards = Math.min(player.hand.length, 3);
-  const avatarFrameSizePx = 56;
+  const avatarFrameSizePx = seatPresentation.avatarFrameSizePx;
   const turnRingPaddingPx = 4;
   const avatarOrbitSizePx = avatarFrameSizePx + turnRingPaddingPx * 2;
   const playerNameBlockPx = 30;
@@ -85,13 +85,12 @@ const _MatchSeatCard = ({
     : turnTimer.isExtension
       ? theme.trucoshiUi.match.seatTurnRing.extension
       : theme.trucoshiUi.match.seatTurnRing.normal;
+  const teamStatusColor = `${getTeamColor(player.teamIdx)}.light`;
   const statusColor = player.abandoned
     ? "error.main"
     : player.disabled
-    ? "warning.main"
-    : isTurn
-    ? "info.light"
-    : `${getTeamColor(player.teamIdx)}.light`;
+      ? "warning.main"
+      : teamStatusColor;
 
   const ringProgress = timerVisible ? Math.max(0, Math.min(100, turnTimer.progress)) : 0;
   const ringStrokePx = 3;
@@ -182,6 +181,7 @@ const _MatchSeatCard = ({
               p: 0,
               borderRadius: "50%",
               ...theme.trucoshiUi.match.seatAvatarFrame,
+              borderColor: teamStatusColor,
               position: "relative",
               zIndex: 1,
             }}
@@ -209,16 +209,16 @@ const _MatchSeatCard = ({
               <UserAvatar
                 account={player}
                 size="big"
-                bgcolor={`${getTeamColor(player.teamIdx)}.main`}
+                bgcolor={player.bot ? `${getTeamColor(player.teamIdx)}.main` : undefined}
               />
             </Box>
             <Box
               sx={{
                 position: "absolute",
-                right: -1,
-                bottom: -1,
-                width: "0.76rem",
-                height: "0.76rem",
+                right: isTurn ? "-0.25rem" : "-0.15rem",
+                bottom: isTurn ? "-0.25rem" : "-0.15rem",
+                width: isTurn ? "0.95rem" : "0.75rem",
+                height: isTurn ? "0.95rem" : "0.75rem",
                 borderRadius: "50%",
                 bgcolor: statusColor,
                 ...theme.trucoshiUi.match.seatStatusDot,
@@ -235,6 +235,7 @@ const _MatchSeatCard = ({
         </Box>
 
         <Paper
+          data-local-player={player.isMe ? "true" : undefined}
           sx={{
             mt: 0.42,
             px: 1.05,
@@ -242,10 +243,11 @@ const _MatchSeatCard = ({
             minWidth: "4.6rem",
             borderRadius: "0.62rem",
             ...theme.trucoshiUi.match.seatNameBadge,
+            ...(player.isMe && isTurn ? theme.trucoshiUi.match.seatNameBadgeMyTurn : null),
           }}
         >
           <Typography
-            color="common.white"
+            color="inherit"
             fontWeight={800}
             lineHeight={1.1}
             textAlign="center"
@@ -270,7 +272,6 @@ const _MatchSeatCard = ({
             transform: `translate(-50%, -50%) translate(${hiddenHandLayout.anchor.x}px, ${hiddenHandLayout.anchor.y}px) rotate(${hiddenHandLayout.anchor.rotateDeg}deg)`,
             transformOrigin: hiddenHandLayout.anchor.origin,
             pointerEvents: "none",
-            zIndex: 1,
           }}
         >
           {hiddenHandLayout.cards.map((cardTransform, idx) => (
@@ -306,7 +307,6 @@ const _MatchSeatCard = ({
             transform: `translate(-50%, -50%) translate(${hiddenHandLayout.anchor.x}px, ${hiddenHandLayout.anchor.y}px) rotate(${hiddenHandLayout.anchor.rotateDeg}deg)`,
             transformOrigin: hiddenHandLayout.anchor.origin,
             pointerEvents: "none",
-            zIndex: 2,
           }}
         >
           <Box
@@ -325,7 +325,6 @@ const _MatchSeatCard = ({
               display: "flex",
               alignItems: "center",
               gap: tablePointsPlacement.pileGap,
-              zIndex: 220,
             }}
           >
             {tablePointChunks.map((chunk, index) => (
@@ -363,6 +362,7 @@ const _MatchSeatCard = ({
 };
 
 const sameSeatPresentation = (prev: MatchSeatPresentation, next: MatchSeatPresentation) =>
+  prev.avatarFrameSizePx === next.avatarFrameSizePx &&
   prev.translateY === next.translateY &&
   prev.avatarNudgeY === next.avatarNudgeY &&
   prev.hiddenHandCardWidth === next.hiddenHandCardWidth &&

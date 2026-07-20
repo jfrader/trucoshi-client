@@ -1,6 +1,5 @@
 import {
   Box,
-  BoxProps,
   Button,
   List,
   ListItem,
@@ -10,21 +9,23 @@ import {
   ClickAwayListener,
   Typography,
   styled,
-  SlideProps,
-  FadeProps,
   ListItemAvatar,
-  ButtonProps,
+  type BoxProps,
+  type ButtonProps,
+  type FadeProps,
+  type SlideProps,
 } from "@mui/material";
 import {
   useState,
   useLayoutEffect,
   useEffect,
-  FC,
-  PropsWithChildren,
   useRef,
   useMemo,
   useCallback,
   memo,
+  type FC,
+  type MouseEvent,
+  type PropsWithChildren,
 } from "react";
 import { useChat } from "../../trucoshi/hooks/useChat";
 import {
@@ -35,14 +36,16 @@ import {
   IPublicMatch,
   IPublicPlayer,
 } from "trucoshi";
-import { getTeamColor, getTeamName } from "../../utils/team";
+import { getTeamColor, getTeamDisplayNameForPlayers } from "../../utils/team";
 import { bounce } from "../../assets/animations/bounce";
 import { COMMANDS_HUMAN_READABLE } from "../../trucoshi/constants";
 import { UserAvatar } from "../../shared/UserAvatar";
 import { useTrucoshi } from "../../trucoshi/hooks/useTrucoshi";
 import ChatField from "./ChatField";
 
-const ChatBox = styled(Box)<{ active: number }>(({ active }) => [
+const ChatBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active: number }>(({ active }) => [
   {
     opacity: active ? 0.9 : 0.3,
   },
@@ -75,7 +78,7 @@ const useStableChatPlayers = (players: IPublicPlayer[] | undefined) => {
 };
 
 export const useChatRoom = (match?: IPublicMatch | null) => {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestAnimatedMessageIdRef = useRef<IChatMessage["id"] | null>(null);
 
   const [active, setActive] = useState<boolean>(false);
@@ -115,11 +118,12 @@ export const useChatRoom = (match?: IPublicMatch | null) => {
     () => ({
       useChatState,
       players: match?.players,
+      maxPlayers: match?.options.maxPlayers,
       active,
       setActive,
       latestMessage,
     }),
-    [active, latestMessage, match?.players, useChatState]
+    [active, latestMessage, match?.options.maxPlayers, match?.players, useChatState],
   );
 };
 
@@ -131,7 +135,7 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
   width: "17rem",
   zIndex: theme.zIndex.drawer,
   [theme.breakpoints.up("lg")]: {
-    height: "calc(100vh - 48px)",
+    height: "calc(var(--trucoshi-viewport-height, 100dvh) - 48px)",
     width: "19.5rem",
   },
   transition: theme.transitions.create(["height"], {
@@ -144,6 +148,7 @@ export const FixedChatContainer = styled(Box)(({ theme }) => ({
 
 export const ChatRoom = ({
   players,
+  maxPlayers,
   useChatState,
   active,
   setActive,
@@ -165,14 +170,16 @@ export const ChatRoom = ({
 
   useLayoutEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTo({
-        top: listRef.current.scrollHeight,
-      });
+      if (listRef.current.scrollTo) {
+        listRef.current.scrollTo({ top: listRef.current.scrollHeight });
+      } else {
+        listRef.current.scrollTop = listRef.current.scrollHeight;
+      }
     }
   }, [filteredMessages.length]);
 
-  const onActivate = (e: any) => {
-    e.stopPropagation();
+  const onActivate = (event: MouseEvent) => {
+    event.stopPropagation();
     setActive(true);
   };
 
@@ -188,12 +195,12 @@ export const ChatRoom = ({
             !message.command &&
             !prevMessage.card &&
             !prevMessage.command &&
-            message.date * 1000 - prevMessage.date * 1000 <= MESSAGE_GROUPING_THRESHOLD
+            message.date * 1000 - prevMessage.date * 1000 <= MESSAGE_GROUPING_THRESHOLD,
         );
 
         return { message, hideAuthor: isConsecutive };
       }),
-    [filteredMessages]
+    [filteredMessages],
   );
 
   return (
@@ -214,10 +221,10 @@ export const ChatRoom = ({
         display="flex"
         textAlign="left"
         flexDirection="column"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer,
+        sx={(theme) => ({
+          zIndex: theme.zIndex.appBar,
           overflow: "hidden",
-        }}
+        })}
         {...boxProps}
       >
         <List
@@ -226,7 +233,7 @@ export const ChatRoom = ({
           sx={(theme) => ({
             justifyContent: "flex-end",
             m: 0,
-            background: theme.palette.background.paper,
+            ...theme.trucoshiUi.chatDrawer.chatMessages,
             overflowY: "auto",
             width: "100%",
             flex: 1,
@@ -240,6 +247,7 @@ export const ChatRoom = ({
               key={message.id}
               message={message}
               players={stablePlayers}
+              maxPlayers={maxPlayers}
               hideAuthor={hideAuthor}
             />
           ))}
@@ -281,15 +289,20 @@ export const authorColor = (message: IChatMessage, players: IPublicPlayer[]) => 
 export const MessageAuthor = ({
   message,
   players = [],
+  maxPlayers,
 }: {
   message: IChatMessage;
   players?: Array<IPublicPlayer>;
+  maxPlayers?: IPublicMatch["options"]["maxPlayers"];
 }) => {
   const color = authorColor(message, players);
+  const teamIdx = Number(message.user.key) as 0 | 1;
 
   return (
     <Typography color={color} display="inline" variant="inherit">
-      {message.command ? getTeamName(Number(message.user.key)) + " " : message.user.name + ": "}
+      {message.command
+        ? `${getTeamDisplayNameForPlayers(players, teamIdx, maxPlayers === 2)} `
+        : message.user.name + ": "}
     </Typography>
   );
 };
@@ -324,6 +337,7 @@ export const ChatMessage = ({
   message,
   children,
   players = [],
+  maxPlayers,
   animate = false,
   hideAuthor = false,
   Component = Slide,
@@ -332,6 +346,7 @@ export const ChatMessage = ({
   {
     message: IChatMessage;
     players?: Array<IPublicPlayer>;
+    maxPlayers?: IPublicMatch["options"]["maxPlayers"];
     animate?: boolean;
     hideAuthor?: boolean | null;
     Component?: FC<SlideProps | FadeProps>;
@@ -349,7 +364,7 @@ export const ChatMessage = ({
         {!hideAuthor && getAvatar(message, players)}
         <ListItemText sx={{ textAlign: "inherit" }}>
           {hideAuthor || message.system ? null : (
-            <MessageAuthor message={message} players={players} />
+            <MessageAuthor message={message} players={players} maxPlayers={maxPlayers} />
           )}
           <Typography
             color={messageColor(message, players)}
@@ -371,6 +386,7 @@ const MemoizedChatMessage = memo(
     prev.message.id === next.message.id &&
     prev.animate === next.animate &&
     prev.hideAuthor === next.hideAuthor &&
+    prev.maxPlayers === next.maxPlayers &&
     prev.players === next.players,
 );
 

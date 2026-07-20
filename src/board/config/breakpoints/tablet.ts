@@ -21,6 +21,8 @@ export const TABLET_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     seatMaxWidth: "11.8rem",
   },
   match: {
+    topBarTranslateY: "-0.86rem",
+    boardTranslateY: "0rem",
     seatBase: {
       radiusXMultiplier: 1.07,
       radiusYMultiplier: 1.08,
@@ -43,8 +45,13 @@ export const TABLET_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     },
     dock: {
       handCardWidth: "clamp(5.05rem, 15.2dvh, 7.15rem)",
-      playedCardWidth: "clamp(3.05rem, 5vw, 3.6rem)",
+      playedCardWidth: "clamp(3.25rem, 5.3vw, 3.8rem)",
       announcementBlockHeight: "4.75rem",
+      announcementTextSizes: {
+        tertiary: "0.875rem",
+        secondary: "0.875rem",
+        primary: "1.25rem",
+      },
       handBlockHeight: "7.15rem",
       commandBlockHeight: "3.95rem",
       dockGap: "0.58rem",
@@ -55,6 +62,7 @@ export const TABLET_PROFILE_TOKENS: BoardProfileLayoutTokens = {
       commandCompact: true,
     },
     seatPresentation: {
+      avatarFrameSizePx: 56,
       meTranslateY: 20,
       lowerSideTranslateY: 24,
       topSeatAvatarNudgeY: 0,

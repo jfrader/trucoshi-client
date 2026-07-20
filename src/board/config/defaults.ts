@@ -1,5 +1,6 @@
 import {
   BoardCenterStackConfig,
+  BoardPlayerCount,
   BoardSeatGeometryConfig,
   HiddenHandRadialRules,
   TablePointsPlacementRules,
@@ -26,6 +27,7 @@ export const EMPTY_CENTER_STACK: BoardCenterStackConfig = {
   playerSpreadXPercent: 0,
   playerSpreadYPercent: 0,
   spreadBoost: 0,
+  sideVerticalSpreadBoost: 0,
   maxJitterPx: 0,
   maxRotationOffsetDeg: 0,
   facePlayerRotation: false,
@@ -46,9 +48,18 @@ export const DEFAULT_MATCH_CENTER_BASE: Omit<BoardCenterStackConfig, "spreadBoos
   centerShiftYPercent: 1.8,
   playerSpreadXPercent: 42,
   playerSpreadYPercent: 39,
+  sideVerticalSpreadBoost: 0,
   maxJitterPx: 4,
   maxRotationOffsetDeg: 6,
   facePlayerRotation: false,
+};
+
+export const MATCH_CENTER_OVERRIDES_BY_PLAYER_COUNT: Partial<
+  Record<BoardPlayerCount, Partial<BoardCenterStackConfig>>
+> = {
+  6: {
+    sideVerticalSpreadBoost: 7,
+  },
 };
 
 export const DEFAULT_HIDDEN_HAND_RADIAL_RULES: HiddenHandRadialRules = {

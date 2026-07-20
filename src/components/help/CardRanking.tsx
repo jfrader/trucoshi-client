@@ -10,27 +10,42 @@ const groupedCards = groupBy(
   ([, value]: [ICard, number]) => value
 ) as Record<string, Array<[ICard, number]>>;
 
-export const CardRanking = () => {
+export const CardRanking = ({
+  compact = false,
+  title = "Ranking de Cartas en el Truco",
+}: {
+  compact?: boolean;
+  title?: string;
+}) => {
   const [, { inspectCard }] = useTrucoshi();
   return (
-    <Stack pt={2} direction="row" flexWrap="wrap" gap={4}>
-      <Typography variant="caption" fontWeight="bold" fontSize="large" width="100%">
-        Ranking de Cartas en el Truco
-      </Typography>
+    <Stack pt={compact ? 0 : 2} direction="row" flexWrap="wrap" gap={compact ? 2 : 4}>
+      {title ? (
+        <Typography
+          variant="caption"
+          fontWeight="bold"
+          fontSize={compact ? "medium" : "large"}
+          width="100%"
+        >
+          {title}
+        </Typography>
+      ) : null}
       {Object.entries(groupedCards)
         .sort(([a], [b]) => Number(b) - Number(a))
         .map(([value, cards], i) => {
           return (
-            <Stack gap={2} direction="row" key={value}>
-              <Typography>{i + 1}. </Typography>
+            <Stack alignItems="center" gap={compact ? 1 : 2} direction="row" key={value}>
+              <Typography fontSize={compact ? "0.8rem" : undefined}>{i + 1}. </Typography>
               {cards.map(([c], j) => (
                 <HandCardContainer
                   open={false}
                   sx={{
+                    transform: compact ? "scale(0.72)" : undefined,
+                    transformOrigin: "left center",
                     position: "relative",
                     left: "initial",
                     right: "initial",
-                    marginLeft: `calc(-1.2em * ${j})`,
+                    marginLeft: `calc(-${compact ? 1.9 : 1.2}em * ${j})`,
                   }}
                   cards={cards.length}
                   i={j}

@@ -3,6 +3,10 @@ import { BURNT_CARD, CARDS_HUMAN_READABLE, ICard } from "trucoshi";
 import { renderWithTheme } from "../../test/renderWithTheme";
 import { CardTheme } from "../../trucoshi/cardThemes";
 import { GameCard } from "./GameCard";
+import {
+  markCardImageSourceReadyForTest,
+  resetCardImageCacheForTest,
+} from "../../trucoshi/cardImageLoader";
 
 const inspectCard = vi.fn();
 let cardTheme: CardTheme = "default";
@@ -15,6 +19,7 @@ describe("GameCard fixed public themes", () => {
   beforeEach(() => {
     inspectCard.mockClear();
     cardTheme = "default";
+    resetCardImageCacheForTest();
   });
 
   it.each(["default", "gnu"] as CardTheme[])(
@@ -22,6 +27,7 @@ describe("GameCard fixed public themes", () => {
     (theme) => {
       cardTheme = theme;
       const card = "1e" as ICard;
+      markCardImageSourceReadyForTest(`/cards/${theme}/${card}.png`);
       const { container } = renderWithTheme(<GameCard card={card} />);
       const image = container.querySelector("img");
 
@@ -43,6 +49,7 @@ describe("GameCard fixed public themes", () => {
 
   it("supports a fixed-theme preview without changing the global theme", () => {
     cardTheme = "emoji";
+    markCardImageSourceReadyForTest("/cards/gnu/xx.png");
     const { container } = renderWithTheme(
       <GameCard card={BURNT_CARD} theme="gnu" />,
     );
@@ -52,12 +59,10 @@ describe("GameCard fixed public themes", () => {
     );
   });
 
-  it("falls back to the Emoji renderer if a reviewed bitmap cannot load", () => {
+  it("keeps a stable Emoji placeholder while a bitmap is loading", () => {
     cardTheme = "gnu";
     const card = "1e" as ICard;
     const { container } = renderWithTheme(<GameCard card={card} />);
-
-    fireEvent.error(container.querySelector("img") as HTMLImageElement);
 
     expect(container.querySelector("img")).toBeNull();
     expect(container).toHaveTextContent(CARDS_HUMAN_READABLE[card]);

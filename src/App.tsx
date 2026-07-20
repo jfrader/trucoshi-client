@@ -22,6 +22,8 @@ import { MatchDetails } from "./pages/MatchDetails";
 import { PageLayout } from "./components/layout/PageLayout";
 import { PlayerRanking } from "./pages/PlayerRanking";
 import CustomSnackbar from "./shared/CustomSnackbar";
+import { EnglishRulebook, Rulebook } from "./pages/Rulebook";
+import { Account } from "./pages/Account";
 
 const AppRouter = createBrowserRouter([
   {
@@ -71,12 +73,24 @@ const AppRouter = createBrowserRouter([
             element: <Help />,
           },
           {
+            path: "rules",
+            element: <Rulebook />,
+          },
+          {
+            path: "rules/en",
+            element: <EnglishRulebook />,
+          },
+          {
             path: "ranking",
             element: <PlayerRanking />,
           },
           {
             path: "profile",
             element: <Profile />,
+          },
+          {
+            path: "account",
+            element: <Account />,
           },
           {
             path: "profile/:accountId",

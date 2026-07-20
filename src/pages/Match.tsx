@@ -35,7 +35,7 @@ import { useToast } from "../hooks/useToast";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useConfirmationModal } from "../hooks/useConfirmationModal";
 import { ConfirmationModal } from "../shared/ConfirmationModal";
-import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
+import { TrucoBoardLayout, buildTableOrderSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
 import { MatchSeatCard } from "../components/game/MatchSeatCard";
 import { TrickCenter } from "../components/game/TrickCenter";
@@ -128,6 +128,7 @@ const MatchBoardScene = memo(() => {
     <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
       <TrucoBoardLayout
         slots={slots}
+        centerLayer="foreground"
         topContent={<MatchTopBar />}
         centerContent={
           <DevProfiler id="Match.TrickCenter">
@@ -389,7 +390,7 @@ const _Match = () => {
       : "grey.500";
 
   const [rounds] = useRounds(match);
-  const slots = useMemo(() => (match ? buildAlternatingSlots(match.players) : []), [match]);
+  const slots = useMemo(() => (match ? buildTableOrderSlots(match.players) : []), [match]);
 
   const myTeamIdx: 0 | 1 = me?.teamIdx ?? 0;
   const myTeamPoints = match ? pointsValue(match.teams[myTeamIdx === 0 ? 0 : 1].points) : 0;
@@ -542,8 +543,8 @@ const _Match = () => {
           maxWidth="100%"
           position="relative"
           sx={{
-            height: "100dvh",
-            maxHeight: "100dvh",
+            height: "var(--trucoshi-viewport-height, 100dvh)",
+            maxHeight: "var(--trucoshi-viewport-height, 100dvh)",
             overflow: "hidden",
           }}
         >

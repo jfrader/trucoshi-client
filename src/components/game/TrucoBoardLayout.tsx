@@ -1,4 +1,4 @@
-import { Box, BoxProps, Paper, styled } from "@mui/material";
+import { Box, BoxProps, Paper, styled, type Theme } from "@mui/material";
 import { ReactNode, useMemo } from "react";
 import {
   BoardSeatGeometry,
@@ -16,6 +16,21 @@ export type TrucoBoardSlot<T extends SeatLike> = {
   key: string;
   teamIdx: 0 | 1;
   player: T | null;
+};
+
+export const buildTableOrderSlots = <T extends SeatLike>(players: T[]): TrucoBoardSlot<T>[] => {
+  const slots = players.map((player) => ({
+    key: player.key,
+    teamIdx: player.teamIdx,
+    player,
+  }));
+  const meIndex = slots.findIndex((slot) => slot.player.isMe);
+
+  if (meIndex <= 0) {
+    return slots;
+  }
+
+  return [...slots.slice(meIndex), ...slots.slice(0, meIndex)];
 };
 
 export const buildAlternatingSlots = <T extends SeatLike>(
@@ -65,12 +80,19 @@ export type TrucoBoardLayoutProps<T extends SeatLike> = {
   floatingLeft?: ReactNode;
   floatingRight?: ReactNode;
   boardFooter?: ReactNode;
+  centerLayer?: "table" | "foreground";
+  guidanceSeatKeys?: readonly string[];
 } & Omit<BoxProps, "children">;
 
 const mergeRootSx = (rootSx: BoxProps["sx"], rootPadding: string) =>
   rootSx
     ? [{ padding: rootPadding }, ...(Array.isArray(rootSx) ? rootSx : [rootSx])]
     : { padding: rootPadding };
+
+const getTopPadding = (rootPadding: string) => rootPadding.trim().split(/\s+/)[0] || "0px";
+
+const getTopStripTranslateY = (rootPadding: string) =>
+  `calc(0px - ${getTopPadding(rootPadding)})`;
 
 const resolveSeatGeometries = (
   seatGeometries: BoardSeatGeometry[],
@@ -96,6 +118,10 @@ const getSeatCssVars = (geometry: BoardSeatGeometry) =>
     ["--seat-group-shift-y" as any]: `${geometry.groupShiftY}px`,
   }) as const;
 
+const guidanceSeatSx = (theme: Theme) => ({
+  zIndex: theme.trucoshiUi.board.layers.guidanceSeats,
+});
+
 export const TrucoBoardLayout = <T extends SeatLike>({
   slots,
   renderSeat,
@@ -105,6 +131,8 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   floatingLeft,
   floatingRight,
   boardFooter,
+  centerLayer = "table",
+  guidanceSeatKeys = [],
   ...props
 }: TrucoBoardLayoutProps<T>) => {
   const layout = useBoardLayout();
@@ -124,13 +152,21 @@ export const TrucoBoardLayout = <T extends SeatLike>({
           sx={{
             gap: layout.frame.topStripGap,
             marginBottom: layout.frame.topStripMarginBottom,
+            transform: layout.lobby
+              ? `translateY(${getTopStripTranslateY(layout.frame.rootPadding)})`
+              : undefined,
           }}
         >
           {topContent}
         </TopStrip>
       ) : null}
 
-      <BoardShell sx={{ maxWidth: layout.frame.shellMaxWidth }}>
+      <BoardShell
+        sx={{
+          maxWidth: layout.frame.shellMaxWidth,
+          transform: `translateY(${layout.match?.boardTranslateY || "0rem"})`,
+        }}
+      >
         <BoardSurface
           elevation={8}
           data-truco-board-surface="true"
@@ -149,6 +185,7 @@ export const TrucoBoardLayout = <T extends SeatLike>({
           }}
         >
           <BoardCenter
+            centerLayer={centerLayer}
             sx={{
               width: layout.frame.centerSize,
               height: layout.frame.centerSize,
@@ -164,15 +201,20 @@ export const TrucoBoardLayout = <T extends SeatLike>({
               return null;
             }
 
+            const isGuidanceSeat = Boolean(
+              slot.player && guidanceSeatKeys.includes(slot.player.key),
+            );
+            const seatPositionSx = {
+              width: layout.frame.seatWidth,
+              maxWidth: layout.frame.seatMaxWidth,
+              ...getSeatCssVars(geometry),
+            };
+
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
                 style={getSeatPositionStyle(geometry)}
-                sx={{
-                  width: layout.frame.seatWidth,
-                  maxWidth: layout.frame.seatMaxWidth,
-                  ...getSeatCssVars(geometry),
-                }}
+                sx={isGuidanceSeat ? [seatPositionSx, guidanceSeatSx] : seatPositionSx}
                 data-slot-team={slot.teamIdx}
               >
                 {renderSeat(slot, index, geometry)}
@@ -222,7 +264,7 @@ const Root = styled(Box)(({ theme }) => ({
 
 const TopStrip = styled(Box)(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "center",
   flexWrap: "wrap",
   position: "relative",
@@ -267,7 +309,9 @@ const BoardSurface = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const BoardCenter = styled(Box)(() => ({
+const BoardCenter = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "centerLayer",
+})<{ centerLayer: "table" | "foreground" }>(({ centerLayer, theme }) => ({
   position: "absolute",
   left: "50%",
   top: "50%",
@@ -277,14 +321,18 @@ const BoardCenter = styled(Box)(() => ({
   alignItems: "center",
   justifyContent: "center",
   textAlign: "center",
-  zIndex: 2,
+  zIndex:
+    centerLayer === "foreground"
+      ? theme.trucoshiUi.board.layers.foregroundCenter
+      : theme.trucoshiUi.board.layers.center,
+  pointerEvents: centerLayer === "foreground" ? "none" : "auto",
 }));
 
-const SeatPosition = styled(Box)(() => ({
+const SeatPosition = styled(Box)(({ theme }) => ({
   position: "absolute",
   transform:
     "translate(calc(-50% + var(--seat-shift-x, 0px)), calc(-50% + var(--seat-shift-y, 0px) + var(--seat-group-shift-y, 0px)))",
-  zIndex: 3,
+  zIndex: theme.trucoshiUi.board.layers.seats,
 }));
 
 const BottomStrip = styled(Box)(({ theme }) => ({

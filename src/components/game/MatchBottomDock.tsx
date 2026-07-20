@@ -1,14 +1,43 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import { ICard } from "trucoshi";
+import { ICard, IChatMessage, IPublicPlayer } from "trucoshi";
 import { getMessageContent } from "../chat/ChatRoom";
-import { GameCard } from "../card/GameCard";
 import { CommandBar } from "./CommandBar";
 import { useBoardLayout, useMatchState } from "../../board";
-import { memo, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMatchGameplay } from "./MatchGameplayContext";
+import { PlayableMatchCard } from "./PlayableMatchCard";
 
-const _MatchBottomDock = () => {
+const isUnreadChatCandidate = (message: IChatMessage) =>
+  Boolean(
+    message.content?.trim() &&
+      !message.system &&
+      !message.hidden &&
+      !message.command &&
+      !message.card,
+  );
+
+const getStatusLabel = (player: IPublicPlayer | null) => {
+  if (!player) {
+    return "Modo Espectador";
+  }
+
+  if (player.abandoned) {
+    return "Retirado";
+  }
+
+  if (player.disabled) {
+    return "Al mazo";
+  }
+
+  if (player.isTurn || player.isEnvidoTurn) {
+    return "Tu turno";
+  }
+
+  return "Esperando oponente";
+};
+
+const MatchBottomDockComponent = () => {
   const {
     state: { chatProps, isDesktopChat, canSay, me, hasCommandActions, canInteractWithHand },
     announcements: {
@@ -26,99 +55,105 @@ const _MatchBottomDock = () => {
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
   const onOpenChat = !isDesktopChat ? () => chatProps.setActive(true) : undefined;
-  const bottomOffset = !isDesktopChat ? "env(safe-area-inset-bottom)" : dock?.dockBottomOffset;
+  const room = chatProps.useChatState[0];
+  const latestUnreadCandidate =
+    [...(room?.messages || [])].reverse().find(isUnreadChatCandidate) || null;
+  const latestSeenChatMessageIdRef = useRef<IChatMessage["id"] | null>(null);
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const bottomOffset = "env(safe-area-inset-bottom)";
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
-  const hand = useMemo(
-    () => (!isUnavailable ? ((me?.hand || []).slice(0, 3) as ICard[]) : []),
-    [isUnavailable, me?.hand],
-  );
+  const isHandFinished = match?.handState === "DISPLAY_PREVIOUS_HAND";
+  const isFolded = Boolean(me?.disabled && !me.abandoned);
+  const hand = !isUnavailable ? ((me?.hand || []).slice(0, 3) as ICard[]) : [];
   const handCount = hand.length;
-  const fanRotations = useMemo(
-    () => (handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0]),
-    [handCount],
-  );
-  const latestAnnouncementText = useMemo(
-    () => (latestAnnouncement ? getMessageContent(latestAnnouncement) : "Sin anuncios"),
-    [latestAnnouncement],
-  );
-  const previousAnnouncementText = useMemo(
-    () => (previousAnnouncement ? getMessageContent(previousAnnouncement) : "Anterior: sin datos"),
-    [previousAnnouncement],
-  );
-  const thirdAnnouncementText = useMemo(
-    () => (thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "Anterior: sin datos"),
-    [thirdAnnouncement],
-  );
-  const statusLabel = useMemo(() => {
-    if (me) {
-      if (me.abandoned) {
-        return "Retirado";
-      }
-
-      if (me.disabled && !me.hand.length) {
-        return "Al mazo";
-      }
-
-      if (me.isTurn || me.isEnvidoTurn) {
-        return "Tu turno";
-      }
-
-      if (match?.handState === "DISPLAY_PREVIOUS_HAND") {
-        return "Mano finalizada";
-      }
-
-      return "Esperando jugada";
-    }
-
-    return "Modo Espectador";
-  }, [match?.handState, me]);
+  const fanRotations = handCount === 3 ? [-10, 0, 10] : handCount === 2 ? [-7, 7] : [0];
+  const latestAnnouncementText = latestAnnouncement
+    ? getMessageContent(latestAnnouncement)
+    : "Sin anuncios";
+  const previousAnnouncementText = previousAnnouncement
+    ? getMessageContent(previousAnnouncement)
+    : "-";
+  const thirdAnnouncementText = thirdAnnouncement ? getMessageContent(thirdAnnouncement) : "-";
+  const statusLabel = getStatusLabel(me);
 
   const showCommandActions = Boolean(me && hasCommandActions && !isUnavailable);
-  const handCardsNode = useMemo(() => {
-    if (!dock) {
-      return null;
+
+  useEffect(() => {
+    if (isDesktopChat) {
+      return;
     }
 
-    if (!showHandPanel || !handCount) {
-      return (
-        <Box
-          sx={{
-            width: dock.handCardWidth,
-            height: `calc(${dock.handCardWidth} * 1.48)`,
-            visibility: "hidden",
-            pointerEvents: "none",
-          }}
-        />
-      );
+    if (chatProps.active) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate?.id || null;
+      setHasUnreadChat(false);
+      return;
     }
 
-    return hand.map((card, idx) => {
-      const rotation = fanRotations[idx] || 0;
+    if (!latestUnreadCandidate?.id) {
+      return;
+    }
 
-      return (
-        <Box
-          key={`${card}-${idx}`}
-          className={canInteractWithHand ? "truco-play-card-interactive" : undefined}
-          ml={idx ? -1.32 : 0}
-          sx={{
-            transform: `rotate(${rotation}deg) translateY(${Math.abs(rotation) > 0 ? "2px" : "0"})`,
-            transformOrigin: "bottom center",
-            position: "relative",
-          }}
-        >
-          <GameCard
-            card={card}
-            width={dock.handCardWidth}
-            shadow
-            enableHover={canInteractWithHand}
-            disabledMask={!canInteractWithHand}
-            onClick={() => canInteractWithHand && onPlayCard(card, idx)}
-          />
-        </Box>
-      );
-    });
-  }, [canInteractWithHand, dock, fanRotations, hand, handCount, onPlayCard, showHandPanel]);
+    if (!latestSeenChatMessageIdRef.current) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate.id;
+      return;
+    }
+
+    if (latestSeenChatMessageIdRef.current !== latestUnreadCandidate.id) {
+      latestSeenChatMessageIdRef.current = latestUnreadCandidate.id;
+      setHasUnreadChat(true);
+    }
+  }, [chatProps.active, isDesktopChat, latestUnreadCandidate]);
+
+  const handleOpenChat = () => {
+    latestSeenChatMessageIdRef.current = latestUnreadCandidate?.id || null;
+    setHasUnreadChat(false);
+    chatProps.setActive(true);
+  };
+
+  let handCardsNode = null;
+
+  if (dock && (isHandFinished || isFolded) && me) {
+    handCardsNode = (
+      <Box
+        sx={{
+          width: "100%",
+          height: `calc(${dock.handCardWidth} * 1.48)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography color="grey.300" fontSize="0.92rem" fontWeight={700}>
+          {isHandFinished ? "Mano finalizada" : "Al mazo"}
+        </Typography>
+      </Box>
+    );
+  } else if (dock && (!showHandPanel || !handCount)) {
+    handCardsNode = (
+      <Box
+        sx={{
+          width: dock.handCardWidth,
+          height: `calc(${dock.handCardWidth} * 1.48)`,
+          visibility: "hidden",
+          pointerEvents: "none",
+        }}
+      />
+    );
+  } else if (dock) {
+    handCardsNode = hand.map((card, idx) => (
+      <PlayableMatchCard
+        key={`${card}-${idx}`}
+        card={card}
+        cardIdx={idx}
+        canPlay={canInteractWithHand}
+        overlap={idx ? -1.32 : 0}
+        rotation={fanRotations[idx] || 0}
+        width={dock.handCardWidth}
+        onPlayIntent={onPlayCard}
+      />
+    ));
+  }
 
   if (!dock) {
     return null;
@@ -132,7 +167,7 @@ const _MatchBottomDock = () => {
         right: 0,
         bottom: bottomOffset,
         zIndex: theme.zIndex.fab,
-        px: { xs: 0.35, sm: 0.6 },
+        px: { xs: 0, sm: 0.35, md: 0.4, lg: 1 },
         pointerEvents: "auto",
       })}
     >
@@ -165,18 +200,26 @@ const _MatchBottomDock = () => {
             <Typography
               variant="body2"
               fontWeight="bold"
-              fontSize="small"
+              fontSize={dock.announcementTextSizes.tertiary}
+              lineHeight={1.15}
               color={thirdAnnouncementColor}
             >
               {thirdAnnouncementText}
             </Typography>
-            <Typography variant="body2" fontWeight="bold" color={previousAnnouncementColor}>
+            <Typography
+              variant="body2"
+              fontWeight="bold"
+              fontSize={dock.announcementTextSizes.secondary}
+              lineHeight={1.15}
+              color={previousAnnouncementColor}
+            >
               {previousAnnouncementText}
             </Typography>
             <Typography
               variant="body2"
               fontWeight="bold"
-              fontSize="large"
+              fontSize={dock.announcementTextSizes.primary}
+              lineHeight={1.18}
               color={latestAnnouncementColor}
             >
               {latestAnnouncementText}
@@ -187,7 +230,7 @@ const _MatchBottomDock = () => {
             <Box
               component="button"
               type="button"
-              onClick={onOpenChat}
+              onClick={handleOpenChat}
               aria-label="Abrir chat"
               sx={(theme) => ({
                 ...theme.trucoshiUi.match.dockChatButton,
@@ -215,6 +258,22 @@ const _MatchBottomDock = () => {
                 },
               })}
             >
+              {hasUnreadChat ? (
+                <Box
+                  data-testid="mobile-chat-unread-dot"
+                  sx={{
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    bgcolor: "warning.main",
+                    border: "2px solid rgba(20,18,14,0.94)",
+                    boxShadow: "0 0 0 2px rgba(255,189,74,0.24)",
+                  }}
+                />
+              ) : null}
               <ChatBubbleOutlineIcon sx={{ fontSize: "1.06rem" }} />
               <Box component="span">Chat</Box>
             </Box>
@@ -292,4 +351,4 @@ const _MatchBottomDock = () => {
   );
 };
 
-export const MatchBottomDock = memo(_MatchBottomDock);
+export const MatchBottomDock = MatchBottomDockComponent;

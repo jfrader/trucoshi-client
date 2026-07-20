@@ -21,6 +21,8 @@ export const PHONE_WIDE_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     seatMaxWidth: "11.2rem",
   },
   match: {
+    topBarTranslateY: "-0.55rem",
+    boardTranslateY: "-0.45rem",
     seatBase: {
       radiusXMultiplier: 1,
       radiusYMultiplier: 0.96,
@@ -45,8 +47,13 @@ export const PHONE_WIDE_PROFILE_TOKENS: BoardProfileLayoutTokens = {
     },
     dock: {
       handCardWidth: "clamp(2.42rem, 6.3dvh, 3.14rem)",
-      playedCardWidth: "clamp(3rem, 4.1vw, 3.1rem)",
+      playedCardWidth: "clamp(3.12rem, 4.35vw, 3.25rem)",
       announcementBlockHeight: "4rem",
+      announcementTextSizes: {
+        tertiary: "0.64rem",
+        secondary: "0.7rem",
+        primary: "0.92rem",
+      },
       handBlockHeight: "3.6rem",
       commandBlockHeight: "3.3rem",
       dockGap: "0.38rem",
@@ -57,6 +64,7 @@ export const PHONE_WIDE_PROFILE_TOKENS: BoardProfileLayoutTokens = {
       commandCompact: true,
     },
     seatPresentation: {
+      avatarFrameSizePx: 56,
       meTranslateY: 16,
       lowerSideTranslateY: 18,
       topSeatAvatarNudgeY: 0,

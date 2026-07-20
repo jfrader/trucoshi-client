@@ -2,127 +2,192 @@
 
 exports[`TrickCenter visual guard > keeps all played cards visible across three rounds 1`] = `
 <div
-  class="MuiBox-root css-b7jmoi"
+  class="MuiBox-root css-1a3qu3o"
 >
   <div
-    class="MuiBox-root css-lo8ywp"
+    aria-hidden="true"
+    class="MuiBox-root css-1cpxr5m"
+    data-truco-play-target="true"
+  />
+  <div
+    aria-expanded="false"
+    aria-label="Cartas jugadas por Player p1"
+    class="MuiBox-root css-1or4y43"
+    data-testid="trick-stack-p1"
+    data-trick-card-stack="true"
+    role="button"
+    tabindex="0"
   >
     <div
-      class="MuiBox-root css-1d5t53u"
+      class="MuiBox-root css-xfy2aw"
+      data-testid="trick-card-p1-0"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         1e
       </div>
     </div>
     <div
-      class="MuiBox-root css-d02oyp"
+      class="MuiBox-root css-1k2i749"
+      data-testid="trick-card-p1-1"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         5e
       </div>
     </div>
     <div
-      class="MuiBox-root css-1r1yghh"
+      class="MuiBox-root css-1uvm7ti"
+      data-testid="trick-card-p1-2"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         2o
       </div>
     </div>
   </div>
   <div
-    class="MuiBox-root css-1vsswco"
+    aria-expanded="false"
+    aria-label="Cartas jugadas por Player p2"
+    class="MuiBox-root css-1rpol94"
+    data-testid="trick-stack-p2"
+    data-trick-card-stack="true"
+    role="button"
+    tabindex="0"
   >
     <div
-      class="MuiBox-root css-1t8wodm"
+      class="MuiBox-root css-6f9u8s"
+      data-testid="trick-card-p2-0"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         2e
       </div>
     </div>
     <div
-      class="MuiBox-root css-r1gi1l"
+      class="MuiBox-root css-97ccqa"
+      data-testid="trick-card-p2-1"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         6e
       </div>
     </div>
     <div
-      class="MuiBox-root css-rqcanw"
+      class="MuiBox-root css-1gjrchs"
+      data-testid="trick-card-p2-2"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         3o
       </div>
     </div>
   </div>
   <div
-    class="MuiBox-root css-1d1qyt3"
+    aria-expanded="false"
+    aria-label="Cartas jugadas por Player p3"
+    class="MuiBox-root css-17xzeun"
+    data-testid="trick-stack-p3"
+    data-trick-card-stack="true"
+    role="button"
+    tabindex="0"
   >
     <div
-      class="MuiBox-root css-soexig"
+      class="MuiBox-root css-1bne21g"
+      data-testid="trick-card-p3-0"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         3e
       </div>
     </div>
     <div
-      class="MuiBox-root css-6cfkii"
+      class="MuiBox-root css-1rm1l6z"
+      data-testid="trick-card-p3-1"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         7e
       </div>
     </div>
     <div
-      class="MuiBox-root css-1o0xqtn"
+      class="MuiBox-root css-1qa81au"
+      data-testid="trick-card-p3-2"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         4o
       </div>
     </div>
   </div>
   <div
-    class="MuiBox-root css-1l77zbe"
+    aria-expanded="false"
+    aria-label="Cartas jugadas por Player p4"
+    class="MuiBox-root css-1uw4e9g"
+    data-testid="trick-stack-p4"
+    data-trick-card-stack="true"
+    role="button"
+    tabindex="0"
   >
     <div
-      class="MuiBox-root css-uyokvj"
+      class="MuiBox-root css-qkg8y3"
+      data-testid="trick-card-p4-0"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         4e
       </div>
     </div>
     <div
-      class="MuiBox-root css-5vwi5j"
+      class="MuiBox-root css-laauif"
+      data-testid="trick-card-p4-1"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         1o
       </div>
     </div>
     <div
-      class="MuiBox-root css-8yd2dk"
+      class="MuiBox-root css-kmgnpc"
+      data-testid="trick-card-p4-2"
     >
       <div
+        data-shadow="false"
         data-testid="trick-card"
+        data-width="100%"
       >
         5o
       </div>

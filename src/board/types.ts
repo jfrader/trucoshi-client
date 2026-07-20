@@ -1,6 +1,12 @@
 export type BoardSurface = "match" | "lobby";
 
-export type BoardViewportProfile = "phoneTall" | "phoneWide" | "tablet" | "tabletWide" | "desktop";
+export type BoardViewportProfile =
+  | "phoneCompact"
+  | "phoneTall"
+  | "phoneWide"
+  | "tablet"
+  | "tabletWide"
+  | "desktop";
 
 export type BoardPlayerCount = 2 | 4 | 6;
 
@@ -94,6 +100,7 @@ export type BoardCenterStackConfig = {
   playerSpreadXPercent: number;
   playerSpreadYPercent: number;
   spreadBoost: number;
+  sideVerticalSpreadBoost: number;
   maxJitterPx: number;
   maxRotationOffsetDeg: number;
   facePlayerRotation: boolean;
@@ -103,6 +110,11 @@ export type MatchDockSizingConfig = {
   handCardWidth: string;
   playedCardWidth: string;
   announcementBlockHeight: string;
+  announcementTextSizes: {
+    tertiary: string;
+    secondary: string;
+    primary: string;
+  };
   handBlockHeight: string;
   commandBlockHeight: string;
   dockGap: string;
@@ -126,6 +138,7 @@ export type HiddenHandRadialRules = {
 };
 
 export type MatchSeatPresentationRules = {
+  avatarFrameSizePx: number;
   meTranslateY: number;
   lowerSideTranslateY: number;
   topSeatAvatarNudgeY: number;
@@ -148,6 +161,8 @@ export type TablePointsPlacementRules = {
 };
 
 export type MatchLayoutConfig = {
+  topBarTranslateY: string;
+  boardTranslateY: string;
   dock: MatchDockSizingConfig;
   seatPresentation: MatchSeatPresentationRules;
 };
@@ -181,6 +196,7 @@ export type BoardLayoutModel = {
 };
 
 export type MatchSeatPresentation = {
+  avatarFrameSizePx: number;
   translateY: number;
   avatarNudgeY: number;
   hiddenHandCardWidth: string;

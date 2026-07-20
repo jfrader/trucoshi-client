@@ -6,10 +6,10 @@ import {
   SupervisorAccount,
   VideogameAsset,
 } from "@mui/icons-material";
+import { CommunityPageRoot, CommunitySurface } from "../components/community/communityUi";
 import { PageContainer } from "../shared/PageContainer";
 import {
   Box,
-  Card,
   CardContent,
   CircularProgress,
   Divider,
@@ -19,6 +19,7 @@ import {
   ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
+  Stack,
   Tab,
   Typography,
 } from "@mui/material";
@@ -109,18 +110,29 @@ export const MatchDetails = () => {
     match?.players.findIndex((p) => p.accountId === context.state.account?.id) !== -1;
 
   return (
-    <PageContainer title="Resumen de Partida" icon={<VideogameAsset fontSize="large" />}>
-      <Card>
-        <CardContent>
+    <PageContainer
+      maxWidth="md"
+      title="Resumen de Partida"
+      icon={<VideogameAsset fontSize="large" />}
+    >
+      <CommunityPageRoot>
+        <CommunitySurface aria-label="Resumen de partida">
+          <CardContent sx={{ p: { xs: 1.25, sm: 2.5 } }}>
           {!isLoading ? (
             <>
               {match ? (
                 <TabContext value={search.get("t") || "1"}>
                   <TabList
                     variant="scrollable"
+                    scrollButtons="auto"
+                    allowScrollButtonsMobile
                     textColor="inherit"
                     onChange={handleChange}
-                    aria-label="lab API tabs example"
+                    aria-label="Secciones del resumen de partida"
+                    sx={(theme) => ({
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      "& .MuiTab-root": { fontWeight: 850 },
+                    })}
                   >
                     <Tab label="Resumen" value="1" />
                     <Tab label="Reglas" value="2" />
@@ -189,7 +201,7 @@ export const MatchDetails = () => {
 
                   <TabPanel sx={{ px: 0 }} value="3">
                     <List>
-                      {match.players
+                      {[...match.players]
                         .sort((a, b) => (a.idx || 0) - (b.idx || 0))
                         .map((player) => {
                           const Component = player.accountId
@@ -342,14 +354,25 @@ export const MatchDetails = () => {
                   </TabPanel>
                 </TabContext>
               ) : (
-                <Typography>No se pudo encontrar la partida</Typography>
+                <Stack alignItems="center" justifyContent="center" minHeight="18rem" gap={1}>
+                  <Typography fontWeight={900}>No se pudo encontrar la partida</Typography>
+                  <Typography color="text.secondary" variant="body2">
+                    Volvé atrás e intentá con otra partida.
+                  </Typography>
+                </Stack>
               )}
             </>
           ) : (
-            <CircularProgress />
+            <Stack alignItems="center" justifyContent="center" minHeight="18rem" gap={1.25}>
+              <CircularProgress color="warning" size={34} />
+              <Typography color="text.secondary" variant="body2">
+                Cargando resumen…
+              </Typography>
+            </Stack>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </CommunitySurface>
+      </CommunityPageRoot>
     </PageContainer>
   );
 };

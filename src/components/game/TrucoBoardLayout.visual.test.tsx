@@ -20,9 +20,38 @@ describe("TrucoBoardLayout visual guard", () => {
     );
 
     expect(screen.getByTestId("board-top")).toBeInTheDocument();
+    expect(screen.getByTestId("board-top").parentElement).toHaveStyle({
+      transform: "translateY(calc(0px - 0.5rem))",
+    });
     expect(screen.getByTestId("board-center")).toBeInTheDocument();
     expect(screen.getAllByTestId("board-seat")).toHaveLength(6);
     expect(container.querySelector("[data-truco-board-surface='true']")).toBeInTheDocument();
     expect(container.firstChild).toMatchSnapshot();
+  });
+
+  it("can lift match center content above seats without blocking the table", () => {
+    const players = buildPlayers(2);
+    const slots = buildAlternatingSlots(players, 2);
+
+    renderWithTheme(
+      <BoardLayoutProvider surface="match" totalSeats={slots.length}>
+        <TrucoBoardLayout
+          slots={slots}
+          centerLayer="foreground"
+          centerContent={<div data-testid="foreground-center">Center</div>}
+          renderSeat={(slot) => <div data-testid="foreground-seat">{slot.player?.name}</div>}
+        />
+      </BoardLayoutProvider>,
+    );
+
+    const centerLayer = screen.getByTestId("foreground-center").parentElement;
+    const seatLayer = screen.getAllByTestId("foreground-seat")[0].parentElement;
+
+    expect(centerLayer).not.toBeNull();
+    expect(seatLayer).not.toBeNull();
+    expect(Number(window.getComputedStyle(centerLayer!).zIndex)).toBeGreaterThan(
+      Number(window.getComputedStyle(seatLayer!).zIndex),
+    );
+    expect(centerLayer).toHaveStyle({ pointerEvents: "none" });
   });
 });

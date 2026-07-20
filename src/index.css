@@ -1,5 +1,38 @@
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #243728 #161516;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #243728;
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #243728;
+  border: 2px solid #243728;
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #161516;
+}
+
 body {
   overflow-x: hidden;
+  min-height: var(--trucoshi-viewport-height, 100dvh);
+  overscroll-behavior-y: none;
   margin: 0;
   font-family: "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
@@ -8,7 +41,20 @@ body {
 }
 
 :root {
+  --trucoshi-viewport-height: 100vh;
   font-size: clamp(12px, calc(8.4px + 0.9vmin), 16px);
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --trucoshi-viewport-height: 100dvh;
+  }
+}
+
+html:has([data-trucoshi-overlay="open"]),
+body:has([data-trucoshi-overlay="open"]) {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 /* Non-game pages need larger base rem sizing on mobile, while game/lobby
@@ -41,6 +87,13 @@ body {
 @media (max-width: 600px) {
   html:has(.app-surface) {
     font-size: calc(9.4px + 1.15vmin);
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 900px) {
+  html:has(.app-surface),
+  html:has(.game-surface) {
+    font-size: 19px;
   }
 }
 

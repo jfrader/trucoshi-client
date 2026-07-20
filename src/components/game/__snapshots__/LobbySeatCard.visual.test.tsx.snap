@@ -10,7 +10,7 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
     <p
       class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
     >
-      Ellos
+      Violeta
     </p>
   </div>
   <div
@@ -116,7 +116,7 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
       <p
         class="MuiTypography-root MuiTypography-body1 css-1f35o9n-MuiTypography-root"
       >
-        Ellos
+        Violeta
       </p>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorError css-mpa7qr-MuiButtonBase-root-MuiButton-root"
