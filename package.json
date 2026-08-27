@@ -103,5 +103,8 @@
     "vite": "7.3.6",
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "4.1.2"
+  },
+  "resolutions": {
+    "deepmerge-ts": "8.0.0"
   }
 }
