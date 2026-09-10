@@ -47,3 +47,5 @@ yarn-debug.log*
 yarn-error.log*
 
 .playwright-cli
+
+graphify-out/
