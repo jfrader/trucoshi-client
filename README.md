@@ -1,5 +1,11 @@
 # Trucoshi Client
 
+[![npm version](https://img.shields.io/npm/v/trucoshi-client?style=flat)](https://www.npmjs.com/package/trucoshi-client)
+[![npm downloads](https://img.shields.io/npm/dm/trucoshi-client?style=flat)](https://www.npmjs.com/package/trucoshi-client)
+[![ci](https://img.shields.io/github/actions/workflow/status/jfrader/trucoshi-client/ci.yml?branch=master&style=flat&label=ci)](https://github.com/jfrader/trucoshi-client/actions)
+[![license](https://img.shields.io/github/license/jfrader/trucoshi-client?style=flat)](./LICENSE)
+[![node](https://img.shields.io/node/v/trucoshi-client?style=flat)](https://www.npmjs.com/package/trucoshi-client)
+
 Web client for the Argentinian card game Truco.
 
 It includes Default and GNU card decks plus an Emoji theme. Artwork credits
