@@ -7,7 +7,7 @@ import { Link } from "../../shared/Link";
 import { AnimatedButton } from "../../shared/AnimatedButton";
 import { GameCard } from "../card/GameCard";
 import { BURNT_CARD } from "trucoshi";
-import { useBoardLayout } from "../../board";
+import { GAME_BUTTON_HEIGHT, NARROW_LOBBY_MAX_WIDTH, useBoardLayout } from "../../board";
 import { TrucoBoardSlot } from "./TrucoBoardLayout";
 import { memo } from "react";
 import { useLobbyGameplay } from "./LobbyGameplayContext";
@@ -45,6 +45,20 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
   const seatCard = layout.lobby?.seatCard;
+  const narrow = layout.viewport.width <= NARROW_LOBBY_MAX_WIDTH;
+  const actionHeight = { xs: GAME_BUTTON_HEIGHT.compact, sm: GAME_BUTTON_HEIGHT.regular };
+  const actionsSx = {
+    minHeight: actionHeight,
+    height: "auto",
+    justifyContent: "flex-end",
+    "& .MuiButton-root": {
+      minHeight: actionHeight,
+      width: "100%",
+      minWidth: 0,
+      px: 0.5,
+      whiteSpace: "normal",
+    },
+  };
 
   if (!seatCard) {
     return null;
@@ -72,7 +86,9 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
         sx={(theme) => ({
           ...theme.trucoshiUi.lobby.seatCard,
           p: seatCard.padding,
-          minWidth: seatCard.minWidth,
+          minWidth: narrow ? 0 : seatCard.minWidth,
+          width: narrow ? "100%" : undefined,
+          boxSizing: narrow ? "border-box" : undefined,
           borderRadius: seatCard.borderRadius,
         })}
       >
@@ -87,24 +103,11 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
           {teamLabel}
         </Box>
 
-        <Box
-          sx={{
-            mt: 0.6,
-            minHeight: seatCard.cardsHeight,
-            height: seatCard.cardsHeight,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        />
-
         <Stack
           mt={0.7}
           spacing={0.5}
           sx={{
-            minHeight: seatCard.actionsHeight,
-            height: seatCard.actionsHeight,
-            justifyContent: "flex-end",
+            ...actionsSx,
           }}
         >
           {canJoin && canJoinBet ? (
@@ -181,7 +184,9 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
       sx={(theme) => ({
         ...theme.trucoshiUi.lobby.seatCard,
         p: 1,
-        minWidth: seatCard.minWidth,
+        minWidth: narrow ? 0 : seatCard.minWidth,
+        width: narrow ? "100%" : undefined,
+        boxSizing: narrow ? "border-box" : undefined,
         borderRadius: seatCard.borderRadius,
       })}
     >
@@ -254,9 +259,7 @@ const _LobbySeatCard = ({ slot }: LobbySeatCardProps) => {
         spacing={0.5}
         sx={{
           mt: 1.4,
-          minHeight: seatCard.actionsHeight,
-          height: seatCard.actionsHeight,
-          justifyContent: "flex-end",
+          ...actionsSx,
         }}
       >
         {player.isMe ? (

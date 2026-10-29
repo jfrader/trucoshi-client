@@ -130,6 +130,10 @@ describe("MatchFinishedScreen play again", () => {
   it("keeps custom play again behavior for custom matches", () => {
     renderFinishedScreen(buildFinishedMatch());
 
+    const replay = screen.getByRole("button", { name: /jugar de nuevo/i });
+    expect(getComputedStyle(replay).minHeight).toBe("56px");
+    expect(getComputedStyle(replay).gridColumn.replace(/\s/g, "")).toBe("1/-1");
+
     fireEvent.click(screen.getByRole("button", { name: /jugar de nuevo/i }));
 
     expect(onPlayAgain).toHaveBeenCalled();

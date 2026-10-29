@@ -1,4 +1,5 @@
 import { Box, Container, Stack, styled } from "@mui/material";
+import { GAME_BUTTON_HEIGHT } from "../../board";
 
 const APP_VIEWPORT_HEIGHT = "var(--trucoshi-viewport-height, 100dvh)";
 
@@ -72,12 +73,13 @@ export const FinishedScoreCell = styled(Box)(({ theme }) => ({
 }));
 
 export const FinishedActions = styled(Box)(({ theme }) => ({
-  display: "flex",
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   justifyContent: "center",
   gap: theme.spacing(1),
   "& .MuiButton-root": {
     minWidth: 0,
-    minHeight: 48,
+    minHeight: GAME_BUTTON_HEIGHT.regular,
     paddingInline: theme.spacing(0.75),
     borderRadius: "0.9rem",
     fontSize: "clamp(0.68rem, 2.9vw, 0.82rem)",
@@ -85,15 +87,15 @@ export const FinishedActions = styled(Box)(({ theme }) => ({
     whiteSpace: "nowrap",
   },
   "& .MuiButton-startIcon": { display: "none" },
+  "& [data-replay-action]": { gridColumn: "1 / -1", minHeight: GAME_BUTTON_HEIGHT.primary },
   [theme.breakpoints.up("sm")]: {
+    display: "flex",
     "& .MuiButton-root": {
+      minHeight: GAME_BUTTON_HEIGHT.primary,
       fontSize: theme.typography.button.fontSize,
       paddingInline: theme.spacing(2),
     },
     "& .MuiButton-startIcon": { display: "inherit" },
-  },
-  "@media (max-height: 640px)": {
-    "& .MuiButton-root": { minHeight: 40, paddingBlock: theme.spacing(0.35) },
   },
 }));
 

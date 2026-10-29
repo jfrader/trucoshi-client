@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemSecondaryAction, ListItemText, ListProps } from "@mui/material";
+import { Box, List, ListItem, ListItemSecondaryAction, ListItemText, ListProps } from "@mui/material";
 import { ReactNode } from "react";
 import { ILobbyOptions } from "trucoshi";
 import { Sats } from "../../shared/Sats";
@@ -30,9 +30,11 @@ export const GameOptionsList = ({
   options,
   keys,
   divider,
+  compact = false,
   ...props
 }: {
   divider?: boolean;
+  compact?: boolean;
   options: ILobbyOptions;
   keys?: (keyof ILobbyOptions)[];
 } & ListProps) => {
@@ -51,12 +53,20 @@ export const GameOptionsList = ({
           }
           const filter = FILTERS[key as keyof ILobbyOptions];
           const filtered = filter ? filter(value) : value;
+          const displayValue = typeof filtered === "boolean" ? (filtered ? "Si" : "No") : filtered;
           return (
-            <ListItem divider={divider} disablePadding={props.dense} key={key}>
+            <ListItem
+              divider={divider}
+              disablePadding={props.dense}
+              key={key}
+              sx={compact ? { gap: 1 } : undefined}
+            >
               <ListItemText disableTypography={props.dense} primary={label} />
-              <ListItemSecondaryAction>
-                {typeof filtered === "boolean" ? (filtered ? "Si" : "No") : filtered}
-              </ListItemSecondaryAction>
+              {compact ? (
+                <Box component="span" flexShrink={0}>{displayValue}</Box>
+              ) : (
+                <ListItemSecondaryAction>{displayValue}</ListItemSecondaryAction>
+              )}
             </ListItem>
           );
         })}

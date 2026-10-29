@@ -6,6 +6,10 @@ import {
   TablePointsPlacementRules,
 } from "../types";
 
+export const MATCH_DOCK_SEAT_CLEARANCE = "1.5rem";
+export const NARROW_LOBBY_MAX_WIDTH = 360;
+export const GAME_BUTTON_HEIGHT = { compact: 44, regular: 48, primary: 56, command: 52 } as const;
+
 export const DEFAULT_SEAT_CONFIG: BoardSeatGeometryConfig = {
   radiusXMultiplier: 1,
   radiusYMultiplier: 1,

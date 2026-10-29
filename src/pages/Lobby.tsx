@@ -24,7 +24,13 @@ import { LoadingButton } from "../shared/LoadingButton";
 import { TrucoshiContext } from "../trucoshi/trucoshi.context";
 import { TrucoBoardLayout, buildAlternatingSlots } from "../components/game/TrucoBoardLayout";
 import { CommDrawer } from "../components/chat/CommDrawer";
-import { BoardLayoutProvider, MatchStateProvider } from "../board";
+import {
+  BoardLayoutProvider,
+  GAME_BUTTON_HEIGHT,
+  MatchStateProvider,
+  NARROW_LOBBY_MAX_WIDTH,
+  useBoardLayout,
+} from "../board";
 import { LobbySeatCard } from "../components/game/LobbySeatCard";
 import { DevProfiler } from "../utils/devProfiler";
 import { GameBoardSceneFrame } from "../components/game/GameBoardSceneFrame";
@@ -83,6 +89,7 @@ const LobbyBoardScene = memo(() => {
     },
     actions: { onStartMatch, onOpenOptions },
   } = useLobbyGameplay();
+  const layout = useBoardLayout();
   const toast = useToast();
 
   const copyLobbyUrl = () => {
@@ -129,6 +136,7 @@ const LobbyBoardScene = memo(() => {
               </Typography>
               <GameOptionsList
                 dense
+                compact={layout.viewport.width <= NARROW_LOBBY_MAX_WIDTH}
                 options={match.options}
                 keys={account ? ["satsPerPlayer", ...OPTIONS_KEYS] : OPTIONS_KEYS}
                 disablePadding
@@ -141,6 +149,7 @@ const LobbyBoardScene = memo(() => {
               {isAdmissionDraining ? <AdmissionNotice compact /> : null}
               {match.me?.isOwner ? (
                 <LoadingButton
+                  sx={{ minHeight: { xs: GAME_BUTTON_HEIGHT.regular, sm: GAME_BUTTON_HEIGHT.primary } }}
                   isLoading={isReadyLoading}
                   disabled={match.state !== EMatchState.READY || isAdmissionDraining}
                   variant="contained"

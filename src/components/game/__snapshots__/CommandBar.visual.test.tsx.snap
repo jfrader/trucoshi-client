@@ -5,10 +5,10 @@ exports[`CommandBar visual guard > renders action flow with snapshot and style g
   class="MuiBox-root css-1cr88w3"
 >
   <div
-    class="MuiBox-root css-16xd1m7"
+    class="MuiBox-root css-jjp8p3"
   >
     <div
-      class="MuiBox-root css-1d1wmzu"
+      class="MuiBox-root css-1rlql8w"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-6kgn34-MuiButtonBase-root-MuiButton-root"
@@ -50,7 +50,7 @@ exports[`CommandBar visual guard > renders waiting state when no actions are ava
   class="MuiBox-root css-1cr88w3"
 >
   <div
-    class="MuiBox-root css-nz8yh0"
+    class="MuiBox-root css-jjp8p3"
   >
     <p
       class="MuiTypography-root MuiTypography-body1 css-1sz6cep-MuiTypography-root"

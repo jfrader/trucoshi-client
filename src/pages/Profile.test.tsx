@@ -8,11 +8,12 @@ import { Profile } from "./Profile";
 const mocks = vi.hoisted(() => ({
   emit: vi.fn(),
   isMePending: false,
+  sessionStatus: "guest",
   me: null as { id: number; name: string } | null,
 }));
 
 vi.mock("../api/hooks/useMe", () => ({
-  useMe: () => ({ me: mocks.me, isPending: mocks.isMePending }),
+  useMe: () => ({ me: mocks.me, isPending: mocks.isMePending, session: { status: mocks.sessionStatus } }),
 }));
 
 vi.mock("../shared/UserAvatar", () => ({
@@ -48,7 +49,9 @@ const renderProfile = (entry = "/profile/20") =>
         }
       >
         <Routes>
+          <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:accountId" element={<Profile />} />
+          <Route path="/login" element={<h1>Iniciar sesión</h1>} />
           <Route path="/history/:matchId" element={<div>Detalle de partida</div>} />
         </Routes>
       </TrucoshiContext.Provider>
@@ -60,6 +63,7 @@ describe("public Profile", () => {
     mocks.emit.mockReset();
     mocks.emit.mockImplementation((_event, _accountId, callback) => callback(accountResponse));
     mocks.isMePending = false;
+    mocks.sessionStatus = "guest";
     mocks.me = null;
   });
 
@@ -71,6 +75,21 @@ describe("public Profile", () => {
     expect(screen.getAllByText("75%")).toHaveLength(2);
     expect(screen.queryByText("Contraseña")).not.toBeInTheDocument();
     expect(screen.queryByText("Frase de recuperación")).not.toBeInTheDocument();
+  });
+
+  it("redirects a resolved guest without waiting for a disabled private query", async () => {
+    mocks.isMePending = true;
+    renderProfile("/profile");
+    expect(await screen.findByRole("heading", { name: "Iniciar sesión" })).toBeInTheDocument();
+    expect(mocks.emit).not.toHaveBeenCalled();
+    expect(screen.queryByText("Cargando jugador…")).not.toBeInTheDocument();
+  });
+
+  it("loads public profiles independently of private-session loading", async () => {
+    mocks.isMePending = true;
+    mocks.sessionStatus = "loading";
+    renderProfile();
+    expect(await screen.findByRole("heading", { name: "Satoshi" })).toBeInTheDocument();
   });
 
   it("switches to public match history and opens a match", async () => {

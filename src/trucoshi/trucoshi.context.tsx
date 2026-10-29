@@ -73,7 +73,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
   const [, , removeCookie] = useCookies([getCookieName("identity")]);
 
-  const { me, error, isFetching: isPendingMe, refetch: refetchMe } = useMe();
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe, hasIdentity } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
@@ -119,8 +119,8 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   );
 
   useEffect(() => {
-    setShouldConnect(!isPendingLogin && !isPendingMe && !!(me || error) && !loggingOut);
-  }, [error, isPendingMe, loggingOut, me, isPendingLogin]);
+    setShouldConnect(!isPendingLogin && !isPendingMe && (!hasIdentity || !!(me || error)) && !loggingOut);
+  }, [error, hasIdentity, isPendingMe, loggingOut, me, isPendingLogin]);
 
   useEffect(() => {
     if (shouldConnect) {

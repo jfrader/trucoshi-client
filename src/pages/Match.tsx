@@ -44,6 +44,7 @@ import {
   MatchStateProvider,
   useBoardLayoutHelpers,
   useBoardLayout,
+  MATCH_DOCK_SEAT_CLEARANCE,
 } from "../board";
 import { MatchTopBar } from "../components/game/MatchTopBar";
 import { MatchBottomDock } from "../components/game/MatchBottomDock";
@@ -123,6 +124,7 @@ const MatchBoardScene = memo(() => {
   const boardLayout = useBoardLayout();
   const { getMatchSeatPresentation } = useBoardLayoutHelpers();
   const matchDock = boardLayout.match?.dock;
+  const dockReserveHeight = `calc(var(--trucoshi-dock-height, ${matchDock?.bottomDockReserveHeight || "0px"}) + ${MATCH_DOCK_SEAT_CLEARANCE})`;
 
   return (
     <GameBoardSceneFrame chatProps={chatProps} isDesktopChat={isDesktopChat}>
@@ -166,9 +168,9 @@ const MatchBoardScene = memo(() => {
         bottomContent={
           <Box
             sx={{
-              height: matchDock?.bottomDockReserveHeight || "0px",
-              minHeight: matchDock?.bottomDockReserveHeight || "0px",
-              maxHeight: matchDock?.bottomDockReserveHeight || "0px",
+              height: dockReserveHeight,
+              minHeight: dockReserveHeight,
+              maxHeight: dockReserveHeight,
               pointerEvents: "none",
             }}
           />

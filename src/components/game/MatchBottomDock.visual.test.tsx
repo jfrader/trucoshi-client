@@ -123,4 +123,23 @@ describe("MatchBottomDock visual guard", () => {
     expect(screen.getByText("Modo Espectador")).toBeInTheDocument();
     expect(container.firstChild).toMatchSnapshot();
   });
+
+  it("publishes the measured dock height and releases its observer on unmount", () => {
+    let resize = () => {};
+    const disconnect = vi.fn();
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(callback: () => void) { resize = callback; }
+      observe() {}
+      disconnect = disconnect;
+    });
+    const { container, unmount } = renderDock({ me: null });
+    const dock = container.firstElementChild!;
+    vi.spyOn(dock, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 320, 270));
+    resize();
+    expect(container.style.getPropertyValue("--trucoshi-dock-height")).toBe("270px");
+    unmount();
+    expect(disconnect).toHaveBeenCalledOnce();
+    expect(container.style.getPropertyValue("--trucoshi-dock-height")).toBe("");
+    vi.unstubAllGlobals();
+  });
 });
