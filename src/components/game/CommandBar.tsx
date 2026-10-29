@@ -18,6 +18,9 @@ import {
 } from "trucoshi";
 import { IPublicPlayer } from "trucoshi";
 
+const MOBILE_ACTION_MIN_WIDTH_PX = 96;
+const MOBILE_ACTION_MIN_HEIGHT_PX = 44;
+
 const getActionColorByCommand = (theme: Theme): Partial<Record<ECommand, string>> => ({
   [ETrucoCommand.TRUCO]: theme.trucoshiUi.commandBar.actionColors.truco,
   [ETrucoCommand.RE_TRUCO]: theme.trucoshiUi.commandBar.actionColors.reTruco,
@@ -113,10 +116,7 @@ const _CommandBar = ({
       <Box
         sx={{
           width: "100%",
-          overflowX: shouldRenderActions ? "auto" : "hidden",
-          overflowY: "hidden",
-          scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" },
+          minWidth: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -127,12 +127,19 @@ const _CommandBar = ({
           <Box
             display="flex"
             gap={0.5}
-            flexWrap="nowrap"
+            flexWrap="wrap"
             justifyContent="center"
             alignContent="flex-start"
             minHeight={embedded ? "100%" : "3.35rem"}
             minWidth="100%"
-            width="max-content"
+            width="100%"
+            sx={{
+              "& > button": {
+                flex: { xs: `1 1 ${MOBILE_ACTION_MIN_WIDTH_PX}px`, sm: "0 0 auto" },
+                minWidth: { xs: 0 },
+                minHeight: { xs: MOBILE_ACTION_MIN_HEIGHT_PX, sm: 0 },
+              },
+            }}
           >
             {actionablePlayer.isEnvidoTurn &&
               sortedEnvido.map((points) => (

@@ -72,15 +72,16 @@ export const UserAvatar = ({
       : {};
 
   const online = !!accountId && stats.onlinePlayers.includes(accountId);
+  const showStatus = Boolean(status && !account.bot && accountId);
 
   return (
     <StyledBadge
       variant="dot"
       overlap="circular"
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      invisible={!status || !!account.bot || !accountId}
+      invisible={!showStatus}
       online={online}
-      title={online ? "Conectado" : "Desconectado"}
+      title={account.bot ? "Bot" : showStatus ? (online ? "Conectado" : "Desconectado") : undefined}
     >
       <Avatar
         ref={ref}
@@ -112,7 +113,9 @@ function stringToColor(string: string) {
   return color;
 }
 
-const StyledBadge = styled(Badge)<{ online?: boolean }>(({ theme, online }) => ({
+const StyledBadge = styled(Badge, {
+  shouldForwardProp: (prop) => prop !== "online",
+})<{ online?: boolean }>(({ theme, online }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: theme.palette[online ? "success" : "error"].main,
     color: theme.palette[online ? "success" : "error"].main,

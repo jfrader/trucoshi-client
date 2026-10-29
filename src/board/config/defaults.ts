@@ -6,6 +6,9 @@ import {
   TablePointsPlacementRules,
 } from "../types";
 
+export const LOBBY_RADIAL_MIN_WIDTH = 768;
+export const MATCH_DOCK_SEAT_CLEARANCE = "1.5rem";
+
 export const DEFAULT_SEAT_CONFIG: BoardSeatGeometryConfig = {
   radiusXMultiplier: 1,
   radiusYMultiplier: 1,

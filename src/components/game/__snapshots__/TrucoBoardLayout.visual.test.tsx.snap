@@ -2,10 +2,10 @@
 
 exports[`TrucoBoardLayout visual guard > renders shared board shell with seat population 1`] = `
 <div
-  class="MuiBox-root css-u3deep"
+  class="MuiBox-root css-i69pki"
 >
   <div
-    class="MuiBox-root css-1aw12ve"
+    class="MuiBox-root css-1dninqi"
   >
     <div
       data-testid="board-top"
@@ -14,14 +14,14 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
     </div>
   </div>
   <div
-    class="MuiBox-root css-1w6pfz6"
+    class="MuiBox-root css-pcjotb"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 css-2gwjxh-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation8 css-1nr4r01-MuiPaper-root"
       data-truco-board-surface="true"
     >
       <div
-        class="MuiBox-root css-1afndzr"
+        class="MuiBox-root css-q9d7w1"
       >
         <div
           data-testid="board-center"
@@ -30,9 +30,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-16fta4n"
+        class="MuiBox-root css-1skdte5"
         data-slot-team="0"
-        style="left: 50%; top: 90%;"
       >
         <div
           data-testid="board-seat"
@@ -41,9 +40,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-16fta4n"
+        class="MuiBox-root css-1skdte5"
         data-slot-team="1"
-        style="left: 12.146806022131377%; top: 83.85640646055101%;"
       >
         <div
           data-testid="board-seat"
@@ -52,9 +50,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-64syb"
+        class="MuiBox-root css-1ts688h"
         data-slot-team="0"
-        style="left: 12.146806022131384%; top: 16.14359353944898%;"
       >
         <div
           data-testid="board-seat"
@@ -63,9 +60,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-64syb"
+        class="MuiBox-root css-1ts688h"
         data-slot-team="1"
-        style="left: 49.99999999999999%; top: 9.999999999999998%;"
       >
         <div
           data-testid="board-seat"
@@ -74,9 +70,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-64syb"
+        class="MuiBox-root css-1ts688h"
         data-slot-team="0"
-        style="left: 87.85319397786861%; top: 16.143593539448972%;"
       >
         <div
           data-testid="board-seat"
@@ -85,9 +80,8 @@ exports[`TrucoBoardLayout visual guard > renders shared board shell with seat po
         </div>
       </div>
       <div
-        class="MuiBox-root css-16fta4n"
+        class="MuiBox-root css-1skdte5"
         data-slot-team="1"
-        style="left: 87.85319397786863%; top: 83.856406460551%;"
       >
         <div
           data-testid="board-seat"

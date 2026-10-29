@@ -54,12 +54,14 @@ const MatchBottomDockComponent = () => {
   const match = useMatchState();
   const layout = useBoardLayout();
   const dock = layout.match?.dock;
+  const hasDock = Boolean(dock);
   const onOpenChat = !isDesktopChat ? () => chatProps.setActive(true) : undefined;
   const room = chatProps.useChatState[0];
   const latestUnreadCandidate =
     [...(room?.messages || [])].reverse().find(isUnreadChatCandidate) || null;
   const latestSeenChatMessageIdRef = useRef<IChatMessage["id"] | null>(null);
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const dockRef = useRef<HTMLDivElement>(null);
   const bottomOffset = "env(safe-area-inset-bottom)";
   const isUnavailable = Boolean(me?.disabled || me?.abandoned);
   const showHandPanel = !me?.abandoned;
@@ -78,6 +80,22 @@ const MatchBottomDockComponent = () => {
   const statusLabel = getStatusLabel(me);
 
   const showCommandActions = Boolean(me && hasCommandActions && !isUnavailable);
+
+  useEffect(() => {
+    const element = dockRef.current;
+    const parent = element?.parentElement;
+    if (!element || !parent || typeof ResizeObserver === "undefined") return;
+    const updateHeight = () => {
+      parent.style.setProperty("--trucoshi-dock-height", `${element.getBoundingClientRect().height}px`);
+    };
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(element);
+    updateHeight();
+    return () => {
+      observer.disconnect();
+      parent.style.removeProperty("--trucoshi-dock-height");
+    };
+  }, [hasDock]);
 
   useEffect(() => {
     if (isDesktopChat) {
@@ -161,6 +179,7 @@ const MatchBottomDockComponent = () => {
 
   return (
     <Box
+      ref={dockRef}
       sx={(theme) => ({
         position: "absolute",
         left: 0,
@@ -321,9 +340,9 @@ const MatchBottomDockComponent = () => {
           <Box
             sx={(theme) => ({
               ...theme.trucoshiUi.match.dockCommandLane,
-              height: dock.commandBlockHeight,
+              height: { xs: "auto", sm: dock.commandBlockHeight },
               minHeight: dock.commandBlockHeight,
-              maxHeight: dock.commandBlockHeight,
+              maxHeight: { xs: "none", sm: dock.commandBlockHeight },
               px: 0.42,
               py: 0.26,
               display: "flex",
