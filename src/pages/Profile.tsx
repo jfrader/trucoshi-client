@@ -1,6 +1,5 @@
 import { Box, Button, CircularProgress, Stack, Tab, Tabs, Typography } from "@mui/material";
-import { useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMe } from "../api/hooks/useMe";
 import { PublicMatchHistory } from "../components/profile/PublicMatchHistory";
 import { PublicProfileHero } from "../components/profile/PublicProfileHero";
@@ -71,29 +70,19 @@ export const Profile = () => {
   const navigate = useNavigate();
   const { accountId: routeAccountId } = useParams<{ accountId: string }>();
   const [search] = useSearchParams();
-  const { me, isPending: isMePending } = useMe();
-  const accountId = routeAccountId || (me?.id ? String(me.id) : "");
+  const { me, session } = useMe();
+  const accountId = routeAccountId || "";
   const numericAccountId = Number(accountId);
   const isValidAccountId = Number.isInteger(numericAccountId) && numericAccountId > 0;
-  const shouldFetchProfile = !isMePending && isValidAccountId;
+  const shouldFetchProfile = Boolean(routeAccountId) && isValidAccountId;
   const { profile, isLoading, error, retry } = usePlayerProfile(
     shouldFetchProfile ? numericAccountId : undefined,
   );
   const activeTab: PublicProfileTab = search.get("t") === "2" ? "2" : "1";
 
-  useEffect(() => {
-    if (isMePending || routeAccountId) {
-      return;
-    }
-    if (!me?.id) {
-      navigate("/login", { replace: true });
-      return;
-    }
-    navigate(`/profile/${me.id}`, { replace: true });
-  }, [isMePending, me?.id, navigate, routeAccountId]);
-
-  if (isMePending || (!routeAccountId && !me)) {
-    return <ProfileLoading />;
+  if (!routeAccountId) {
+    if (session.status === "loading") return <ProfileLoading />;
+    return <Navigate to={me?.id ? `/profile/${me.id}` : "/login"} replace />;
   }
 
   if (!isValidAccountId) {

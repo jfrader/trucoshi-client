@@ -22,5 +22,21 @@ export const useMe = (
     }
   );
 
-  return { me: data?.data, error, isPending, refetch, isFetching, hasIdentity };
+  const session = !hasIdentity
+    ? { status: "guest" as const }
+    : isPending
+      ? { status: "loading" as const }
+      : data?.data
+        ? { status: "authenticated" as const, user: data.data }
+        : { status: "guest" as const };
+
+  return {
+    me: session.status === "authenticated" ? session.user : undefined,
+    error: hasIdentity ? error : null,
+    isPending: session.status === "loading",
+    refetch,
+    isFetching: hasIdentity && isFetching,
+    hasIdentity,
+    session,
+  };
 };

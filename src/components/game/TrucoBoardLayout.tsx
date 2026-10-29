@@ -4,7 +4,6 @@ import {
   BoardSeatGeometry,
   buildSeatGeometries,
   useBoardLayout,
-  LOBBY_RADIAL_MIN_WIDTH,
 } from "../../board";
 
 export type SeatLike = {
@@ -137,7 +136,6 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   ...props
 }: TrucoBoardLayoutProps<T>) => {
   const layout = useBoardLayout();
-  const stackedLobby = Boolean(layout.lobby && layout.viewport.width < LOBBY_RADIAL_MIN_WIDTH);
   const mergedRootSx = mergeRootSx(props.sx, layout.frame.rootPadding);
 
   const seatGeometries = useMemo(
@@ -148,19 +146,13 @@ export const TrucoBoardLayout = <T extends SeatLike>({
   const fallbackGeometry = seatGeometries[0];
 
   return (
-    <Root
-      {...props}
-      sx={[
-        ...(Array.isArray(mergedRootSx) ? mergedRootSx : [mergedRootSx]),
-        ...(stackedLobby ? [{ overflowY: "auto", "& > *": { flexShrink: 0 } }] : []),
-      ]}
-    >
+    <Root {...props} sx={mergedRootSx}>
       {topContent ? (
         <TopStrip
           sx={{
             gap: layout.frame.topStripGap,
             marginBottom: layout.frame.topStripMarginBottom,
-            transform: layout.lobby && !stackedLobby
+            transform: layout.lobby
               ? `translateY(${getTopStripTranslateY(layout.frame.rootPadding)})`
               : undefined,
           }}
@@ -173,7 +165,6 @@ export const TrucoBoardLayout = <T extends SeatLike>({
         sx={{
           maxWidth: layout.frame.shellMaxWidth,
           transform: `translateY(${layout.match?.boardTranslateY || "0rem"})`,
-          ...(stackedLobby ? { flexGrow: 0 } : {}),
         }}
       >
         <BoardSurface
@@ -191,17 +182,6 @@ export const TrucoBoardLayout = <T extends SeatLike>({
             "&::before, &::after": {
               borderRadius: layout.frame.boardInnerBorderRadius,
             },
-            ...(stackedLobby ? {
-              height: "auto",
-              maxHeight: "none",
-              aspectRatio: "auto",
-              borderRadius: "1rem",
-              p: 1,
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr)",
-              gap: 2,
-              "&::before, &::after": { borderRadius: "1rem" },
-            } : {}),
           }}
         >
           <BoardCenter
@@ -209,14 +189,6 @@ export const TrucoBoardLayout = <T extends SeatLike>({
             sx={{
               width: layout.frame.centerSize,
               height: layout.frame.centerSize,
-              ...(stackedLobby ? {
-                position: "relative",
-                left: "auto",
-                top: "auto",
-                transform: "none",
-                width: "100%",
-                height: "auto",
-              } : {}),
             }}
           >
             {centerContent}
@@ -236,19 +208,12 @@ export const TrucoBoardLayout = <T extends SeatLike>({
               width: layout.frame.seatWidth,
               maxWidth: layout.frame.seatMaxWidth,
               ...getSeatCssVars(geometry),
-              ...(stackedLobby ? {
-                position: "relative",
-                transform: "none",
-                width: "100%",
-                maxWidth: "none",
-                "& > .MuiPaper-root": { minWidth: 0, width: "100%", boxSizing: "border-box" },
-              } : {}),
             };
 
             return (
               <SeatPosition
                 key={`${slot.key}-${index}`}
-                style={stackedLobby ? undefined : getSeatPositionStyle(geometry)}
+                style={getSeatPositionStyle(geometry)}
                 sx={isGuidanceSeat ? [seatPositionSx, guidanceSeatSx] : seatPositionSx}
                 data-slot-team={slot.teamIdx}
               >

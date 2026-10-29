@@ -340,9 +340,9 @@ const MatchBottomDockComponent = () => {
           <Box
             sx={(theme) => ({
               ...theme.trucoshiUi.match.dockCommandLane,
-              height: { xs: "auto", sm: dock.commandBlockHeight },
+              height: "auto",
               minHeight: dock.commandBlockHeight,
-              maxHeight: { xs: "none", sm: dock.commandBlockHeight },
+              maxHeight: "none",
               px: 0.42,
               py: 0.26,
               display: "flex",

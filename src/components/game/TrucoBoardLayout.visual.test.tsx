@@ -20,9 +20,8 @@ describe("TrucoBoardLayout visual guard", () => {
     );
 
     expect(screen.getByTestId("board-top")).toBeInTheDocument();
-    expect(screen.getAllByTestId("board-seat")[0].parentElement).toHaveStyle({
-      position: "relative",
-      transform: "none",
+    expect(screen.getByTestId("board-top").parentElement).toHaveStyle({
+      transform: "translateY(calc(0px - 0.5rem))",
     });
     expect(screen.getByTestId("board-center")).toBeInTheDocument();
     expect(screen.getAllByTestId("board-seat")).toHaveLength(6);

@@ -100,7 +100,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
         class="MuiBox-root css-1gzodx9"
       />
       <div
-        class="MuiBox-root css-xgzjts"
+        class="MuiBox-root css-1ww0bxu"
       >
         <div
           class="MuiBox-root css-1ai17t5"
@@ -112,7 +112,7 @@ exports[`MatchBottomDock visual guard > renders announcements, hand cards and co
               class="MuiBox-root css-jjp8p3"
             >
               <div
-                class="MuiBox-root css-11mqamt"
+                class="MuiBox-root css-64gem4"
               >
                 <button
                   class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1n3o1rv-MuiButtonBase-root-MuiButton-root"
@@ -204,7 +204,7 @@ exports[`MatchBottomDock visual guard > renders spectator waiting mode with hidd
         class="MuiBox-root css-1gzodx9"
       />
       <div
-        class="MuiBox-root css-xgzjts"
+        class="MuiBox-root css-1ww0bxu"
       >
         <div
           class="MuiBox-root css-1ai17t5"

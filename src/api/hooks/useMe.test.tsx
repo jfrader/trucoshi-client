@@ -26,13 +26,20 @@ describe("profile initialization", () => {
     const { result, unmount } = renderHook(() => useMe(), { wrapper });
 
     expect(result.current.hasIdentity).toBe(false);
+    expect(result.current.session.status).toBe("guest");
+    expect(result.current.isPending).toBe(false);
     expect(result.current.isFetching).toBe(false);
     expect(apiClient.auth.getUserProfile).not.toHaveBeenCalled();
 
     act(() => cookies.set(identity, "authenticated-identity"));
     await waitFor(() => expect(result.current.me?.id).toBe(42));
     expect(result.current.hasIdentity).toBe(true);
+    expect(result.current.session.status).toBe("authenticated");
     expect(apiClient.auth.getUserProfile).toHaveBeenCalledTimes(1);
+    act(() => cookies.remove(identity));
+    await waitFor(() => expect(result.current.session.status).toBe("guest"));
+    expect(result.current.me).toBeUndefined();
+    expect(result.current.isPending).toBe(false);
     unmount();
     cookies.remove(identity);
     client.clear();

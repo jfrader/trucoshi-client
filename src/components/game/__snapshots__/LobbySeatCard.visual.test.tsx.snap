@@ -2,7 +2,7 @@
 
 exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-2uj6f1-MuiPaper-root"
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-w3s9rv-MuiPaper-root"
 >
   <div
     class="MuiBox-root css-1w33tl2"
@@ -14,10 +14,7 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
     </p>
   </div>
   <div
-    class="MuiBox-root css-1bgpfc2"
-  />
-  <div
-    class="MuiStack-root css-1tkf38c-MuiStack-root"
+    class="MuiStack-root css-33gc0-MuiStack-root"
   >
     <button
       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorSecondary css-z2d7rg-MuiButtonBase-root-MuiButton-root"
@@ -38,7 +35,7 @@ exports[`LobbySeatCard visual guard > renders empty seat join state 1`] = `
 
 exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 1`] = `
 <div
-  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-c0258a-MuiPaper-root"
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-frly9j-MuiPaper-root"
 >
   <div
     class="MuiBox-root css-1btro7y"
@@ -108,7 +105,7 @@ exports[`LobbySeatCard visual guard > renders occupied seat with owner controls 
     </div>
   </div>
   <div
-    class="MuiStack-root css-1v91goq-MuiStack-root"
+    class="MuiStack-root css-17q9vlo-MuiStack-root"
   >
     <div
       class="MuiStack-root css-j3ygch-MuiStack-root"

@@ -89,6 +89,7 @@ export const MatchFinishedScreen = ({
     <FinishedActions onClick={(event) => event.stopPropagation()}>
       {showPlayAgain ? (
         <Button
+          data-replay-action
           sx={{ flexGrow: 1 }}
           color="success"
           disabled={!canStartNewGames}

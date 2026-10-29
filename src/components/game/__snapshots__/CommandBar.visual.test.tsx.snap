@@ -8,7 +8,7 @@ exports[`CommandBar visual guard > renders action flow with snapshot and style g
     class="MuiBox-root css-jjp8p3"
   >
     <div
-      class="MuiBox-root css-flg4s1"
+      class="MuiBox-root css-1rlql8w"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-6kgn34-MuiButtonBase-root-MuiButton-root"

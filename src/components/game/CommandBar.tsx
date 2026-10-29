@@ -17,9 +17,9 @@ import {
   ETrucoCommand,
 } from "trucoshi";
 import { IPublicPlayer } from "trucoshi";
+import { GAME_BUTTON_HEIGHT } from "../../board";
 
-const MOBILE_ACTION_MIN_WIDTH_PX = 96;
-const MOBILE_ACTION_MIN_HEIGHT_PX = 44;
+const ACTION_MIN_WIDTH_PX = 96;
 
 const getActionColorByCommand = (theme: Theme): Partial<Record<ECommand, string>> => ({
   [ETrucoCommand.TRUCO]: theme.trucoshiUi.commandBar.actionColors.truco,
@@ -135,9 +135,11 @@ const _CommandBar = ({
             width="100%"
             sx={{
               "& > button": {
-                flex: { xs: `1 1 ${MOBILE_ACTION_MIN_WIDTH_PX}px`, sm: "0 0 auto" },
+                flex: `1 1 ${ACTION_MIN_WIDTH_PX}px`,
                 minWidth: { xs: 0 },
-                minHeight: { xs: MOBILE_ACTION_MIN_HEIGHT_PX, sm: 0 },
+                whiteSpace: "normal",
+                overflowWrap: "anywhere",
+                minHeight: { xs: GAME_BUTTON_HEIGHT.compact, sm: GAME_BUTTON_HEIGHT.command },
               },
             }}
           >
