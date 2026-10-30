@@ -105,6 +105,7 @@
     "vitest": "4.1.11"
   },
   "resolutions": {
-    "deepmerge-ts": "^8.0.0"
+    "deepmerge-ts": "^8.0.0",
+    "@grpc/grpc-js": "1.14.5"
   }
 }
