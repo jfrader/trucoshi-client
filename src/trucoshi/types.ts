@@ -81,6 +81,7 @@ export interface ITrucoshiState {
   dark: "" | "true" | "false";
   cardTheme: CardTheme;
   account: User | null;
+  accountError: AxiosError | null;
   isAccountPending: boolean;
   isLoggingIn: boolean;
   version: string;

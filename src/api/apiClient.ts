@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { AxiosError, InternalAxiosRequestConfig, isAxiosError } from "axios";
 import { Api } from "lightning-accounts";
 
 const config = {
@@ -8,25 +8,50 @@ const config = {
 };
 
 const apiClient = new Api(config);
+const SESSION_TIMEOUT_MS = 10_000;
+const PROFILE_PATH = "/auth/me";
+const REFRESH_PATH = "/auth/refresh-tokens";
+let pendingRefresh: ReturnType<typeof apiClient.auth.refreshAuthTokens> | undefined;
+
+apiClient.instance.interceptors.request.use((request) => {
+  if (request.url === PROFILE_PATH || request.url === REFRESH_PATH) {
+    request.timeout = SESSION_TIMEOUT_MS;
+  }
+  return request;
+});
 
 const is401 = (error: AxiosError | null) => error?.response?.status === 401;
 
 apiClient.instance.interceptors.response.use(
   (res) => res,
-  (error) => {
-    const originalReq = error.config;
+  async (error: AxiosError) => {
+    const originalReq = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
     if (
+      originalReq &&
       !originalReq._retry &&
       is401(error) &&
-      !new RegExp((originalReq as Request).url).test("refresh-token")
+      originalReq.url !== REFRESH_PATH
     ) {
       originalReq._retry = true;
-      return apiClient.auth
-        .refreshAuthTokens()
-        .then(() => apiClient.instance(originalReq))
-        .catch(() => {
-          throw error;
+      if (!pendingRefresh) {
+        pendingRefresh = apiClient.auth.refreshAuthTokens().finally(() => {
+          pendingRefresh = undefined;
         });
+      }
+      try {
+        await pendingRefresh;
+      } catch (refreshError) {
+        if (
+          isAxiosError(refreshError) &&
+          (refreshError.response?.status === 400 || is401(refreshError))
+        ) {
+          throw error;
+        }
+        throw refreshError;
+      }
+      return apiClient.instance(originalReq);
     }
 
     return Promise.reject(error);
