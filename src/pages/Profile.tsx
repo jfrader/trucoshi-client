@@ -82,6 +82,7 @@ export const Profile = () => {
 
   if (!routeAccountId) {
     if (session.status === "loading") return <ProfileLoading />;
+    if (session.status === "unavailable") return null;
     return <Navigate to={me?.id ? `/profile/${me.id}` : "/login"} replace />;
   }
 

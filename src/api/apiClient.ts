@@ -40,11 +40,7 @@ apiClient.instance.interceptors.response.use(
           pendingRefresh = undefined;
         });
       }
-      try {
-        await pendingRefresh;
-      } catch {
-        throw error;
-      }
+      await pendingRefresh;
       return apiClient.instance(originalReq);
     }
 

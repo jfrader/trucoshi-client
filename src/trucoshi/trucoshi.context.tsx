@@ -73,7 +73,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   const [stats, setStats] = useState<ITrucoshiStats>({ onlinePlayers: [] });
   const [, , removeCookie] = useCookies([getCookieName("identity")]);
 
-  const { me, error, isFetching: isPendingMe, refetch: refetchMe, hasIdentity } = useMe();
+  const { me, error, isFetching: isPendingMe, refetch: refetchMe, session: accountSession } = useMe();
   const { isPending: isPendingRefreshTokens } = useRefreshTokens();
   const { logout: apiLogout } = useLogout();
   const { isPending: isPendingLogin } = useLogin();
@@ -119,8 +119,9 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
   );
 
   useEffect(() => {
-    setShouldConnect(!isPendingLogin && !isPendingMe && (!hasIdentity || !!(me || error)) && !loggingOut);
-  }, [error, hasIdentity, isPendingMe, loggingOut, me, isPendingLogin]);
+    const canConnect = accountSession.status === "guest" || accountSession.status === "authenticated";
+    setShouldConnect(!isPendingLogin && canConnect && !loggingOut);
+  }, [accountSession.status, loggingOut, isPendingLogin]);
 
   useEffect(() => {
     if (shouldConnect) {
@@ -390,6 +391,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           dark,
           cardTheme,
           account,
+          accountError: accountSession.status === "unavailable" ? error : null,
           version,
           publicMatches,
           session,
