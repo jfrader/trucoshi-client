@@ -375,12 +375,14 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
     }
   }, [error, logout]);
 
+  const accountError = accountSession.status === "unavailable" ? error : null;
   const isAccountPending =
-    isPendingMe ||
-    isPendingRefreshTokens ||
-    isLoadingAccount ||
-    isPendingLogin ||
-    isPendingUpdateProfile;
+    !accountError &&
+    (isPendingMe ||
+      isPendingRefreshTokens ||
+      isLoadingAccount ||
+      isPendingLogin ||
+      isPendingUpdateProfile);
 
   return (
     <TrucoshiContext.Provider
@@ -391,7 +393,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           dark,
           cardTheme,
           account,
-          accountError: accountSession.status === "unavailable" ? error : null,
+          accountError,
           version,
           publicMatches,
           session,
@@ -406,7 +408,7 @@ export const TrucoshiProvider = ({ children }: PropsWithChildren) => {
           serverAheadTime,
           isSidebarOpen,
           inspectedCard,
-          isLoggingIn: isLoadingAccount || isPendingLogin,
+          isLoggingIn: !accountError && (isLoadingAccount || isPendingLogin),
           isAccountPending,
         },
         dispatch: {

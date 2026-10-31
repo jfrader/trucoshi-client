@@ -80,6 +80,17 @@ describe("Accounts request boundaries", () => {
     }
   }, 15_000);
 
+  it("treats a real refresh HTTP 400 as definitive authentication rejection", async () => {
+    await serve((request, res) => {
+      res.writeHead(request.url === "/auth/me" ? 401 : 400);
+      res.end();
+    });
+    await expect(apiClient.auth.getUserProfile()).rejects.toMatchObject({
+      config: { url: "/auth/me" },
+      response: { status: 401 },
+    });
+  });
+
   it("shares one refresh across concurrent 401s and retries each request once", async () => {
     let releaseRefresh!: () => void;
     const refresh = new Promise<void>((resolve) => {

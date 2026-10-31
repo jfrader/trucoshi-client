@@ -1,4 +1,4 @@
-import { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { AxiosError, InternalAxiosRequestConfig, isAxiosError } from "axios";
 import { Api } from "lightning-accounts";
 
 const config = {
@@ -40,7 +40,17 @@ apiClient.instance.interceptors.response.use(
           pendingRefresh = undefined;
         });
       }
-      await pendingRefresh;
+      try {
+        await pendingRefresh;
+      } catch (refreshError) {
+        if (
+          isAxiosError(refreshError) &&
+          (refreshError.response?.status === 400 || is401(refreshError))
+        ) {
+          throw error;
+        }
+        throw refreshError;
+      }
       return apiClient.instance(originalReq);
     }
 
