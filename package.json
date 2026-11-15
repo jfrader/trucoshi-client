@@ -107,6 +107,8 @@
   "resolutions": {
     "deepmerge-ts": "^8.0.0",
     "@grpc/grpc-js": "1.14.5",
-    "bitcoinjs-lib": "6.1.8"
+    "bitcoinjs-lib": "6.1.8",
+    "nodemailer": "10.0.6",
+    "follow-redirects": "1.16.3"
   }
 }
