@@ -19,15 +19,17 @@ const depositsEnabled = import.meta.env.VITE_ENABLE_BETS_AND_DEPOSITS === "1";
 
 export const Account = () => {
   const navigate = useNavigate();
-  const { me, isPending } = useMe();
+  const { me, isPending, session } = useMe();
   const accountId = me?.id;
   const { profile, isLoading: profileLoading } = usePlayerProfile(accountId);
 
   useEffect(() => {
-    if (!isPending && !me) {
+    if (session.status === "guest") {
       navigate("/login", { replace: true });
     }
-  }, [isPending, me, navigate]);
+  }, [session.status, navigate]);
+
+  if (session.status === "unavailable") return null;
 
   if (isPending || !me || !accountId) {
     return (

@@ -45,7 +45,8 @@ export const CardRanking = ({
                     position: "relative",
                     left: "initial",
                     right: "initial",
-                    marginLeft: `calc(-${compact ? 1.9 : 1.2}em * ${j})`,
+                    marginLeft: j === 0 ? 0 : compact ? "-1.9em" : "-1.2em",
+                    flexShrink: 0,
                   }}
                   cards={cards.length}
                   i={j}

@@ -24,11 +24,11 @@ export const useMe = (
 
   const session = !hasIdentity
     ? { status: "guest" as const }
-    : isPending
-      ? { status: "loading" as const }
-      : data?.data
-        ? { status: "authenticated" as const, user: data.data }
-        : { status: "guest" as const };
+    : data?.data
+      ? { status: "authenticated" as const, user: data.data }
+      : isPending || isFetching
+        ? { status: "loading" as const }
+        : { status: "unavailable" as const };
 
   return {
     me: session.status === "authenticated" ? session.user : undefined,
